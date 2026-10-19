@@ -33,7 +33,7 @@ To compare a migration with another website directory, use `--compare-to PATH`. 
 
 ## Production
 
-The deployment configuration is prepared for a Vercel project connected to this GitHub repository, with the repository root as its root directory and `public` as its output directory. No build or install command is needed. The Git integration and production domain attachment are configured separately by the project owner.
+This repository is connected to the `quodlibet` Vercel project in `karadzhyans-projects`. Pushing to `main` triggers a production deployment; other branches provide previews. The repository root is the project root and `public` is the output directory. No build or install command is needed. The initial domain migration is being verified.
 
 `vercel.json` enables `cleanUrls`: existing `.html` requests redirect to their extensionless equivalents, which serve the same documents. There is no single-page application fallback. The intended public domains are [quodlibet.press](https://quodlibet.press/) and [thequodlibet.com](https://thequodlibet.com/).
 
