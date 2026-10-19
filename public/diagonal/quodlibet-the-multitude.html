@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Multitude — the models a theory cannot tell apart</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.10); --red-line:rgba(178,58,46,.40);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.11); --teal-line:rgba(44,110,106,.40);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.42);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup.fn{font-size:.62em;line-height:0;vertical-align:super;color:var(--red-deep);font-family:"IBM Plex Mono",monospace;padding-left:.1em;}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;
+    border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1.2rem,3vh,2rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.6rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.2rem,11vw,8.4rem);line-height:.94;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.08rem,1.45vw,1.28rem);line-height:1.56;color:var(--soft1);margin:clamp(1.5rem,3vh,2.2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.6rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2.2rem,5vh,3.4rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  /* ---------- prose ---------- */
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.06rem;line-height:1.78;margin:0 0 1.15rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.4rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.6rem auto 0;}
+  .reading p{font-size:1.02rem;line-height:1.76;margin:0 0 1.02rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.35rem;}
+  .reading.wide{max-width:42rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+  .drop em{font-style:italic;color:var(--ink);}
+
+  /* ---------- section heads ---------- */
+  .sec{margin-top:clamp(4.2rem,9vh,7rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.5rem,3vh,2.2rem);max-width:47rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.85rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1.01rem;color:var(--soft1);max-width:39rem;margin:1rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  /* ---------- panels / figures ---------- */
+  .stage{max-width:62rem;margin:clamp(1.8rem,4vh,2.8rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;
+    padding:clamp(1.2rem,3vw,2.2rem);box-shadow:0 1px 0 rgba(255,255,255,.4) inset;}
+  .panel-cap{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin:0 0 1rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.4rem auto 0;max-width:40rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+  figcaption .mono{font-size:.82rem;}
+
+  /* ---------- argument map ---------- */
+  #argmap{display:block;width:100%;height:auto;max-width:60rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- formal theorem block ---------- */
+  .theorem{border:1px solid var(--ink);border-radius:3px;background:rgba(26,24,21,.018);padding:clamp(1.1rem,2.6vw,1.8rem) clamp(1.2rem,3vw,2rem);position:relative;}
+  .theorem .thlab{position:absolute;top:-.72rem;left:1.2rem;background:var(--paper);padding:0 .6rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);}
+  .theorem .stmt{font-size:1.04rem;line-height:1.66;color:var(--ink);}
+  .theorem .stmt b{font-weight:600;}
+  .theorem .stmt .mono{font-size:.92rem;}
+  .theorem .proof{margin-top:1.1rem;padding-top:.95rem;border-top:1px solid var(--panelhair);font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .theorem .proof .plab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-right:.5rem;}
+  .theorem .qed{float:right;color:var(--ink);}
+  .formula{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);text-align:center;margin:.9rem auto;line-height:1.9;letter-spacing:.01em;}
+  .formula .em{color:var(--red-deep);font-weight:500;}
+  .formula.teal .em{color:var(--teal-deep);}
+  .corner{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  .corner > div{background:var(--paper);padding:.85rem 1rem;}
+  .corner .h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.3rem;}
+  .corner .v{font-size:.92rem;line-height:1.45;color:var(--soft1);}
+  @media(max-width:560px){ .corner{grid-template-columns:1fr;} }
+
+  /* ---------- callout / aside ---------- */
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.4rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.84rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);}
+  .callout.teal .cl-lab{color:var(--teal-deep);}
+  .callout.teal p .mono{color:var(--teal-deep);}
+
+  /* ---------- Cantor grid ---------- */
+  .cantor-wrap{display:flex;flex-direction:column;align-items:center;gap:1.1rem;}
+  .cgrid{display:grid;gap:3px;}
+  .crow{display:grid;gap:3px;grid-auto-flow:column;align-items:center;}
+  .clabel{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);width:3.4ch;text-align:right;padding-right:.5rem;}
+  .cell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px solid var(--panelhair);border-radius:2px;
+    background:rgba(26,24,21,.012);cursor:pointer;user-select:none;transition:background .12s,color .12s,border-color .12s;color:var(--soft1);}
+  .cell:hover{background:rgba(26,24,21,.05);}
+  .cell.diag{border-color:var(--red-line);background:var(--red-soft);color:var(--red-deep);font-weight:500;box-shadow:0 0 0 1px var(--red-line) inset;}
+  .escape-row{display:grid;gap:3px;grid-auto-flow:column;align-items:center;margin-top:.5rem;}
+  .escape-row .clabel{color:var(--red-deep);font-weight:500;}
+  .ecell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px dashed var(--red-line);border-radius:2px;color:var(--red-deep);font-weight:500;background:var(--red-soft);}
+  .cantor-note{font-size:.9rem;color:var(--soft1);text-align:center;max-width:34rem;line-height:1.55;}
+  .cantor-note .mono{color:var(--red-deep);}
+
+  /* ---------- buttons ---------- */
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+    background:rgba(26,24,21,.022);border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .95rem;cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .btn:hover{background:rgba(26,24,21,.06);}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .btn.red{color:#fff;background:var(--red);border-color:var(--red-deep);} .btn.red:hover{background:var(--red-deep);}
+  .btn.teal{color:#fff;background:var(--teal);border-color:var(--teal-deep);} .btn.teal:hover{background:var(--teal-deep);}
+  .controls{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;align-items:center;}
+
+  /* ---------- The Machine ---------- */
+  .machine{display:grid;gap:1.2rem;}
+  .selector{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .seltab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--faint);
+    background:transparent;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .8rem;cursor:pointer;
+    transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.12rem;min-width:5.4rem;}
+  .seltab .yr{font-size:.6rem;color:var(--faintest);letter-spacing:.06em;}
+  .seltab:hover{background:rgba(26,24,21,.04);}
+  .seltab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .seltab.on .yr{color:rgba(244,241,232,.6);}
+  .seltab.on.rec{background:var(--teal-deep);border-color:var(--teal-deep);}
+  .seltab.on.rec .yr{color:rgba(244,241,232,.6);}
+  .mach-grid{display:grid;grid-template-columns:1fr 1.28fr;gap:clamp(1rem,2.4vw,1.7rem);align-items:start;}
+  @media(max-width:780px){ .mach-grid{grid-template-columns:1fr;} }
+  .skeleton{border:1px solid var(--panelhair);border-radius:3px;padding:1.1rem 1.1rem 1.3rem;background:rgba(26,24,21,.015);}
+  .skeleton .lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.85rem;}
+  .sk-line{font-family:"IBM Plex Mono",monospace;font-size:.9rem;line-height:1.9;color:var(--soft1);}
+  .sk-line .sub{color:var(--red-deep);font-weight:500;}
+  .sk-line.rec .sub{color:var(--teal-deep);}
+  .sk-defn{display:grid;grid-template-columns:auto 1fr;gap:.28rem .8rem;margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--panelhair);
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.5;color:var(--faint);}
+  .sk-defn b{color:var(--red-deep);font-weight:500;}
+  .sk-defn.rec b{color:var(--teal-deep);}
+  .derivation{display:grid;gap:.5rem;}
+  .deriv-title{font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);margin-bottom:.05rem;}
+  .deriv-body{font-size:.96rem;line-height:1.6;color:var(--soft1);}
+  .deriv-body .mono{font-size:.84rem;color:var(--ink);background:rgba(26,24,21,.04);padding:.05em .3em;border-radius:2px;}
+  .deriv-step{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.68;color:var(--ink);
+    background:rgba(26,24,21,.025);border-left:2px solid var(--red-line);padding:.65rem .85rem;border-radius:0 2px 2px 0;margin:.25rem 0;white-space:pre-wrap;}
+  .deriv-step.rec{border-left-color:var(--teal-line);}
+  .fate-row{display:grid;grid-template-columns:auto 1fr;gap:.3rem .7rem;font-size:.88rem;line-height:1.5;margin-top:.2rem;}
+  .fate-row .fk{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .fate-row .fv{color:var(--soft1);}
+  .fate-row .fv b{color:var(--ink);font-weight:500;}
+  .verdict{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;padding:.85rem 1.05rem;border-radius:3px;background:var(--red-soft);border:1px solid var(--red-line);}
+  .verdict.rec{background:var(--teal-soft);border-color:var(--teal-line);}
+  .verdict .tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .verdict.rec .tag{color:var(--teal-deep);}
+  .verdict .txt{font-size:.94rem;color:var(--soft1);font-style:italic;}
+
+  /* ---------- code runner (quine / Y) ---------- */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner-bar{display:flex;justify-content:space-between;align-items:center;padding:.5rem .8rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner-bar .ttl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner pre{margin:0;padding:.95rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;word-break:break-word;overflow-x:auto;}
+  .runner .rout{border-top:1px dashed var(--panelhair);padding:.8rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.6;color:var(--soft1);white-space:pre-wrap;word-break:break-word;min-height:1.5rem;}
+  .runner .rout .ok{color:var(--teal-deep);font-weight:500;}
+  .runner .rout .lbl{color:var(--faintest);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:.25rem;}
+
+  /* ---------- hinge ---------- */
+  .hinge-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2.4vw,1.7rem);}
+  @media(max-width:700px){ .hinge-grid{grid-template-columns:1fr;} }
+  .hinge-card{border:1px solid var(--panelhair);border-radius:3px;padding:1.15rem;text-align:center;background:rgba(26,24,21,.012);}
+  .hinge-card svg{display:block;width:100%;height:auto;max-width:240px;margin:.3rem auto .7rem;overflow:visible;}
+  .hinge-card h4{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin:0 0 .2rem;}
+  .hinge-card .verdict-line{font-size:.9rem;font-style:italic;line-height:1.5;margin-top:.5rem;}
+  .hinge-card.lim h4{color:var(--red-deep);} .hinge-card.lim .verdict-line{color:var(--red-deep);}
+  .hinge-card.rec h4{color:var(--teal-deep);} .hinge-card.rec .verdict-line{color:var(--teal-deep);}
+
+  /* ---------- four fates strip ---------- */
+  .fates{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:820px){ .fates{grid-template-columns:1fr 1fr;} }
+  @media(max-width:460px){ .fates{grid-template-columns:1fr;} }
+  .fate{background:var(--paper);padding:1rem 1rem 1.1rem;}
+  .fate .fn{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .fate .fh{font-family:"Spectral",serif;font-style:italic;font-size:1.06rem;color:var(--ink);margin-bottom:.35rem;line-height:1.2;}
+  .fate .fb{font-size:.86rem;line-height:1.48;color:var(--soft1);}
+  .fate .fr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.5;}
+  .fate.f-red{box-shadow:inset 3px 0 0 var(--red-line);} .fate.f-red .fh{color:var(--red-deep);}
+  .fate.f-teal{box-shadow:inset 3px 0 0 var(--teal-line);} .fate.f-teal .fh{color:var(--teal-deep);}
+  .fate.f-gold{box-shadow:inset 3px 0 0 var(--gold-line);} .fate.f-gold .fh{color:var(--gold-deep);}
+
+  /* ---------- Löb derivation chain ---------- */
+  .lobchain{display:grid;gap:.4rem;max-width:46rem;margin:1.4rem auto 0;}
+  .lobstep{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);}
+  .lobstep .ln{color:var(--faintest);font-size:.7rem;}
+  .lobstep .ex{color:var(--ink);}
+  .lobstep .ex .em{color:var(--red-deep);}
+  .lobstep .why{color:var(--faint);font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;text-align:right;}
+  .lobstep.key{border-color:var(--red-line);background:var(--red-soft);}
+
+  /* ---------- bridge table ---------- */
+  .bridge{max-width:55rem;margin:clamp(1.5rem,3vh,2.2rem) auto 0;}
+  .bridge-row{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .bridge-row+.bridge-row{margin-top:1px;}
+  .bcell{background:var(--paper);padding:.9rem 1.05rem;}
+  .bcell .h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .bcell .v{font-size:.93rem;line-height:1.45;color:var(--soft1);}
+  .bcell .v b{font-weight:500;color:var(--ink);}
+  .bridge-head .bcell{background:rgba(26,24,21,.025);}
+  .bridge-head .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:1rem;}
+  @media(max-width:660px){ .bridge-row{grid-template-columns:1fr;} }
+
+  /* ---------- trilemma ---------- */
+  .trilemma{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;}
+  @media(max-width:780px){ .trilemma{grid-template-columns:1fr;} }
+  #triSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .tri-readout{min-height:9rem;}
+  .tri-readout .tr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.5rem;}
+  .tri-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.3rem;margin:0 0 .5rem;color:var(--ink);}
+  .tri-readout p{font-size:.95rem;line-height:1.58;color:var(--soft1);}
+  .tri-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faint);margin-top:.6rem;display:block;line-height:1.6;}
+  .tri-readout .mech{font-size:.86rem;color:var(--faint);margin-top:.55rem;line-height:1.5;font-style:italic;}
+
+  /* ---------- coda + footer ---------- */
+  .coda{max-width:46rem;margin:clamp(4.5rem,10vh,7rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.4rem,2.5vw,1.95rem);line-height:1.34;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.88em;}
+  .coda .mono.t{color:var(--teal-deep);}
+  footer{margin-top:clamp(4.5rem,10vh,7rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:66ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:66ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+  .refs{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.95;color:var(--faintest);margin-top:1.2rem;max-width:70ch;}
+  .refs b{color:var(--faint);font-weight:500;}
+
+  /* ---------- Kleene ascent (§VII) ---------- */
+  .asc-wrap{display:grid;gap:4px;max-width:31rem;margin:.4rem auto 0;}
+  .asc-row{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .85rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);
+    transition:background .14s,border-color .14s;}
+  .asc-row .asc-lab{color:var(--faint);white-space:nowrap;}
+  .asc-row .asc-map{color:var(--soft1);word-break:break-word;}
+  .asc-row.cur{border-color:var(--teal-line);background:var(--teal-soft);}
+  .asc-row.cur .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-row.lim{border-style:dashed;border-color:var(--teal-line);}
+  .asc-row.lim .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:35rem;margin:.95rem auto 0;font-style:italic;}
+  .asc-note .mono{font-style:normal;color:var(--teal-deep);font-size:.82rem;}
+
+  /* ---------- value-lattice dial ---------- */
+  .dial{display:grid;gap:1.1rem;}
+  .dial-sel{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .dial-stage{display:flex;justify-content:center;padding:.3rem 0;}
+  #dialViz{display:block;width:100%;height:auto;max-width:30rem;overflow:visible;}
+  .dial-readout{min-height:7rem;max-width:42rem;margin:0 auto;text-align:center;}
+  .dial-readout .dr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.45rem;color:var(--faint);}
+  .dial-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.26rem;margin:0 0 .45rem;color:var(--ink);}
+  .dial-readout p{font-size:.94rem;line-height:1.56;color:var(--soft1);}
+  .dial-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.62;}
+  .dial-readout.red .dr-pair{color:var(--red-deep);}
+  .dial-readout.teal .dr-pair{color:var(--teal-deep);}
+  .dial-readout.gold .dr-pair{color:var(--gold-deep);}
+
+  /* ---------- de Jongh–Sambin fixed-point grid ---------- */
+  .fpgrid{max-width:56rem;margin:1.3rem auto 0;}
+  .fprow{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .fprow+.fprow{margin-top:1px;}
+  .fpcell{background:var(--paper);padding:.85rem 1.05rem;}
+  .fpcell .h{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.38rem;}
+  .fpcell .v{font-family:"IBM Plex Mono",monospace;font-size:.85rem;line-height:1.55;color:var(--soft1);}
+  .fpcell .v .em{color:var(--gold-deep);font-weight:500;}
+  .fpcell .vn{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .fpcell .vn b{color:var(--ink);font-weight:500;}
+  .fphead .fpcell{background:rgba(26,24,21,.025);}
+  .fphead .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:.98rem;}
+  @media(max-width:660px){ .fprow{grid-template-columns:1fr;} }
+
+  /* ---------- twist classifier (§III) ---------- */
+  .tclass{max-width:43rem;margin:.4rem auto 0;display:grid;gap:1.05rem;}
+  .tclass-q{display:grid;gap:.5rem;}
+  .tclass-q .ql{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);}
+  .tclass-q .qt{font-size:.95rem;line-height:1.5;color:var(--soft1);}
+  .tclass-q .qt b{color:var(--ink);font-weight:600;}
+  .tclass-opts{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .topt{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.01em;color:var(--faint);
+    border:1px solid var(--panelhair);border-radius:2px;padding:.36rem .82rem;background:var(--paper);cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .topt:hover{background:rgba(26,24,21,.04);}
+  .topt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .topt.dis{opacity:.32;pointer-events:none;}
+  .tclass-out{border-top:1px solid var(--panelhair);padding-top:1.1rem;text-align:center;min-height:7rem;}
+  .tclass-out .to-pair{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.42rem;color:var(--faint);}
+  .tclass-out h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.24rem;margin:0 0 .42rem;color:var(--ink);}
+  .tclass-out p{font-size:.93rem;line-height:1.56;color:var(--soft1);max-width:40rem;margin:0 auto;}
+  .tclass-out .to-ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.6;}
+  .tclass-out.red .to-pair{color:var(--red-deep);}
+  .tclass-out.teal .to-pair{color:var(--teal-deep);}
+  .tclass-out.gold .to-pair{color:var(--gold-deep);}
+
+  /* ---------- GL Kripke frame ---------- */
+  #glFrame{display:block;width:100%;height:auto;max-width:34rem;margin:0 auto;overflow:visible;}
+  .glframe-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .glframe-note .mono{font-style:normal;color:var(--gold-deep);font-size:.82rem;}
+
+  /* ---------- the Kernel: comparison axes + diagrams ---------- */
+  .cmp-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .cmp-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .cmp-axes .av{color:var(--soft1);line-height:1.42;}
+  .cmp-axes .av b{color:var(--ink);font-weight:600;}
+  #kccc,#kproof{display:block;width:100%;height:auto;max-width:35rem;margin:0 auto;overflow:visible;}
+  .kdiag-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .kdiag-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  /* ---------- the Mechanism: diagrams ---------- */
+  #secEval,#dgtrace{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- the Ceiling: jump ladder + diagrams ---------- */
+  #witness,#rice,#spectrum{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+  .ladder{display:flex;flex-direction:column-reverse;gap:3px;max-width:31rem;margin:.4rem auto .2rem;}
+  .lrung{display:flex;align-items:center;gap:.7rem;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .85rem;background:var(--paper);cursor:pointer;transition:background .14s,border-color .14s;text-align:left;}
+  .lrung:hover{background:rgba(26,24,21,.035);}
+  .lrung.on{border-color:var(--red-deep);background:rgba(176,58,46,.055);}
+  .lrung .deg{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:600;color:var(--ink);min-width:3.4rem;}
+  .lrung.on .deg{color:var(--red-deep);}
+  .lrung .lvl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);min-width:4.2rem;}
+  .lrung .lgloss{font-size:.82rem;color:var(--soft1);margin-left:auto;font-style:italic;text-align:right;}
+  .jr-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .jr-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .jr-axes .av{color:var(--soft1);line-height:1.42;}
+  .jr-axes .av b{color:var(--ink);font-weight:600;}
+
+  /* ---------- the Floor: the Kleene ascent ---------- */
+  .ascent{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:35rem;margin:.5rem auto .2rem;}
+  .acell{width:3.15rem;border:1px solid var(--panelhair);border-radius:2px;padding:.42rem .2rem;text-align:center;background:var(--paper);transition:background .25s,border-color .25s;}
+  .acell .ai{font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:var(--faintest);}
+  .acell .av{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:600;color:var(--soft1);margin-top:.16rem;}
+  .acell.def{background:var(--teal-soft);border-color:var(--teal-line);}
+  .acell.def .av{color:var(--teal-deep);}
+  .acell.fresh{background:var(--gold-soft);border-color:var(--gold-line);}
+  .acell.fresh .av{color:var(--gold-deep);}
+  .ascent-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--faint);margin-top:.8rem;line-height:1.5;}
+  .ascent-stat b{color:var(--ink);}
+  .ascent-stat .em{color:var(--teal-deep);}
+
+  /* ---------- the Knot: Curry derivation + Kripke ascent ---------- */
+  .deriv{max-width:41rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:2px;}
+  .dstep{display:grid;grid-template-columns:1.5rem 1fr;gap:.6rem;align-items:baseline;padding:.46rem .7rem;border-left:2px solid var(--panelhair);background:var(--paper);}
+  .dstep .dn{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);}
+  .dstep .db{display:flex;justify-content:space-between;gap:.8rem;align-items:baseline;flex-wrap:wrap;}
+  .dstep .df{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);line-height:1.45;}
+  .dstep .dj{font-size:.73rem;color:var(--faint);font-style:italic;white-space:nowrap;}
+  .dstep.contr{border-left-color:var(--red);background:rgba(176,58,46,.05);}
+  .dstep.contr .df{color:var(--red-deep);font-weight:600;}
+  .dstep.trivial{border-left-color:var(--red-deep);background:rgba(176,58,46,.08);}
+  .dstep.trivial .df{color:var(--red-deep);font-weight:600;}
+  .dstep.defused{border-left-color:var(--teal-deep);background:rgba(42,107,107,.07);}
+  .dstep.defused .df{color:var(--teal-deep);font-weight:600;}
+  .deriv-note{text-align:center;font-size:.86rem;color:var(--faint);font-style:italic;margin-top:.8rem;line-height:1.5;}
+  .deriv-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  .ktab{max-width:35rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:3px;}
+  .krow{display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:center;border:1px solid var(--panelhair);border-radius:2px;padding:.48rem .8rem;background:var(--paper);}
+  .krow.liar{border-color:var(--red-line);}
+  .krow .ksent{font-family:"IBM Plex Mono",monospace;font-size:.83rem;color:var(--ink);line-height:1.35;}
+  .krow .ksub{font-size:.66rem;color:var(--faintest);font-style:italic;}
+  .kval{font-family:"IBM Plex Mono",monospace;font-size:.8rem;font-weight:600;min-width:4.2rem;text-align:center;border-radius:2px;padding:.18rem .4rem;transition:background .25s,color .25s,border-color .25s;}
+  .kval.gap{background:var(--gold-soft);color:var(--gold-deep);border:1px solid var(--gold-line);}
+  .kval.tt{background:var(--teal-soft);color:var(--teal-deep);border:1px solid var(--teal-line);}
+  .kval.ff{background:rgba(124,118,106,.1);color:var(--soft1);border:1px solid var(--panelhair);}
+  .kval.fresh{box-shadow:0 0 0 2px var(--gold-line);}
+  .ktab-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.79rem;color:var(--faint);margin-top:.8rem;line-height:1.5;}
+  .ktab-stat b{color:var(--ink);} .ktab-stat .em{color:var(--gold-deep);}
+  #revengeFig{display:block;width:100%;height:auto;max-width:33rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- the Silence: GL Kripke frame ---------- */
+  .glframe{max-width:31rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:2px;position:relative;}
+  .gworld{display:grid;grid-template-columns:auto auto 1fr;gap:.7rem;align-items:center;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .8rem;background:var(--paper);}
+  .gworld.leaf{border-color:var(--gold-line);background:rgba(166,124,0,.04);}
+  .gw-name{font-family:"IBM Plex Mono",monospace;font-size:.8rem;font-weight:600;color:var(--soft1);min-width:2.6rem;}
+  .gworld.leaf .gw-name{color:var(--gold-deep);}
+  .gw-p{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:600;border-radius:2px;padding:.2rem .55rem;cursor:pointer;user-select:none;transition:background .15s,color .15s,border-color .15s;border:1px solid var(--panelhair);}
+  .gw-p.t{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .gw-p.f{background:rgba(124,118,106,.1);color:var(--faint);}
+  .gw-vals{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end;}
+  .gbadge{font-family:"IBM Plex Mono",monospace;font-size:.68rem;border-radius:2px;padding:.14rem .42rem;border:1px solid var(--panelhair);white-space:nowrap;}
+  .gbadge .gv{font-weight:600;}
+  .gbadge.on{background:var(--teal-soft);border-color:var(--teal-line);} .gbadge.on .gv{color:var(--teal-deep);}
+  .gbadge.off{background:transparent;color:var(--faintest);} .gbadge.off .gv{color:var(--soft1);}
+  .gbadge.lit{background:var(--gold-soft);border-color:var(--gold-line);} .gbadge.lit .gv{color:var(--gold-deep);}
+  .gl-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faint);margin-top:.85rem;line-height:1.55;}
+  .gl-stat b{color:var(--ink);} .gl-stat .ok{color:var(--teal-deep);}
+
+  /* ---------- the Law: the incompatibility engine ---------- */
+  .ingredients{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;margin:.6rem auto .2rem;max-width:36rem;}
+  .ing{border:1.5px solid var(--ink);border-radius:3px;padding:.5rem .8rem;cursor:pointer;user-select:none;text-align:center;min-width:7.2rem;background:var(--paper);transition:opacity .2s,border-color .2s,background .2s;}
+  .ing.off{border-color:var(--faintest);background:transparent;opacity:.45;}
+  .ing .ing-sym{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.92rem;color:var(--ink);display:block;}
+  .ing .ing-name{font-size:.72rem;color:var(--faint);margin-top:.15rem;line-height:1.25;}
+  .ing .ing-state{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;margin-top:.3rem;}
+  .ing.on .ing-state{color:var(--teal-deep);} .ing.off .ing-state{color:var(--red-deep);}
+  .law-status{max-width:36rem;margin:1.2rem auto 0;border:1px solid var(--panelhair);border-radius:3px;padding:1rem 1.3rem;text-align:center;transition:border-color .25s,background .25s;}
+  .law-status.bot{border-color:var(--red-line);background:rgba(176,58,46,.06);}
+  .law-status.fate{border-color:var(--gold-line);background:rgba(166,124,0,.05);}
+  .law-status.over{border-color:var(--teal-line);background:rgba(42,107,107,.04);}
+  .law-status .ls-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.86rem;margin-bottom:.5rem;letter-spacing:.01em;}
+  .law-status.bot .ls-head{color:var(--red-deep);} .law-status.fate .ls-head{color:var(--gold-deep);} .law-status.over .ls-head{color:var(--teal-deep);}
+  .law-status .ls-body{font-size:.92rem;color:var(--soft1);line-height:1.55;}
+  .law-status .ls-body b{color:var(--ink);}
+  .law-reset{margin-top:1rem;text-align:center;}
+
+  /* ---------- the Law: the regeneration ladder ---------- */
+  .regtower{max-width:33rem;margin:.7rem auto .2rem;display:flex;flex-direction:column-reverse;gap:0;}
+  .regrung{border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .85rem;background:var(--paper);margin-top:7px;position:relative;}
+  .regrung::before{content:"";position:absolute;left:50%;top:-7px;height:7px;width:1px;background:var(--faint);}
+  .regtower .regrung:last-child::before{display:none;}
+  .regrung.fresh{animation:rgrow .35s ease;}
+  @keyframes rgrow{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .regrung.term{border-color:var(--teal-line);background:rgba(42,107,107,.04);}
+  .rr-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+  .rr-sys{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.82rem;color:var(--ink);margin-top:.1rem;}
+  .rr-add{font-size:.8rem;color:var(--teal-deep);margin-top:.25rem;}
+  .rr-add::before{content:"\21b3  ";opacity:.7;}
+  .rr-miss{font-size:.82rem;color:var(--gold-deep);margin-top:.2rem;}
+  .reg-controls{display:flex;gap:.7rem;justify-content:center;margin-top:1.1rem;flex-wrap:wrap;}
+  .reg-note{max-width:33rem;margin:1rem auto 0;text-align:center;font-size:.86rem;color:var(--soft1);line-height:1.55;font-style:italic;}
+
+  /* ---------- the Multitude: ultraproduct truth-transfer ---------- */
+  .factors{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:.6rem auto .2rem;max-width:32rem;}
+  .fchip{font-family:"IBM Plex Mono",monospace;font-size:.72rem;border:1px solid var(--panelhair);border-radius:2px;padding:.28rem .5rem;background:var(--paper);text-align:center;line-height:1.3;}
+  .fchip .fn{display:block;color:var(--faint);font-size:.62rem;}
+  .fchip.sat{border-color:var(--teal-line);background:var(--teal-soft);} .fchip.sat .fv{color:var(--teal-deep);font-weight:600;}
+  .fchip.unsat{opacity:.55;} .fchip.unsat .fv{color:var(--faint);}
+  .uverdict{max-width:32rem;margin:1rem auto 0;border:1px solid var(--panelhair);border-radius:3px;padding:.85rem 1.1rem;text-align:center;transition:border-color .2s,background .2s;}
+  .uverdict.utrue{border-color:var(--teal-line);background:rgba(42,107,107,.05);}
+  .uverdict.ufalse{border-color:var(--red-line);background:rgba(176,58,46,.05);}
+  .uverdict.usplit{border-color:var(--gold-line);background:rgba(166,124,0,.05);}
+  .uverdict .uv-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.84rem;margin-bottom:.4rem;}
+  .uverdict.utrue .uv-head{color:var(--teal-deep);} .uverdict.ufalse .uv-head{color:var(--red-deep);} .uverdict.usplit .uv-head{color:var(--gold-deep);}
+  .uverdict .uv-body{font-size:.88rem;color:var(--soft1);line-height:1.5;}
+
+  /* ---------- the Multitude: the nonstandard-model builder ---------- */
+  .nsmodel{max-width:33rem;margin:.7rem auto .2rem;}
+  .ns-line{position:relative;height:54px;border-bottom:1.5px solid var(--ink);margin:1.6rem 0 .4rem;}
+  .ns-tick{position:absolute;bottom:0;width:1px;height:9px;background:var(--soft1);}
+  .ns-tick .ns-num{position:absolute;bottom:11px;left:50%;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faint);}
+  .ns-gap{position:absolute;bottom:0;height:9px;border-bottom:1px dashed var(--faint);}
+  .ns-gap .ns-dots{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);color:var(--faint);font-size:.8rem;letter-spacing:.1em;}
+  .ns-c{position:absolute;bottom:0;transform:translateX(-50%);text-align:center;transition:left .4s ease;}
+  .ns-c .ns-cmark{width:2px;height:30px;background:var(--red);margin:0 auto;}
+  .ns-c .ns-clab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;color:var(--red-deep);position:absolute;bottom:32px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+  .ns-axioms{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);text-align:center;min-height:1.4rem;margin-top:.5rem;letter-spacing:.02em;}
+  .ns-state{max-width:33rem;margin:1rem auto 0;border:1px solid var(--panelhair);border-radius:3px;padding:.85rem 1.1rem;text-align:center;transition:border-color .25s,background .25s;}
+  .ns-state.std{border-color:var(--teal-line);background:rgba(42,107,107,.04);}
+  .ns-state.nonstd{border-color:var(--gold-line);background:rgba(166,124,0,.05);}
+  .ns-state .nss-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.82rem;margin-bottom:.4rem;}
+  .ns-state.std .nss-head{color:var(--teal-deep);} .ns-state.nonstd .nss-head{color:var(--gold-deep);}
+  .ns-state .nss-body{font-size:.88rem;color:var(--soft1);line-height:1.5;}
+  .ns-disagree{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;max-width:33rem;margin:1rem auto 0;}
+  .ns-mod{border:1px solid var(--panelhair);border-radius:3px;padding:.7rem .9rem;text-align:center;}
+  .ns-mod h5{font-family:"IBM Plex Mono",monospace;font-size:.76rem;margin:0 0 .5rem;letter-spacing:.04em;}
+  .ns-mod.standard{border-color:var(--teal-line);} .ns-mod.standard h5{color:var(--teal-deep);}
+  .ns-mod.nonstandard{border-color:var(--gold-line);} .ns-mod.nonstandard h5{color:var(--gold-deep);}
+  .ns-mod .nsm-row{font-size:.78rem;color:var(--soft1);margin:.25rem 0;display:flex;justify-content:space-between;gap:.5rem;}
+  .ns-mod .nsm-row .nsm-v{font-family:"IBM Plex Mono",monospace;font-weight:600;}
+  .nsm-v.T{color:var(--teal-deep);} .nsm-v.F{color:var(--red-deep);}
+
+  @media (max-width:600px){ body{font-size:18px;} .mach-grid{grid-template-columns:1fr;} .f-bar{flex-direction:column;gap:.6rem;} .lrung .lgloss{display:none;} .dstep .dj{display:none;} .gw-vals{justify-content:flex-start;} .ing{min-width:6.4rem;} .ns-disagree{grid-template-columns:1fr;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{
+    body{background:#f4f1e8 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5pt;}
+    body::before{display:none !important;}
+    .btn,.controls,.selector,.runner-bar .btn{display:none !important;}
+    .sec,.panel,.stage,figcaption,.reading,.coda,.theorem,.fates,.runner{break-inside:avoid;}
+    .sec-head{break-after:avoid;}
+  }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-diagonal">The Diagonal</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the multitude · the semantic complement</span></div>
+    <div class="hero-head">
+      <p class="kicker">The models a theory cannot tell apart</p>
+      <h1>The Multitude</h1>
+      <p class="standfirst">Seven volumes followed one construction — the diagonal — through every room of the foundations, and found it forcing a fixed point a system could not escape. But the diagonal is only one face of the limit. It is the system turned <i>inward</i>, reasoning about itself. There is a second face, turned <i>outward</i>: a theory reasoning about the worlds that satisfy it, and discovering it cannot pin them down. A first&#8209;order theory has not one model but a multitude — of every infinite size, with strange nonstandard worlds hidden indistinguishably among them — and no sentence it can write will tell them apart. This is the semantic limit, and it has its own single engine, the way the diagonal had Lawvere's. The engine is the ultraproduct, and from it flow compactness, Löwenheim–Skolem, the nonstandard models, and at last Lindström's theorem, which reveals that these are not defects of first&#8209;order logic but its very definition. Where the diagonal said a system cannot grasp itself, the multitude says a theory cannot grasp its worlds — and the two limits, syntactic and semantic, are the complete price of formal reasoning.</p>
+      <p class="ed-mark">the semantic complement to the diagonal · the model&#8209;theoretic face of the limit — the ultraproduct and Łoś's theorem as the single engine; compactness as its first consequence; the Löwenheim–Skolem theorems and Skolem's paradox; the nonstandard models, where the diagonal's independence becomes the splitting of worlds; Tennenbaum's theorem, the boundary where the two faces meet the limits of computation; and Lindström's theorem, the capstone that mirrors the conservation law</p>
+    </div>
+  </header>
+
+  <!-- ============ §I THE TWO FACES ============ -->
+  <section class="sec" id="faces">
+    <div class="sec-head"><span class="num">I · the two faces</span><h2>Inward and outward</h2><p class="sub">The corpus has been, until now, the story of one face of the limit. To see the whole, the other face must be drawn — and the relation between them stated, because they are not two subjects but two views of a single gap.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">two ways a formal system meets its edge&nbsp;&nbsp;</span>A formal system can fail to grasp two things, and the foundations are the study of both failures. It can fail to grasp <i>itself</i>: turned inward, naming its own sentences and predicates, it forces a fixed point — the Liar, the Gödel sentence, the halting program — and the diagonal is the engine of that inward failure. Seven volumes traced it. But a system can also fail to grasp its <i>models</i>: turned outward, a theory tries to single out the structure it means to describe — the natural numbers, the real line, the cumulative hierarchy of sets — and discovers that its sentences are satisfied by a whole multitude of structures it cannot distinguish from the intended one. This is the <b>semantic</b> failure, and it is governed not by self&#8209;reference but by the gap between what a theory <i>says</i> and what <i>satisfies</i> it. The diagonal is intensional; the multitude is extensional. One is the mirror; the other is the horizon.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">one engine again&nbsp;&nbsp;</span>The deep claim of this volume is that the semantic face, like the syntactic, is not a scattering of separate accidents but the output of a single construction. Where the diagonal family had Lawvere's fixed&#8209;point theorem as its one engine, the model&#8209;theoretic family has the <b>ultraproduct</b>: a way of blending a whole family of structures into one, with truth in the blend decided by a vote — an ultrafilter — among the factors. The governing law is Łoś's theorem, the exact analogue of Lawvere's: it says truth transfers from the many to the one by majority. From that single construction follow compactness (a theory finitely satisfiable is satisfiable), the upward Löwenheim–Skolem theorem (models grow without bound), the nonstandard models of arithmetic, and the characterisation of when two structures are elementarily alike. And the capstone, Lindström's theorem, will mirror the conservation law of the diagonal exactly: just as no consistent system escaped the diagonal's four&#8209;way choice, no logic stronger than first&#8209;order keeps the multitude's two defining properties. The limits are not failures bolted on. They are what first&#8209;order logic <i>is</i>.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the two faces interlock — a preview</div>
+      <p>It would be enough if the semantic limit were merely the diagonal's twin, a parallel story told in a different key. It is more than that: the two faces are <i>locked together</i>, and seeing how is the reward of this volume. The diagonal's signature result, incompleteness, says a theory cannot prove every truth of its intended model. The multitude's signature phenomenon, nonstandard models, says the theory has <i>other</i> models besides the intended one. These are the same fact seen twice. A sentence is independent of a theory — neither provable nor refutable — exactly when the theory's models <i>disagree</i> about it: true in some, false in others. So incompleteness, read outward, simply <i>is</i> the splitting of the multitude; the unprovable Gödel sentence is true in the standard world and false in some nonstandard one, and the gap between provability and truth is precisely the gap between the intended model and its shadows. Gödel's completeness theorem and Gödel's incompleteness theorem, so often felt to be in tension, are the two faces meeting: completeness says a theory proves what holds in <i>all</i> its models; incompleteness says some truths hold only in the intended one. The difference between <i>all models</i> and <i>the intended model</i> is the multitude, and Tennenbaum's theorem, near the end, will show that this difference lives exactly at the boundary of the computable. The inward limit and the outward limit are one limit, viewed from inside the system and from outside it.</p>
+    </div>
+  </section>
+
+  <!-- ============ §II THE ENGINE ============ -->
+  <section class="sec" id="ultraproduct">
+    <div class="sec-head"><span class="num">II · the engine</span><h2>The ultraproduct, and truth by majority</h2><p class="sub">One construction drives the entire semantic family, and it is as compact as Lawvere's. Blend a multitude of structures into one, let a vote decide what is true in the blend, and the limits of first&#8209;order logic follow as corollaries.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the construction&nbsp;&nbsp;</span>Take a family of structures <span class="mono">{ M<sub>i</sub> : i ∈ I }</span> — they need not be alike — and a way of deciding which subsets of the index set <span class="mono">I</span> count as <i>large</i>. The decision is an <b>ultrafilter</b> <span class="mono">U</span>: a collection of "large" sets closed under supersets and finite intersection, never containing the empty set, and — the defining stroke — deciding <i>every</i> subset, so that for each <span class="mono">A ⊆ I</span>, exactly one of <span class="mono">A</span> or its complement is large. Now form the <b>ultraproduct</b> <span class="mono">∏<sub>i</sub> M<sub>i</sub> / U</span>: its elements are sequences <span class="mono">(a<sub>i</sub>)</span>, with two sequences identified when they agree on a large set, and its relations and functions computed coordinatewise. The ultrafilter is a notion of "almost everywhere," and the ultraproduct is the structure that emerges when the factors are averaged under it.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Łoś's theorem · the fundamental theorem of ultraproducts</span>
+        <div class="stmt">For every first&#8209;order formula <span class="mono">φ</span> and elements <span class="mono">(a<sup class="fn">1</sup><sub>i</sub>), …, (a<sup class="fn">n</sup><sub>i</sub>)</span> of the ultraproduct, <div style="margin:.7rem 0 .2rem"><span class="mono">∏<sub>i</sub> M<sub>i</sub> / U &nbsp;⊨&nbsp; φ[(a<sup class="fn">1</sup>), …, (a<sup class="fn">n</sup>)] &nbsp;&nbsp;⟺&nbsp;&nbsp; { i : M<sub>i</sub> ⊨ φ[a<sup class="fn">1</sup><sub>i</sub>, …, a<sup class="fn">n</sup><sub>i</sub>] } ∈ U.</span></div></div>
+        <div class="proof"><span class="plab">truth transfers by vote</span> A sentence holds in the blend exactly when it holds in a <i>large</i> set of factors. This is the precise analogue of Lawvere's theorem for the semantic family: where Lawvere forced a fixed point from self&#8209;naming, Łoś forces the first&#8209;order theory of the ultraproduct to be the "majority theory" of its factors. The proof is an induction on <span class="mono">φ</span>, and the ultrafilter axioms are exactly what each connective needs: the decision property handles negation (one of <span class="mono">φ</span>, <span class="mono">¬φ</span> is the majority), closure under intersection handles conjunction, and upward closure handles the existential witness. Because <span class="mono">U</span> decides every set, the ultraproduct has a <i>complete, classical</i> theory — every sentence gets exactly one truth value. <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the first surprise&nbsp;&nbsp;</span>The engine already does something the diagonal never could: it manufactures a structure unlike all its factors. Blend the finite linear orders <span class="mono">L<sub>1</sub>, L<sub>2</sub>, L<sub>3</sub>, …</span> — orders of one element, two, three — under a non&#8209;principal ultrafilter, and Łoś computes the theory of the result property by property. "Has a least and greatest element" holds in every factor, so it holds in the blend. "Has at least five elements" holds in all but finitely many, so it holds in the blend. But "is finite" is not a single first&#8209;order sentence, and the blend, satisfying "has at least <span class="mono">k</span> elements" for every <span class="mono">k</span>, is <b>infinite</b> — an infinite order assembled entirely from finite ones. Finiteness has slipped through the net, and that escape is the seed of every limit to come. Choose a property below and watch the vote decide.</p>
+    </div>
+    <div class="stage" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">truth by majority — the ultraproduct of finite linear orders</p>
+        <div class="dial-sel" id="losSel"></div>
+        <div class="factors" id="losFactors"></div>
+        <div class="uverdict" id="losVerdict"></div>
+      </div>
+      <figcaption>Each chip is a factor <span class="mono">L<sub>n</sub></span>; lit chips satisfy the chosen property. The ultraproduct's verdict is read off whether the lit set is <i>large</i> in the ultrafilter — all, cofinitely many, or a split the ultrafilter must break. The factors are all finite; the blend, forced to have arbitrarily many elements, is not.</figcaption>
+    </div>
+  </section>
+
+  <!-- ============ §III COMPACTNESS ============ -->
+  <section class="sec" id="compactness">
+    <div class="sec-head"><span class="num">III · compactness</span><h2>What is finitely possible is possible</h2><p class="sub">The engine's first and most consequential output. A single theorem — that satisfiability is a finite affair — is the deep reason a theory can never fence its models in.</p></div>
+    <div class="stage narrow" style="margin-top:clamp(1.2rem,2.6vh,1.8rem)">
+      <div class="theorem">
+        <span class="thlab">the compactness theorem</span>
+        <div class="stmt">A set <span class="mono">T</span> of first&#8209;order sentences has a model if and only if every <i>finite</i> subset of <span class="mono">T</span> has a model.</div>
+        <div class="proof"><span class="plab">from Łoś in one step</span> One direction is trivial. For the other, suppose every finite <span class="mono">T₀ ⊆ T</span> has a model <span class="mono">M<sub>T₀</sub></span>. Index by the finite subsets, and choose an ultrafilter <span class="mono">U</span> containing, for each sentence <span class="mono">σ ∈ T</span>, the set of finite subsets that include <span class="mono">σ</span> — these sets have the finite intersection property, so such a <span class="mono">U</span> exists. In the ultraproduct <span class="mono">∏ M<sub>T₀</sub> / U</span>, each <span class="mono">σ</span> is true in all factors past the one&#8209;element subset <span class="mono">{σ}</span> — a large set — so by Łoś it is true in the ultraproduct. The ultraproduct models all of <span class="mono">T</span>. <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">why this is the source of the multitude&nbsp;&nbsp;</span>Compactness is the precise statement that first&#8209;order truth is <i>local</i>: any obstruction to having a model would already be visible in some finite fragment. Turn that around and it becomes a licence for proliferation. To build a model with a strange feature, one need only ensure that every <i>finite</i> demand is jointly satisfiable; compactness then delivers a model meeting <i>all</i> the demands at once, however many, however infinite their conjunction would be. A theory cannot say "be finite," cannot say "be exactly this size," cannot say "contain no infinite elements," because each such constraint is a demand on the whole that no finite fragment can enforce. Every limit in this volume is compactness wearing a costume: the upward Löwenheim–Skolem theorem is compactness adding constants, the nonstandard models are compactness adding a number larger than all the others, and Lindström's theorem is the discovery that a logic with compactness <i>cannot</i> escape these consequences. The finiteness of proof, which in the diagonal corpus let provability obey its derivability conditions, here lets a theory's grip on its models slip irretrievably loose.</p>
+    </div>
+  </section>
+
+  <!-- ============ §IV LÖWENHEIM–SKOLEM ============ -->
+  <section class="sec" id="lowenheim">
+    <div class="sec-head"><span class="num">IV · Löwenheim–Skolem</span><h2>Models of every size</h2><p class="sub">If a theory has one infinite model it has them in every infinite cardinality, and no sentence can tell them apart. The most famous consequence is a paradox that is not a contradiction — only a lesson about what "uncountable" can mean.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">grow and shrink&nbsp;&nbsp;</span>Two theorems, two directions, both preserving every first&#8209;order truth. <b>Downward</b> Löwenheim–Skolem: any theory with an infinite model has a <i>countable</i> one — indeed an elementary substructure, built by closing a countable set under Skolem functions, the "hull" that keeps just enough elements to witness every existential the theory asserts. <b>Upward</b> Löwenheim–Skolem: any theory with an infinite model has models of <i>every</i> cardinality above the size of its language — add that many new constants with all&#8209;distinct axioms, observe that every finite demand is met inside the original infinite model, and let compactness produce the rest. Between them, a theory with an infinite model has a model of <i>every</i> infinite size, all elementarily equivalent, none distinguishable by any sentence. The grow is the ultrapower; the shrink is the Skolem hull; and the structure's true cardinality is something the theory describing it can never feel.</p>
+    </div>
+    <div class="stage" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <div class="panel">
+        <p class="panel-cap">the spectrum — a model of ZFC at every cardinality</p>
+        <div class="dial-sel" id="cardSel"></div>
+        <div class="dial-readout" id="cardReadout"></div>
+      </div>
+      <figcaption>The same theory — here ZFC — has models of every infinite cardinality, reached by shrinking with Skolem hulls or growing with ultrapowers and added constants. No first&#8209;order sentence separates them. The countable case is Skolem's paradox; the continuum case is independent of the very theory describing it.</figcaption>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">Skolem's paradox — uncountability made relative</div>
+      <p>The sharpest demonstration that a theory cannot pin down its models is also the most disorienting. If <span class="mono">ZFC</span> is consistent, downward Löwenheim–Skolem hands us a <i>countable</i> model of it. But <span class="mono">ZFC</span> proves Cantor's theorem — it proves "there exist uncountable sets." So the countable model contains an element <span class="mono">x</span> that the model itself certifies as uncountable, even though <span class="mono">x</span>, viewed from outside, has only countably many members. There is no contradiction, only a collapse of a word's absoluteness. "<span class="mono">x</span> is uncountable" means "there is no bijection between <span class="mono">x</span> and <span class="mono">ω</span>" — and the bijection that would refute it exists in the larger universe but <i>not inside the countable model</i>. The model is missing the function that would reveal <span class="mono">x</span>'s true size, and so it sees <span class="mono">x</span> as uncountable. Cardinality, like provability in the diagonal corpus, turns out to be relative to the system that judges it: a structure cannot see beyond the functions it contains, and a first&#8209;order theory cannot force it to contain them all. The multitude is not only large; it is internally deceived about its own scale.</p>
+    </div>
+  </section>
+
+  <!-- ============ §V NONSTANDARD MODELS ============ -->
+  <section class="sec" id="nonstandard">
+    <div class="sec-head"><span class="num">V · nonstandard models</span><h2>Where the two faces meet</h2><p class="sub">Compactness builds a number larger than every number, and arithmetic acquires worlds it never intended. These nonstandard worlds are the exact place the diagonal's incompleteness becomes the multitude's disagreement — the deepest joint in the corpus.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">a number past all numbers&nbsp;&nbsp;</span>Add to Peano arithmetic a fresh constant <span class="mono">c</span> and the axioms <span class="mono">c &gt; 0, c &gt; 1, c &gt; 2, …</span>, one for each numeral. Any <i>finite</i> batch of these is satisfied in the standard model <span class="mono">ℕ</span> — just take <span class="mono">c</span> larger than the largest numeral mentioned. So every finite subset has a model, and compactness delivers a model of the whole: a structure satisfying all of <span class="mono">PA</span>, in which <span class="mono">c</span> exceeds every standard number. It is a <b>nonstandard model</b> — the standard numbers sitting at the bottom, and above them, after a gap, blocks of "infinite" numbers stretching up. Arithmetic cannot rule them out, because ruling them out would require saying "every number is reached from zero by finitely many successors," and <i>finitely many</i> is not something first&#8209;order can say. Build the number below, one axiom at a time, and watch it slip past the standard world.</p>
+    </div>
+    <div class="stage" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">building a nonstandard number by compactness</p>
+        <div class="nsmodel">
+          <div class="ns-line" id="nsLine"></div>
+          <div class="ns-axioms" id="nsAxioms"></div>
+        </div>
+        <div class="ns-state" id="nsState"></div>
+        <div class="ns-disagree" id="nsDisagree" style="display:none"></div>
+        <div class="controls" style="margin-top:1.1rem;justify-content:center"><button class="btn" id="nsAdd">add the next axiom →</button><button class="btn" id="nsLimit">take the whole theory</button><button class="btn" id="nsReset">reset</button></div>
+      </div>
+      <figcaption>Each axiom <span class="mono">c &gt; n</span> is harmless alone — <span class="mono">ℕ</span> satisfies it with a finite <span class="mono">c</span>. Only the whole infinite theory forces <span class="mono">c</span> past every standard number, and compactness guarantees a model anyway. The result is a world arithmetic cannot tell apart from <span class="mono">ℕ</span> by any single sentence — yet they disagree about the Gödel sentence.</figcaption>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the joint — incompleteness is the splitting of the multitude</div>
+      <p>Now the two faces close into one. A sentence is <b>independent</b> of a theory exactly when the theory's models <i>disagree</i> about it — true in some, false in others — for if every model agreed, the completeness theorem would make it provable or refutable. Gödel's sentence <span class="mono">G</span> and the consistency statement <span class="mono">Con(PA)</span> are independent; so <span class="mono">PA + ¬Con(PA)</span> is consistent and has a model, and that model is necessarily <i>nonstandard</i> — it contains a number coding a "proof" of <span class="mono">0 = 1</span>, a proof of nonstandard length, since no standard proof of contradiction exists. In the standard world <span class="mono">ℕ</span>, arithmetic is consistent and <span class="mono">G</span> is true; in that nonstandard world, <span class="mono">¬Con</span> holds and <span class="mono">G</span> fails. The incompleteness proved by the diagonal — <span class="mono">G</span> true but unprovable — is, viewed from outside, precisely this: <span class="mono">G</span> holds in the intended model but not in all of them, and the unreachable truths are exactly the ones the nonstandard shadows deny. Completeness says a theory proves what holds in <i>every</i> model; incompleteness says some truths hold only in the <i>intended</i> one; and the daylight between "every model" and "the intended model" is the multitude. The mirror and the horizon were always the same gap, seen from the two sides of the satisfaction relation.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VI TENNENBAUM ============ -->
+  <section class="sec" id="tennenbaum">
+    <div class="sec-head"><span class="num">VI · Tennenbaum</span><h2>The boundary is computability</h2><p class="sub">The nonstandard worlds exist, but none can ever be written down. The line between the standard model and its shadows is drawn by a single theorem, and it is the precise place where the semantic face meets the limits of computation that drove the diagonal.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">existent, yet never effective&nbsp;&nbsp;</span>Compactness conjures nonstandard models freely, but it conjures them <i>non&#8209;constructively</i> — through an ultrafilter no algorithm can name. Tennenbaum's theorem reveals this is no accident of the method but a law: a nonstandard model of arithmetic can <i>never</i> be presented effectively. There is no nonstandard model of <span class="mono">PA</span> whose addition and multiplication tables are computable. The shadows are real — the model theory proves they exist — but their arithmetic is forever beyond any machine. And so the standard model <span class="mono">ℕ</span>, the one we meant all along, is recovered uniquely by a single extra demand: it is the <i>only</i> model of <span class="mono">PA</span> you can compute with.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Tennenbaum's theorem · 1959</span>
+        <div class="stmt">No countable nonstandard model of <span class="mono">PA</span> is recursive: there is no nonstandard <span class="mono">M ⊨ PA</span> with domain <span class="mono">ℕ</span> in which the graphs of <span class="mono">+</span> and <span class="mono">×</span> are both computable. Up to isomorphism, <span class="mono">ℕ</span> is the unique recursive model of <span class="mono">PA</span>.</div>
+        <div class="proof"><span class="plab">why the tables cannot be computed</span> Fix two recursively inseparable r.e. sets <span class="mono">A</span> and <span class="mono">B</span> — disjoint sets that no computable set divides. By overspill, a nonstandard model contains a single nonstandard element <span class="mono">c</span> whose coded sequence of "bits," read off by divisibility, places every standard <span class="mono">n</span> into <span class="mono">A</span>'s side or <span class="mono">B</span>'s side correctly. If multiplication were computable, decoding those bits would be a computation — and it would compute a set separating <span class="mono">A</span> from <span class="mono">B</span>, which by construction cannot exist. So <span class="mono">×</span> is not recursive; a parallel argument reaches <span class="mono">+</span>. The undecidable, encoded into a nonstandard number, makes the model's arithmetic uncomputable. <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">where the two faces touch</div>
+      <p>Tennenbaum's theorem is the seam between this volume and the seven before it. The diagonal corpus ran entirely on <i>effectiveness</i>: the provability predicate is computably enumerable, the universal machine simulates all programs, the Gödel sentence is built by an effective diagonal. Effectiveness was the air it breathed. The multitude, by contrast, is profligate with non&#8209;effective objects — ultrafilters, Skolem hulls, models of every cardinality. Tennenbaum stands exactly where the two meet and rules: the nonstandard models the multitude produces, though they exist, are barred from the effective world the diagonal inhabits. Add the computability constraint that the diagonal always silently assumed, and the entire multitude of nonstandard arithmetics vanishes, leaving <span class="mono">ℕ</span> alone — categorical at last, not by logic but by computation. The failure of first&#8209;order logic to pin down <span class="mono">ℕ</span> (the multitude) and the power of computation to pin it down anyway (Tennenbaum) are the two faces of the limit shaking hands. What syntax could not enforce and semantics could not prevent, effectiveness decides — and that is why the standard model, unreachable by any sentence, is nonetheless the only one we can ever calculate in.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VII LINDSTRÖM ============ -->
+  <section class="sec" id="lindstrom">
+    <div class="sec-head"><span class="num">VII · Lindström</span><h2>The limit is the logic</h2><p class="sub">The capstone, and the exact mirror of the conservation law. The multitude's two great weaknesses are not weaknesses at all. They are the definition of first&#8209;order logic — and any logic that escapes them ceases to be tractable in the same breath.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the defects are the definition&nbsp;&nbsp;</span>Gather the limits of this volume and they sort into two properties. <b>Compactness</b>: what is finitely satisfiable is satisfiable. <b>Löwenheim–Skolem</b>: a theory with an infinite model has a countable one. Both look like failures — the logic too weak to enforce finiteness, too weak to fix cardinality. Lindström's theorem turns the verdict inside out. These two properties do not merely <i>belong</i> to first&#8209;order logic; they <i>characterise</i> it.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Lindström's theorem · 1969</span>
+        <div class="stmt">First&#8209;order logic is the <i>strongest</i> logic satisfying both the compactness theorem and the downward Löwenheim–Skolem theorem. Any abstract logic that extends first&#8209;order logic and retains both properties has exactly the expressive power of first&#8209;order logic.</div>
+        <div class="proof"><span class="plab">the trade is forced</span> The two "weaknesses" cannot be improved upon without loss. A logic with more expressive power than first&#8209;order — second&#8209;order logic, say, which <i>can</i> define finiteness and pin <span class="mono">ℕ</span> down to a single model — must <i>fail</i> compactness or Löwenheim–Skolem, and in fact fails both, and loses with them any complete, effective proof system. Expressiveness and tractability are conserved quantities traded against each other: gain the power to control your models, and you forfeit the finiteness of proof and the very completeness theorem; keep that finiteness, and you inherit the multitude. There is no logic that both grasps its models and remains a logic in the tractable sense. <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the two capstones are one — the corpus closed</div>
+      <p>Set Lindström's theorem beside the conservation law and the symmetry is exact. The conservation law said the diagonal's limits are <i>inescapable</i>: no consistent expressive system holds all four wishes — reflexivity, a rigid twist, factivity, the structural rules — and each foundational tradition is one surrender. Lindström's theorem says the multitude's limits are <i>constitutive</i>: no logic stronger than first&#8209;order keeps both compactness and Löwenheim–Skolem, and each stronger logic surrenders one, forfeiting tractability with it. Two "no free lunch" theorems, one for each face of the limit. And the faces are one. The diagonal is a formal system unable to grasp <i>itself</i>; the multitude is a theory unable to grasp its <i>models</i>; and these are the two sides of the single gap between a formal system and the reality it reaches for — the gap between what can be <i>said</i> and what can be <i>so</i>, read once from inside the system and once from outside it. Incompleteness is the splitting of the multitude; the nonstandard shadows are the unprovable truths made visible; Tennenbaum patrols their border at the edge of computation; and Lindström and the conservation law are the same discovery in two keys — that the limits are not damage to formal reasoning but its shape. The system turned inward finds a fixed point it cannot escape. Turned outward, it finds a multitude it cannot reduce. They are the same cliff, and we have now stood at both its edges. The corpus is complete.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">∏ M<sub>i</sub> /U ⊨ φ &nbsp;⟺&nbsp; { i : M<sub>i</sub> ⊨ φ } ∈ U</span><span class="ln"></span></div>
+  <div class="coda"><p>The diagonal was one face of the limit; this is the other. Where the diagonal turned a system inward to force a fixed point, the multitude turns a theory outward to find that its models cannot be counted, sized, or singled out. One engine drives it — the ultraproduct, with truth decided by an ultrafilter's vote, Łoś's theorem the exact mirror of Lawvere's. From it: compactness, the finiteness of satisfiability; Löwenheim–Skolem, models of every size and Skolem's paradox of relative uncountability; the nonstandard models, where incompleteness is revealed as the splitting of worlds; Tennenbaum, drawing the border at computability; and Lindström, who proves the limits are not defects but the definition of first&#8209;order logic itself. The two faces interlock and turn out to be one — the unbridgeable gap between what a formal system can say and what is so, seen from inside it and from outside it. A system cannot fully grasp itself, and a theory cannot fully grasp its worlds, and these are the same necessity. <span class="mono t">∏ M<sub>i</sub> /U ⊨ φ ⟺ { i : M<sub>i</sub> ⊨ φ } ∈ U</span> — truth in the one is the vote of the many.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the multitude · the semantic complement</span></div>
+    <p class="colophon">The companion to the diagonal: the semantic face of the limit, where a first&#8209;order theory proves unable to determine the structures that satisfy it. The ultraproduct is presented as the single engine, with Łoś's theorem — truth in the blend is the ultrafilter&#8209;majority of the factors — as the exact analogue of Lawvere's theorem; compactness follows in one step and is identified as the source of the multitude's uncontrollability; the Löwenheim–Skolem theorems give models of every infinite cardinality, with Skolem's paradox showing uncountability to be relative to the judging model; the nonstandard models of arithmetic are built by compactness and shown to be the precise place the diagonal's incompleteness becomes the disagreement of worlds, since a sentence is independent exactly when the models split; Tennenbaum's theorem locates the boundary between the two faces at computability, the standard model being the unique recursive model of <span class="mono">PA</span>; and Lindström's theorem closes the volume by proving that compactness and Löwenheim–Skolem are not defects but the definition of first&#8209;order logic, the exact mirror of the conservation law's claim that the diagonal's limits are inescapable. The results follow Löwenheim (1915), Skolem (1920–22), Łoś (1955), Tarski–Vaught (1957), Tennenbaum (1959), and Lindström (1969); the completeness theorem is Gödel's (1929) and Henkin's (1949); and the construction is set against Lawvere (1969) and the seven preceding volumes of the diagonal.</p>
+    <p class="notes"><span class="nl">technical qualifications.</span> &nbsp;An ultrafilter is a maximal filter; non&#8209;principal ones exist by Zorn's lemma (the ultrafilter lemma, strictly weaker than full choice). Łoś's theorem is proved by induction on formula complexity, the ultrafilter axioms supplying exactly the closure each connective needs; the ultraproduct's theory is complete and classical because <span class="mono">U</span> decides every set. Compactness follows from Łoś, or equivalently from the completeness theorem via Henkin's construction. Downward Löwenheim–Skolem (to <span class="mono">ℵ₀</span>, or to <span class="mono">|L| + ℵ₀</span>) uses Skolem functions and the Tarski–Vaught test; upward Löwenheim–Skolem uses compactness with added constants. Skolem's paradox turns on the non&#8209;absoluteness of "uncountable": the requisite bijection exists externally but not in the countable model. Nonstandard models of <span class="mono">PA</span> have order type <span class="mono">ℕ + ℤ·η</span> and are built by compactness; a sentence is independent of a complete&#8209;enough theory iff its models disagree, by the completeness theorem, and the model of <span class="mono">PA + ¬Con</span> is necessarily nonstandard. Tennenbaum's theorem (1959) shows neither <span class="mono">+</span> nor <span class="mono">×</span> can be recursive in a nonstandard model, via recursively inseparable sets coded by overspill; refinements (McAloon and others) show even <span class="mono">+</span> alone suffices. Lindström's theorem (1969) is stated for abstract logics closed under the usual operations (negation, conjunction, existential quantification, isomorphism, relativisation) and satisfying the occurrence and Löwenheim properties; second&#8209;order logic is the contrasting case, categorical for <span class="mono">ℕ</span> but lacking compactness, completeness, and an effective proof system. The reading of the two limits as "two faces of one gap," and the duality with the conservation law, are framing; the theorems are as cited.</p>
+    <p class="refs"><b>Sources.</b> &nbsp;Löwenheim (1915) · Skolem, the paradox and Skolem functions (1920, 1922) · Gödel, the completeness theorem (1929) · Henkin, completeness via constants (1949) · Łoś, the ultraproduct theorem (1955) · Tarski &amp; Vaught, elementary substructures (1957) · Tennenbaum, no recursive nonstandard model (1959) · Lindström, the characterisation of first&#8209;order logic (1969) · Keisler &amp; Shelah, the ultrapower characterisation of elementary equivalence (1961, 1971) · Chang &amp; Keisler, <i>Model Theory</i> · Lawvere (1969) · and the diagonal corpus — Kernel, Mechanism, Ceiling, Floor, Knot, Silence, Law.</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  function E(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
+  function T(t){return document.createTextNode(t);}
+  function sub(n){var s="\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089";return String(n).split("").map(function(c){return s[+c];}).join("");}
+  function selBuild(sel,data,order,onpick){
+    if(!sel.hasChildNodes()){
+      for(var i=0;i<order.length;i++){ (function(key){
+        var x=data[key], b=E("button","seltab"); b.setAttribute("data-key",key);
+        var n=E("span"); n.appendChild(T(x.name)); b.appendChild(n);
+        if(x.yr){ var y=E("span","yr"); y.appendChild(T(x.yr)); b.appendChild(y); }
+        b.addEventListener("click",function(){onpick(key);});
+        sel.appendChild(b);
+      })(order[i]); }
+    }
+  }
+  function selMark(sel,key){ var k=sel.children; for(var c=0;c<k.length;c++){ k[c].className="seltab"+(k[c].getAttribute("data-key")===key?" on":""); } }
+
+  /* ============ §II — Łoś truth-transfer over finite linear orders ============ */
+  var LOS={
+    lg:{ name:"least & greatest", yr:"holds in all", desc:"\u2203 a least and a greatest element", sat:function(n){return n>=1;}, cls:"utrue", head:"TRUE in the ultraproduct", body:"Every finite order has both, so the satisfying set is all of I \u2014 certainly large. The blend inherits the property." },
+    five:{ name:"\u2265 5 elements", yr:"cofinitely many", desc:"at least five elements", sat:function(n){return n>=5;}, cls:"utrue", head:"TRUE in the ultraproduct", body:"All but finitely many factors satisfy it \u2014 a cofinite, hence large, set. And since this holds for every k, the blend is infinite." },
+    even:{ name:"even size", yr:"the set splits", desc:"an even number of elements", sat:function(n){return n%2===0;}, cls:"usplit", head:"the ultrafilter must decide", body:"The even indices are neither finite nor cofinite \u2014 they split I in half. A non-principal ultrafilter contains exactly one of the evens or the odds and breaks the tie; the blend has a definite parity, but which depends on U." },
+    dense:{ name:"dense", yr:"holds in none", desc:"between any two, a third", sat:function(n){return false;}, cls:"ufalse", head:"FALSE in the ultraproduct", body:"No finite order is dense \u2014 the satisfying set is empty, never large. The blend, though infinite, is a discrete order with infinite gaps." }
+  };
+  var losOrder=["lg","five","even","dense"], losKey="lg";
+  function losRender(){
+    var sel=document.getElementById("losSel"); if(sel){ selBuild(sel,LOS,losOrder,function(k){losKey=k;losRender();}); selMark(sel,losKey); }
+    var d=LOS[losKey];
+    var fb=document.getElementById("losFactors");
+    if(fb){ fb.innerHTML="";
+      for(var n=1;n<=8;n++){ var on=d.sat(n);
+        var chip=E("div","fchip "+(on?"sat":"unsat"));
+        var v=E("span","fv"); v.appendChild(T("L"+sub(n))); chip.appendChild(v);
+        var f=E("span","fn"); f.appendChild(T(on?"\u2713":"\u2014")); chip.appendChild(f);
+        fb.appendChild(chip);
+      }
+    }
+    var vb=document.getElementById("losVerdict");
+    if(vb){ vb.className="uverdict "+d.cls;
+      vb.innerHTML="<div class='uv-head'>\u201c"+d.desc+"\u201d &nbsp;\u2014&nbsp; "+d.head+"</div><div class='uv-body'>"+d.body+"</div>";
+    }
+  }
+
+  /* ============ §IV — the cardinality spectrum ============ */
+  var CARD={
+    a0:{ name:"\u2135\u2080", yr:"countable", sym:"\u2135\u2080 \u00b7 countable", exists:"a countable model of ZFC", dir:"shrink \u2014 a Skolem hull", mech:"downward Löwenheim\u2013Skolem: close a countable set under Skolem functions to get an elementary, countable submodel",
+      note:"Skolem's paradox: this countable model satisfies \u2018there exist uncountable sets.\u2019 The witnessing set is countable from outside, but the model holds no bijection from it to \u03c9 \u2014 so it calls the set uncountable. Uncountability is relative to the judging model." },
+    a1:{ name:"\u2135\u2081", yr:"first uncountable", sym:"\u2135\u2081 \u00b7 first uncountable", exists:"a model of ZFC of size \u2135\u2081", dir:"grow \u2014 added constants", mech:"upward Löwenheim\u2013Skolem: adjoin \u2135\u2081 new constants, all distinct; every finite demand holds in the countable model, so compactness delivers one of size \u2135\u2081",
+      note:"No sentence of ZFC distinguishes this from the countable model \u2014 they are elementarily equivalent. The theory cannot feel the size of its own universe." },
+    c:{ name:"2^\u2135\u2080", yr:"the continuum", sym:"2^\u2135\u2080 \u00b7 the continuum", exists:"a model of size 2^\u2135\u2080", dir:"grow \u2014 an ultrapower", mech:"upward Löwenheim\u2013Skolem again \u2014 the construction is indifferent to which cardinal it aims at",
+      note:"Whether 2^\u2135\u2080 = \u2135\u2081 is itself independent of ZFC (Cohen's forcing): the theory cannot even count its own continuum. The multitude made vivid." },
+    aw:{ name:"\u2135_\u03c9", yr:"and beyond", sym:"\u2135_\u03c9 \u00b7 a singular cardinal", exists:"a model of size \u2135_\u03c9", dir:"grow \u2014 without end", mech:"upward Löwenheim\u2013Skolem reaches every infinite cardinal at or above the language's size",
+      note:"At every infinite cardinality a model exists, and no first-order sentence tells any two of them apart. The spectrum has no top, and no rung is privileged from within." }
+  };
+  var cardOrder=["a0","a1","c","aw"], cardKey="a0";
+  function cardRender(){
+    var sel=document.getElementById("cardSel"); if(sel){ selBuild(sel,CARD,cardOrder,function(k){cardKey=k;cardRender();}); selMark(sel,cardKey); }
+    var d=CARD[cardKey], ro=document.getElementById("cardReadout");
+    if(ro){ ro.className="dial-readout";
+      ro.innerHTML="<div class='dr-pair'>"+d.sym+"</div><h4>"+d.exists+"</h4>"+
+        "<div class='jr-axes'>"+
+        "<div class='ax'>the construction</div><div class='av'>"+d.mech+"</div>"+
+        "<div class='ax'>direction</div><div class='av'>"+d.dir+"</div>"+
+        "</div><p>"+d.note+"</p>";
+    }
+  }
+
+  /* ============ §V — the nonstandard-model builder ============ */
+  var nsLevel=0, nsComplete=false, NSMAX=6;
+  function nsRender(){
+    var line=document.getElementById("nsLine");
+    if(line){ line.innerHTML="";
+      for(var v=0;v<=6;v++){ var tk=E("div","ns-tick"); tk.style.left=(6+v*7.3)+"%"; var nm=E("span","ns-num"); nm.appendChild(T(String(v))); tk.appendChild(nm); line.appendChild(tk); }
+      var gap=E("div","ns-gap"); gap.style.left="55%"; gap.style.width="27%"; var dots=E("span","ns-dots"); dots.appendChild(T("\u00b7\u00b7\u00b7")); gap.appendChild(dots); line.appendChild(gap);
+      var c=E("div","ns-c"); var lab=E("div","ns-clab"); var mark=E("div","ns-cmark");
+      if(nsComplete){ c.style.left="90%"; lab.appendChild(T("c \u2014 infinite")); }
+      else { var vv=Math.min(nsLevel,6); c.style.left=(6+vv*7.3)+"%"; lab.appendChild(T(nsLevel===0?"c (any number)":"c = "+nsLevel+" \u2713")); }
+      c.appendChild(lab); c.appendChild(mark); line.appendChild(c);
+    }
+    var ax=document.getElementById("nsAxioms");
+    if(ax){ var t;
+      if(nsLevel===0) t="PA   (no constraint on c yet)";
+      else if(nsLevel<=3){ var parts=[]; for(var i=0;i<nsLevel;i++)parts.push("c>"+i); t="PA + "+parts.join(" + "); }
+      else t="PA + c>0 + c>1 + \u2026 + c>"+(nsLevel-1);
+      ax.textContent=t;
+    }
+    var st=document.getElementById("nsState");
+    if(st){
+      if(nsComplete){ st.className="ns-state nonstd";
+        st.innerHTML="<div class='nss-head'>a nonstandard model</div><div class='nss-body'>The whole theory <span class='mono'>{ c > n : every n }</span> forces <span class='mono'>c</span> past every standard number. Each finite part is satisfiable in <span class='mono'>\u2115</span>, so by compactness the whole has a model \u2014 necessarily nonstandard, with <span class='mono'>c</span> an infinite element above the standard block <span class='mono'>\u2115 + \u2124\u00b7\u03b7</span>.</div>";
+      } else { st.className="ns-state std";
+        st.innerHTML="<div class='nss-head'>satisfiable in \u2115</div><div class='nss-body'>"+(nsLevel===0?"No constraints yet \u2014 <span class='mono'>\u2115</span> models <span class='mono'>PA</span>, with <span class='mono'>c</span> any number.":"Take <span class='mono'>c = "+nsLevel+"</span>. Every finite batch of axioms is met by a standard number; the standard model satisfies everything so far.")+"</div>";
+      }
+    }
+    var dis=document.getElementById("nsDisagree");
+    if(dis){
+      if(nsComplete){ dis.style.display="grid"; dis.innerHTML=
+        "<div class='ns-mod standard'><h5>the standard model \u2115</h5>"+
+          "<div class='nsm-row'><span>Con(PA)</span><span class='nsm-v T'>true</span></div>"+
+          "<div class='nsm-row'><span>Gödel G</span><span class='nsm-v T'>true</span></div>"+
+          "<div class='nsm-row'><span>infinite c</span><span class='nsm-v F'>none</span></div></div>"+
+        "<div class='ns-mod nonstandard'><h5>a nonstandard model of PA + \u00acCon</h5>"+
+          "<div class='nsm-row'><span>Con(PA)</span><span class='nsm-v F'>false</span></div>"+
+          "<div class='nsm-row'><span>Gödel G</span><span class='nsm-v F'>false</span></div>"+
+          "<div class='nsm-row'><span>infinite c</span><span class='nsm-v T'>present</span></div></div>";
+      } else { dis.style.display="none"; dis.innerHTML=""; }
+    }
+    var add=document.getElementById("nsAdd"), lim=document.getElementById("nsLimit");
+    if(add){ var capped=(nsLevel>=NSMAX||nsComplete); add.disabled=capped; add.style.opacity=capped?".45":""; add.style.cursor=capped?"default":""; add.textContent=(nsLevel>=NSMAX&&!nsComplete)?"\u2026 infinitely many remain":"add the next axiom \u2192"; }
+    if(lim){ lim.disabled=nsComplete; lim.style.opacity=nsComplete?".45":""; lim.style.cursor=nsComplete?"default":""; }
+  }
+
+  /* ============ INIT ============ */
+  function init(){
+    try{ losRender(); }catch(e){}
+    try{ cardRender(); }catch(e){}
+    try{ nsRender();
+      var a=document.getElementById("nsAdd"); if(a)a.addEventListener("click",function(){ if(nsLevel<NSMAX&&!nsComplete){nsLevel++;nsRender();} });
+      var l=document.getElementById("nsLimit"); if(l)l.addEventListener("click",function(){ nsComplete=true;nsRender(); });
+      var r=document.getElementById("nsReset"); if(r)r.addEventListener("click",function(){ nsLevel=0;nsComplete=false;nsRender(); });
+    }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-law.html">← The Law</a><a rel="next" href="quodlibet-the-keystone.html">The Keystone →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

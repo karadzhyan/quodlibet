@@ -1,0 +1,13 @@
+T H E T H E O R E M · L A W V E R E , 1 9 6 9
+In a setting closed under naming and
+application, if some φ names every map A → B,
+then every twist α : B → B has a fixed point.
+1. Given α, set g(x) = α(φ(x)(x)).
+2. Since φ names every map, some a has
+φ(a) = g.
+3. Then s = φ(a)(a) = g(a) = α(φ(a)(a)) =
+α(s).
+So α(s) = s. ∎
+No negation. No numbers. No infinity. The
+whole of it is: name, apply, twist.
+4

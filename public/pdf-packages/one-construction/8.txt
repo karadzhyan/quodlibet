@@ -1,0 +1,14 @@
+colophon
+One Construction is the print distillation of Quodlibet
+— a six-volume study of self-reference and the single
+theorem beneath it. Where the volumes chart the
+territory, this folio keeps only the spine: that one
+construction is the reason a formal system can compute
+anything, and the reason it cannot decide everything —
+and that these are one reason, not two.
+I The Diagonal · II The Atlas · III The Engine
+IV The Ascent · V The Descent · VI The Mirror
+— and the apparatus, Scholia
+g(x) = α(φ(x)(x))
+After Lawvere, 1969 · Cantor · Gödel · Turing · Kleene
+Set in Spectral & IBM Plex Mono

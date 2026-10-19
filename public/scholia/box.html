@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Box — provability logic, and the unique fixed point</title>
+<style>
+
+
+
+
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== a fifth, cool accent for technique-transfer ===== */
+  :root{ --steel:#3d5a6b; --steel-deep:#2e4654; --steel-soft:rgba(61,90,107,.09); --steel-line:rgba(61,90,107,.32); }
+
+  /* ===== formal definitions (numbered) ===== */
+  .defn{border:1px solid var(--panelhair);border-left:2px solid var(--faintest);border-radius:0 3px 3px 0;padding:.95rem 1.15rem;margin:1.1rem 0;background:rgba(26,24,21,.012);}
+  .defn .dl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .defn .ds{font-size:1rem;line-height:1.6;color:var(--ink);}
+  .defn .ds b{font-weight:600;} .defn .ds .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+
+  /* ===== the bridge-assumption inspector ===== */
+  .br-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .br-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.42rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .br-opt:hover{background:rgba(26,24,21,.05);}
+  .br-opt .bd{width:8px;height:8px;border-radius:50%;flex:none;}
+  .br-opt.t-iso .bd{background:var(--teal);} .br-opt.t-tech .bd{background:var(--steel);} .br-opt.t-eng .bd{background:var(--gold);} .br-opt.t-sug .bd{background:var(--red);border-radius:50%;}
+  .br-opt.t-sug .bd{background:transparent;border:1.4px solid var(--red);}
+  .br-opt.on{color:var(--paper);border-color:var(--ink);} .br-opt.on.t-iso{background:var(--teal-deep);border-color:var(--teal-deep);} .br-opt.on.t-tech{background:var(--steel-deep);border-color:var(--steel-deep);} .br-opt.on.t-eng{background:var(--gold-deep);border-color:var(--gold-deep);} .br-opt.on.t-sug{background:var(--red-deep);border-color:var(--red-deep);}
+  .br-opt.on .bd{background:var(--paper)!important;border-color:var(--paper)!important;}
+  .br-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;}
+  .br-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);}
+  .br-head.t-iso{background:var(--teal-soft);} .br-head.t-tech{background:var(--steel-soft);} .br-head.t-eng{background:var(--gold-soft,rgba(147,114,52,.08));} .br-head.t-sug{background:var(--red-soft);}
+  .br-type{display:inline-flex;align-items:center;gap:.45rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .br-type.t-iso{color:var(--teal-deep);} .br-type.t-tech{color:var(--steel-deep);} .br-type.t-eng{color:var(--gold-deep);} .br-type.t-sug{color:var(--red-deep);}
+  .br-name{font-family:"Spectral",serif;font-weight:500;font-size:1.4rem;letter-spacing:-.01em;margin:0 0 .15rem;}
+  .br-claim{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .br-body{padding:1.1rem 1.2rem;}
+  .br-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.6rem;}
+  .br-assum{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;padding:.5rem 0;border-bottom:1px dashed var(--hair);}
+  .br-assum:last-of-type{border-bottom:none;}
+  .br-assum .ba-tag{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);font-weight:500;white-space:nowrap;}
+  .br-assum .ba-txt{font-size:.92rem;line-height:1.5;color:var(--soft1);}
+  .br-assum .ba-txt .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;}
+  .br-assum .ba-st{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .45rem;border-radius:3px;white-space:nowrap;}
+  .ba-st.holds{background:var(--teal-soft);color:var(--teal-deep);} .ba-st.theorem{background:rgba(147,114,52,.1);color:var(--gold-deep);} .ba-st.none{background:var(--red-soft);color:var(--red-deep);}
+  .br-none{font-size:.94rem;line-height:1.55;color:var(--faint);font-style:italic;padding:.3rem 0;}
+  .br-verdict{margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--hair);font-size:.98rem;line-height:1.6;color:var(--ink);}
+  .br-verdict b{font-weight:600;}
+
+  /* ===== boundary legend ===== */
+  .bd-legend{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .bd-legend{grid-template-columns:1fr;} }
+  .bd-cell{background:var(--paper);padding:1rem 1.15rem;}
+  .bd-cell .bc-h{display:flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:.35rem;}
+  .bd-cell .bc-dot{width:9px;height:9px;border-radius:50%;}
+  .bd-cell.t-iso .bc-h{color:var(--teal-deep);} .bd-cell.t-iso .bc-dot{background:var(--teal);}
+  .bd-cell.t-tech .bc-h{color:var(--steel-deep);} .bd-cell.t-tech .bc-dot{background:var(--steel);}
+  .bd-cell.t-eng .bc-h{color:var(--gold-deep);} .bd-cell.t-eng .bc-dot{background:var(--gold);}
+  .bd-cell.t-sug .bc-h{color:var(--red-deep);} .bd-cell.t-sug .bc-dot{background:transparent;border:1.4px solid var(--red);}
+  .bd-cell p{font-size:.88rem;line-height:1.5;color:var(--soft1);margin:0;}
+  .bd-cell p .ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);}
+
+  /* ===== supplement: the four fates (instance schema) ===== */
+  :root{ --fate-absent:#7c766a; --fate-benign:#2c6e6a; --fate-explosive:#b23a2e; --fate-undecided:#937234; }
+  .ins-dict{display:grid;grid-template-columns:auto 1fr;gap:.35rem .9rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;margin:.2rem 0 0;}
+  .ins-dict b{color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .ins-dict span{color:var(--soft1);}
+  .ins-step{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;background:rgba(26,24,21,.025);border:1px solid var(--panelhair);border-radius:3px;padding:.8rem 1rem;margin:.2rem 0;}
+  .ins-step .bad{color:var(--red-deep);} .ins-step .good{color:var(--teal-deep);}
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+  .fate-badge .fdot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .fate-absent{color:var(--fate-absent);} .fate-absent .fdot{background:transparent;border:1.5px solid var(--fate-absent);}
+  .fate-benign{color:var(--fate-benign);} .fate-benign .fdot{background:var(--fate-benign);}
+  .fate-explosive{color:var(--fate-explosive);} .fate-explosive .fdot{background:var(--fate-explosive);}
+  .fate-undecided{color:var(--fate-undecided);} .fate-undecided .fdot{background:var(--fate-undecided);}
+  .ins-outcome{padding:1rem 1.15rem;border-radius:3px;margin-top:.2rem;}
+  .ins-outcome.f-absent{background:rgba(124,118,106,.07);border:1px solid rgba(124,118,106,.3);}
+  .ins-outcome.f-benign{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .ins-outcome.f-explosive{background:var(--red-soft);border:1px solid var(--red-line);}
+  .ins-outcome.f-undecided{background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .ins-outcome .io-fate{font-family:"Spectral",serif;font-weight:600;font-size:1.32rem;margin:.45rem 0 .3rem;}
+  .ins-outcome.f-absent .io-fate{color:var(--fate-absent);} .ins-outcome.f-benign .io-fate{color:var(--fate-benign);}
+  .ins-outcome.f-explosive .io-fate{color:var(--fate-explosive);} .ins-outcome.f-undecided .io-fate{color:var(--fate-undecided);}
+  .ins-outcome .io-gloss{font-size:.92rem;line-height:1.52;color:var(--soft1);}
+  .ins-outcome .io-verdict{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.65rem;letter-spacing:.01em;}
+  .dial-opt.rec.on{background:var(--teal-deep);border-color:var(--teal-deep);}
+
+  /* ===== supplement: rank badge (boundary + grid) ===== */
+  .rank-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.16rem .5rem;border-radius:3px;}
+  .rank-badge .rdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .rank-iso{color:var(--teal-deep);background:var(--teal-soft);} .rank-iso .rdot{background:var(--teal);}
+  .rank-tech{color:var(--steel-deep);background:var(--steel-soft);} .rank-tech .rdot{background:var(--steel);}
+  .rank-eng{color:var(--gold-deep);background:var(--gold-soft);} .rank-eng .rdot{background:var(--gold);}
+  .rank-sug{color:var(--red-deep);background:var(--red-soft);} .rank-sug .rdot{background:transparent;border:1.4px solid var(--red);}
+  .rank-root{color:var(--ink);background:rgba(26,24,21,.06);} .rank-root .rdot{background:var(--ink);}
+  .vol-card .vc-rank{margin-top:.55rem;}
+  .vol-card .vol-num{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;color:var(--faintest);float:right;}
+
+  /* ===== supplement: proof warrant column + toggle ===== */
+  .pf-toggle{display:flex;gap:.4rem;justify-content:center;margin-bottom:1rem;}
+  .pstep .pbody .pw{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);margin-top:.35rem;}
+  .pstep.qed .pbody .pw{color:var(--teal-deep);}
+
+  /* ===== supplement: two-axes hinge labels reuse, plus a small note ===== */
+  .axis-note{font-size:.9rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;text-align:center;max-width:42rem;margin-left:auto;margin-right:auto;}
+  .axis-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== supplement II: provability-core fixed points (§IV) ===== */
+  .gl-ax{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin:.3rem 0 .2rem;}
+  .gl-chip{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.3rem .65rem;}
+  .gl-chip.key{background:var(--gold-soft);color:var(--gold-deep);border-color:var(--gold-line);font-weight:500;}
+  .gl-chip.rule{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .fp-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:var(--teal-soft);}
+  .fp-head .fp-kind{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-deep);font-weight:600;margin-bottom:.4rem;}
+  .fp-head .fp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.32rem;letter-spacing:-.01em;margin:0 0 .35rem;}
+  .fp-head .fp-schema{font-family:"IBM Plex Mono",monospace;font-size:.96rem;color:var(--ink);}
+  .fp-head .fp-schema .hot{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.1rem 1.2rem;}
+  .fp-fp{display:flex;align-items:baseline;gap:.6rem .8rem;flex-wrap:wrap;padding:.75rem .95rem;background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;margin-bottom:.95rem;}
+  .fp-fp .fpl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-deep);}
+  .fp-fp .fpv{font-family:"IBM Plex Mono",monospace;font-size:1.1rem;font-weight:600;color:var(--teal-deep);}
+  .fp-fp .fpn{font-size:.9rem;color:var(--soft1);font-style:italic;}
+  .fp-vlab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin:.2rem 0 .55rem;}
+  .fp-verify{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.95rem;}
+  .fp-vstep{display:grid;grid-template-columns:2.4rem 1fr;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;padding:.4rem .65rem;border-left:2px solid var(--hair);background:rgba(26,24,21,.012);}
+  .fp-vstep .vk{color:var(--faintest);white-space:nowrap;font-size:.74rem;}
+  .fp-vstep .vv{color:var(--ink);} .fp-vstep .vv .hot{color:var(--red-deep);}
+  .fp-vstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);} .fp-vstep.qed .vv{color:var(--teal-deep);font-weight:500;} .fp-vstep.qed .vk{color:var(--teal-deep);}
+  .fp-read{font-size:.94rem;line-height:1.6;color:var(--soft1);padding-top:.75rem;border-top:1px solid var(--hair);}
+  .fp-read b{color:var(--ink);font-weight:600;}
+
+  /* ============================================================
+     DEEP-DIVE SUPPLEMENT — components specific to The Substrate
+     ============================================================ */
+
+  /* a depth marker on the hero — this is the apparatus opened up */
+  .depth-mark{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.1rem;}
+  .depth-mark .of{color:var(--faintest);}
+
+  /* static derivations — numbered, justified, monospace */
+  .deriv{display:flex;flex-direction:column;gap:.4rem;margin:1.1rem auto;max-width:42rem;}
+  .deriv.wide{max-width:46rem;}
+  .drow{display:grid;grid-template-columns:2.6rem 1fr;gap:.7rem;align-items:baseline;padding:.45rem .7rem;border-left:2px solid var(--rule);background:rgba(26,24,21,.012);border-radius:0 3px 3px 0;}
+  .drow .dn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .drow .db{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.55;color:var(--ink);}
+  .drow .db .hot{color:var(--red-deep);} .drow .db .cool{color:var(--teal-deep);}
+  .drow .dj{display:block;font-family:"Spectral",serif;font-style:italic;font-size:.86rem;color:var(--faint);margin-top:.2rem;}
+  .drow.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .drow.qed .dn{color:var(--teal-deep);} .drow.qed .db{color:var(--teal-deep);font-weight:500;}
+  .drow.hl{border-left-color:var(--red-line);background:var(--red-soft);}
+
+  /* a labelled proof wrapper */
+  .proofwrap{margin:1.2rem auto;max-width:42rem;}
+  .proofwrap .pw-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .proofwrap.wide{max-width:46rem;}
+  .pw-prose{font-size:.98rem;line-height:1.66;color:var(--ink);}
+  .pw-prose .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+  .pw-prose .qedmark{float:right;color:var(--teal-deep);font-weight:600;}
+
+  /* example / non-example dyad */
+  .dyad{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:44rem;}
+  @media(max-width:640px){ .dyad{grid-template-columns:1fr;} }
+  .dyad-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .dyad-cell .dc-h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .dyad-cell.yes .dc-h{color:var(--teal-deep);} .dyad-cell.no .dc-h{color:var(--red-deep);}
+  .dyad-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.08rem;margin:0 0 .4rem;}
+  .dyad-cell p{font-size:.88rem;line-height:1.52;color:var(--soft1);margin:0 0 .5rem;}
+  .dyad-cell p:last-child{margin-bottom:0;}
+  .dyad-cell .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--faint);}
+
+  /* the genera explorer */
+  .gx-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .gx-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.02);}
+  .gx-tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .gx-name{font-family:"Spectral",serif;font-weight:500;font-size:1.3rem;letter-spacing:-.01em;margin:0 0 .2rem;}
+  .gx-sub{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .gx-body{padding:.6rem 1.2rem 1.1rem;}
+  .gx-rows{margin:.3rem 0;}
+  .gx-rows .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.42rem 0;font-size:.88rem;border-bottom:1px solid var(--hair);}
+  .gx-rows .dirow:last-child{border-bottom:none;}
+  .gx-rows .dirow .dk{color:var(--soft1);} .gx-rows .dirow .dk .sm{color:var(--faintest);font-size:.9em;}
+  .gx-rows .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.8rem;white-space:nowrap;}
+  .gx-rows .dirow .dv.yes{color:var(--teal-deep);} .gx-rows .dirow .dv.no{color:var(--red-deep);}
+  .gx-note{font-size:.9rem;line-height:1.56;color:var(--soft1);padding-top:.75rem;margin-top:.4rem;border-top:1px solid var(--hair);}
+  .gx-note b{color:var(--ink);font-weight:600;}
+  .gx-note.coin{background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;padding:.7rem .9rem;margin-top:.7rem;}
+  .gx-note.coin b{color:var(--teal-deep);}
+
+  /* the iteration ladder (Kleene ascent to lfp) */
+  .itr-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.9rem;}
+  .itr-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .itr-btn:hover{opacity:.85;} .itr-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .itr-btn.go{background:var(--teal-deep);}
+  .itr-read{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);} .itr-read b{color:var(--ink);}
+  .itr-chain{display:flex;flex-direction:column;gap:.35rem;}
+  .itr-step{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.55rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .itr-step .is-n{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .itr-step .is-v{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--ink);letter-spacing:.01em;}
+  .itr-step .is-v .new{color:var(--teal-deep);font-weight:600;}
+  .itr-step .is-d{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--gold-deep);white-space:nowrap;}
+  .itr-step.fixed{border-color:var(--teal-line);background:var(--teal-soft);}
+  .itr-step.fixed .is-n{color:var(--teal-deep);} .itr-step.fixed .is-d{color:var(--teal-deep);}
+  .itr-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--teal-deep);padding:.7rem;border:1px dashed var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.3rem;}
+
+  /* small inline glyph row for the hero signature */
+  .sig-row{display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:clamp(.85rem,2vw,1.05rem);color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;letter-spacing:.01em;}
+  .sig-row .o{color:var(--red-deep);} .sig-row .d{color:var(--faintest);}
+
+  /* a structural strata bar used as a section opener */
+  .strata{display:flex;gap:2px;margin:0 auto 1.4rem;max-width:42rem;}
+  .strata span{height:5px;flex:1;border-radius:2px;opacity:.5;}
+  .strata .s1{background:var(--steel);} .strata .s2{background:var(--gold);} .strata .s3{background:var(--teal);} .strata .s4{background:var(--red);}
+
+  /* tightened figure label reused inline */
+  .blab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem;}
+
+  /* ============================================================
+     THE FULCRUM — proof-chase + two-faces supplement
+     ============================================================ */
+
+  /* commutative-diagram highlighting (elements carry .cd-el; JS toggles .dim) */
+  .cd-el{transition:opacity .32s ease;}
+  .cd-el.dim{opacity:.13;}
+
+  /* the proof-chase current line */
+  .chase-line{font-family:"Spectral",serif;font-size:1.05rem;line-height:1.6;color:var(--ink);background:var(--paper);border:1px solid var(--panelhair);border-left:3px solid var(--red);border-radius:0 4px 4px 0;padding:.95rem 1.15rem;margin-top:1.1rem;min-height:3rem;}
+  .chase-line .cl-n{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);display:block;margin-bottom:.4rem;}
+  .chase-line .cl-m{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--soft1);}
+  .chase-line .cl-m .hot{color:var(--red-deep);} .chase-line .cl-m .cool{color:var(--teal-deep);}
+  .chase-line .cl-j{display:block;font-size:.88rem;font-style:italic;color:var(--faint);margin-top:.5rem;line-height:1.5;}
+  .chase-line.qed{border-left-color:var(--teal);background:var(--teal-soft);} .chase-line.qed .cl-n{color:var(--teal-deep);}
+  .chase-count{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);} .chase-count b{color:var(--ink);}
+
+  /* the two-faces reader */
+  .tf-eq{font-family:"IBM Plex Mono",monospace;font-size:clamp(1.3rem,4.4vw,1.85rem);text-align:center;color:var(--ink);margin:1.1rem 0 .5rem;letter-spacing:.02em;}
+  .tf-eq .v{color:var(--red-deep);font-weight:500;}
+  .tf-line{text-align:center;margin:.7rem 0 .2rem;}
+  .tf-badge{display:inline-flex;align-items:center;gap:.55rem;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;font-weight:600;padding:.45rem 1rem;border-radius:3px;}
+  .tf-badge .tfdot{width:8px;height:8px;border-radius:50%;}
+  .tf-badge.power{color:var(--teal-deep);background:var(--teal-soft);} .tf-badge.power .tfdot{background:var(--teal);}
+  .tf-badge.limit{color:var(--red-deep);background:var(--red-soft);} .tf-badge.limit .tfdot{background:var(--red);}
+  .tf-what{font-size:.96rem;line-height:1.62;color:var(--soft1);border-top:1px solid var(--hair);padding-top:.85rem;margin-top:.95rem;}
+  .tf-what b{color:var(--ink);font-weight:600;} .tf-what .m{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--faint);}
+
+  /* a compact statement-forms table */
+  .forms{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.9rem;}
+  .forms th,.forms td{text-align:left;padding:.6rem .7rem;border-bottom:1px solid var(--hair);vertical-align:top;}
+  .forms th{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);font-weight:500;border-bottom:1px solid var(--rule);}
+  .forms td:first-child{font-family:"Spectral",serif;font-style:italic;color:var(--ink);white-space:nowrap;padding-right:1.2rem;}
+  .forms .m{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);}
+  .forms .need{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--gold-deep);}
+
+  /* ============================================================
+     THE FATES — instance-inspector + fate-decision-tree supplement
+     ============================================================ */
+
+  /* the four fates — coloured badges */
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.42rem .9rem;border-radius:3px;}
+  .fate-badge .fdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .fate-badge.benign{color:var(--teal-deep);background:var(--teal-soft);} .fate-badge.benign .fdot{background:var(--teal);}
+  .fate-badge.absent{color:var(--gold-deep);background:rgba(147,114,52,.10);} .fate-badge.absent .fdot{background:var(--gold);}
+  .fate-badge.explosive{color:var(--red-deep);background:var(--red-soft);} .fate-badge.explosive .fdot{background:var(--red);}
+  .fate-badge.undecided{color:var(--steel);background:rgba(61,90,107,.11);} .fate-badge.undecided .fdot{background:var(--steel);}
+
+  /* the fate map — four labelled rows */
+  .fate-map{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin:1.3rem 0;}
+  .fate-row{display:grid;grid-template-columns:11rem 1fr;gap:1.1rem;background:var(--paper);padding:1rem 1.15rem;align-items:start;}
+  @media(max-width:620px){ .fate-row{grid-template-columns:1fr;gap:.5rem;} }
+  .fate-row .fr-l{display:flex;flex-direction:column;gap:.5rem;}
+  .fate-row .fr-when{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);line-height:1.4;}
+  .fate-row .fr-body{font-size:.92rem;line-height:1.55;color:var(--soft1);}
+  .fate-row .fr-body b{color:var(--ink);font-weight:600;} .fate-row .fr-body .m{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--faint);}
+  .fate-row .fr-inst{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);margin-top:.35rem;}
+
+  /* the decision tree */
+  .ftree{border:1px solid var(--panelhair);border-radius:4px;padding:1.2rem;background:rgba(26,24,21,.012);}
+  .ftq{margin-bottom:.4rem;}
+  .ftq-n{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .ftq-t{font-family:"Spectral",serif;font-size:1.12rem;line-height:1.45;color:var(--ink);margin-bottom:.9rem;}
+  .ftq-t .m{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--soft1);}
+  .ft-ans{display:flex;flex-wrap:wrap;gap:.6rem;}
+  .ft-ans button{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:.55rem .95rem;cursor:pointer;transition:all .15s;text-align:left;}
+  .ft-ans button:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .ft-ans button .sub{display:block;font-size:.66rem;color:var(--faintest);margin-top:.2rem;}
+  .ft-path{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:1rem;min-height:1.4rem;}
+  .ft-crumb{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--soft1);background:rgba(26,24,21,.04);border-radius:3px;padding:.25rem .55rem;}
+  .ft-crumb .a{color:var(--teal-deep);}
+  .ft-arrow{color:var(--faintest);font-size:.7rem;}
+  .ft-result{border-radius:4px;padding:1.1rem 1.2rem;border:1px solid var(--panelhair);}
+  .ft-result .ftr-head{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.7rem;}
+  .ft-result .ftr-t{font-family:"Spectral",serif;font-weight:500;font-size:1.2rem;}
+  .ft-result .ftr-body{font-size:.94rem;line-height:1.6;color:var(--soft1);} .ft-result .ftr-body b{color:var(--ink);}
+  .ft-result .ftr-inst{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--soft1);margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--hair);}
+  .ft-reset{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--red-deep);background:none;border:1px solid var(--red-line);border-radius:3px;padding:.4rem .8rem;cursor:pointer;margin-top:.9rem;}
+
+  /* the instance inspector — four-tuple display */
+  .ix-tuple{display:grid;grid-template-columns:auto 1fr;gap:.1rem .9rem;margin:.4rem 0 .2rem;}
+  .ix-tuple .tk{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding:.4rem 0;white-space:nowrap;border-bottom:1px solid var(--hair);}
+  .ix-tuple .tv{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);padding:.4rem 0;border-bottom:1px solid var(--hair);}
+  .ix-tuple .tv .note{color:var(--faint);font-size:.92em;}
+  .ix-g{font-family:"IBM Plex Mono",monospace;font-size:.86rem;text-align:center;color:var(--red-deep);background:var(--red-soft);border-radius:3px;padding:.55rem;margin:.8rem 0 .4rem;}
+  .ix-eq{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--soft1);margin-bottom:.7rem;}
+  .ix-eq .v{color:var(--red-deep);font-weight:500;}
+
+  /* ============================================================
+     THE BOX — Kripke-frame evaluator + fixed-point calculator
+     ============================================================ */
+
+  /* Kripke frame evaluator */
+  .kf-controls{display:flex;flex-wrap:wrap;gap:1.4rem;align-items:flex-start;justify-content:center;margin:1.1rem 0 .4rem;}
+  .kf-group{display:flex;flex-direction:column;gap:.5rem;}
+  .kf-glab{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faintest);text-align:center;}
+  .kf-toggles{display:flex;gap:.4rem;justify-content:center;}
+  .kf-tog{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.42rem .7rem;border:1px solid var(--rule);border-radius:3px;cursor:pointer;background:var(--paper);color:var(--soft1);transition:all .14s;}
+  .kf-tog.on{border-color:var(--teal);color:var(--teal-deep);background:var(--teal-soft);}
+  .kf-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;max-width:30rem;}
+  .kf-eval{margin-top:1rem;display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;}
+  .kf-cell{font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.5rem .85rem;border-radius:3px;border:1px solid var(--panelhair);text-align:center;}
+  .kf-cell .w{color:var(--faintest);display:block;font-size:.7rem;margin-bottom:.2rem;}
+  .kf-cell .t{font-weight:600;}
+  .kf-cell.tt{background:var(--teal-soft);border-color:var(--teal-line);} .kf-cell.tt .t{color:var(--teal-deep);}
+  .kf-cell.ff{background:var(--red-soft);border-color:var(--red-line);} .kf-cell.ff .t{color:var(--red-deep);}
+  .kf-verdict{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;margin-top:.9rem;color:var(--soft1);}
+  .kf-verdict b{color:var(--ink);} .kf-verdict .valid{color:var(--teal-deep);} .kf-verdict .invalid{color:var(--red-deep);}
+
+  /* fixed-point calculator */
+  .fp-out{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:.95rem 1.15rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.02);}
+  .fp-tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .fp-ap{font-family:"IBM Plex Mono",monospace;font-size:1.08rem;color:var(--ink);} .fp-ap .p{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.05rem 1.15rem;}
+  .fp-arrow{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faintest);margin:.1rem 0 .5rem;}
+  .fp-h{font-family:"IBM Plex Mono",monospace;font-size:clamp(1.25rem,4vw,1.7rem);text-align:center;color:var(--teal-deep);margin:.2rem 0 .5rem;letter-spacing:.01em;}
+  .fp-h .eq{color:var(--faintest);font-weight:400;}
+  .fp-read{text-align:center;font-size:.94rem;line-height:1.5;color:var(--soft1);margin-bottom:.4rem;} .fp-read b{color:var(--ink);font-weight:600;}
+  .fp-just{font-size:.87rem;line-height:1.6;color:var(--faint);border-top:1px solid var(--hair);padding-top:.75rem;margin-top:.75rem;}
+  .fp-just .m{font-family:"IBM Plex Mono",monospace;font-size:.85em;color:var(--soft1);}
+
+  /* axiom list */
+  .axlist{display:flex;flex-direction:column;gap:.5rem;margin:1.1rem auto;max-width:40rem;}
+  .axrow{display:grid;grid-template-columns:5rem 1fr;gap:1rem;align-items:baseline;padding:.55rem .8rem;border-left:2px solid var(--rule);background:rgba(26,24,21,.012);border-radius:0 3px 3px 0;}
+  .axrow .axn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--red-deep);font-weight:500;}
+  .axrow .axf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);}
+  .axrow .axd{display:block;font-family:"Spectral",serif;font-style:italic;font-size:.86rem;color:var(--faint);margin-top:.2rem;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-scholia">Scholia</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">the apparatus, opened up · IV — the refinement</span></div>
+    <div class="hero-head">
+      <p class="depth-mark">Deep apparatus · IV &nbsp;<span class="of">— the refinement</span></p>
+      <h1 class="title">The <span class="x">Box</span></h1>
+      <p class="standfirst">The instances gave a fixed point; the refinement makes it the <em>only</em> one. When provability is treated as a modal operator — the box <span class="mono" style="font-size:.92em">□</span>, read "it is provable that" — the schematic laws of proof become a logic, <span class="mono" style="font-size:.92em">GL</span>, in which Löb's theorem is an axiom. And in that logic the diagonal sharpens beyond recognition: every self-referential sentence built from the box has a fixed point that is <em>unique</em> up to provable equivalence and <em>explicitly computable</em>. The most famous consequence is a single equation. The sentence "I am unprovable" is not merely <em>some</em> fixed point of negated provability; it is provably equal to "this theory is consistent." Self-reference, read through the box, has no slack at all.</p>
+      <div class="sig-row"><span>□(□A&#8202;→&#8202;A)</span><span class="o">→</span><span>□A</span></div>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">¬□p ↦ ¬□⊥</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The earlier deep-dives worked at the level of sentences: the diagonal lemma built a sentence asserting a property of itself, and Lawvere's theorem guaranteed such a fixed point exists. This one moves <i>up one storey</i> — not to reason in the theory <span class="mono">T</span> about numbers and sentences, but to reason <i>about</i> <span class="mono">T</span>'s own provability, using a modality. Write <span class="mono">□A</span> for "<span class="mono">A</span> is provable in <span class="mono">T</span>." The principles that <span class="mono">□</span> obeys — that proof respects implication, that what is proved is provably proved, and Löb's law — are not about any particular sentence; they are schematic, and they form a complete and decidable modal logic. That logic is <span class="mono">GL</span>, the Gödel–Löb logic of provability.</p>
+    <p>Four movements. First the operator and its logic <span class="mono">GL</span>, with what it asserts and the one thing it pointedly refuses. Then the <i>semantics</i> — finite, transitive, irreflexive frames — in which Löb's law becomes the geometric fact of well-foundedness, and Gödel's second theorem becomes a single world at the end of a chain. Then <i>Löb's theorem</i> itself, proved from the diagonal, and shown to be the axiom <span class="mono">GL</span> is named for. And then the <i>fixed-point theorem</i> of de Jongh and Sambin — existence, uniqueness, and an algorithm — which is the precise sense in which the refinement refines: among all the instances of the construction, the provability one carries a rigidity the others lack, and that rigidity is exactly the Löb structure.</p>
+  </div>
+
+  <!-- ===== §1 THE OPERATOR ===== -->
+  <section class="sec" id="operator">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">1 · the operator</span><h2>Provability as a modality, and the logic GL</h2><p class="sub">The schematic laws of provability are three: distribution, necessitation, and Löb. Together they are <span class="mono">GL</span> — and what makes <span class="mono">GL</span> the logic of provability rather than of truth is precisely the axiom it does <i>not</i> have.</p></div>
+    <div class="reading">
+      <p>A modality is an operator on propositions. Here the operator is <span class="mono">□</span>, intended as "provable in <span class="mono">T</span>," with its dual <span class="mono">◇A = ¬□¬A</span> reading "consistent with <span class="mono">T</span>." The language is ordinary propositional logic with <span class="mono">□</span> added; the laws governing <span class="mono">□</span> are read off the derivability conditions of §III, lifted to schemata.</p>
+    </div>
+    <div class="defn">
+      <div class="dl">the axioms and rules of GL</div>
+      <div class="ds">On top of classical propositional logic and modus ponens, <span class="m">GL</span> adds:</div>
+    </div>
+    <div class="axlist">
+      <div class="axrow"><span class="axn">K</span><span class="axf">□(A → B) → (□A → □B)<span class="axd">Provability respects implication — the distribution axiom of every normal modal logic.</span></span></div>
+      <div class="axrow"><span class="axn">Nec</span><span class="axf">from ⊢ A infer ⊢ □A<span class="axd">What is proved is provably proved — the necessitation rule (derivability condition D1).</span></span></div>
+      <div class="axrow"><span class="axn">L</span><span class="axf">□(□A → A) → □A<span class="axd">Löb's axiom — if it is provable that the provability of A would yield A, then A is already provable. This is the engine.</span></span></div>
+    </div>
+    <div class="reading">
+      <p>Two consequences fix the character of <span class="mono">GL</span>. First, the <i>transitivity</i> axiom <span class="mono">4 : □A → □□A</span> is a <i>theorem</i>, not a postulate — it follows from <span class="mono">L</span> alone. Second, and decisively, <span class="mono">GL</span> does <b>not</b> contain the <i>reflection</i> axiom <span class="mono">T : □A → A</span>. Provability does not imply truth; if it did, <span class="mono">□⊥ → ⊥</span> would make consistency provable, which §III forbade. The whole gap between <span class="mono">⊢</span> and <span class="mono">⊨</span> is encoded in the single missing axiom — <span class="mono">GL</span> is what remains of the logic of necessity when truth is withheld and only Löb's weakened reflection survives.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">Solovay's completeness theorem (1976) — GL <i>is</i> the logic of provability</div>
+      <div class="ts"><b>An arithmetical realization sends each modal formula <span class="mono">A</span> to an arithmetic sentence <span class="mono">A*</span>, interpreting <span class="mono">□</span> as <span class="mono">Prov_{PA}</span>. Then <span class="mono">GL ⊢ A</span> if and only if <span class="mono">PA ⊢ A*</span> for every realization.</b> The modal theorems of <span class="mono">GL</span> are exactly the schematic provability principles that <span class="mono">PA</span> can prove of itself — no more, no less. This is what licenses the entire enterprise: questions about provability in arithmetic become questions in a decidable propositional modal logic, and the diagonal phenomena of §III become modal derivations.</div>
+    </div>
+    <div class="axis-note">A clarification the corpus's honesty demands. <span class="mono">GL</span> is not a generalization of Lawvere's theorem; it is the logic of one specific operator, the provability box. Its relation to the construction is sharpening, not subsumption: among the instances of §III, the provability instance alone satisfies Löb's law, and that law is what will make its fixed point unique where the others' are merely existent. The refinement refines a single case — the deepest one.</div>
+  </section>
+
+  <!-- ===== §2 THE FRAMES ===== -->
+  <section class="sec" id="frames">
+    <div class="strata" aria-hidden="true"><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s1"></span></div>
+    <div class="sec-head"><span class="num">2 · the frames</span><h2>Where Löb becomes well-foundedness, and Gödel a world at the end</h2><p class="sub">The box has a geometry. <span class="mono">GL</span> is sound and complete for finite, transitive, irreflexive frames — and on such a frame Löb's law is the fact that there are no infinite ascents, while Gödel's second theorem is a single terminal world that believes everything is provable.</p></div>
+    <div class="reading">
+      <p>A Kripke frame is a set of worlds <span class="mono">W</span> with an accessibility relation <span class="mono">R</span>; the box quantifies forward along it. The content of <span class="mono">GL</span> is carried entirely by which frames it requires.</p>
+    </div>
+    <div class="defn">
+      <div class="dl">GL-frames and forcing</div>
+      <div class="ds">A <b>GL-frame</b> is a pair <span class="m">(W, R)</span> with <span class="m">R</span> <b>transitive</b> and <b>converse well-founded</b> — no infinite ascending chain <span class="m">w₀ R w₁ R w₂ R ⋯</span>, equivalently every non-empty subset has an <span class="m">R</span>-maximal element. Forcing is the usual modal clause: <span class="m">w ⊩ □A</span> iff <span class="m">v ⊩ A</span> for every <span class="m">v</span> with <span class="m">w R v</span>. The converse well-foundedness is exactly what makes Löb's axiom valid, and by the <b>finite model property</b> only <i>finite</i> such frames — finite transitive irreflexive orders — are needed.</div>
+    </div>
+    <div class="thm">
+      <div class="tl">soundness and completeness</div>
+      <div class="ts"><b><span class="mono">GL ⊢ A</span> if and only if <span class="mono">A</span> is valid on every finite transitive irreflexive frame.</b> The Löb axiom <span class="mono">□(□A→A)→□A</span> corresponds, frame-by-frame, to the conjunction of transitivity and converse well-foundedness: a frame validates Löb exactly when it has no infinite ascents. So the modal logic of provability and the geometry of well-founded orders are the same object seen twice — and the irreflexivity, that no world sees itself, is the relational shadow of the fact that provability has no fixed point of the form <span class="mono">□A ↔ A</span>.</div>
+    </div>
+    <div class="reading">
+      <p>The terminal worlds are where Gödel lives. At a world with no successors, <span class="mono">□A</span> is <i>vacuously true</i> for every <span class="mono">A</span> — there are no accessible worlds at which <span class="mono">A</span> could fail — so in particular <span class="mono">□⊥</span> holds there. Such a world "believes" that even <span class="mono">⊥</span> is provable; it sits at the end of every chain and sees nothing beyond. Consequently <span class="mono">¬□⊥</span> — consistency — <i>fails</i> at that world, so it is not valid, so it is not a theorem of <span class="mono">GL</span>. Gödel's second incompleteness theorem is that one terminal world. Evaluate it yourself.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">a Kripke-frame evaluator — a finite transitive irreflexive frame; toggle p, pick a formula, read its truth</div>
+        <svg viewBox="0 0 340 248" role="img" aria-label="A three-world frame: world a at the bottom accesses b and c; world b in the middle accesses c; world c at the top is terminal, accessing nothing." style="display:block;width:100%;max-width:300px;margin:0 auto 0;height:auto;overflow:visible">
+          <defs><marker id="kfa" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto"><path d="M0,0 L7.5,3 L0,6 Z" fill="#56514a"/></marker></defs>
+          <!-- arrows (drawn first, under nodes) -->
+          <line x1="150" y1="186" x2="150" y2="120" stroke="#56514a" stroke-width="1.3" marker-end="url(#kfa)"/>
+          <line x1="150" y1="104" x2="150" y2="40" stroke="#56514a" stroke-width="1.3" marker-end="url(#kfa)"/>
+          <path d="M128,196 C 70,150 70,80 128,38" fill="none" stroke="#56514a" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#kfa)"/>
+          <text x="74" y="120" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#a8a193">transitive</text>
+          <!-- nodes -->
+          <circle id="node-c" cx="150" cy="28" r="24" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5"/>
+          <text x="150" y="33" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="16" fill="#1a1815">c</text>
+          <text x="186" y="20" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#a8a193">leaf —</text>
+          <text x="186" y="33" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#a8a193">no successors</text>
+          <text id="kf-t-c" x="150" y="62" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#56514a"></text>
+          <circle id="node-b" cx="150" cy="112" r="24" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5"/>
+          <text x="150" y="117" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="16" fill="#1a1815">b</text>
+          <text id="kf-t-b" x="194" y="116" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#56514a"></text>
+          <circle id="node-a" cx="150" cy="196" r="24" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5"/>
+          <text x="150" y="201" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="16" fill="#1a1815">a</text>
+          <text id="kf-t-a" x="194" y="200" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#56514a"></text>
+        </svg>
+        <div class="kf-controls">
+          <div class="kf-group">
+            <span class="kf-glab">valuation of p</span>
+            <div class="kf-toggles">
+              <button class="kf-tog" id="kfP-a">p @ a</button>
+              <button class="kf-tog" id="kfP-b">p @ b</button>
+              <button class="kf-tog" id="kfP-c">p @ c</button>
+            </div>
+          </div>
+        </div>
+        <div class="kf-group" style="margin-top:.3rem">
+          <span class="kf-glab">formula to evaluate</span>
+          <div class="kf-pick" id="kfFormula" style="margin:.2rem auto 0"></div>
+        </div>
+        <div class="kf-verdict" id="kfVerdict"></div>
+        <figcaption>The frame has no infinite ascent, so it validates Löb. Select <span class="mono">¬□⊥</span> (consistency): it is true at <span class="mono">a</span> and <span class="mono">b</span> but <span style="color:var(--red-deep)">false at the leaf <span class="mono">c</span></span> — so it is not valid, and not a theorem. That single red world is Gödel's second theorem. By contrast Löb's axiom and transitivity stay <span style="color:var(--teal-deep)">true everywhere, for every valuation</span>; reflection <span class="mono">□p→p</span> can be made to fail. The geometry decides the logic.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== §3 LÖB'S LAW ===== -->
+  <section class="sec" id="lob">
+    <div class="strata" aria-hidden="true"><span class="s3"></span><span class="s4"></span><span class="s1"></span><span class="s2"></span></div>
+    <div class="sec-head"><span class="num">3 · Löb's law</span><h2>The theorem that became an axiom</h2><p class="sub">Löb's theorem says something that sounds too strong to be true: if a theory can prove that the provability of <span class="mono">A</span> would already give <span class="mono">A</span>, then it can prove <span class="mono">A</span> outright. Its proof is the diagonal once more, and its conclusion is the defining axiom of <span class="mono">GL</span>.</p></div>
+    <div class="reading">
+      <p>In 1955 Leon Henkin asked whether a sentence asserting its own provability — <span class="mono">H ↔ □H</span> — is true, or provable, or neither. The question has the same self-referential shape as Gödel's, but with the negation removed, and intuition gives no clear answer. Martin Löb answered it by proving a general principle, from which Henkin's sentence falls out at once: such a sentence is provable, hence true.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">Löb's theorem (1955)</div>
+      <div class="ts"><b>If <span class="mono">T ⊢ □A → A</span>, then <span class="mono">T ⊢ A</span>.</b> A theory can only prove the reflection principle for a sentence it can already prove. The proof builds, by the diagonal lemma, a sentence <span class="mono">ψ</span> that says "if I am provable, then <span class="mono">A</span>" — the Henkin–Löb sentence — and turns the hypothesis against it.</div>
+    </div>
+    <div class="proofwrap"><div class="deriv wide">
+      <div class="drow"><span class="dn">(0)</span><span class="db">By the diagonal lemma, fix <span class="hot">ψ</span> with &nbsp;T ⊢ ψ ↔ (□ψ → A).<span class="dj">The construction at θ(y) = (Prov(y) → A): a sentence asserting its own provability suffices for A.</span></span></div>
+      <div class="drow"><span class="dn">(1)</span><span class="db">From ψ → (□ψ → A): &nbsp;Nec, then K, then K and axiom 4 give &nbsp;T ⊢ □ψ → □A.<span class="dj">□(ψ→(□ψ→A)) ⟹ □ψ→□(□ψ→A) ⟹ □ψ→(□□ψ→□A); and □ψ→□□ψ, so □ψ→□A.</span></span></div>
+      <div class="drow"><span class="dn">(2)</span><span class="db">With the hypothesis □A → A: &nbsp;T ⊢ □ψ → A.</span></div>
+      <div class="drow"><span class="dn">(3)</span><span class="db">By the other direction (□ψ → A) → ψ: &nbsp;T ⊢ ψ. &nbsp;Then Nec gives T ⊢ □ψ.</span></div>
+      <div class="drow qed"><span class="dn">∎</span><span class="db">From □ψ and □ψ → A (line 2): &nbsp;T ⊢ A.<span class="dj" style="color:var(--teal-deep)">The sentence that said "my provability gives A" was provable, so its provability did give A.</span></span></div>
+    </div></div>
+    <div class="callout teal">
+      <div class="cl-lab">the theorem is the axiom — and Henkin is answered</div>
+      <p>Every step of that proof can be carried out under a box, which is to say <span class="mono">T</span> can prove it about itself: <span class="mono">T ⊢ □(□A → A) → □A</span>. That is Löb's axiom <span class="mono">L</span> — the formalized theorem — and it is what makes <span class="mono">GL</span> the logic it is. Two corollaries fall out immediately. Taking <span class="mono">A = ⊥</span>, the axiom reads <span class="mono">□(□⊥ → ⊥) → □⊥</span>, i.e. <span class="mono">□Con(T) → □⊥</span>; contrapositively a consistent <span class="mono">T</span> cannot prove its own consistency — <b>Gödel's second theorem</b>, in one line. And Henkin's sentence <span class="mono">H ↔ □H</span> gives <span class="mono">□H → H</span> trivially, so by Löb <span class="mono">T ⊢ H</span>: the sentence asserting its own provability <b>is provable</b>. Where Gödel's sentence flees provability, Henkin's embraces it — and Löb's law decides both.</p>
+    </div>
+    <div class="reading">
+      <p>Notice what just happened to Henkin's sentence. It was self-referential, built from the box, and it turned out to be provably equivalent to <span class="mono">⊤</span> — pinned to a value with no freedom at all. That was not luck. It is the first instance of a general phenomenon: in <span class="mono">GL</span>, every self-referential sentence built from the box has its truth-value determined, uniquely and computably. That theorem is the heart of the refinement.</p>
+    </div>
+  </section>
+
+  <!-- ===== §4 THE FIXED POINT ===== -->
+  <section class="sec" id="fixedpoint">
+    <div class="strata" aria-hidden="true"><span class="s4"></span><span class="s1"></span><span class="s2"></span><span class="s3"></span></div>
+    <div class="sec-head"><span class="num">4 · the fixed point</span><h2>Unique, and computable — the de Jongh–Sambin theorem</h2><p class="sub">The instances gave existence; this gives everything. For any self-referential pattern built from the box, the fixed point exists, is unique up to provable equivalence, and is produced by an algorithm. The diagonal, in the provability setting, has no remaining freedom.</p></div>
+    <div class="reading">
+      <p>Call a formula <span class="mono">A(p)</span> <b>modalized</b> in <span class="mono">p</span> if every occurrence of <span class="mono">p</span> lies within the scope of a <span class="mono">□</span> — as it does whenever <span class="mono">p</span> stands for a sentence reached only through "is provable." For such patterns the self-reference resolves completely.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">the fixed-point theorem (de Jongh, Sambin, ~1975)</div>
+      <div class="ts"><b>Let <span class="mono">A(p)</span> be modalized in <span class="mono">p</span>. Then there is a formula <span class="mono">H</span>, not containing <span class="mono">p</span> and built from the other letters of <span class="mono">A</span>, such that <span class="mono">GL ⊢ H ↔ A(H)</span>. It is <i>unique</i>: any <span class="mono">H'</span> with <span class="mono">GL ⊢ H' ↔ A(H')</span> satisfies <span class="mono">GL ⊢ H ↔ H'</span>. And it is <i>explicitly computable</i> from <span class="mono">A</span> by an algorithm.</b> Existence reproves the diagonal lemma for the provability case; the novelty — impossible without Löb's law — is uniqueness and calculability.</div>
+    </div>
+    <div class="proofwrap">
+      <div class="pw-lab">the uniqueness proof — Löb's axiom is what closes it</div>
+      <div class="deriv wide">
+        <div class="drow"><span class="dn">(1)</span><span class="db">Substitution lemma: as p is modalized in A, &nbsp;GL ⊢ □(q ↔ r) → (A(q) ↔ A(r)).<span class="dj">Boxed equivalence propagates through boxes; every occurrence of the variable sits inside one.</span></span></div>
+        <div class="drow"><span class="dn">(2)</span><span class="db">Suppose GL ⊢ q ↔ A(q) and GL ⊢ r ↔ A(r). With (1): &nbsp;GL ⊢ □(q ↔ r) → (q ↔ r).<span class="dj">Under □(q↔r), A(q)↔A(r); the two fixed-point equations then give q↔r.</span></span></div>
+        <div class="drow qed"><span class="dn">∎</span><span class="db">Write Y = (q ↔ r). From □Y → Y: Nec gives □(□Y → Y), so Löb's axiom gives <span class="cool">□Y</span>, and with □Y → Y, &nbsp;GL ⊢ Y. &nbsp;The fixed point is unique.<span class="dj" style="color:var(--teal-deep)">Exactly the move of §III's uniqueness was unavailable to recursion; here Löb supplies it.</span></span></div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The algorithm — Sambin's — computes the fixed point by recursion on the boxes of <span class="mono">A</span>, and always terminates. Its outputs are startling in their definiteness. Compute a few.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the fixed-point calculator — choose a self-referential pattern; read its unique fixed point and arithmetic meaning</div>
+        <div class="dial-pick" id="fpPick"></div>
+        <div class="fp-out" id="fpOut"></div>
+        <figcaption>Each pattern <span class="mono">A(p)</span> has exactly one fixed point in <span class="mono">GL</span>, and it is a concrete formula in the box alone. "I am unprovable" resolves to consistency; "I am provable" to <span class="mono">⊤</span>; "I am refutable" to inconsistency; "I am self-consistent" to <span class="mono">⊥</span>. The self-referential sentence is never mysterious — it is computed, and it is one thing.</figcaption>
+      </div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the equation that ends the mystery — G ↔ Con</div>
+      <p>The first row is the one to dwell on. Gödel's sentence satisfies <span class="mono">G ↔ ¬□G</span>; the calculator's fixed point of <span class="mono">¬□p</span> is <span class="mono">¬□⊥</span>; so <span class="mono">GL ⊢ G ↔ ¬□⊥</span>, and by Solovay <span class="mono">PA ⊢ G ↔ Con(PA)</span>. The sentence that says "I am not provable" is provably the same sentence as "this theory is consistent." The verification is pure Löb: since <span class="mono">¬□⊥ = (□⊥ → ⊥)</span>, the axiom gives <span class="mono">□¬□⊥ → □⊥</span>, while <span class="mono">□⊥ → □¬□⊥</span> is trivial, so <span class="mono">GL ⊢ □⊥ ↔ □¬□⊥</span> and hence <span class="mono">GL ⊢ ¬□⊥ ↔ ¬□¬□⊥</span> — <span class="mono">¬□⊥</span> is a fixed point of <span class="mono">¬□p</span>, and uniqueness makes it <i>the</i> one. The most famous self-referential sentence in mathematics was, all along, a statement about consistency wearing a disguise the box removes.</p>
+    </div>
+  </section>
+
+  <!-- ===== §5 THE RIGIDITY ===== -->
+  <section class="sec" id="rigidity">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s3"></span><span class="s2"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">5 · the rigidity</span><h2>Why self-reference is rigid here and floppy elsewhere</h2><p class="sub">The same construction gave a unique fixed point in <span class="mono">GL</span> and a multitude in the recursion theorem. The difference is exactly Löb's law — well-foundedness — and naming it precisely is what keeps the refinement honest.</p></div>
+    <div class="reading">
+      <p>Set the two fixed-point results of this corpus side by side. Kleene's recursion theorem (§III) produces, for a transformation <span class="mono">f</span>, an index <span class="mono">e</span> with <span class="mono">φ_e = φ_{f(e)}</span> — and then <i>infinitely many</i> others, since every function has infinitely many indices and the construction can be padded without end. There is no canonical fixed point; the quine is one of legion. The de Jongh–Sambin theorem (§IV) produces, for a modalized pattern, a fixed point that is <i>unique</i> up to provable equivalence. There is exactly one Gödel sentence up to equivalence, and it is consistency. Same construction; opposite verdicts on uniqueness.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">uniqueness is well-foundedness</div>
+      <div class="ts"><b>The fixed point is unique exactly when the ambient logic has Löb's law — converse well-foundedness — and not otherwise.</b> The uniqueness proof of §IV consumed Löb's axiom at its final step: from <span class="mono">□Y → Y</span> it extracted <span class="mono">Y</span>, a move valid only because <span class="mono">GL</span>'s frames forbid infinite ascent. The computable universe has no such well-foundedness on its indices — one can always climb to a larger code — so the same step is unavailable and uniqueness fails. The rigidity of arithmetical self-reference and the multiplicity of computational self-reference are not two facts but one, read at a structure that has Löb's law and at one that does not.</div>
+    </div>
+    <div class="dyad">
+      <div class="dyad-cell yes">
+        <div class="dc-h">provability — rigid</div>
+        <h4>GL: one fixed point</h4>
+        <p>Frames are converse well-founded; Löb's law holds. Every modalized pattern has a <i>unique</i>, computable fixed point. "I am unprovable" is <span class="m">Con</span>; "I am provable" is <span class="m">⊤</span>. Pinned, with no freedom.</p>
+        <p>Self-reference is fully determined. The disguise comes off and there is exactly one face beneath.</p>
+      </div>
+      <div class="dyad-cell no">
+        <div class="dc-h">computation — floppy</div>
+        <h4>recursion: a multitude</h4>
+        <p>No well-foundedness on indices; no Löb's law. The recursion theorem gives a fixed point and then <i>infinitely many</i> more — padding, re-indexing, endless variants. No quine is canonical.</p>
+        <p>Self-reference exists but is not located. The face beneath the disguise is one of uncountably many that would do.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">what the refinement refines — the honest statement</div>
+      <p>It would overclaim to say that <span class="mono">GL</span> generalizes Lawvere's theorem, or that provability logic is "the construction one storey up." Neither is true, and the corpus's discipline is to say so. What is true is precise and narrower: among the instances of §III, the provability instance alone satisfies Löb's law, and Löb's law is exactly the extra structure that converts the construction's <i>existence</i> of a fixed point into <i>uniqueness and computability</i>. The refinement refines one case. But it is the deepest case — the one where self-reference meets a theory reasoning about its own proofs — and there the diagonal is shown to have no slack: the fixed point is not a fixed point but <i>the</i> fixed point, and an algorithm hands it over. That is as sharp as the phenomenon ever becomes.</p>
+    </div>
+    <div class="reading">
+      <p>The box, then, is not a new construction but the old one stripped of its freedom. Provability is the diagonal made rigid; Löb's law is the rigidity; and the unique computable fixed point is what the diagonal looks like when the structure reasoning about it is well-founded. The next deep-dives ask what holds the instances together as instances — the formal theory of reduction — and where the construction's reach finally ends. But the refinement is the high-water mark of definiteness: nowhere else in the corpus is the self-referential object pinned so completely to a single, nameable thing.</p>
+    </div>
+  </section>
+
+  <!-- ===== CODA ===== -->
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">□(□A → A) → □A</span><span class="ln"></span></div>
+  <div class="coda"><p>One storey up, the diagonal loses its slack. Treat provability as the box, accept Löb's law as an axiom, and every self-referential sentence built from it has a fixed point that is unique and computed — the Gödel sentence revealed as consistency, Henkin's sentence as <span class="mono">⊤</span>, each disguise lifted to show the single thing beneath. The refinement adds nothing to the construction except the one structure that makes it rigid: well-foundedness, which is Löb's law, which is the box. <span class="mono">Existence was the instances; uniqueness is the refinement.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">the apparatus, opened up · IV — the refinement</span></div>
+    <p class="colophon">The fourth of the deep apparatus — the <i>Scholia</i>'s §IV, the refinement, unfolded to proof-depth. It treats provability as a modal operator and assembles its logic <span class="mono">GL</span> — distribution, necessitation, and Löb's axiom — noting that the absent reflection axiom is the modal form of the gap between <span class="mono">⊢</span> and <span class="mono">⊨</span>, and that Solovay's theorem makes <span class="mono">GL</span> exactly the provability logic of <span class="mono">PA</span>. It gives the Kripke semantics of finite transitive irreflexive frames, where Löb's law is converse well-foundedness and Gödel's second theorem is a single terminal world; proves Löb's theorem from the diagonal and shows it to be the defining axiom, with Gödel II and the resolution of Henkin's question as one-line corollaries; proves the de Jongh–Sambin fixed-point theorem — existence, the uniqueness argument that turns on Löb's axiom, and the algorithm — and computes the fixed points, finding that the Gödel sentence is provably consistency; and locates the rigidity of arithmetical self-reference precisely in Löb's well-foundedness, the structure that the recursion theorem lacks and that converts existence into uniqueness. The remaining deep-dives take the bridge-assumptions and the boundary to the same depth. Nothing here is new mathematics; saying exactly what the refinement refines, and no more, is the work.</p>
+    <p class="notes"><span class="nl">principal sources.</span> &nbsp;Löb 1955 · Solovay 1976 (arithmetical completeness) · de Jongh and Sambin 1975–76 (the fixed-point theorem) · Segerberg 1971 (the semantics) · Smoryński 1985 and Boolos 1993 (<i>The Logic of Provability</i>) · Bernardi, Sambin, and Valentini on the explicit constructions · Beklemishev on provability logics. Lawvere 1969 for the construction these refine.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on what is proved here.</span> &nbsp;The axioms and the omission of reflection are stated exactly; Solovay's theorem and the soundness–completeness of the frame semantics are cited, with the Gödel-II countermodel given concretely and made interactive. Löb's theorem (§3) is proved in full from the diagonal lemma and the derivability conditions, and its formalization as the axiom <span class="mono">L</span> noted. The fixed-point theorem's uniqueness (§4) is proved in full, with the dependence on Löb's axiom isolated; existence and computability are stated with the algorithm named, and the four worked fixed points are each verified — <span class="mono">¬□p ↦ ¬□⊥</span> in detail. The contrast with the recursion theorem's non-uniqueness (§5) is exact. Written to be checked.</p>
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+function E(t,c){var e=document.createElement(t); if(c) e.className=c; return e;}
+
+/* ============================================================
+   §2 interactive 1 — Kripke-frame evaluator
+   Frame: a -> {b,c}, b -> {c}, c -> {} (transitive, irreflexive,
+   converse well-founded). Recursive modal evaluation.
+   ============================================================ */
+var SUCC={a:["b","c"], b:["c"], c:[]};
+var WORLDS=["a","b","c"];
+var pVal={a:false, b:false, c:false};
+function ev(f, w){
+  switch(f[0]){
+    case "p":   return pVal[w];
+    case "bot": return false;
+    case "top": return true;
+    case "not": return !ev(f[1], w);
+    case "imp": return (!ev(f[1], w)) || ev(f[2], w);
+    case "box": return SUCC[w].every(function(v){ return ev(f[1], v); });
+  }
+  return false;
+}
+var KFORMS=[
+ {id:"con",   label:"\u00ac\u25a1\u22a5   (Con)",        ast:["not",["box",["bot"]]]},
+ {id:"boxbot",label:"\u25a1\u22a5",                       ast:["box",["bot"]]},
+ {id:"refl",  label:"\u25a1p \u2192 p   (reflection)",    ast:["imp",["box",["p"]],["p"]]},
+ {id:"lob",   label:"\u25a1(\u25a1p\u2192p) \u2192 \u25a1p   (L\u00f6b)", ast:["imp",["box",["imp",["box",["p"]],["p"]]],["box",["p"]]]},
+ {id:"four",  label:"\u25a1p \u2192 \u25a1\u25a1p   (4)",  ast:["imp",["box",["p"]],["box",["box",["p"]]]]}
+];
+var kfSel="con";
+function kfEval(){
+  var f=null; KFORMS.forEach(function(x){ if(x.id===kfSel) f=x.ast; });
+  if(!f) return;
+  var truth={}; var allTrue=true; var failWorlds=[];
+  WORLDS.forEach(function(w){ truth[w]=ev(f,w); if(!truth[w]){ allTrue=false; failWorlds.push(w); } });
+  WORLDS.forEach(function(w){
+    var node=document.getElementById("node-"+w);
+    var tt=document.getElementById("kf-t-"+w);
+    if(node){
+      node.setAttribute("fill", truth[w]?"#e6efeb":"#f4e6e2");
+      node.setAttribute("stroke", truth[w]?"#2c6e6a":"#b23a2e");
+    }
+    if(tt){ tt.textContent=truth[w]?"\u22a4":"\u22a5"; tt.setAttribute("fill", truth[w]?"#2c6e6a":"#b23a2e"); }
+  });
+  var vd=document.getElementById("kfVerdict");
+  if(vd){
+    if(allTrue){ vd.innerHTML="true at every world \u2014 <span class='valid'>valid on this frame</span>"; }
+    else { vd.innerHTML="<span class='invalid'>fails at world "+failWorlds.join(", ")+"</span> \u2014 not GL-valid"; }
+  }
+}
+function kfTogglePick(){
+  var host=document.getElementById("kfFormula"); if(!host) return; host.innerHTML="";
+  KFORMS.forEach(function(x){
+    var b=E("button","dial-opt"); b.dataset.id=x.id; b.textContent=x.label;
+    b.classList.toggle("on", x.id===kfSel);
+    b.addEventListener("click",function(){ kfSel=x.id; kfTogglePick(); kfEval(); });
+    host.appendChild(b);
+  });
+}
+function kfInit(){
+  WORLDS.forEach(function(w){
+    var t=document.getElementById("kfP-"+w);
+    if(t) t.addEventListener("click",function(){ pVal[w]=!pVal[w]; t.classList.toggle("on", pVal[w]); kfEval(); });
+  });
+  kfTogglePick(); kfEval();
+}
+
+/* ============================================================
+   §4 interactive 2 — the fixed-point calculator
+   Four modalized patterns, each with its unique GL fixed point.
+   ============================================================ */
+var FPS=[
+ {id:"neg", tab:"\u00ac\u25a1p", apPre:"\u00ac\u25a1", apPost:"",
+  hVal:"\u00ac\u25a1\u22a5",
+  read:"\u2018I am unprovable\u2019 is provably <b>consistency</b>, Con(T).",
+  just:"Since \u00ac\u25a1\u22a5 = (\u25a1\u22a5 \u2192 \u22a5), L\u00f6b\u2019s axiom gives \u25a1\u00ac\u25a1\u22a5 \u2192 \u25a1\u22a5, while \u25a1\u22a5 \u2192 \u25a1\u00ac\u25a1\u22a5 is trivial; so \u25a1\u22a5 \u2194 \u25a1\u00ac\u25a1\u22a5, hence \u00ac\u25a1\u22a5 \u2194 \u00ac\u25a1\u00ac\u25a1\u22a5. Uniqueness pins every fixed point of \u00ac\u25a1p to \u00ac\u25a1\u22a5."},
+ {id:"prov", tab:"\u25a1p", apPre:"\u25a1", apPost:"",
+  hVal:"\u22a4",
+  read:"Henkin\u2019s \u2018I am provable\u2019 is simply <b>provable</b>, \u22a4.",
+  just:"\u25a1\u22a4 is a theorem (necessitation of \u22a4), so \u22a4 \u2194 \u25a1\u22a4; \u22a4 is a fixed point of \u25a1p, and by L\u00f6b the Henkin sentence is provable."},
+ {id:"refut", tab:"\u25a1\u00acp", apPre:"\u25a1\u00ac", apPost:"",
+  hVal:"\u25a1\u22a5",
+  read:"\u2018I am refutable\u2019 is provably <b>inconsistency</b>, \u25a1\u22a5.",
+  just:"By L\u00f6b, \u25a1\u22a5 \u2194 \u25a1\u00ac\u25a1\u22a5, and A(\u25a1\u22a5) = \u25a1\u00ac\u25a1\u22a5; so \u25a1\u22a5 is the fixed point of \u25a1\u00acp."},
+ {id:"cons", tab:"\u00ac\u25a1\u00acp", apPre:"\u00ac\u25a1\u00ac", apPost:"   (\u25c7p)",
+  hVal:"\u22a5",
+  read:"\u2018I am self-consistent\u2019 collapses to <b>\u22a5</b> \u2014 provably false.",
+  just:"\u25c7\u22a5 = \u00ac\u25a1\u00ac\u22a5 = \u00ac\u25a1\u22a4, and \u25a1\u22a4 is a theorem, so \u00ac\u25a1\u22a4 \u2194 \u22a5; thus \u22a5 is the unique fixed point of \u25c7p."}
+];
+var FPById={}; FPS.forEach(function(x){ FPById[x.id]=x; });
+function renderFpPick(){
+  var host=document.getElementById("fpPick"); if(!host) return; host.innerHTML="";
+  FPS.forEach(function(x){
+    var b=E("button","dial-opt"); b.dataset.id=x.id;
+    b.appendChild(document.createTextNode(x.tab));
+    var s=E("span","dsub"); s.textContent="\u21a6 "+x.hVal; b.appendChild(s);
+    b.addEventListener("click",function(){ fpSelect(x.id); });
+    host.appendChild(b);
+  });
+}
+function fpSelect(id){
+  var x=FPById[id]; if(!x) return;
+  var pk=document.getElementById("fpPick");
+  if(pk) Array.prototype.forEach.call(pk.querySelectorAll(".dial-opt"),function(b){ b.classList.toggle("on", b.dataset.id===id); });
+  var host=document.getElementById("fpOut"); if(!host) return; host.innerHTML="";
+  var head=E("div","fp-head");
+  var tag=E("div","fp-tag"); tag.textContent="the self-referential pattern"; head.appendChild(tag);
+  var ap=E("div","fp-ap");
+  ap.appendChild(document.createTextNode("A(p) = "+x.apPre));
+  var ps=E("span","p"); ps.textContent="p"; ap.appendChild(ps);
+  ap.appendChild(document.createTextNode(x.apPost));
+  head.appendChild(ap);
+  host.appendChild(head);
+  var body=E("div","fp-body");
+  var arr=E("div","fp-arrow"); arr.textContent="its unique fixed point  H \u2194 A(H)  \u2193"; body.appendChild(arr);
+  var h=E("div","fp-h");
+  var eq=E("span","eq"); eq.textContent="H  =  "; h.appendChild(eq);
+  h.appendChild(document.createTextNode(x.hVal));
+  body.appendChild(h);
+  var read=E("div","fp-read"); read.innerHTML=x.read; body.appendChild(read);
+  var just=E("div","fp-just"); just.innerHTML=x.just; body.appendChild(just);
+  host.appendChild(body);
+}
+
+function init(){
+  try{ kfInit(); }catch(e){ console.error("kripke",e); }
+  try{ renderFpPick(); fpSelect("neg"); }catch(e){ console.error("fixedpoint",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="fates.html">← The Fates</a><a rel="next" href="bridges.html">The Bridges →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

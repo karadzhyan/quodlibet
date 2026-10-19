@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monopsony — The Apparatus · The Wage, plate viii</title>
+<style>
+  :root{
+    --paper:#f0ebe1; --ink:#1c1a16; --soft:#534e45; --faint:#6e685d; --faintest:#9a9384;
+    --num:#c4bcab; --hair:#ddd6c7; --sel:rgba(120,94,52,.16);
+    --live:#9c6b34; --live-deep:#7c5326; --live-soft:rgba(156,107,52,.13);
+    --live-line:rgba(156,107,52,.42);
+    --panel:rgba(28,26,22,.014); --panelhair:rgba(28,26,22,.10);
+    --frame:72rem; --read:37rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Newsreader",Georgia,serif;font-optical-sizing:auto;
+    font-size:19px;line-height:1.6;font-weight:400;font-feature-settings:"liga" 1,"calt" 1;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.5px solid var(--ink);outline-offset:4px;border-radius:1px;}
+  .fr{font-family:"Fraunces",Georgia,serif;font-feature-settings:"liga" 1;}
+  .tnum{font-variant-numeric:tabular-nums lining-nums;}
+
+  .hero{padding:clamp(2.4rem,6vh,4rem) 0 0;}
+  .bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;}
+  .mark{font-family:"Fraunces",serif;font-variation-settings:"opsz" 40,"wght" 500;font-size:1.3rem;letter-spacing:-.01em;}
+  .edition{font-size:.86rem;color:var(--faint);letter-spacing:.07em;}
+  .hero-head{margin:clamp(2.6rem,7vh,5rem) auto clamp(1.4rem,3vh,2.2rem);text-align:center;max-width:54rem;}
+  .kicker{font-family:"Fraunces",serif;font-variation-settings:"opsz" 36,"wght" 500;
+    font-size:.82rem;letter-spacing:.26em;text-transform:uppercase;color:var(--live-deep);margin:0 0 1.5rem;}
+  h1{font-family:"Fraunces",serif;font-variation-settings:"opsz" 144,"wght" 360;
+    font-size:clamp(3.2rem,11vw,8.2rem);line-height:.92;letter-spacing:-.03em;margin:0;}
+  .standfirst{font-size:clamp(1.12rem,1.5vw,1.32rem);line-height:1.56;color:var(--soft);
+    margin:clamp(1.6rem,3.5vh,2.4rem) auto 0;max-width:43rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);}
+  .orn{display:flex;justify-content:center;margin:clamp(2.6rem,6vh,4rem) auto;}
+  .orn svg{display:block;width:132px;height:14px;overflow:visible;}
+  .orn line{stroke:var(--num);stroke-width:1;} .orn rect{fill:none;stroke:var(--num);stroke-width:1;}
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.8;color:var(--ink);margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-child::first-letter{font-family:"Fraunces",serif;font-weight:500;float:left;font-size:4.4rem;line-height:.74;padding:.32rem .5rem 0 0;color:var(--ink);}
+
+  .console{position:sticky;top:0;z-index:60;margin:clamp(2.6rem,6vh,4.2rem) 0 0;
+    background:var(--paper);padding:.9rem 0 1rem;}
+  .console-in{max-width:54rem;margin:0 auto;border:1px solid var(--panelhair);background:rgba(28,26,22,.022);
+    border-radius:3px;padding:clamp(1.1rem,2.6vw,1.7rem) clamp(1.2rem,3vw,2.1rem) clamp(1.1rem,2.4vw,1.4rem);
+    box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 12px 34px -28px rgba(28,26,22,.6);}
+  .console-top{display:flex;justify-content:space-between;align-items:flex-end;gap:1.2rem;flex-wrap:wrap;margin-bottom:.4rem;}
+  .console-label{font-family:"Fraunces",serif;font-variation-settings:"opsz" 40,"wght" 500;
+    font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faintest);}
+  .console-eps{display:flex;align-items:baseline;gap:.5rem;}
+  .console-eps .sym{font-family:"Fraunces",serif;font-style:italic;font-variation-settings:"opsz" 72,"wght" 400;font-size:1.15rem;color:var(--faint);}
+  .console-eps .val{font-family:"Fraunces",serif;font-variation-settings:"opsz" 110,"wght" 400;font-size:2.1rem;line-height:1;color:var(--ink);letter-spacing:-.01em;min-width:3.4ch;text-align:right;}
+  .dialwrap{margin:.2rem 0 .1rem;touch-action:pan-y;cursor:ew-resize;}
+  .dialwrap svg{display:block;width:100%;height:auto;overflow:visible;}
+  .console-read{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:.3rem;font-size:.85rem;color:var(--faint);}
+  .console-read b{font-family:"Fraunces",serif;font-variation-settings:"opsz" 60,"wght" 500;color:var(--live-deep);font-weight:500;}
+  .console-read .seg{display:flex;align-items:baseline;gap:.4rem;}
+  .console-hint{font-style:italic;color:var(--faintest);font-size:.82rem;}
+
+  .sec-head{text-align:center;margin:clamp(5rem,11vh,8.5rem) 0 clamp(1.6rem,3vh,2.2rem);scroll-margin-top:7rem;}
+  .sec-head::before{content:"";display:block;width:2.4rem;height:1px;background:var(--num);margin:0 auto 1.6rem;}
+  .sec-num{display:block;font-family:"Fraunces",serif;font-variation-settings:"opsz" 36,"wght" 400;font-size:.96rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.8rem;}
+  .sec-title{font-family:"Fraunces",serif;font-variation-settings:"opsz" 110,"wght" 400;font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.1;letter-spacing:-.015em;margin:0;}
+  .sec-sub{font-size:1.02rem;color:var(--soft);max-width:38rem;margin:1rem auto 0;line-height:1.62;text-wrap:pretty;font-style:italic;}
+
+  .plate{max-width:64rem;margin:clamp(2.6rem,5vh,3.6rem) auto 0;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,2.6vw,2rem);box-shadow:0 1px 0 rgba(255,255,255,.35) inset;}
+  .panel svg{display:block;width:100%;height:auto;overflow:visible;}
+  .triptych{display:grid;grid-template-columns:1.32fr 1fr;gap:clamp(1rem,2.4vw,1.9rem);align-items:stretch;}
+  .triptych--g{grid-template-columns:1.5fr 1fr;}
+  .triptych .col-right{display:grid;grid-template-rows:auto auto;gap:clamp(1rem,2.4vw,1.6rem);}
+  .subpanel{border:1px solid var(--panelhair);background:rgba(28,26,22,.01);border-radius:3px;padding:clamp(.9rem,2vw,1.3rem);}
+  .subcap{font-family:"Fraunces",serif;font-variation-settings:"opsz" 36,"wght" 500;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faintest);margin:0 0 .55rem;}
+  @media (max-width:780px){ .triptych,.triptych--g{grid-template-columns:1fr;} }
+
+  .px-axis{stroke:var(--soft);stroke-width:1.1;}
+  .px-curve{fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round;}
+  .px-curve.sec{stroke:var(--soft);stroke-width:1.4;}
+  .px-curve.faint{stroke:var(--faintest);stroke-width:1.2;}
+  .px-guide{stroke:var(--faintest);stroke-width:1;stroke-dasharray:2.4 3.4;fill:none;}
+  .px-level{stroke:var(--faintest);stroke-width:1;stroke-dasharray:1 4;}
+  .px-floor{stroke:var(--live-deep);stroke-width:1.3;stroke-dasharray:5 4;}
+  .px-dot{fill:var(--ink);} .px-dot.open{fill:var(--paper);stroke:var(--ink);stroke-width:1.5;}
+  .px-dot.live{fill:var(--live);} .px-dot.comp{fill:var(--paper);stroke:var(--live-deep);stroke-width:1.6;}
+  .px-lbl{font-family:"Fraunces",serif;font-size:13.5px;fill:var(--soft);paint-order:stroke;stroke:var(--paper);stroke-width:2.8px;stroke-linejoin:round;}
+  .px-lbl.live{fill:var(--live-deep);}
+  .px-tick{font-family:"Fraunces",serif;font-size:12.5px;fill:var(--faint);paint-order:stroke;stroke:var(--paper);stroke-width:2.6px;stroke-linejoin:round;}
+  .px-reg{font-family:"Fraunces",serif;font-size:12px;fill:var(--faint);font-style:italic;paint-order:stroke;stroke:var(--paper);stroke-width:2.6px;stroke-linejoin:round;}
+  .px-reg.live{fill:var(--live-deep);}
+  .grab{cursor:grab;} .grabbing{cursor:grabbing;} .hit{fill:transparent;touch-action:none;}
+
+  .gauge-prod{fill:none;stroke:var(--soft);stroke-width:1.2;}
+  .gauge-wage{fill:rgba(28,26,22,.82);} .gauge-keep{fill:var(--live);}
+  .gauge-div{stroke:var(--paper);stroke-width:1.4;}
+  .gauge-lab{font-family:"Fraunces",serif;font-size:12.5px;fill:var(--faint);}
+
+  .surface-stage{position:relative;width:100%;aspect-ratio:720/470;border-radius:2px;overflow:hidden;}
+  .surface-stage canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .surface-stage svg{position:absolute;inset:0;width:100%;height:100%;}
+  .sf-contour{fill:none;stroke:rgba(28,26,22,.18);stroke-width:.8;}
+  .sf-ridge{stroke:var(--paper);stroke-width:1.5;stroke-dasharray:5 4;fill:none;opacity:.92;}
+  .sf-locus{fill:none;stroke:var(--paper);stroke-width:1.7;opacity:.92;}
+  .sf-band{fill:rgba(156,107,52,.17);} .sf-bandedge{stroke:rgba(156,107,52,.55);stroke-width:1;stroke-dasharray:2 3;fill:none;}
+  .sf-cross{stroke:var(--live);stroke-width:1.3;}
+  .sf-axis{stroke:var(--soft);stroke-width:1.1;}
+  .sf-tick{font-family:"Fraunces",serif;font-size:12px;fill:var(--faint);}
+  .legend{display:flex;flex-wrap:wrap;gap:.9rem 1.4rem;margin:1.1rem auto 0;justify-content:center;font-size:.79rem;color:var(--faint);}
+  .legend .it{display:flex;align-items:center;gap:.5rem;}
+  .legend .sw{width:20px;height:0;border-top-width:2px;border-top-style:solid;display:inline-block;}
+  .legend .swb{width:15px;height:11px;display:inline-block;border-radius:1px;}
+
+  .map-stage svg{width:100%;height:auto;overflow:visible;}
+  .map-node{cursor:pointer;}
+  .map-box{fill:rgba(28,26,22,.015);stroke:var(--panelhair);stroke-width:1;transition:fill .2s,stroke .2s;}
+  .map-box.src{stroke:rgba(83,78,69,.5);} .map-box.rem{stroke:var(--live-line);}
+  .map-title{font-family:"Fraunces",serif;font-variation-settings:"opsz" 56,"wght" 500;font-size:14px;fill:var(--ink);}
+  .map-sub{font-family:"Newsreader",serif;font-size:11px;fill:var(--faint);font-style:italic;}
+  .map-ribbon{fill:none;stroke:var(--faintest);stroke-width:1.2;opacity:.45;transition:stroke .2s,opacity .2s,stroke-width .2s;}
+  .map-rem-arrow{fill:none;stroke:var(--live-line);stroke-width:1.1;stroke-dasharray:2.5 3;opacity:.5;transition:opacity .2s,stroke-width .2s;}
+  .map-core{fill:rgba(156,107,52,.07);stroke:var(--live-line);stroke-width:1.2;}
+  .map-coretext{font-family:"Fraunces",serif;fill:var(--live-deep);}
+  .map-out{font-family:"Fraunces",serif;font-style:italic;font-size:12px;fill:var(--soft);}
+  .map-hint{font-style:italic;color:var(--faintest);font-size:.84rem;text-align:center;margin:.8rem auto 0;max-width:36rem;}
+
+  .asc-controls{display:flex;flex-wrap:wrap;gap:.7rem .9rem;align-items:center;justify-content:center;margin:1.3rem auto .2rem;}
+  .btn{font-family:"Fraunces",serif;font-variation-settings:"opsz" 36,"wght" 500;font-size:.73rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);background:rgba(28,26,22,.022);border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .95rem;cursor:pointer;transition:background .15s,border-color .15s,opacity .15s;}
+  .btn:hover{background:rgba(28,26,22,.06);}
+  .btn.primary{color:var(--paper);background:var(--live);border-color:var(--live-deep);}
+  .btn.primary:hover{background:var(--live-deep);}
+  .btn:disabled{opacity:.34;cursor:default;background:rgba(28,26,22,.022);}
+  .btn.primary:disabled{background:var(--faintest);border-color:var(--faintest);}
+  .segctl{display:inline-flex;border:1px solid var(--panelhair);border-radius:2px;overflow:hidden;}
+  .segctl button{font-family:"Fraunces",serif;font-size:.71rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);background:transparent;border:none;border-left:1px solid var(--panelhair);padding:.55rem .85rem;cursor:pointer;transition:background .15s,color .15s;}
+  .segctl button:first-child{border-left:none;}
+  .segctl button.on{background:var(--live-soft);color:var(--live-deep);}
+  .asc-label{font-family:"Fraunces",serif;font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faintest);}
+  .asc-readout{text-align:center;font-size:.96rem;line-height:1.55;color:var(--soft);margin:1.1rem auto 0;max-width:42rem;min-height:3em;text-wrap:pretty;}
+  .asc-readout b{font-family:"Fraunces",serif;font-weight:500;color:var(--live-deep);}
+
+  .ctl{display:flex;align-items:center;gap:.9rem;margin:.2rem 0;}
+  .ctl-lab{font-family:"Fraunces",serif;font-variation-settings:"opsz" 36,"wght" 500;font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faintest);white-space:nowrap;}
+  .slider{position:relative;flex:1;height:22px;touch-action:pan-y;cursor:ew-resize;min-width:110px;}
+  .slider .trk{position:absolute;top:50%;left:0;right:0;height:1.2px;background:var(--num);transform:translateY(-50%);}
+  .slider .fill{position:absolute;top:50%;left:0;height:1.2px;background:var(--live-line);transform:translateY(-50%);}
+  .slider .hd{position:absolute;top:50%;width:11px;height:11px;background:var(--live);border:1.4px solid var(--live-deep);transform:translate(-50%,-50%) rotate(45deg);}
+  .ctl-val{font-family:"Fraunces",serif;font-variation-settings:"opsz" 48,"wght" 400;font-size:.92rem;color:var(--ink);min-width:3.4ch;text-align:right;}
+
+  figcaption{font-size:.84rem;line-height:1.6;color:var(--faint);margin:1.3rem auto 0;max-width:37rem;text-align:center;text-wrap:pretty;}
+  figcaption .pn{font-family:"Fraunces",serif;font-variation-settings:"opsz" 36,"wght" 500;color:var(--faintest);letter-spacing:.05em;text-transform:uppercase;font-size:.74rem;}
+  figcaption b{font-family:"Fraunces",serif;font-weight:500;color:var(--soft);}
+  .reading{max-width:var(--read);margin:1.7rem auto 0;}
+  .reading p{font-size:1.02rem;line-height:1.78;color:var(--ink);text-wrap:pretty;text-indent:1.3em;}
+  .reading p:first-child{text-indent:0;}
+
+  .coda{max-width:46rem;margin:clamp(6rem,12vh,9rem) auto 0;text-align:center;}
+  .coda p{font-family:"Fraunces",serif;font-variation-settings:"opsz" 144,"wght" 400;font-style:italic;font-size:clamp(1.5rem,2.6vw,2.05rem);line-height:1.3;color:var(--soft);margin:0;text-wrap:balance;}
+  footer{margin-top:clamp(5rem,11vh,8rem);padding:2.6rem 0 4.5rem;border-top:1px solid var(--hair);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.6rem;}
+  .f-mark{font-family:"Fraunces",serif;font-variation-settings:"opsz" 36,"wght" 500;font-size:1.1rem;}
+  .f-ref{font-size:.82rem;color:var(--faintest);letter-spacing:.18em;}
+  .colophon{font-size:.84rem;line-height:1.66;color:var(--faint);max-width:62ch;}
+
+  @media (max-width:600px){
+    body{font-size:18px;} .console{position:static;}
+    .px-lbl,.px-reg,.px-tick,.sf-tick{font-size:11px;}
+    .f-bar{flex-direction:column;gap:.7rem;}
+  }
+  @media (max-width:380px){
+    .slider{min-width:76px;}
+    .ctl{gap:.5rem;}
+    .ctl-lab{font-size:.63rem;letter-spacing:.08em;}
+    .ctl-val{min-width:3ch;font-size:.85rem;}
+    .asc-controls{gap:.5rem .6rem;}
+    .frame{padding:0 1rem;}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;} }
+  @media print{
+    body{background:#f0ebe1 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#1c1a16;font-size:10.5pt;}
+    body::before{display:none !important;}
+    .console{position:static !important;box-shadow:none !important;}
+    .btn,.asc-controls,.map-hint,.console-hint{display:none !important;}
+    section,.plate,.panel,.subpanel,.surface-stage,figcaption,.reading,.coda,.lede{break-inside:avoid;}
+    .sec-head{break-after:avoid;}
+    .hero{break-after:avoid;}
+    .frame{max-width:100%;}
+    a{text-decoration:none;color:inherit;}
+  }
+  .anim{transition:cx .26s cubic-bezier(.3,.6,.2,1),cy .26s cubic-bezier(.3,.6,.2,1),r .2s ease,
+    x .26s cubic-bezier(.3,.6,.2,1),y .26s cubic-bezier(.3,.6,.2,1),
+    x1 .26s cubic-bezier(.3,.6,.2,1),x2 .26s cubic-bezier(.3,.6,.2,1),y1 .26s cubic-bezier(.3,.6,.2,1),y2 .26s cubic-bezier(.3,.6,.2,1),
+    width .26s cubic-bezier(.3,.6,.2,1),height .26s cubic-bezier(.3,.6,.2,1),opacity .22s ease;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-companions">Companion Instruments</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="bar"><span class="mark">Numéraire</span><span class="edition">The Wage · № I · viii — The Apparatus</span></div>
+    <div class="hero-head">
+      <p class="kicker">A single dial for the whole argument</p>
+      <h1>The One Number</h1>
+      <p class="standfirst">The eighth plate, rebuilt as one instrument. Everything the essay disputes — the markdown, the arch, the gendered wedge, the case for the floor — descends from a <em>single</em> measurable quantity: the elasticity of the labour supply one firm faces. Turn the dial below and watch the entire edifice move at once. Against it sits the one quantity no dial reaches — the competitive wage — which the second plate renders as a ridge in fog.</p>
+    </div>
+  </header>
+
+  <div class="orn" aria-hidden="true"><svg viewBox="0 0 132 14"><line x1="0" y1="7" x2="53" y2="7"/><rect x="63" y="2" width="7" height="7" transform="rotate(45 66.5 5.5)"/><line x1="80" y1="7" x2="132" y2="7"/></svg></div>
+
+  <div class="lede read">
+    <p>The competitive labour market is governed, in the end, by one number set silently to infinity: the elasticity of labour supply to the individual firm — how freely workers flow toward it for a little more pay, and away for a little less. Let that number fall to something finite and the firm acquires power over the wage; let it fall further and the company town appears. The economy of the idea is that this same number fixes how much of a worker's product is withheld, where the employment-maximising minimum wage lies, and how far a pay gap can open between identical workers who differ only in how freely they can leave.</p>
+    <p>So the instrument has one master control, and a handful of linked dials that cannot disagree with it — because they are all reading the same quantity from different angles.</p>
+  </div>
+
+  <div class="console" id="console">
+    <div class="console-in">
+      <div class="console-top">
+        <span class="console-label">The firm-level supply elasticity</span>
+        <span class="console-eps"><span class="sym">ε =</span><span class="val tnum" id="epsVal">4.0</span></span>
+      </div>
+      <div class="dialwrap" id="dial" role="slider" tabindex="0" aria-label="Firm-level labour supply elasticity" aria-valuemin="1" aria-valuemax="60" aria-valuenow="4"></div>
+      <div class="console-read" aria-live="polite">
+        <span class="seg">markdown&nbsp;<b class="tnum" id="mkVal">20%</b>&nbsp;<span class="console-hint">of product withheld</span></span>
+        <span class="seg">wage&nbsp;<b class="tnum" id="wsVal">80%</b>&nbsp;<span class="console-hint">of marginal product</span></span>
+        <span class="seg"><span class="console-hint" id="regimeTxt">imperfect competition</span></span>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head" id="source"><span class="sec-num fr">Plate viii · the source</span><h2 class="sec-title">The Flows Beneath the Number</h2><p class="sec-sub">Where the elasticity is born. A firm's labour is a reservoir — filled by recruitment, drained by departures. Raise the wage and the inflow quickens while the outflow slows; the firm's power over the wage is exactly the sum of those two responses.</p></div>
+    <div class="plate">
+      <div class="panel">
+        <div class="triptych triptych--g">
+          <div class="subpanel">
+            <p class="subcap">The reservoir and its two flows</p>
+            <svg id="flowSvg" viewBox="0 0 560 380" role="img" aria-label="A reservoir of employed workers, filled by recruitment and drained by separations; raising the wage quickens the inflow and slows the outflow, lifting employment."></svg>
+            <div style="text-align:center;margin-top:.4rem;"><button class="btn" id="flowWage" type="button">Raise the wage ↑</button></div>
+          </div>
+          <div class="subpanel" style="display:flex;flex-direction:column;justify-content:center;gap:1.3rem;">
+            <div>
+              <p class="subcap" style="margin-bottom:.7rem;">How each channel responds</p>
+              <div class="ctl"><span class="ctl-lab">recruiting</span><div class="slider" id="phiSlider"></div><span class="ctl-val tnum" id="phiVal">2.0</span></div>
+              <div class="ctl"><span class="ctl-lab">retention</span><div class="slider" id="sigSlider"></div><span class="ctl-val tnum" id="sigVal">2.0</span></div>
+              <p style="font-size:.82rem;color:var(--faint);line-height:1.5;margin-top:.5rem;font-style:italic;">How sharply hiring rises, and quitting falls, when the wage goes up. Deaden either and the firm gains power.</p>
+            </div>
+            <div style="border-top:1px solid var(--panelhair);padding-top:1.1rem;">
+              <p class="subcap" style="margin-bottom:.55rem;">The number they make</p>
+              <svg id="decompSvg" viewBox="0 0 320 70" role="img" aria-label="The firm-level elasticity as the sum of the recruitment response and the retention response."></svg>
+              <p style="font-size:.86rem;color:var(--soft);line-height:1.55;margin-top:.7rem;" id="flowSentence"></p>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="pn">Plate viii · the source &nbsp;·&nbsp;</span>Monopsony in motion. The elasticity the rest of this instrument turns as a single dial is no primitive — it is born in friction. The employment a firm can sustain is what it recruits divided by the rate at which workers leave; raise the wage and recruitment rises with elasticity <i>φ</i> while separations fall with elasticity <i>σ</i>, so the firm-level labour-supply elasticity is their sum, <b>ε = φ + σ</b>. A handful of employers, a non-compete, a wage kept secret — each works by deadening one of these flows. <span style="color:var(--faintest)">Move these and the dial above moves; turn the dial, and it splits back into the two channels.</span></figcaption>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head" id="alpha"><span class="sec-num fr">Plate viii · α</span><h2 class="sec-title">The Markdown, the Arithmetic, the Arch</h2><p class="sec-sub">Three readings of the same dial. The equilibrium that opens the wedge; the fraction it withholds; the policy frontier it bends into an arch — all moving together.</p></div>
+    <div class="plate">
+      <div class="panel">
+        <div class="triptych">
+          <div class="subpanel">
+            <p class="subcap">i · The single buyer</p>
+            <svg id="eqSvg" viewBox="0 0 580 470" role="img" aria-label="The monopsony equilibrium: marginal revenue product, supply, and marginal cost of labour; the markdown wedge; the competitive point; a movable wage floor."></svg>
+          </div>
+          <div class="col-right">
+            <div class="subpanel"><p class="subcap">ii · The exploitation fraction</p><svg id="gaugeSvg" viewBox="0 0 360 250" role="img" aria-label="One unit of marginal product divided into the wage paid and the share withheld."></svg></div>
+            <div class="subpanel"><p class="subcap">iii · The arch — drag the floor</p><svg id="archSvg" viewBox="0 0 360 250" role="img" aria-label="Employment as a function of the minimum wage, forming an arch that crests at the competitive wage."></svg></div>
+          </div>
+        </div>
+        <figcaption><span class="pn">Plate viii · α &nbsp;·&nbsp;</span>One dial, three faces. <b>Left</b>, the firm hires where the marginal cost of labour meets marginal revenue product, then reads the wage <i>down</i> to supply — the bracket is the markdown. <b>Upper right</b>, that same markdown as a fraction of one unit of product: <span class="tnum" id="capMk">a fifth</span> withheld at ε&nbsp;=&nbsp;<span class="tnum" id="capEps">4</span>. <b>Lower right</b>, employment against the floor: flat where it cannot bind, rising as it climbs from the monopsony wage to the competitive wage w*, cresting there, then falling as the old arithmetic returns. Drag the floor along the arch; turn the dial and the arch reshapes.</figcaption>
+      </div>
+      <div class="reading"><p>At the far right of the dial — the frictionless limit, ε toward infinity — the supply curve lies flat, marginal cost equals the wage, and the three curves collapse onto the competitive point. Nothing is withheld; the arch has no rising flank left to climb. This is the textbook's world, shown for what the essay claims it is: not the rule, but a single unreachable point. Slide left and it recedes at once. Around ε between five and seven — the band the best studies of how workers actually move between firms keep returning — a tenth to a quarter of the product is already kept, with no single buyer anywhere in sight.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head" id="beta"><span class="sec-num fr">Plate viii · β</span><h2 class="sec-title">The Surface, and the Ridge in Fog</h2><p class="sec-sub">The arch was only a slice. Employment lives on a landscape over two axes — the floor you set, and the elasticity you cannot see. The best floor is a ridge; the fog is the part no instrument locates.</p></div>
+    <div class="plate">
+      <div class="panel">
+        <div class="surface-stage" id="surfStage">
+          <canvas id="surfCanvas" width="480" height="313"></canvas>
+          <svg id="surfSvg" viewBox="0 0 720 470" role="img" aria-label="A contour landscape of employment over minimum wage and elasticity, with a crest ridge at the competitive wage rendered in fog, the locus where each market begins, the band of measured elasticities, and a draggable crosshair that sets both the floor and the elasticity."></svg>
+        </div>
+        <div class="legend">
+          <span class="it"><span class="swb" style="background:#2a2018"></span>more employment</span>
+          <span class="it"><span class="swb" style="background:#cabfa8"></span>less</span>
+          <span class="it"><span class="sw" style="border-top-color:#8a7f6a;border-top-style:dashed"></span>w* — the crest (unobservable)</span>
+          <span class="it"><span class="sw" style="border-top-color:#8a7f6a"></span>where each market starts</span>
+          <span class="it"><span class="swb" style="background:rgba(156,107,52,.3);border:1px solid rgba(156,107,52,.6)"></span>measured ε (5–7)</span>
+        </div>
+        <figcaption><span class="pn">Plate viii · β &nbsp;·&nbsp;</span>The policy landscape. Darkness is employment; the bright dashed crest up the middle is the competitive wage w*, where every arch peaks. To its left, each market begins on the pale locus — its own monopsony wage — and the horizontal room between that locus and the crest is the distance a floor can climb <i>while jobs rise</i>. But the crest sits in fog, because w* is not observed; it is inferred, and inferred differently by careful people. The crosshair is yours — drag it vertically to turn the master dial, horizontally to set the floor — and the whole apparatus follows. Beyond the crest lies the cliff where the century's arithmetic finally collects.</figcaption>
+      </div>
+      <div class="reading"><p>This is the deepest thing the subject has to say, and the hardest to draw: the number that locates the peak is the one number nobody can measure. The elasticity on the vertical axis is estimated, with error; the competitive wage on the crest is reconstructed, with disagreement. A regulator who would set the floor exactly at the ridge is aiming into the fog — which is why even the friendliest case for a minimum wage is a case for climbing in steps small enough to read the market's answer before the next, feeling for a peak that cannot be seen from below.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head" id="gamma"><span class="sec-num fr">Plate viii · γ</span><h2 class="sec-title">Equal Product, Unequal Exit</h2><p class="sec-sub">Hold the worth of the work exactly equal and let only mobility differ. A pay gap opens with no taste for discrimination anywhere in it — and a floor, raised, closes it.</p></div>
+    <div class="plate">
+      <div class="panel">
+        <div class="triptych triptych--g">
+          <div class="subpanel"><p class="subcap">The wedge that mobility alone produces</p><svg id="genSvg" viewBox="0 0 560 420" role="img" aria-label="Wage as a share of marginal product rising with mobility; two points of equal product at different mobilities; the gap between them; and a movable floor that lifts the lower point and compresses the gap."></svg></div>
+          <div class="subpanel" style="display:flex;flex-direction:column;justify-content:center;gap:1.3rem;">
+            <div>
+              <p class="subcap" style="margin-bottom:.7rem;">The two mobilities</p>
+              <div class="ctl"><span class="ctl-lab">spread</span><div class="slider" id="spreadSlider"></div><span class="ctl-val tnum" id="spreadVal">×1.6</span></div>
+              <p style="font-size:.82rem;color:var(--faint);line-height:1.5;margin-top:.5rem;font-style:italic;">How far the two groups' elasticities sit either side of the dial. Wider spread, wider gap.</p>
+            </div>
+            <div style="border-top:1px solid var(--panelhair);padding-top:1.1rem;">
+              <p class="subcap" style="margin-bottom:.7rem;">The floor as remedy</p>
+              <div class="ctl"><span class="ctl-lab">floor</span><div class="slider" id="genFloorSlider"></div><span class="ctl-val tnum" id="genFloorVal">—</span></div>
+              <p style="font-size:.82rem;color:var(--faint);line-height:1.5;margin-top:.5rem;"><span style="color:var(--faint)">gap now </span><b class="tnum fr" id="gapVal" style="color:var(--live-deep)">15 pts</b><span style="color:var(--faint)"> of product. Raise the floor toward w* and watch it strip markdown from whoever carries the most.</span></p>
+            </div>
+          </div>
+        </div>
+        <figcaption><span class="pn">Plate viii · γ &nbsp;·&nbsp;</span>The gendered wedge. The curve is wage as a share of marginal product; it rises with mobility and approaches the whole but, short of the frictionless limit, never reaches it. Two workers of <i>identical</i> product sit at different mobilities — the less mobile further below the line. The gap between them is a pay gap structural rather than attitudinal: it would open in a world purged of prejudice, through the slope of the supply curve alone. A wage floor lifts the lower point fastest, because it strips the largest markdown first; pay transparency would do the same by dissolving the friction of secrecy.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head" id="delta"><span class="sec-num fr">Plate viii · δ</span><h2 class="sec-title">One Power, Several Sources</h2><p class="sec-sub">Four different frictions all narrow to the same scalar — and four different instruments all widen it back. The map of sources is the map of remedies, and no single tool reaches them all.</p></div>
+    <div class="plate">
+      <div class="panel">
+        <div class="map-stage"><svg id="mapSvg" viewBox="0 0 720 470" role="img" aria-label="Four sources of employer power converge into a single channel — the elasticity and its markdown — which fans out to outcomes; four remedies push the elasticity back up."></svg></div>
+        <p class="map-hint">Hover a source to see its matching remedy. Click a remedy to <i>apply</i> it — each one loosens a friction, raising the elasticity on the master dial and shrinking the wedge everywhere above.</p>
+        <figcaption><span class="pn">Plate viii · δ &nbsp;·&nbsp;</span>The bottleneck. Concentration, contractual immobility, secrecy, and the irreducible cost of search are four unlike things, yet each enters the firm's problem in one place — by lowering the elasticity of the labour it faces — and so each is measured in one currency, the markdown. That is why power can be gauged without first settling its source. It is also why the defeats of the last decade were, at bottom, the failure of asking one instrument to carry the weight of four.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head" id="epsilon"><span class="sec-num fr">Plate viii · ε</span><h2 class="sec-title">The Ascent in Fog</h2><p class="sec-sub">The surface of Plate β, now walked blind. Raise the floor a step at a time — but you read employment only through noise, and the peak stays hidden until you choose to look. The whole question of the minimum wage, reduced to one: where do you stop?</p></div>
+    <div class="plate">
+      <div class="panel">
+        <svg id="ascSvg" viewBox="0 0 780 432" role="img" aria-label="An interactive ascent: raise the minimum wage step by step and read noisy employment, with the true arch and the competitive-wage peak hidden in fog until revealed."></svg>
+        <div class="asc-controls">
+          <button class="btn primary" id="ascStep">Take a step ↑</button>
+          <span class="asc-label">step</span>
+          <span class="segctl"><button id="ascSegCautious" type="button">cautious</button><button id="ascSegBold" type="button">bold</button></span>
+          <button class="btn" id="ascReveal" type="button">Reveal the peak</button>
+          <button class="btn" id="ascNew" type="button">New expedition</button>
+        </div>
+        <p class="asc-readout" id="ascReadout" aria-live="polite"></p>
+        <p class="asc-readout" id="ascDialHint" style="font-size:.8rem;color:var(--faintest);min-height:0;margin-top:-.4rem;"></p>
+        <figcaption><span class="pn">Plate viii · ε &nbsp;·&nbsp;</span>Feeling for the peak. The hidden terrain is the arch of Plate&nbsp;α-iii, its height set by the very elasticity on the master dial — but here you cannot see it, and your altimeter, like every real reading of employment, carries noise. Climb in <b>bold</b> steps and you may crest sooner but overshoot into job losses the next noisy reading only half-reveals; climb in <b>cautious</b> steps and you are safer, slower, and likelier to stop with markdown still uncollected. This is the friendliest case for a minimum wage in its true shape: not a number to be hit, but a peak to be approached — in fog, on purpose.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <div class="orn" aria-hidden="true" style="margin-top:clamp(5rem,10vh,7.5rem)"><svg viewBox="0 0 132 14"><line x1="0" y1="7" x2="53" y2="7"/><rect x="63" y="2" width="7" height="7" transform="rotate(45 66.5 5.5)"/><line x1="80" y1="7" x2="132" y2="7"/></svg></div>
+  <div class="coda"><p>One number you can measure; one number you cannot. The whole dispute is the distance between them.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-mark">Numéraire</span><span class="f-ref">The Wage · plate viii · the apparatus</span></div>
+    <p class="colophon">A working instrument for the eighth plate of <i>The Wage</i>. The economics is the standard textbook monopsony under an iso-elastic firm supply curve, normalised so the competitive equilibrium sits at unit wage and unit employment; under that single curve the markdown is exactly one over the elasticity plus one — the essay's arithmetic, made manipulable. Every dial reads the same parameter; the surface is that parameter's policy landscape; the fog is honest about the one quantity the model can never hand over. Set in Fraunces and Newsreader. The argument remains open — now you can turn it.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+(function(){
+/* ===== MODEL: iso-elastic firm supply through (1,1); MRP = 2 - L. ===== */
+const INF=60;
+const MRP=L=>2-L;
+const wS=(L,e)=> e>=INF?1:Math.pow(Math.max(L,1e-9),1/e);
+function Lm(e){ if(e>=INF) return 1; let lo=1e-6,hi=1; const g=L=>wS(L,e)*(1+1/e)-MRP(L);
+  for(let i=0;i<90;i++){const m=(lo+hi)/2; if(g(m)>0)hi=m; else lo=m;} return (lo+hi)/2; }
+const wm=e=>wS(Lm(e),e);
+const mu=e=> e>=INF?0:1/(e+1);
+const wageShareOfProduct=e=> e>=INF?1:e/(e+1);
+function archE(wf,e){ const L=Lm(e),w=wm(e); if(wf<=w) return L; if(wf<=1) return e>=INF?1:Math.pow(wf,e); return Math.max(0,2-wf); }
+
+/* ===== STATE + pub/sub ===== */
+const State={eps:4,floor:wm(4),spread:0.6,genFloor:0.5};
+const subs=[];
+const sub=fn=>subs.push(fn);
+const emit=()=>{ for(const f of subs) f(State); };
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+function setEps(e){ State.eps=clamp(e,1,INF); emit(); }
+function setFloor(w){ State.floor=clamp(w,0.45,1.6); emit(); }
+
+/* ===== SVG helpers ===== */
+const NS="http://www.w3.org/2000/svg";
+function el(t,a){ const n=document.createElementNS(NS,t); if(a) for(const k in a) n.setAttribute(k,a[k]); return n; }
+const tx=s=>document.createTextNode(s);
+function scale(d0,d1,r0,r1){ const f=v=>r0+(v-d0)*(r1-r0)/(d1-d0); f.inv=p=>d0+(p-r0)*(d1-d0)/(r1-r0); return f; }
+function evtToSvg(svg,e){ const r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;
+  const cx=e.touches?e.touches[0].clientX:e.clientX, cy=e.touches?e.touches[0].clientY:e.clientY;
+  return {x:vb.x+(cx-r.left)/r.width*vb.width, y:vb.y+(cy-r.top)/r.height*vb.height}; }
+function poly(xs,ys){ let d=""; for(let i=0;i<xs.length;i++) d+=(i?"L":"M")+xs[i].toFixed(2)+","+ys[i].toFixed(2)+" "; return d; }
+const fr1=n=>n.toFixed(1);
+const pct=n=>Math.round(n*100)+"%";
+function setText(node,s){ while(node.firstChild) node.removeChild(node.firstChild); node.appendChild(tx(s)); }
+function dragify(node,svg,onMove){
+  const move=e=>{ e.preventDefault(); onMove(evtToSvg(svg,e)); };
+  const up=()=>{ node.classList.remove("grabbing"); window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up); };
+  node.addEventListener("pointerdown",e=>{ node.classList.add("grabbing"); try{node.setPointerCapture(e.pointerId);}catch(_){} onMove(evtToSvg(svg,e)); window.addEventListener("pointermove",move); window.addEventListener("pointerup",up); });
+}
+function fracWord(e){ const m=mu(e); if(m<0.04) return "almost nothing"; let best="a sliver",bd=9;
+  for(const [v,w] of [[0.5,"a half"],[1/3,"a third"],[0.25,"a quarter"],[0.2,"a fifth"],[1/6,"a sixth"],[1/7,"a seventh"],[1/8,"an eighth"],[0.1,"a tenth"],[1/15,"a fifteenth"],[1/20,"a twentieth"]]){ const d=Math.abs(v-m); if(d<bd){bd=d;best=w;} } return best; }
+
+/* ===================== MASTER DIAL ===================== */
+const dial=document.getElementById("dial");
+const DW=620,DH=92,DX0=14,DX1=606,BASE=52,E_HI=40,T_INF=0.93;
+function tToEps(t){ if(t>=1) return INF; if(t<=T_INF){const u=t/T_INF; return Math.pow(E_HI,u);} const u=(t-T_INF)/(1-T_INF); return E_HI*Math.pow(INF/E_HI,u); }
+function epsToT(e){ if(e>=INF) return 1; if(e<=E_HI) return T_INF*Math.log(e)/Math.log(E_HI); return T_INF+(1-T_INF)*Math.log(e/E_HI)/Math.log(INF/E_HI); }
+function buildDial(){
+  const svg=el("svg",{viewBox:"0 0 "+DW+" "+DH});
+  const bx0=DX0+epsToT(5)*(DX1-DX0), bx1=DX0+epsToT(7)*(DX1-DX0);
+  svg.appendChild(el("rect",{fill:"var(--live-soft)",x:bx0,y:BASE-22,width:bx1-bx0,height:30,rx:1}));
+  svg.appendChild(el("line",{stroke:"var(--live-line)","stroke-width":1,"stroke-dasharray":"1.5 2.5",x1:bx0,y1:BASE-22,x2:bx0,y2:BASE+8}));
+  svg.appendChild(el("line",{stroke:"var(--live-line)","stroke-width":1,"stroke-dasharray":"1.5 2.5",x1:bx1,y1:BASE-22,x2:bx1,y2:BASE+8}));
+  let t=el("text",{"font-family":"Fraunces","font-size":"11.5","font-style":"italic",fill:"var(--faintest)","text-anchor":"middle",x:(bx0+bx1)/2,y:BASE-27}); t.appendChild(tx("measured")); svg.appendChild(t);
+  svg.appendChild(el("line",{stroke:"var(--soft)","stroke-width":1.1,x1:DX0,y1:BASE,x2:DX1,y2:BASE}));
+  const majors=[1,2,3,4,5,7,10,20,40];
+  for(let e=1;e<=40;e++){ const maj=majors.includes(e),x=DX0+epsToT(e)*(DX1-DX0);
+    svg.appendChild(el("line",{stroke:maj?"var(--soft)":"var(--faintest)","stroke-width":maj?1.1:1,x1:x,y1:BASE,x2:x,y2:BASE+(maj?9:5)}));
+    if(maj){ const n=el("text",{"font-family":"Fraunces","font-size":"12",fill:"var(--faint)","text-anchor":"middle",x:x,y:BASE+24}); n.appendChild(tx(String(e))); svg.appendChild(n); } }
+  svg.appendChild(el("line",{stroke:"var(--soft)","stroke-width":1.1,x1:DX1,y1:BASE,x2:DX1,y2:BASE+9}));
+  let ti=el("text",{"font-family":"Fraunces","font-size":"15",fill:"var(--faint)","text-anchor":"end",x:DX1,y:BASE+24}); ti.appendChild(tx("∞")); svg.appendChild(ti);
+  let cL=el("text",{"font-family":"Fraunces","font-size":"11.5","font-style":"italic",fill:"var(--faintest)","text-anchor":"start",x:DX0,y:18}); cL.appendChild(tx("the company town")); svg.appendChild(cL);
+  let cR=el("text",{"font-family":"Fraunces","font-size":"11.5","font-style":"italic",fill:"var(--faintest)","text-anchor":"end",x:DX1,y:18}); cR.appendChild(tx("competition — the limit")); svg.appendChild(cR);
+  const stem=el("line",{stroke:"var(--ink)","stroke-width":1.3,x1:0,y1:BASE-24,x2:0,y2:BASE+12});
+  const diaG=el("g");
+  const dia=el("rect",{x:-6,y:-6,width:12,height:12,fill:"var(--live)",stroke:"var(--live-deep)","stroke-width":1.4,transform:"rotate(45)"});
+  diaG.appendChild(dia);
+  svg.appendChild(stem); svg.appendChild(diaG); dial.appendChild(svg);
+  dragify(dial,svg,p=>{ setEps(tToEps(clamp((p.x-DX0)/(DX1-DX0),0,1))); });
+  dial.addEventListener("keydown",e=>{ let tt=epsToT(State.eps);
+    if(e.key==="ArrowRight"||e.key==="ArrowUp"){ setEps(tToEps(clamp(tt+0.02,0,1))); e.preventDefault(); }
+    if(e.key==="ArrowLeft"||e.key==="ArrowDown"){ setEps(tToEps(clamp(tt-0.02,0,1))); e.preventDefault(); } });
+  sub(s=>{ const x=DX0+epsToT(s.eps)*(DX1-DX0);
+    stem.setAttribute("x1",x); stem.setAttribute("x2",x);
+    diaG.setAttribute("transform","translate("+x+","+(BASE-24)+")");
+    dial.setAttribute("aria-valuenow", s.eps>=INF?"60":fr1(s.eps));
+    setText(document.getElementById("epsVal"), s.eps>=INF?"∞":fr1(s.eps));
+    setText(document.getElementById("mkVal"), s.eps>=INF?"0%":pct(mu(s.eps)));
+    setText(document.getElementById("wsVal"), pct(wageShareOfProduct(s.eps)));
+    setText(document.getElementById("regimeTxt"),
+      s.eps>=INF?"perfect competition — the frictionless point":
+      s.eps<1.6?"near a single buyer — the company town":
+      s.eps<=7?"imperfect competition — the measured climate":"thin friction — approaching the limit");
+    setText(document.getElementById("capMk"), fracWord(s.eps));
+    setText(document.getElementById("capEps"), s.eps>=INF?"∞":fr1(s.eps));
+  });
+}
+
+/* ===================== PLATE α-i : EQUILIBRIUM ===================== */
+function buildEquilibrium(){
+  const svg=document.getElementById("eqSvg");
+  const PX0=78,PX1=540,PY0=402,PY1=34,Lmax=1.92,Wmax=2.04;
+  const sx=scale(0,Lmax,PX0,PX1), sy=scale(0,Wmax,PY0,PY1);
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY1,x2:PX0,y2:PY0}));
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY0,x2:PX1,y2:PY0}));
+  let xl=el("text",{class:"px-lbl","text-anchor":"end",x:PX1,y:PY0+24}); xl.appendChild(tx("Labour")); svg.appendChild(xl);
+  let yl=el("text",{class:"px-lbl","text-anchor":"middle",transform:"translate("+(PX0-46)+","+((PY0+PY1)/2)+") rotate(-90)"}); yl.appendChild(tx("Wage / value")); svg.appendChild(yl);
+  svg.appendChild(el("path",{class:"px-curve",d:"M"+sx(0)+","+sy(MRP(0))+" L"+sx(Lmax)+","+sy(MRP(Lmax))}));
+  let mrpL=el("text",{class:"px-lbl",x:sx(1.7)+4,y:sy(MRP(1.7))-4}); mrpL.appendChild(tx("MRP")); svg.appendChild(mrpL);
+  svg.appendChild(el("circle",{class:"px-dot comp",cx:sx(1),cy:sy(1),r:4.4}));
+  let cl=el("text",{class:"px-lbl live",x:sx(1)+9,y:sy(1)-7}); cl.appendChild(tx("C")); svg.appendChild(cl);
+  let wsT=el("text",{class:"px-tick","text-anchor":"end",x:PX0-8,y:sy(1)+4}); wsT.appendChild(tx("w*")); svg.appendChild(wsT);
+  let lsT=el("text",{class:"px-tick","text-anchor":"middle",x:sx(1),y:PY0+24}); lsT.appendChild(tx("L*")); svg.appendChild(lsT);
+
+  const supply=el("path",{class:"px-curve sec"});
+  const mcl=el("path",{class:"px-curve faint",style:"stroke-dasharray:5 4"});
+  const gWedge=el("g");
+  const floorLine=el("line",{class:"px-floor anim"});
+  const dotS=el("circle",{class:"px-dot anim",r:4.2});
+  const dotM=el("circle",{class:"px-dot open anim",r:4.0});
+  const dotF=el("circle",{class:"px-dot live anim",r:4.6});
+  const supL=el("text",{class:"px-lbl anim"}); supL.appendChild(tx("S"));
+  const mclL=el("text",{class:"px-lbl anim","text-anchor":"end"}); mclL.appendChild(tx("MCL"));
+  const wmT=el("text",{class:"px-tick anim","text-anchor":"end"}); wmT.appendChild(tx("wₘ"));
+  const wfT=el("text",{class:"px-tick anim","text-anchor":"end"}); wfT.appendChild(tx("w_f"));
+  const lmT=el("text",{class:"px-tick anim","text-anchor":"middle"}); lmT.appendChild(tx("Lₘ"));
+  const guideWm=el("line",{class:"px-guide anim"});
+  const guideLm=el("line",{class:"px-guide anim"});
+  const mkLab=el("text",{class:"px-reg live anim"}); mkLab.appendChild(tx("markdown"));
+  svg.appendChild(gWedge);
+  [floorLine,supply,mcl,guideWm,guideLm,dotS,dotM,dotF,supL,mclL,wmT,wfT,lmT,mkLab].forEach(n=>svg.appendChild(n));
+  const hit=el("rect",{class:"hit grab",x:PX0,y:PY1,width:PX1-PX0,height:PY0-PY1}); svg.appendChild(hit);
+  dragify(hit,svg,p=>setFloor(clamp(sy.inv(p.y),0.45,1.55)));
+
+  sub(s=>{ const e=s.eps, Lend=1.7;
+    const xs=[],ysS=[];
+    for(let i=0;i<=60;i++){ const L=Lend*i/60; xs.push(sx(L)); ysS.push(sy(wS(L,e))); }
+    supply.setAttribute("d",poly(xs,ysS));
+    supL.setAttribute("x",sx(Lend)+4); supL.setAttribute("y",sy(wS(Lend,e)));
+    if(e>=INF){ mcl.setAttribute("opacity","0"); mclL.setAttribute("opacity","0"); }
+    else { mcl.setAttribute("opacity","1"); mclL.setAttribute("opacity","1");
+      const Lcr=Math.pow(Wmax/(1+1/e),e), mx=[],my=[];
+      for(let i=0;i<=60;i++){ const L=Lend*i/60; if(L>Lcr) break; mx.push(sx(L)); my.push(sy(wS(L,e)*(1+1/e))); }
+      if(Lcr<Lend){ mx.push(sx(Lcr)); my.push(sy(Wmax)); }
+      mcl.setAttribute("d", mx.length>1?poly(mx,my):"");
+      const labelL=Math.min(Lcr*0.8, Lend*0.72); mclL.setAttribute("x",sx(labelL)-2); mclL.setAttribute("y",sy(wS(labelL,e)*(1+1/e))-3); }
+    const Lm_=Lm(e),wm_=wm(e),mrpAt=MRP(Lm_);
+    while(gWedge.firstChild) gWedge.removeChild(gWedge.firstChild);
+    if(e<INF){ const wx=sx(Lm_);
+      gWedge.appendChild(el("rect",{x:wx-1.5,y:sy(mrpAt),width:3,height:sy(wm_)-sy(mrpAt),fill:"var(--live-soft)"}));
+      gWedge.appendChild(el("path",{d:"M"+(wx-7)+","+sy(mrpAt)+" L"+wx+","+sy(mrpAt)+" L"+wx+","+sy(wm_)+" L"+(wx-7)+","+sy(wm_),fill:"none",stroke:"var(--live-line)","stroke-width":1.1})); }
+    mkLab.setAttribute("x",sx(Lm_)+8); mkLab.setAttribute("y",(sy(mrpAt)+sy(wm_))/2+4);
+    mkLab.setAttribute("opacity", e<INF && (sy(wm_)-sy(mrpAt))>14?"1":"0");
+    dotS.setAttribute("cx",sx(Lm_)); dotS.setAttribute("cy",sy(wm_));
+    dotM.setAttribute("cx",sx(Lm_)); dotM.setAttribute("cy",sy(mrpAt));
+    guideWm.setAttribute("x1",PX0); guideWm.setAttribute("y1",sy(wm_)); guideWm.setAttribute("x2",sx(Lm_)); guideWm.setAttribute("y2",sy(wm_));
+    guideLm.setAttribute("x1",sx(Lm_)); guideLm.setAttribute("y1",PY0); guideLm.setAttribute("x2",sx(Lm_)); guideLm.setAttribute("y2",sy(Math.max(wm_,mrpAt)));
+    wmT.setAttribute("x",PX0-8); wmT.setAttribute("y",sy(wm_)+4);
+    lmT.setAttribute("x",sx(Lm_)); lmT.setAttribute("y",PY0+24);
+    wmT.setAttribute("opacity", e<INF?"1":"0");
+    wsT.setAttribute("opacity", (e>=INF||Math.abs(wm_-1)>0.07)?"1":"0");
+    lmT.setAttribute("opacity", Math.abs(Lm_-1)>0.05?"1":"0");
+    const wf=clamp(s.floor,0.45,1.55), Ef=archE(wf,e);
+    floorLine.setAttribute("x1",PX0); floorLine.setAttribute("y1",sy(wf)); floorLine.setAttribute("x2",sx(Math.max(Ef,Lm_)+0.05)); floorLine.setAttribute("y2",sy(wf));
+    dotF.setAttribute("cx",sx(Ef)); dotF.setAttribute("cy",sy(wf));
+    wfT.setAttribute("x",PX0-8); wfT.setAttribute("y",sy(wf)+4);
+    wfT.setAttribute("opacity", Math.abs(wf-wm_)>0.05 && Math.abs(wf-1)>0.07?"1":"0");
+  });
+}
+
+/* ===================== PLATE α-ii : GAUGE ===================== */
+function buildGauge(){
+  const svg=document.getElementById("gaugeSvg");
+  const BX=66,BY0=210,BY1=24,BW=74; const sy=scale(0,1,BY0,BY1);
+  svg.appendChild(el("rect",{class:"gauge-prod",x:BX,y:BY1,width:BW,height:BY0-BY1,rx:2}));
+  const wageR=el("rect",{class:"gauge-wage anim",x:BX,width:BW});
+  const keepR=el("rect",{class:"gauge-keep anim",x:BX,width:BW});
+  const divL=el("line",{class:"gauge-div anim",x1:BX,x2:BX+BW});
+  svg.appendChild(wageR); svg.appendChild(keepR); svg.appendChild(divL);
+  let pt=el("text",{class:"gauge-lab",x:BX+BW+12,y:BY1+5}); pt.appendChild(tx("product  1.00")); svg.appendChild(pt);
+  const keepL=el("text",{class:"gauge-lab anim",x:BX+BW+12,fill:"var(--live-deep)","font-weight":"500"});
+  const keepP=el("text",{class:"gauge-lab anim",x:BX+BW+12,"font-style":"italic",fill:"var(--live-deep)"});
+  const wageL=el("text",{class:"gauge-lab anim",x:BX+BW+12});
+  const cap=el("text",{class:"gauge-lab",x:BX+BW/2,y:236,"text-anchor":"middle","font-style":"italic"}); cap.appendChild(tx("withheld = 1 ÷ (ε + 1)"));
+  svg.appendChild(keepL); svg.appendChild(keepP); svg.appendChild(wageL); svg.appendChild(cap);
+  sub(s=>{ const e=s.eps,m=mu(e),ws=wageShareOfProduct(e);
+    const yW=sy(ws), yP=sy(1);
+    wageR.setAttribute("y",yW); wageR.setAttribute("height",BY0-yW);
+    keepR.setAttribute("y",yP); keepR.setAttribute("height",yW-yP); keepR.setAttribute("opacity", m>0.003?"1":"0");
+    divL.setAttribute("y1",yW); divL.setAttribute("y2",yW);
+    setText(keepL,"withheld"); keepL.setAttribute("y",(yP+yW)/2-3); keepL.setAttribute("opacity", m>0.04?"1":"0");
+    setText(keepP,pct(m)); keepP.setAttribute("y",(yP+yW)/2+13); keepP.setAttribute("opacity", m>0.04?"1":"0");
+    setText(wageL,"wage  "+pct(ws)); wageL.setAttribute("y",(yW+BY0)/2+4);
+  });
+}
+
+/* ===================== PLATE α-iii : ARCH ===================== */
+function buildArch(){
+  const svg=document.getElementById("archSvg");
+  const PX0=46,PX1=338,PY0=206,PY1=22,wf0=0.5,wf1=1.55,E1=1.08;
+  const sx=scale(wf0,wf1,PX0,PX1), sy=scale(0,E1,PY0,PY1);
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY1,x2:PX0,y2:PY0}));
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY0,x2:PX1,y2:PY0}));
+  let xl=el("text",{class:"px-tick","text-anchor":"end",x:PX1,y:PY0+22}); xl.appendChild(tx("the floor →")); svg.appendChild(xl);
+  let yl=el("text",{class:"px-tick","text-anchor":"middle",transform:"translate("+(PX0-30)+","+((PY0+PY1)/2)+") rotate(-90)"}); yl.appendChild(tx("jobs")); svg.appendChild(yl);
+  svg.appendChild(el("line",{class:"px-level",x1:sx(1),y1:sy(1.06),x2:sx(1),y2:PY0}));
+  let ws=el("text",{class:"px-tick live","text-anchor":"middle",x:sx(1),y:PY0+22}); ws.appendChild(tx("w*")); svg.appendChild(ws);
+  const archPath=el("path",{class:"px-curve"});
+  const dotCrest=el("circle",{class:"px-dot comp",cx:sx(1),cy:sy(1),r:4.0});
+  const dotElbow=el("circle",{class:"px-dot anim",r:3.4});
+  const floorV=el("line",{class:"px-floor anim"});
+  const dotNow=el("circle",{class:"px-dot live anim",r:4.6});
+  const elbowT=el("text",{class:"px-tick anim","text-anchor":"middle"}); elbowT.appendChild(tx("wₘ"));
+  const rRise=el("text",{class:"px-reg anim","text-anchor":"start"}); rRise.appendChild(tx("rises"));
+  svg.appendChild(archPath); svg.appendChild(dotCrest);
+  [dotElbow,floorV,elbowT,dotNow,rRise].forEach(n=>svg.appendChild(n));
+  const hit=el("rect",{class:"hit grab",x:PX0,y:PY1,width:PX1-PX0,height:PY0-PY1}); svg.appendChild(hit);
+  dragify(hit,svg,p=>setFloor(clamp(sx.inv(p.x),wf0,wf1)));
+  sub(s=>{ const e=s.eps; const xs=[],ys=[];
+    for(let i=0;i<=80;i++){ const wf=wf0+(wf1-wf0)*i/80; xs.push(sx(wf)); ys.push(sy(Math.min(E1,archE(wf,e)))); }
+    archPath.setAttribute("d",poly(xs,ys));
+    const wm_=wm(e),Lm_=Lm(e);
+    dotElbow.setAttribute("cx",sx(wm_)); dotElbow.setAttribute("cy",sy(Lm_)); dotElbow.setAttribute("opacity", e<INF?"1":"0");
+    elbowT.setAttribute("x",sx(wm_)); elbowT.setAttribute("y",PY0+22); elbowT.setAttribute("opacity", Math.abs(wm_-1)>0.07?"1":"0");
+    rRise.setAttribute("x",sx((wm_+1)/2)-10); rRise.setAttribute("y",sy(archE((wm_+1)/2,e))-8); rRise.setAttribute("opacity", e<INF&&(1-wm_)>0.06?"1":"0");
+    const wf=clamp(s.floor,wf0,wf1), Ef=Math.min(E1,archE(wf,e));
+    floorV.setAttribute("x1",sx(wf)); floorV.setAttribute("y1",sy(Ef)); floorV.setAttribute("x2",sx(wf)); floorV.setAttribute("y2",PY0);
+    dotNow.setAttribute("cx",sx(wf)); dotNow.setAttribute("cy",sy(Ef));
+  });
+}
+/* ===================== PLATE β : THE SURFACE ===================== */
+function buildSurface(){
+  const cvs=document.getElementById("surfCanvas");
+  const ctx=cvs.getContext("2d");
+  const svg=document.getElementById("surfSvg");
+  const BW=480,BH=313,VBW=720,VBH=470;
+  const PX0=88,PX1=662,PY0=400,PY1=40;        // plot rect (svg space)
+  const WF0=0.5,WF1=1.6,E0=1,E1=13;
+  const sx=scale(WF0,WF1,PX0,PX1), sy=scale(E0,E1,PY0,PY1); // ε increases upward
+  // ----- field (canvas) -----
+  const img=ctx.createImageData(BW,BH), d=img.data;
+  const pr=[240,235,225], dk=[42,32,24];
+  for(let j=0;j<BH;j++){ const svgy=j/(BH-1)*VBH;
+    for(let i=0;i<BW;i++){ const svgx=i/(BW-1)*VBW, k=(j*BW+i)*4;
+      if(svgx<PX0||svgx>PX1||svgy<PY1||svgy>PY0){ d[k+3]=0; continue; }
+      const wf=sx.inv(svgx), ee=sy.inv(svgy), E=Math.max(0,Math.min(1,archE(wf,ee))), t=Math.pow(E,0.82);
+      d[k]=pr[0]+(dk[0]-pr[0])*t; d[k+1]=pr[1]+(dk[1]-pr[1])*t; d[k+2]=pr[2]+(dk[2]-pr[2])*t; d[k+3]=255;
+    } }
+  ctx.putImageData(img,0,0);
+
+  // ----- defs: fog gradient -----
+  const defs=el("defs"); const fg=el("linearGradient",{id:"fogGrad",x1:"0%",y1:"0%",x2:"100%",y2:"0%"});
+  fg.appendChild(el("stop",{offset:"0%","stop-color":"#f0ebe1","stop-opacity":"0"}));
+  fg.appendChild(el("stop",{offset:"50%","stop-color":"#f0ebe1","stop-opacity":"0.62"}));
+  fg.appendChild(el("stop",{offset:"100%","stop-color":"#f0ebe1","stop-opacity":"0"}));
+  defs.appendChild(fg); svg.appendChild(defs);
+
+  // ----- contours (analytic) -----
+  const levels=[0.5,0.6,0.7,0.8,0.9];
+  levels.forEach(L0=>{
+    // rising flank: x = L0^(1/ε), valid where L0 >= Lm(ε) and x in [wm,1]
+    const xs=[],ys=[];
+    for(let ei=0;ei<=80;ei++){ const ee=E0+(E1-E0)*ei/80; if(L0<Lm(ee)-1e-4) continue;
+      const x=Math.pow(L0,1/ee); if(x<wm(ee)-1e-3||x>1.001) continue; xs.push(sx(Math.min(1,x))); ys.push(sy(ee)); }
+    if(xs.length>1) svg.appendChild(el("path",{class:"sf-contour",d:poly(xs,ys)}));
+    // falling flank: vertical at x=2-L0
+    const xf=2-L0; if(xf<=WF1) svg.appendChild(el("line",{class:"sf-contour",x1:sx(xf),y1:sy(E1),x2:sx(xf),y2:sy(E0)}));
+  });
+
+  // ----- measured band ε 5–7 -----
+  svg.appendChild(el("rect",{class:"sf-band",x:PX0,y:sy(7),width:PX1-PX0,height:sy(5)-sy(7)}));
+  svg.appendChild(el("line",{class:"sf-bandedge",x1:PX0,y1:sy(7),x2:PX1,y2:sy(7)}));
+  svg.appendChild(el("line",{class:"sf-bandedge",x1:PX0,y1:sy(5),x2:PX1,y2:sy(5)}));
+  let bt=el("text",{class:"sf-tick","text-anchor":"end",x:PX1-6,y:sy(6)+4,fill:"var(--live-deep)","font-style":"italic"}); bt.appendChild(tx("measured ε")); svg.appendChild(bt);
+
+  // ----- monopsony locus: x = wm(ε) -----
+  { const xs=[],ys=[]; for(let ei=0;ei<=90;ei++){ const ee=E0+(E1-E0)*ei/90; xs.push(sx(Math.min(WF1,wm(ee)))); ys.push(sy(ee)); }
+    svg.appendChild(el("path",{class:"sf-locus",d:poly(xs,ys)})); }
+  let ll=el("text",{class:"sf-tick",x:sx(wm(2.4))-6,y:sy(2.4)+2,"text-anchor":"end",fill:"#efe9df","font-style":"italic"}); ll.appendChild(tx("where each market starts")); svg.appendChild(ll);
+
+  // ----- ridge + fog at w*=1 -----
+  svg.appendChild(el("rect",{class:"",x:sx(0.9),y:PY1,width:sx(1.12)-sx(0.9),height:PY0-PY1,fill:"url(#fogGrad)"}));
+  svg.appendChild(el("line",{class:"sf-ridge",x1:sx(1),y1:PY1,x2:sx(1),y2:PY0}));
+  let rl=el("text",{class:"sf-tick",x:sx(1),y:PY1-6,"text-anchor":"middle",fill:"var(--soft)"}); rl.appendChild(tx("w*  the crest")); svg.appendChild(rl);
+  let rl2=el("text",{class:"sf-tick",x:sx(1),y:sy(11.6),"text-anchor":"middle",fill:"var(--faint)","font-style":"italic","font-size":"11"}); rl2.appendChild(tx("unobservable")); svg.appendChild(rl2);
+
+  // beyond-crest note
+  let bc=el("text",{class:"sf-tick",x:sx(1.27),y:sy(10.4),"text-anchor":"middle",fill:"var(--soft)","font-style":"italic"}); bc.appendChild(tx("the old arithmetic —")); svg.appendChild(bc);
+  let bc2=el("text",{class:"sf-tick",x:sx(1.27),y:sy(9.6),"text-anchor":"middle",fill:"var(--soft)","font-style":"italic"}); bc2.appendChild(tx("jobs fall")); svg.appendChild(bc2);
+
+  // ----- axes + ticks -----
+  svg.appendChild(el("line",{class:"sf-axis",x1:PX0,y1:PY1,x2:PX0,y2:PY0}));
+  svg.appendChild(el("line",{class:"sf-axis",x1:PX0,y1:PY0,x2:PX1,y2:PY0}));
+  [0.6,0.8,1.0,1.2,1.4].forEach(w=>{ if(Math.abs(w-1)<0.001) return; let t=el("text",{class:"sf-tick","text-anchor":"middle",x:sx(w),y:PY0+20}); t.appendChild(tx(w.toFixed(1))); svg.appendChild(t); });
+  let xax=el("text",{class:"sf-tick","text-anchor":"end",x:PX1,y:PY0+34,fill:"var(--faint)"}); xax.appendChild(tx("the floor  (wage, w*=1) →")); svg.appendChild(xax);
+  [2,5,10,13].forEach(e=>{ let t=el("text",{class:"sf-tick","text-anchor":"end",x:PX0-8,y:sy(e)+4}); t.appendChild(tx(String(e))); svg.appendChild(t); });
+  let yax=el("text",{class:"sf-tick","text-anchor":"middle",transform:"translate("+(PX0-34)+","+((PY0+PY1)/2)+") rotate(-90)",fill:"var(--faint)"}); yax.appendChild(tx("elasticity ε ↑  (less power)")); svg.appendChild(yax);
+
+  // ----- crosshair + readout -----
+  const cV=el("line",{class:"sf-cross anim"}); const cH=el("line",{class:"sf-cross anim"});
+  const cD=el("rect",{class:"anim",width:11,height:11,fill:"var(--live)",stroke:"var(--paper)","stroke-width":1.4});
+  svg.appendChild(cV); svg.appendChild(cH); svg.appendChild(cD);
+  const rbox=el("rect",{x:96,y:50,width:150,height:74,rx:2,fill:"rgba(240,235,225,0.82)",stroke:"var(--panelhair)"}); svg.appendChild(rbox);
+  const rLines=[]; for(let i=0;i<4;i++){ const t=el("text",{class:"sf-tick",x:106,y:68+i*16,fill:"var(--ink)"}); svg.appendChild(t); rLines.push(t); }
+  const hit=el("rect",{class:"hit grab",x:PX0,y:PY1,width:PX1-PX0,height:PY0-PY1}); svg.appendChild(hit);
+  dragify(hit,svg,p=>{ const wf=clamp(sx.inv(p.x),WF0,WF1), ee=clamp(sy.inv(p.y),E0,E1); State.floor=clamp(wf,0.45,1.6); State.eps=clamp(ee,1,INF); emit(); });
+  svg.setAttribute("tabindex","0");
+  svg.setAttribute("aria-label","Employment landscape. Press arrow keys to move the crosshair — left and right set the wage floor, up and down set the elasticity.");
+  svg.addEventListener("keydown",e=>{ let u=true;
+    if(e.key==="ArrowLeft") setFloor(State.floor-0.02);
+    else if(e.key==="ArrowRight") setFloor(State.floor+0.02);
+    else if(e.key==="ArrowUp") setEps(Math.min(E1,clamp(State.eps,E0,E1)+0.5));
+    else if(e.key==="ArrowDown") setEps(Math.max(E0,clamp(State.eps,E0,E1)-0.5));
+    else u=false;
+    if(u) e.preventDefault();
+  });
+
+  sub(s=>{ const eClamp=clamp(s.eps,E0,E1), wf=clamp(s.floor,WF0,WF1);
+    const X=sx(wf), Y=sy(eClamp);
+    cV.setAttribute("x1",X); cV.setAttribute("y1",PY1); cV.setAttribute("x2",X); cV.setAttribute("y2",PY0);
+    cH.setAttribute("x1",PX0); cH.setAttribute("y1",Y); cH.setAttribute("x2",PX1); cH.setAttribute("y2",Y);
+    cD.setAttribute("x",X-5.5); cD.setAttribute("y",Y-5.5);
+    const E=archE(wf,s.eps);
+    setText(rLines[0],"ε = "+(s.eps>=INF?"∞":fr1(s.eps))+(s.eps>E1?"  (off top)":""));
+    setText(rLines[1],"floor = "+wf.toFixed(2)+"  (w* = 1.00)");
+    setText(rLines[2],"jobs = "+E.toFixed(2));
+    setText(rLines[3],"markdown = "+(s.eps>=INF?"0%":pct(mu(s.eps))));
+  });
+}
+/* ===================== SLIDER COMPONENT ===================== */
+function Slider(node,opts){
+  const trk=document.createElement("div"); trk.className="trk";
+  const fill=document.createElement("div"); fill.className="fill";
+  const hd=document.createElement("div"); hd.className="hd";
+  node.appendChild(trk); node.appendChild(fill); node.appendChild(hd);
+  node.tabIndex=0; node.setAttribute("role","slider");
+  node.setAttribute("aria-valuemin",String(opts.min)); node.setAttribute("aria-valuemax",String(opts.max));
+  if(opts.ariaLabel) node.setAttribute("aria-label",opts.ariaLabel);
+  let val=opts.value;
+  const frac=()=>(val-opts.min)/(opts.max-opts.min);
+  function render(){ const f=frac()*100; fill.style.width=f+"%"; hd.style.left=f+"%"; node.setAttribute("aria-valuenow",val.toFixed(2)); }
+  function fromX(cx){ const r=node.getBoundingClientRect(); const f=clamp((cx-r.left)/r.width,0,1); val=opts.min+f*(opts.max-opts.min); render(); opts.onInput(val); }
+  let active=false;
+  node.addEventListener("pointerdown",e=>{ active=true; try{node.setPointerCapture(e.pointerId);}catch(_){} fromX(e.clientX); });
+  node.addEventListener("pointermove",e=>{ if(active) fromX(e.clientX); });
+  node.addEventListener("pointerup",()=>active=false);
+  node.addEventListener("pointercancel",()=>active=false);
+  node.addEventListener("keydown",e=>{ const stepK=(opts.max-opts.min)/30; let u=true;
+    if(e.key==="ArrowLeft"||e.key==="ArrowDown") val=clamp(val-stepK,opts.min,opts.max);
+    else if(e.key==="ArrowRight"||e.key==="ArrowUp") val=clamp(val+stepK,opts.min,opts.max);
+    else if(e.key==="Home") val=opts.min; else if(e.key==="End") val=opts.max;
+    else u=false;
+    if(u){ render(); opts.onInput(val); e.preventDefault(); } });
+  render();
+  return { set:v=>{val=v;render();}, get:()=>val };
+}
+
+/* ===================== PLATE γ : GENDERED WEDGE ===================== */
+function buildGender(){
+  const svg=document.getElementById("genSvg");
+  const PX0=70,PX1=520,PY0=380,PY1=30, EX0=1,EX1=13, SY0=0.45,SY1=1.02;
+  const sx=scale(EX0,EX1,PX0,PX1), sy=scale(SY0,SY1,PY0,PY1);
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY1,x2:PX0,y2:PY0}));
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY0,x2:PX1,y2:PY0}));
+  svg.appendChild(el("line",{class:"px-level",x1:PX0,y1:sy(1),x2:PX1,y2:sy(1)}));
+  let fp=el("text",{class:"px-tick","text-anchor":"end",x:PX1,y:sy(1)-7}); fp.appendChild(tx("full product")); svg.appendChild(fp);
+  let yl=el("text",{class:"px-lbl","text-anchor":"middle",transform:"translate("+(PX0-44)+","+((PY0+PY1)/2)+") rotate(-90)"}); yl.appendChild(tx("wage, share of product")); svg.appendChild(yl);
+  let lm=el("text",{class:"px-tick","text-anchor":"middle",x:sx(2.2),y:PY0+22}); lm.appendChild(tx("less mobile")); svg.appendChild(lm);
+  let mm=el("text",{class:"px-tick","text-anchor":"middle",x:sx(11),y:PY0+22}); mm.appendChild(tx("more mobile")); svg.appendChild(mm);
+  // curve
+  const curve=el("path",{class:"px-curve"});
+  { const xs=[],ys=[]; for(let i=0;i<=80;i++){ const e=EX0+(EX1-EX0)*i/80; xs.push(sx(e)); ys.push(sy(wageShareOfProduct(e))); } curve.setAttribute("d",poly(xs,ys)); }
+  svg.appendChild(curve);
+  // dynamic
+  const floorLine=el("line",{class:"px-floor anim"});
+  const cW=el("line",{class:"px-guide anim"}); const cM=el("line",{class:"px-guide anim"}); // lift connectors
+  const dotW=el("circle",{class:"px-dot live anim",r:5}); const dotM=el("circle",{class:"px-dot anim",r:5});
+  const labW=el("text",{class:"px-lbl live anim","text-anchor":"end"}); labW.appendChild(tx("women"));
+  const labM=el("text",{class:"px-lbl anim"}); labM.appendChild(tx("men"));
+  const gapBr=el("path",{class:"anim",fill:"none",stroke:"var(--live-line)","stroke-width":1.2});
+  const gapTx=el("text",{class:"px-reg live anim","text-anchor":"start"}); gapTx.appendChild(tx("the gap"));
+  const floorTx=el("text",{class:"px-reg anim","text-anchor":"end",fill:"var(--live-deep)"}); floorTx.appendChild(tx("floor"));
+  [floorLine,cW,cM,gapBr,dotW,dotM,labW,labM,gapTx,floorTx].forEach(n=>svg.appendChild(n));
+
+  const spreadEl=document.getElementById("spreadVal"), floorEl=document.getElementById("genFloorVal"), gapEl=document.getElementById("gapVal");
+  Slider(document.getElementById("spreadSlider"),{min:0,max:1.2,value:State.spread,ariaLabel:"Spread between the two groups' mobilities",onInput:v=>{State.spread=v;emit();}});
+  Slider(document.getElementById("genFloorSlider"),{min:0.5,max:1.0,value:State.genFloor,ariaLabel:"Wage floor as a share of product",onInput:v=>{State.genFloor=v;emit();}});
+
+  sub(s=>{ const k=1+s.spread;
+    const ew=clamp(s.eps/k,1,EX1), em=clamp(s.eps*k,1,EX1);
+    const baseW=wageShareOfProduct(ew), baseM=wageShareOfProduct(em), fs=s.genFloor;
+    const liftW=Math.min(1,Math.max(baseW,fs)), liftM=Math.min(1,Math.max(baseM,fs));
+    const gap=Math.max(0,liftM-liftW);
+    // floor line
+    const showFloor=fs>baseW+0.002;
+    floorLine.setAttribute("x1",PX0); floorLine.setAttribute("y1",sy(fs)); floorLine.setAttribute("x2",PX1); floorLine.setAttribute("y2",sy(fs));
+    floorLine.setAttribute("opacity", showFloor?"1":"0");
+    floorTx.setAttribute("x",PX1-4); floorTx.setAttribute("y",sy(fs)-6); floorTx.setAttribute("opacity", showFloor?"1":"0");
+    // points (at lifted positions)
+    dotW.setAttribute("cx",sx(ew)); dotW.setAttribute("cy",sy(liftW));
+    dotM.setAttribute("cx",sx(em)); dotM.setAttribute("cy",sy(liftM));
+    labW.setAttribute("x",sx(ew)-9); labW.setAttribute("y",sy(liftW)+5);
+    labM.setAttribute("x",sx(em)+9); labM.setAttribute("y",sy(liftM)+5);
+    // lift connectors (from curve baseline up to lifted)
+    cW.setAttribute("x1",sx(ew)); cW.setAttribute("y1",sy(baseW)); cW.setAttribute("x2",sx(ew)); cW.setAttribute("y2",sy(liftW)); cW.setAttribute("opacity", liftW>baseW+0.004?"1":"0");
+    cM.setAttribute("x1",sx(em)); cM.setAttribute("y1",sy(baseM)); cM.setAttribute("x2",sx(em)); cM.setAttribute("y2",sy(liftM)); cM.setAttribute("opacity", liftM>baseM+0.004?"1":"0");
+    // gap bracket between the two lifted points (drawn near men's x)
+    // gap bracket just left of the rightmost (men) point, always in-bounds
+    const gx=Math.max(sx(ew),sx(em))-14;
+    if(gap>0.004){ gapBr.setAttribute("d","M"+(gx+6)+","+sy(liftW)+" L"+gx+","+sy(liftW)+" L"+gx+","+sy(liftM)+" L"+(gx+6)+","+sy(liftM)); gapBr.setAttribute("opacity","1");
+      gapTx.setAttribute("text-anchor","end"); gapTx.setAttribute("x",gx-5); gapTx.setAttribute("y",(sy(liftW)+sy(liftM))/2+4); gapTx.setAttribute("opacity","1"); }
+    else { gapBr.setAttribute("opacity","0"); gapTx.setAttribute("opacity","0"); }
+    // readouts
+    setText(spreadEl,"×"+k.toFixed(1));
+    setText(floorEl, showFloor?fs.toFixed(2):"—");
+    setText(gapEl, Math.round(gap*100)+" pts");
+  });
+}
+
+/* ===================== PLATE δ : MAP OF POWER ===================== */
+function buildMap(){
+  const svg=document.getElementById("mapSvg");
+  const defs=el("defs");
+  const mk=(id,fill)=>{ const m=el("marker",{id:id,viewBox:"0 0 10 10",refX:"8",refY:"5",markerWidth:"7",markerHeight:"7",orient:"auto-start-reverse"}); m.appendChild(el("path",{d:"M0,0 L10,5 L0,10 z",fill:fill})); defs.appendChild(m); };
+  mk("arrIn","var(--faintest)"); mk("arrRem","var(--live)"); mk("arrOut","var(--live)");
+  svg.appendChild(defs);
+  const rows=[92,176,260,344], BH=58, SW=176, SX=30, RW=176, RX=514;
+  const CX0=300,CX1=420,CY=220,CYT=70,CYB=370;
+  const sources=[["Fewness","a handful of employers"],["Immobility by contract","non-competes · no-poach"],["Secrecy","a wage unseen"],["Search friction","the cost of leaving"]];
+  const remedies=[["Antitrust","merger review · policing collusion"],["Mobility law","void covenants · open hiring"],["Transparency","disclose pay ranges"],["The wage floor","the friction no contract made"]];
+  const ribbons=[], remArrows=[], srcBoxes=[], remBoxes=[], flashes=[];
+
+  // core
+  svg.appendChild(el("rect",{class:"map-core",x:CX0,y:CYT,width:CX1-CX0,height:CYB-CYT,rx:5}));
+  let ce=el("text",{class:"map-coretext","text-anchor":"middle",x:360,y:150,"font-style":"italic","font-size":"15","font-variation-settings":"'opsz' 40"}); ce.appendChild(tx("the elasticity")); svg.appendChild(ce);
+  let cE=el("text",{class:"map-coretext","text-anchor":"middle",x:360,y:128,"font-size":"34","font-variation-settings":"'opsz' 90"}); cE.appendChild(tx("ε")); svg.appendChild(cE);
+  let cm=el("text",{class:"map-coretext","text-anchor":"middle",x:360,y:248,"font-size":"15"}); cm.appendChild(tx("μ = 1 ÷ (ε+1)")); svg.appendChild(cm);
+  const coreMu=el("text",{class:"map-coretext anim","text-anchor":"middle",x:360,y:282,"font-size":"26","font-variation-settings":"'opsz' 80","font-weight":"500"}); svg.appendChild(coreMu);
+  let cml=el("text",{class:"map-coretext","text-anchor":"middle",x:360,y:302,"font-size":"11","font-style":"italic",fill:"var(--faint)"}); cml.appendChild(tx("the markdown")); svg.appendChild(cml);
+
+  rows.forEach((cy,i)=>{
+    // ribbon source -> core left
+    const rb=el("path",{class:"map-ribbon",d:"M"+(SX+SW)+","+cy+" C "+(SX+SW+54)+","+cy+" "+(CX0-30)+","+CY+" "+CX0+","+(CY-30+i*20),"marker-end":"url(#arrIn)"}); svg.appendChild(rb); ribbons.push(rb);
+    // remedy arrow remedy -> core right
+    const ra=el("path",{class:"map-rem-arrow",d:"M"+RX+","+cy+" C "+(RX-54)+","+cy+" "+(CX1+30)+","+CY+" "+CX1+","+(CY-30+i*20),"marker-end":"url(#arrRem)"}); svg.appendChild(ra); remArrows.push(ra);
+    // source box
+    const sg=el("g",{class:"map-node"}); const sbx=el("rect",{class:"map-box src",x:SX,y:cy-BH/2,width:SW,height:BH,rx:3});
+    let st=el("text",{class:"map-title",x:SX+14,y:cy-4}); st.appendChild(tx(sources[i][0]));
+    let ss=el("text",{class:"map-sub",x:SX+14,y:cy+15}); ss.appendChild(tx(sources[i][1]));
+    sg.appendChild(sbx); sg.appendChild(st); sg.appendChild(ss); svg.appendChild(sg); srcBoxes.push(sbx);
+    // remedy box
+    const rg=el("g",{class:"map-node"}); const rbx=el("rect",{class:"map-box rem",x:RX,y:cy-BH/2,width:RW,height:BH,rx:3});
+    let rt=el("text",{class:"map-title",x:RX+14,y:cy-4}); rt.appendChild(tx(remedies[i][0]));
+    let rs=el("text",{class:"map-sub",x:RX+14,y:cy+15}); rs.appendChild(tx(remedies[i][1]));
+    const fl=el("text",{class:"map-sub",x:RX+RW-6,y:cy-BH/2-5,"text-anchor":"end",fill:"var(--live-deep)","font-style":"italic",opacity:"0"}); fl.appendChild(tx("ε rises ↑"));
+    rg.appendChild(rbx); rg.appendChild(rt); rg.appendChild(rs); svg.appendChild(rg); svg.appendChild(fl); remBoxes.push(rbx); flashes.push(fl);
+    // hover pairing
+    function on(){ rb.setAttribute("stroke","var(--ink)"); rb.setAttribute("opacity",".85"); rb.setAttribute("stroke-width","2");
+      ra.setAttribute("opacity",".9"); ra.setAttribute("stroke-width","1.8");
+      sbx.setAttribute("fill","rgba(28,26,22,.05)"); rbx.setAttribute("fill","var(--live-soft)"); rbx.setAttribute("stroke","var(--live-deep)"); }
+    function off(){ rb.setAttribute("stroke","var(--faintest)"); rb.setAttribute("opacity",".45"); rb.setAttribute("stroke-width","1.2");
+      ra.setAttribute("opacity",".5"); ra.setAttribute("stroke-width","1.1");
+      sbx.setAttribute("fill","rgba(28,26,22,.015)"); rbx.setAttribute("fill","rgba(28,26,22,.015)"); rbx.setAttribute("stroke","var(--live-line)"); }
+    sg.addEventListener("mouseenter",on); sg.addEventListener("mouseleave",off);
+    rg.addEventListener("mouseenter",on); rg.addEventListener("mouseleave",off);
+    // click remedy -> raise eps
+    rg.addEventListener("click",()=>{ setEps(Math.min(INF, Math.max(State.eps+0.7, State.eps*1.32)));
+      fl.setAttribute("opacity","1"); setTimeout(()=>fl.setAttribute("opacity","0"),1000); });
+    rg.style.cursor="pointer";
+  });
+
+  // outcomes (out the bottom)
+  svg.appendChild(el("line",{stroke:"var(--live-line)","stroke-width":1.2,x1:360,y1:CYB,x2:360,y2:CYB+14,"marker-end":"url(#arrOut)"}));
+  const outs=["wage below worth","the gendered wedge","jobs lost that needn't be"];
+  outs.forEach((o,i)=>{ let t=el("text",{class:"map-out","text-anchor":"middle",x:360,y:CYB+34+i*19}); t.appendChild(tx("→ "+o)); svg.appendChild(t); });
+
+  sub(s=>{ setText(coreMu, s.eps>=INF?"0%":pct(mu(s.eps))); });
+}
+
+/* ===================== PLATE ε : THE ASCENT IN FOG ===================== */
+function buildAscent(){
+  const svg=document.getElementById("ascSvg");
+  const PX0=72,PX1=720,PY0=372,PY1=40, WF0=0.6,WF1=1.5, EY=1.08, START=0.70, SIGMA=0.045;
+  const sx=scale(WF0,WF1,PX0,PX1), sy=scale(0,EY,PY0,PY1);
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY1,x2:PX0,y2:PY0}));
+  svg.appendChild(el("line",{class:"px-axis",x1:PX0,y1:PY0,x2:PX1,y2:PY0}));
+  [0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4].forEach(w=>{ let t=el("text",{class:"px-tick","text-anchor":"middle",x:sx(w),y:PY0+22}); t.appendChild(tx(w.toFixed(1))); svg.appendChild(t); });
+  let xl=el("text",{class:"px-lbl","text-anchor":"end",x:PX1,y:PY0+40}); xl.appendChild(tx("the floor you set →")); svg.appendChild(xl);
+  let yl=el("text",{class:"px-lbl","text-anchor":"middle",transform:"translate("+(PX0-42)+","+((PY0+PY1)/2)+") rotate(-90)"}); yl.appendChild(tx("jobs (read with noise)")); svg.appendChild(yl);
+  svg.appendChild(el("line",{class:"px-level",x1:PX0,y1:sy(1),x2:PX1,y2:sy(1)}));
+  let jl=el("text",{class:"px-tick","text-anchor":"end",x:PX0-8,y:sy(1)+4}); jl.appendChild(tx("1.0")); svg.appendChild(jl);
+
+  const revealG=el("g");
+  const fogRect=el("rect",{fill:"rgba(110,104,93,0.15)"});
+  const frontier=el("line",{class:"px-floor"});
+  const gTrail=el("path",{fill:"none",stroke:"var(--live-line)","stroke-width":1.3});
+  const gBread=el("g");
+  const here=el("rect",{width:11,height:11,fill:"var(--live)",stroke:"var(--paper)","stroke-width":1.4});
+  const fogLab=el("text",{class:"px-reg","text-anchor":"middle",fill:"var(--faint)","font-style":"italic"});
+  [revealG,fogRect,frontier,gTrail,gBread,here,fogLab].forEach(n=>svg.appendChild(n));
+
+  let st={eps:State.eps, floor:START, steps:[], step:0.07, revealed:false};
+  let seed=20260137;
+  const rnd=()=>{ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
+  const gauss=()=>{ const u=rnd()||1e-9,v=rnd()||1e-9; return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+  const reading=f=>{ const e=Math.max(0,Math.min(EY,archE(f,st.eps))); return {f, eTrue:e, eRead:Math.max(0,Math.min(EY,e*(1+gauss()*SIGMA)))}; };
+
+  const stepBtn=document.getElementById("ascStep"), revealBtn=document.getElementById("ascReveal"), newBtn=document.getElementById("ascNew");
+  const segC=document.getElementById("ascSegCautious"), segB=document.getElementById("ascSegBold");
+  const out=document.getElementById("ascReadout"), dialHint=document.getElementById("ascDialHint");
+
+  function phraseLive(){
+    if(!st.steps.length) return "Press <b>take a step</b> to raise the floor. Your only data are the noisy readings you collect on the way up.";
+    const last=st.steps[st.steps.length-1];
+    let s="Floor at <b>"+last.f.toFixed(2)+"</b>. Last altimeter reading: <b>"+last.eRead.toFixed(2)+"</b> jobs (±"+SIGMA.toFixed(2)+"). ";
+    if(st.steps.length>=3){ const p=st.steps[st.steps.length-2].eRead;
+      s+= last.eRead<p-SIGMA*0.6 ? "The reading dipped — have you crested, or is that only noise? " : "Still flat or rising — markdown may remain to capture. "; }
+    else s+="Take another step, or reveal the peak. ";
+    return s;
+  }
+  function phraseReveal(){
+    const stop=st.floor, e=st.eps, w=wm(e), jobs=archE(stop,e);
+    if(stop<=1.0+1e-9){
+      if(stop>=0.97) return "You halted within a whisker of the summit — floor <b>"+stop.toFixed(2)+"</b>, peak at <b>w* = 1.00</b> — capturing nearly all the recoverable markdown at <b>"+jobs.toFixed(2)+"</b> jobs. Yet from below, you could not have known you were there.";
+      const cap=Math.max(0,Math.min(1,(Math.min(stop,1)-w)/(1-w)));
+      return "You stopped at a floor of <b>"+stop.toFixed(2)+"</b>. The peak stood at <b>w* = 1.00</b>: you climbed <b>"+Math.round(cap*100)+"%</b> of the way, recovering that share of the markdown, with jobs at <b>"+jobs.toFixed(2)+"</b>. Caution left the rest in the firm's hands.";
+    }
+    return "You climbed to <b>"+stop.toFixed(2)+"</b> — past the unseen peak at <b>w* = 1.00</b>. Jobs, read only through noise, have slipped to <b>"+jobs.toFixed(2)+"</b>: a fall of about <b>"+Math.round((1-jobs)*100)+"%</b> from the summit. The last steps bought wage at the price of work — the danger, met in the dark.";
+  }
+  function render(){
+    while(gBread.firstChild) gBread.removeChild(gBread.firstChild);
+    const xs=[],ys=[];
+    st.steps.forEach(p=>{ const X=sx(p.f),Y=sy(p.eRead); xs.push(X); ys.push(Y);
+      const err=SIGMA*Math.max(p.eTrue,0.35);
+      gBread.appendChild(el("line",{x1:X,y1:sy(Math.min(EY,p.eRead+err)),x2:X,y2:sy(Math.max(0,p.eRead-err)),stroke:"var(--live-line)","stroke-width":1}));
+      gBread.appendChild(el("circle",{cx:X,cy:Y,r:3.1,fill:"var(--live)"})); });
+    gTrail.setAttribute("d", xs.length>1?poly(xs,ys):"");
+    const lf=st.steps.length?st.steps[st.steps.length-1]:{f:st.floor,eRead:0};
+    here.setAttribute("x",sx(lf.f)-5.5); here.setAttribute("y",sy(lf.eRead)-5.5);
+    const fx=sx(st.floor);
+    frontier.setAttribute("x1",fx); frontier.setAttribute("y1",PY1); frontier.setAttribute("x2",fx); frontier.setAttribute("y2",PY0);
+    frontier.setAttribute("opacity", st.revealed?"0.5":"1");
+    fogRect.setAttribute("x",fx); fogRect.setAttribute("y",PY1); fogRect.setAttribute("width",Math.max(0,PX1-fx)); fogRect.setAttribute("height",PY0-PY1); fogRect.setAttribute("opacity", st.revealed?"0":"1");
+    fogLab.setAttribute("x",(fx+PX1)/2); fogLab.setAttribute("y",PY1+24); setText(fogLab,"ahead — fog"); fogLab.setAttribute("opacity", (st.revealed||(PX1-fx)<92)?"0":"1");
+    stepBtn.disabled = st.revealed || st.floor>=WF1-1e-9;
+    revealBtn.disabled = st.revealed || st.steps.length<2;
+    out.innerHTML = st.revealed?phraseReveal():phraseLive();
+  }
+  function doReveal(){
+    if(st.revealed) return; st.revealed=true;
+    while(revealG.firstChild) revealG.removeChild(revealG.firstChild);
+    const e=st.eps, xs=[],ys=[];
+    for(let i=0;i<=90;i++){ const f=WF0+(WF1-WF0)*i/90; xs.push(sx(f)); ys.push(sy(Math.min(EY,archE(f,e)))); }
+    revealG.appendChild(el("path",{class:"px-curve",d:poly(xs,ys)}));
+    revealG.appendChild(el("line",{class:"px-floor",style:"stroke:var(--ink);stroke-dasharray:5 4",x1:sx(1),y1:PY1,x2:sx(1),y2:PY0}));
+    let cl=el("text",{class:"px-lbl live","text-anchor":"middle",x:sx(1),y:PY1-6}); cl.appendChild(tx("w*  the true peak")); revealG.appendChild(cl);
+    [0.93,1.0,1.07].forEach(c=>revealG.appendChild(el("line",{class:"px-guide",x1:sx(c),y1:sy(archE(c,e)),x2:sx(c),y2:PY0})));
+    let ce=el("text",{class:"px-reg","text-anchor":"middle",x:sx(1.0),y:sy(0.18)}); ce.appendChild(tx("careful estimates of w* differ")); revealG.appendChild(ce);
+    render();
+  }
+  function start(){ st.eps=State.eps; st.floor=START; st.steps=[reading(START)]; st.revealed=false;
+    while(revealG.firstChild) revealG.removeChild(revealG.firstChild); setText(dialHint,""); render(); }
+  stepBtn.addEventListener("click",()=>{ if(st.revealed) return; st.floor=Math.min(WF1, st.floor+st.step); st.steps.push(reading(st.floor)); render(); });
+  revealBtn.addEventListener("click",doReveal);
+  newBtn.addEventListener("click",()=>{ seed=(Date.now()&0x7fffffff)||7; start(); });
+  function setSeg(bold){ st.step=bold?0.07:0.03; segB.classList.toggle("on",bold); segC.classList.toggle("on",!bold); }
+  segC.addEventListener("click",()=>setSeg(false)); segB.addEventListener("click",()=>setSeg(true)); setSeg(true);
+  sub(s=>{ if(!st.revealed && Math.abs(s.eps-st.eps)>0.05) setText(dialHint,"the dial has moved — “new expedition” will climb the new terrain"); });
+  start();
+}
+
+/* ===================== PLATE: THE FLOWS BENEATH THE NUMBER ===================== */
+function buildFlows(){
+  const svg=document.getElementById("flowSvg");
+  // zones
+  svg.appendChild(el("rect",{x:18,y:108,width:104,height:164,rx:4,fill:"rgba(28,26,22,0.015)",stroke:"var(--panelhair)"}));
+  svg.appendChild(el("rect",{x:438,y:108,width:104,height:164,rx:4,fill:"rgba(28,26,22,0.015)",stroke:"var(--panelhair)"}));
+  let z1=el("text",{class:"px-tick","text-anchor":"middle",x:70,y:166}); z1.appendChild(tx("the rest")); svg.appendChild(z1);
+  let z1b=el("text",{class:"px-tick","text-anchor":"middle",x:70,y:182}); z1b.appendChild(tx("of the market")); svg.appendChild(z1b);
+  let z2=el("text",{class:"px-tick","text-anchor":"middle",x:490,y:192}); z2.appendChild(tx("elsewhere")); svg.appendChild(z2);
+  // reservoir + fill
+  svg.appendChild(el("rect",{x:210,y:80,width:200,height:240,rx:6,fill:"none",stroke:"var(--soft)","stroke-width":1.3}));
+  const fill=el("rect",{class:"anim",x:214,width:192,fill:"rgba(156,107,52,0.20)"});
+  const fillTop=el("line",{class:"anim",x1:214,x2:406,stroke:"var(--live)","stroke-width":1.2,opacity:0.55});
+  svg.appendChild(fill); svg.appendChild(fillTop);
+  let rl=el("text",{class:"px-lbl","text-anchor":"middle",x:310,y:104}); rl.appendChild(tx("employed here")); svg.appendChild(rl);
+  // inflow
+  svg.appendChild(el("rect",{x:122,y:140,width:80,height:26,fill:"rgba(28,26,22,0.06)"}));
+  svg.appendChild(el("path",{d:"M202,133 L216,153 L202,173 Z",fill:"rgba(28,26,22,0.20)"}));
+  let il=el("text",{class:"px-tick","text-anchor":"middle",x:160,y:131}); il.appendChild(tx("recruits in")); svg.appendChild(il);
+  let il2=el("text",{class:"px-reg","text-anchor":"middle",x:162,y:200,"font-size":"11"}); il2.appendChild(tx("rises with wage (φ)")); svg.appendChild(il2);
+  // outflow
+  svg.appendChild(el("rect",{x:410,y:248,width:78,height:22,fill:"rgba(28,26,22,0.06)"}));
+  svg.appendChild(el("path",{d:"M488,242 L502,259 L488,276 Z",fill:"rgba(28,26,22,0.20)"}));
+  let ol=el("text",{class:"px-tick","text-anchor":"middle",x:449,y:240}); ol.appendChild(tx("separations out")); svg.appendChild(ol);
+  let ol2=el("text",{class:"px-reg","text-anchor":"middle",x:449,y:292,"font-size":"11"}); ol2.appendChild(tx("falls with wage (σ)")); svg.appendChild(ol2);
+  const wbadge=el("text",{class:"px-lbl live anim","text-anchor":"middle",x:310,y:346,opacity:"0"}); svg.appendChild(wbadge);
+
+  // decomposition bar
+  const dsvg=document.getElementById("decompSvg");
+  const BX0=10,BX1=300,EMAX=9, ex=v=>BX0+v/EMAX*(BX1-BX0);
+  dsvg.appendChild(el("rect",{x:BX0,y:26,width:BX1-BX0,height:20,rx:2,fill:"rgba(28,26,22,0.04)"}));
+  const recR=el("rect",{class:"anim",x:BX0,y:26,height:20,fill:"rgba(28,26,22,0.5)"});
+  const retR=el("rect",{class:"anim",y:26,height:20,fill:"var(--live)"});
+  dsvg.appendChild(recR); dsvg.appendChild(retR);
+  for(let i=0;i<=EMAX;i++){ dsvg.appendChild(el("line",{x1:ex(i),y1:46,x2:ex(i),y2:50,stroke:"var(--faintest)","stroke-width":0.7})); }
+  let recL=el("text",{class:"px-tick","text-anchor":"start","font-size":"10",x:BX0,y:62,fill:"var(--soft)"}); recL.appendChild(tx("recruiting")); dsvg.appendChild(recL);
+  let retL=el("text",{class:"px-tick","text-anchor":"end","font-size":"10",x:BX1,y:62,fill:"var(--live-deep)"}); retL.appendChild(tx("retention")); dsvg.appendChild(retL);
+  const epsTx=el("text",{class:"px-lbl live","text-anchor":"end","font-size":"15",x:BX1,y:18}); dsvg.appendChild(epsTx);
+
+  // state + controls
+  let phi=2.0, sig=2.0, wageHigh=false;
+  const phiCtl=Slider(document.getElementById("phiSlider"),{min:0.5,max:4.5,value:phi,ariaLabel:"Recruitment response to the wage (phi)",onInput:v=>{phi=v; setEps(phi+sig);}});
+  const sigCtl=Slider(document.getElementById("sigSlider"),{min:0.5,max:4.5,value:sig,ariaLabel:"Retention response to the wage (sigma)",onInput:v=>{sig=v; setEps(phi+sig);}});
+  const phiV=document.getElementById("phiVal"), sigV=document.getElementById("sigVal"), sent=document.getElementById("flowSentence"), wBtn=document.getElementById("flowWage");
+  const RES_BOT=320, BASE_H=80, VTOP=84;
+  function renderFill(){ const eRep=Math.min(phi+sig,EMAX), factor=wageHigh?Math.pow(1.1,eRep):1;
+    const h=Math.min(RES_BOT-VTOP, BASE_H*factor), y=RES_BOT-h;
+    fill.setAttribute("y",y); fill.setAttribute("height",h); fillTop.setAttribute("y1",y); fillTop.setAttribute("y2",y);
+    setText(wbadge, wageHigh?"+"+Math.round((factor-1)*100)+"% employed":""); wbadge.setAttribute("opacity",wageHigh?"1":"0"); }
+  function renderBar(){ const pPhi=Math.min(phi,EMAX), pTot=Math.min(phi+sig,EMAX);
+    recR.setAttribute("width",Math.max(0,ex(pPhi)-BX0)); retR.setAttribute("x",ex(pPhi)); retR.setAttribute("width",Math.max(0,ex(pTot)-ex(pPhi))); }
+  wBtn.addEventListener("click",()=>{ wageHigh=!wageHigh; wBtn.textContent=wageHigh?"Lower the wage":"Raise the wage ↑"; renderFill(); });
+  sub(s=>{ const trueE=s.eps, e=Math.min(trueE,EMAX), tot=phi+sig;
+    if(tot>0 && Math.abs(tot-e)>0.002){ const f=e/tot; phi*=f; sig*=f; phiCtl.set(phi); sigCtl.set(sig); }
+    setText(phiV,phi.toFixed(1)); setText(sigV,sig.toFixed(1));
+    setText(epsTx,"ε = "+(trueE>=INF?"∞":trueE.toFixed(1)));
+    if(trueE>=EMAX) sent.innerHTML="Lift the wage a tenth and employment leaps — the flows are so responsive the firm keeps almost no power over the wage.";
+    else sent.innerHTML="Lift the wage a tenth and employment swells about <b>"+Math.round(e*10)+"%</b> — <b>"+Math.round(phi*10)+"%</b> as more workers arrive, <b>"+Math.round(sig*10)+"%</b> as fewer leave.";
+    renderBar(); renderFill();
+  });
+}
+
+/* ===================== INIT ===================== */
+buildDial();
+buildFlows();
+buildEquilibrium();
+buildGauge();
+buildArch();
+buildSurface();
+buildGender();
+buildMap();
+buildAscent();
+emit();
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="the-line.html">← The Line</a><a href="../library.html#edition-earlier">Return to earlier and alternate work →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

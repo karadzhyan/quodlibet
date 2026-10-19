@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Correspondence — programs are proofs, and the fixed point is the price of both</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the timeline ===== */
+  .tl-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.12fr);gap:1.7rem;align-items:start;}
+  @media(max-width:780px){ .tl-grid{grid-template-columns:1fr;gap:1.1rem;} }
+  .tl-spine{position:relative;padding-left:.2rem;}
+  .tl-spine::before{content:"";position:absolute;left:.34rem;top:.7rem;bottom:.7rem;width:1.5px;background:var(--rule);}
+  .tl-node{position:relative;padding:.5rem .6rem .5rem 1.2rem;cursor:pointer;border-radius:4px;transition:background .14s;}
+  .tl-node:hover{background:rgba(26,24,21,.035);}
+  .tl-node::before{content:"";position:absolute;left:.04rem;top:.86rem;width:10px;height:10px;border-radius:50%;background:var(--paper);border:1.7px solid var(--faintest);transition:all .15s;z-index:1;}
+  .tl-node.on::before{background:var(--ink);border-color:var(--ink);transform:scale(1.12);}
+  .tl-node.keystone::before{border-color:var(--red);} .tl-node.keystone.on::before{background:var(--red-deep);border-color:var(--red-deep);}
+  .tl-node .ty{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:500;letter-spacing:.04em;color:var(--faint);}
+  .tl-node.on .ty{color:var(--ink);} .tl-node.keystone .ty{color:var(--red-deep);}
+  .tl-node .tw{font-family:"Spectral",serif;font-size:1.12rem;font-weight:500;letter-spacing:-.01em;color:var(--ink);margin:.02rem 0;}
+  .tl-node.keystone .tw{color:var(--red-deep);}
+  .tl-node .trow{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+  .dom{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;padding:.1rem .4rem;border-radius:2px;}
+  .dom.set{background:rgba(147,114,52,.12);color:var(--gold-deep);}
+  .dom.logic{background:var(--teal-soft);color:var(--teal-deep);}
+  .dom.comp{background:var(--red-soft);color:var(--red-deep);}
+  .dom.cat{background:rgba(26,24,21,.08);color:var(--ink);}
+  .dom.expo{background:rgba(26,24,21,.04);color:var(--faint);}
+  .tl-node .ta{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faintest);}
+  .tl-node .ta b{color:var(--soft1);font-weight:500;}
+
+  /* the detail panel */
+  .tl-detail{position:sticky;top:1rem;border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);}
+  @media(max-width:780px){ .tl-detail{position:static;} }
+  .tld-head{padding:1.05rem 1.2rem .9rem;border-bottom:1px solid var(--panelhair);}
+  .tld-head.keystone{background:var(--red-soft);}
+  .tld-year{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.14em;color:var(--faint);}
+  .tld-head.keystone .tld-year{color:var(--red-deep);}
+  .tld-who{font-family:"Spectral",serif;font-size:1.65rem;font-weight:500;letter-spacing:-.015em;color:var(--ink);margin:.06rem 0 .35rem;line-height:1.05;}
+  .tld-head.keystone .tld-who{color:var(--red-deep);}
+  .tld-found{padding:1.05rem 1.2rem;font-family:"Spectral",serif;font-size:1rem;line-height:1.62;color:var(--soft1);}
+  .tld-found b{color:var(--ink);font-weight:600;}
+  .costume{margin:0 1.2rem 1.2rem;border:1px dashed var(--panelhair);border-radius:4px;padding:1rem .9rem;text-align:center;background:var(--paper);}
+  .costume.keystone{border:1.5px solid var(--red-line);background:var(--red-soft);}
+  .costume .clab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .costume .cm{font-family:"IBM Plex Mono",monospace;font-size:1.18rem;color:var(--ink);letter-spacing:.01em;overflow-wrap:anywhere;}
+  .costume .cm .ca{color:var(--red-deep);font-weight:500;}
+  .costume.keystone .cm{font-size:1.32rem;}
+  .costume .cset{font-family:"Spectral",serif;font-style:italic;font-size:.86rem;line-height:1.45;color:var(--faint);margin-top:.6rem;}
+
+  /* the twist register strip */
+  .twist-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.3rem;margin:1.5rem 0 .3rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;}
+  .twist-strip .tk{padding:.2rem .5rem;border:1px solid var(--panelhair);border-radius:3px;color:var(--soft1);background:rgba(26,24,21,.02);}
+  .twist-strip .tk.cap{color:var(--red-deep);border-color:var(--red-line);}
+  .twist-strip .ar{color:var(--faintest);}
+  .twist-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.06em;color:var(--faintest);margin-top:.5rem;}
+
+  /* ===== timeline detail: historical aspects (debt / near-miss / gap) ===== */
+  .tld-aspects{margin:0 1.2rem 1rem;display:flex;flex-direction:column;gap:.7rem;}
+  .tld-asp{border-left:1.5px solid var(--hair);padding:.1rem 0 .1rem .8rem;}
+  .tld-asp .al{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faintest);margin-bottom:.25rem;}
+  .tld-asp .at{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .tld-asp .at b{color:var(--ink);font-weight:600;}
+  .tld-asp.debt{border-left-color:var(--gold-line);} .tld-asp.debt .al{color:var(--gold-deep);}
+  .tld-asp.near{border-left-color:var(--red-line);} .tld-asp.near .al{color:var(--red-deep);}
+  .tld-asp.gap{border-left-color:var(--teal-line);} .tld-asp.gap .al{color:var(--teal-deep);}
+
+  /* ===== the rediscovery inspector (independent finders) ===== */
+  .redis-panel{border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);margin-top:.3rem;}
+  .redis-head{padding:1rem 1.2rem .85rem;border-bottom:1px solid var(--panelhair);}
+  .redis-head .rh-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.4rem;}
+  .redis-head h4{font-family:"Spectral",serif;font-weight:500;font-size:1.28rem;letter-spacing:-.01em;margin:0;color:var(--ink);line-height:1.18;}
+  .redis-finds{padding:.35rem 1.2rem .3rem;}
+  .redis-find{display:grid;grid-template-columns:auto 1fr;gap:.18rem .95rem;align-items:baseline;padding:.7rem 0;border-bottom:1px solid var(--hair);}
+  .redis-find:last-child{border-bottom:none;}
+  .redis-find .rf-yr{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:500;color:var(--soft1);white-space:nowrap;}
+  .redis-find .rf-who{grid-column:2;font-family:"Spectral",serif;font-size:1.06rem;font-weight:500;color:var(--ink);}
+  .redis-find .rf-what{grid-column:2;font-size:.9rem;line-height:1.45;color:var(--soft1);}
+  .redis-find .rf-pub{grid-column:2;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.03em;color:var(--teal-deep);margin-top:.12rem;}
+  .redis-find.unpub .rf-yr,.redis-find.unpub .rf-who,.redis-find.unpub .rf-pub{color:var(--red-deep);}
+  @media(max-width:560px){ .redis-find{grid-template-columns:1fr;gap:.12rem;} .redis-find .rf-who,.redis-find .rf-what,.redis-find .rf-pub{grid-column:1;} }
+  .redis-note{margin:.2rem 1.2rem 1.2rem;padding:.85rem 1rem;border-left:2px solid var(--red-line);background:var(--red-soft);border-radius:0 3px 3px 0;font-size:.92rem;line-height:1.55;color:var(--soft1);}
+  .redis-note b{color:var(--ink);font-weight:600;}
+
+  /* ===== the four ranks ledger (the boundary of the unification) ===== */
+  .ranks{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:1.2rem;}
+  .rank-row{display:grid;grid-template-columns:auto minmax(0,1.45fr) minmax(0,1fr);gap:1.1rem;align-items:center;background:var(--paper);padding:.85rem 1.1rem;}
+  .rank-row .rk-name{font-family:"Spectral",serif;font-weight:600;font-size:1.04rem;letter-spacing:-.01em;display:flex;align-items:center;gap:.55rem;}
+  .rank-row .rk-name::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;background:var(--faintest);}
+  .rank-row .rk-what{font-size:.88rem;line-height:1.45;color:var(--soft1);}
+  .rank-row .rk-ex{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--faint);}
+  .rank-row.r1 .rk-name{color:var(--teal-deep);} .rank-row.r1 .rk-name::before{background:var(--teal-deep);}
+  .rank-row.r2 .rk-name{color:var(--gold-deep);} .rank-row.r2 .rk-name::before{background:var(--gold-deep);}
+  .rank-row.r3 .rk-name{color:var(--gold-deep);} .rank-row.r3 .rk-name::before{background:var(--gold-line);}
+  .rank-row.r4 .rk-name{color:var(--red-deep);} .rank-row.r4 .rk-name::before{background:var(--red-deep);}
+  @media(max-width:680px){ .rank-row{grid-template-columns:1fr;gap:.3rem;} }
+  .rank-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;color:var(--faintest);margin-top:.6rem;line-height:1.5;}
+
+  /* ===== aftershocks grid ===== */
+  .after-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .after-grid{grid-template-columns:1fr;} }
+  .after-card{background:var(--paper);padding:1.1rem 1.2rem;}
+  .after-card .ac-when{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;color:var(--red-deep);margin-bottom:.3rem;}
+  .after-card h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .35rem;letter-spacing:-.01em;color:var(--ink);}
+  .after-card h4 .ac-kind{font-family:"IBM Plex Mono",monospace;font-size:.58rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:var(--faintest);margin-left:.5rem;vertical-align:middle;}
+  .after-card p{font-size:.89rem;line-height:1.52;color:var(--soft1);}
+  .after-card p b{color:var(--ink);font-weight:600;}
+
+  /* ===== the 4-tuple comparator (one skeleton, four slots, many fillings) ===== */
+  .ft-skel{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.04rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1rem;letter-spacing:-.01em;line-height:1.7;}
+  .ft-skel .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .ft-skel .slot{color:var(--red-deep);font-weight:600;padding:0 .08em;border-bottom:1.5px solid var(--red-line);}
+  .ft-panel{border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);}
+  .ft-phead{padding:.85rem 1.2rem .7rem;border-bottom:1px solid var(--panelhair);display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;}
+  .ft-phead .fp-who{font-family:"Spectral",serif;font-weight:600;font-size:1.16rem;color:var(--ink);letter-spacing:-.01em;}
+  .ft-phead .fp-yr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .ft-phead .dom{margin-left:auto;}
+  .ft-rows{padding:.3rem 1.2rem;}
+  .ft-row{display:grid;grid-template-columns:6.2rem 1fr;gap:.9rem;align-items:baseline;padding:.6rem 0;border-bottom:1px solid var(--hair);}
+  .ft-row:last-of-type{border-bottom:none;}
+  .ft-row .ftk{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--red-deep);font-weight:500;}
+  .ft-row .ftk .ftk-sub{display:block;font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);font-weight:400;margin-top:.12rem;}
+  .ft-row .ftv{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--ink);line-height:1.45;overflow-wrap:anywhere;}
+  .ft-result{margin:.2rem 1.2rem 1.1rem;padding:.85rem 1rem;background:var(--teal-soft);border-left:2px solid var(--teal-line);border-radius:0 3px 3px 0;}
+  .ft-result .ftr-g{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--teal-deep);margin-bottom:.3rem;overflow-wrap:anywhere;}
+  .ft-result .ftr-up{font-family:"Spectral",serif;font-style:italic;font-size:.92rem;color:var(--soft1);line-height:1.45;}
+  .ft-result.limit{background:var(--red-soft);border-left-color:var(--red-line);}
+  .ft-result.limit .ftr-g{color:var(--red-deep);}
+
+  /* ===== rediscovery taxonomy tags + legend ===== */
+  .rf-kind{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.54rem;letter-spacing:.09em;text-transform:uppercase;padding:.14em .5em;border-radius:2px;border:1px solid var(--red-line);color:var(--red-deep);background:var(--red-soft);margin-left:.55rem;vertical-align:middle;white-space:nowrap;}
+  .redis-legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;justify-content:center;margin-top:.8rem;font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--faint);line-height:1.5;}
+  .redis-legend .rl-item{white-space:nowrap;}
+  .redis-legend .rl-item b{color:var(--red-deep);font-weight:600;}
+
+  /* ===== the calculi verdicts ===== */
+  .calc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;margin:.3rem 1.2rem 0;}
+  @media(max-width:560px){.calc-grid{grid-template-columns:1fr;}}
+  .calc-prop{background:var(--paper);padding:.72rem .95rem;display:flex;align-items:center;justify-content:space-between;gap:.7rem;}
+  .cp-lab{font-size:.88rem;color:var(--ink);line-height:1.3;}
+  .cp-val{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;font-weight:600;padding:.22rem .55rem;border-radius:3px;white-space:nowrap;flex-shrink:0;}
+  .cp-val.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .cp-val.no{background:var(--red-soft);color:var(--red-deep);}
+  .calc-tag{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;margin:0 1.2rem;padding:.22rem .6rem;border-radius:3px;display:inline-block;}
+  .calc-tag.power{background:var(--gold-soft);color:var(--gold-deep);}
+  .calc-tag.safe{background:var(--teal-soft);color:var(--teal-deep);}
+
+  /* ===== the trinity ===== */
+  .trinity-svg{width:100%;height:auto;display:block;font-family:"IBM Plex Mono",monospace;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-annals">The Annals</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deep&#8209;dive · proofs, programs, and the fixed point</span></div>
+    <div class="hero-head">
+      <p class="kicker">Programs are proofs — and the fixed point is the price of both</p>
+      <h1 class="title">The <span class="x">Correspondence</span></h1>
+      <p class="standfirst">Under the Curry–Howard correspondence, a proof of a proposition and a program of a type are the same thing — and anything true of programs is true of proofs. Apply this to the fixed-point combinator <span class="mono">Y</span>, the engine of recursion. Read as a program, <span class="mono">Y</span> is the diagonal's generative face — the construction that makes a function call itself. Read as a proof, the same <span class="mono">Y</span> is a derivation of falsehood — it proves every proposition, and the logic collapses. The single object is recursion and contradiction at once. Typing is the discipline invented to forbid it; the ban buys logical consistency, paid for with termination, paid for in turn with Turing-completeness. This volume follows the fixed point through the three worlds the correspondence joins — logic, computation, and category — and finds it the one place where all three meet, and the one object that is, in each, both the source of power and the seed of paradox.</p>
+      <p class="ed-mark">a proof is a program · Y is recursion and contradiction · typing is the ban</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">proof&#8202;&#10231;&#8202;program</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The collection has tracked one construction — the diagonal, the fixed point — across set theory, logic, and computation, and through every volume the construction has worn the same double aspect. It is a wall and it is a power; a poison and an antidote; a limit and an engine. The obverse volume traced the two faces in time; the calculus volume found their modal laws. There remains one setting in which the two faces are not merely related but are literally the <i>same object</i>, read two ways — and that setting is the bridge between proving and computing.</p>
+    <p>The bridge is the Curry–Howard correspondence, and it is among the deepest facts in the foundations of mathematics. A proposition is a type; a proof of it is a program of that type; and running the program — reducing it to normal form — is normalizing the proof. Implication is the function type, conjunction the product, and the rules of intuitionistic logic are, line for line, the typing rules of the λ-calculus. Logic and computation are not analogous. They are the same formal system in two notations. And so a question about one is a question about the other: what does the diagonal — the fixed point — look like, when a proof and a program are the same thing?</p>
+    <p>The answer is the spine of this volume, and it is sharp. The fixed-point combinator <span class="mono">Y</span>, the engine of all recursion, is — read across the correspondence as a proof — a derivation of <i>falsehood</i>; the untyped λ-calculus, which has <span class="mono">Y</span>, is as a logic inconsistent, by Curry's paradox. Typing is the discipline that forbids <span class="mono">Y</span>, introduced by Church in 1940 for exactly that purpose, just as Russell's types forbade self-membership. The ban restores consistency, and the receipt is that every typed program halts; but the halting is the catastrophe in disguise, because a language all of whose programs halt cannot be Turing-complete. So the fixed point sits at the pivot of a forced choice — expressive power against consistency and termination — and behind the choice stands a deeper unity still: logic, computation, and category are, by the correspondence and its categorical completion, one structure, and the diagonal is the single place where the three of them touch.</p>
+  </div>
+
+  <!-- ===== §I THE CORRESPONDENCE ===== -->
+  <section class="sec" id="correspondence">
+    <div class="sec-head"><span class="num">I · the correspondence</span><h2>A proof is a program</h2><p class="sub">Curry–Howard: propositions are types, proofs are programs, and running a program is normalizing a proof. Logic and computation are one formal system in two notations.</p></div>
+    <div class="reading">
+      <p>The correspondence pairs the two halves of the foundations exactly. A <i>proposition</i> corresponds to a <i>type</i>; a <i>proof</i> of the proposition corresponds to a <i>program</i> — a term — of that type. Implication <span class="mono">A&#8594;B</span> corresponds to the function type <span class="mono">A&#8594;B</span>, and the pairing is not loose: a proof of <span class="mono">A&#8594;B</span> is a method turning any proof of <span class="mono">A</span> into a proof of <span class="mono">B</span>, which is precisely a function from the type <span class="mono">A</span> to the type <span class="mono">B</span> — a program of type <span class="mono">A&#8594;B</span>. Conjunction is the product type, a proof being a pair; disjunction is the sum type, a proof being a tagged choice; the rules of intuitionistic natural deduction are, inference by inference, the typing rules of the simply-typed λ-calculus. The proposition &ldquo;is provable&rdquo; and the type &ldquo;is inhabited&rdquo; are one predicate.</p>
+      <p>And then the dynamic half — the part that makes it astonishing. Proofs can be simplified: a detour, where one proves <span class="mono">A&#8594;B</span> by assuming <span class="mono">A</span> and deriving <span class="mono">B</span> and then immediately feeds it a proof of <span class="mono">A</span>, can be cut out, the proof of <span class="mono">A</span> substituted directly. This simplification is <i>normalization.</i> Under the correspondence, normalizing a proof <i>is</i> evaluating a program — <span class="mono">&#946;</span>-reduction, the substitution of an argument into a function body, the single computational step of the λ-calculus. To run a program is to simplify a proof; the normal form of the proof is the value of the program. So the correspondence is no static dictionary between vocabularies; it is a live identification of two <i>processes</i> — proving-and-simplifying, and computing — that turn out to be one process. Curry saw the static pairing in the 1930s and 40s; Howard made the dynamic identification explicit in 1969; and Lambek added a third vertex, the cartesian closed categories, completing a three-way identity to which we return.</p>
+      <p>The upshot is what the rest of the volume exploits. Because logic and computation are one system, every object in one has an exact counterpart in the other, with all its properties intact. A consistent logic is a type theory in which some type is uninhabited; an inconsistent logic is one in which every type has a program. A logic that proves everything corresponds to a language in which every type — the empty one included — has an inhabitant. Hold that correspondence fixed and ask the collection's question: what is the diagonal, here? What is the fixed point, when a proof and a program are the same thing? The answer is a single notorious object, and it bears two names, depending on which side you read it from.</p>
+    </div>
+  </section>
+
+  <!-- ===== §II THE COMBINATOR ===== -->
+  <section class="sec" id="combinator">
+    <div class="sec-head"><span class="num">II · the combinator</span><h2>The engine of recursion is a proof of falsehood</h2><p class="sub">The fixed-point combinator Y, read as a program, is recursion. Read as a proof, the same Y derives every proposition. The diagonal's two faces are here one term.</p></div>
+    <div class="reading">
+      <p>The diagonal, in the λ-calculus, is the fixed-point combinator. The untyped λ-calculus contains a term <span class="mono">Y</span> such that for any <span class="mono">f</span>, <span class="mono">Yf</span> reduces to <span class="mono">f(Yf)</span>: <span class="mono">Y</span> hands every function a fixed point. This is the engine of recursion — how a function is made to call itself, the basis of every recursive definition, the λ-calculus's form of Kleene's recursion theorem and the obverse volume's reflexive object. Read as a <i>program</i>, <span class="mono">Y</span> is pure generative power: the diagonal's positive face, the thing that makes self-reference a tool.</p>
+      <p>Now read <span class="mono">Y</span> across the correspondence, as a <i>proof</i>, and watch the face turn. Were the fixed-point combinator assigned a type, it would have the type <span class="mono">(A&#8594;A)&#8594;A</span> for <i>every</i> proposition <span class="mono">A</span>: given a function from <span class="mono">A</span> to <span class="mono">A</span>, it returns an <span class="mono">A</span>. But <span class="mono">A&#8594;A</span> is trivially provable — it is the identity, &ldquo;assume <span class="mono">A</span>, conclude <span class="mono">A</span>.&rdquo; So <span class="mono">Y</span>, fed that trivial proof, would yield a proof of <span class="mono">A</span> — and <span class="mono">A</span> was arbitrary. <span class="mono">Y</span> proves every proposition; in particular it proves <span class="mono">&#8869;</span>, falsehood. The untyped λ-calculus, read as a logic, derives everything: it is inconsistent. This is Curry's paradox, shown in 1942 — write <span class="mono">D = &#955;x.(xx &#8594; A)</span> and <span class="mono">U = DD</span>; then <span class="mono">U</span> reduces to <span class="mono">(U &#8594; A)</span>, so <span class="mono">U</span> is equivalent to &ldquo;<span class="mono">U</span> implies <span class="mono">A</span>,&rdquo; and from a sentence equivalent to its own implication of <span class="mono">A</span>, minimal logic derives <span class="mono">A</span> itself, for any <span class="mono">A</span> at all. The fixed-point combinator is the machine that builds the self-referential <span class="mono">U</span>. The very object that is recursion is, read as a proof, the collapse of the logic.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="faces">
+        <div class="face non">
+          <div class="f-h">read as a proof</div>
+          <h4>&#8866; &#8869; — it proves everything</h4>
+          <div class="frow"><span class="fl">its type</span><span class="fv f"><span class="mono">(A&#8594;A) &#8594; A</span>, for every A</span></div>
+          <div class="frow"><span class="fl">fed</span><span class="fv f">the identity — a trivial proof of A&#8594;A</span></div>
+          <div class="frow"><span class="fl">it returns</span><span class="fv f">a proof of A — any A, even &#8869;</span></div>
+          <div class="frow"><span class="fl">the verdict</span><span class="fv f">the logic is inconsistent (Curry, 1942)</span></div>
+        </div>
+        <div class="face std">
+          <div class="f-h">read as a program</div>
+          <h4>recursion — the engine</h4>
+          <div class="frow"><span class="fl">its equation</span><span class="fv t"><span class="mono">Yf &#8594; f(Yf)</span></span></div>
+          <div class="frow"><span class="fl">it gives</span><span class="fv t">every function a fixed point</span></div>
+          <div class="frow"><span class="fl">its use</span><span class="fv t">recursive definition — self-reference as a tool</span></div>
+          <div class="frow"><span class="fl">the verdict</span><span class="fv t">the basis of all computation</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>This is the diagonal's two faces, the obverse and reverse the collection has followed throughout — but here they are not two readings of one theorem, joined by contraposition. They are one <i>term</i>, the same string of symbols, read once as a program and once as a proof. As a program it is recursion, the generative face, the engine; as a proof it is <span class="mono">&#8866; &#8869;</span>, the catastrophic face, the inconsistency. The poison and the antidote of the threshold volume, the wall and the power of the obverse, have collapsed into a single object whose meaning flips entirely with the question you put to it — &ldquo;what does this compute?&rdquo; or &ldquo;what does this prove?&rdquo; The fixed point is recursion when you want to compute and contradiction when you want to prove, and it is numerically the same fixed point.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III THE BAN ===== -->
+  <section class="sec" id="ban">
+    <div class="sec-head"><span class="num">III · the ban</span><h2>Typing forbids the diagonal</h2><p class="sub">The self-application at the heart of Y cannot be typed. Church introduced types in 1940 for exactly this reason — the diagonal's prohibition, made syntactic.</p></div>
+    <div class="reading">
+      <p>So how is consistency recovered? By typing. Look at the heart of the fixed-point combinator: the self-application <span class="mono">xx</span>, a variable applied to itself — the subterm that appears inside <span class="mono">Y</span> and in the looping term <span class="mono">&#937; = (&#955;x.xx)(&#955;x.xx)</span>. For <span class="mono">xx</span> to make sense in a type system, <span class="mono">x</span> must carry some type <span class="mono">&#964;</span> and, since it is applied to itself, also the type <span class="mono">&#964;&#8594;&#963;</span> of a function on <span class="mono">&#964;</span> — so <span class="mono">&#964;</span> and <span class="mono">&#964;&#8594;&#963;</span> must be one and the same type, <span class="mono">&#964; = &#964;&#8594;&#963;</span>. The simply-typed λ-calculus forbids exactly this: a type is a finite tree built from base types by the arrow, and no finite tree equals a function type formed from itself. So <span class="mono">&#955;x.xx</span> is untypable; <span class="mono">Y</span> is untypable; the fixed-point combinator cannot be written. Self-application is banned at the level of syntax.</p>
+      <p>And this ban is no side effect — it is the whole point of types. Church introduced the simply-typed λ-calculus in 1940 precisely to exclude the paradoxical self-applications of his earlier untyped system, which Kleene and Rosser had shown inconsistent in 1935 and which Curry's paradox pinned down. The maneuver is exactly Russell's, a generation before: Russell's theory of types forbade a set from belonging to itself, breaking the diagonal of set theory; Church's theory of types forbids a function from applying to itself, breaking the diagonal of computation. Both are the same defensive move against the same construction — stratify, so that the self-application the diagonal requires can no longer be formed. Typing is the diagonal's prohibition rendered as a discipline of syntax: the rule that a thing may not be applied to, or contain, or quantify over, itself.</p>
+      <p>This is the entry on the threshold volume's menu that the correspondence makes exact. That volume laid out the prices a system must pay to host self-reference and survive — surrender expressiveness, or bivalence, or a universal truth predicate, or consistency. Typing is the surrender of expressiveness in its most precise form: the expressiveness given up is, exactly, self-application. Where the threshold named the price in general terms, the correspondence prices it in the hard currency of computation — and the next section reads the receipt to the last computable function.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV NORMALIZATION ===== -->
+  <section class="sec" id="normalization">
+    <div class="sec-head"><span class="num">IV · normalization</span><h2>Everything halts, and falsehood stays empty</h2><p class="sub">The typed calculus is strongly normalizing — every term terminates. That is consistency: the empty type has no inhabitant, so falsehood is unprovable.</p></div>
+    <div class="reading">
+      <p>The ban works, with a precise and beautiful payoff: the simply-typed λ-calculus is <i>strongly normalizing.</i> Every well-typed term reduces to a normal form — a finished value, no reductions left — in <i>finitely</i> many steps, and no matter the order in which the reductions are taken. There is no looping; every typed program halts. This is not obvious; it is a real theorem, proved by Tait in 1967 by the method of &ldquo;reducibility.&rdquo; The naive induction on terms fails — applying a function can produce a larger term — so Tait defines, by recursion on <i>types</i>, a predicate of &ldquo;reducible&rdquo; terms strong enough to carry the induction through: a strengthening of the goal, indexed by the structure of types, that is itself a quiet instance of the very move the collection studies. Strong normalization is the ban's dividend. Where the untyped calculus had <span class="mono">&#937;</span> looping forever and a fixed point for every function, the typed calculus has neither.</p>
+      <p>And strong normalization <i>is</i> consistency, by the correspondence, in a single step. Consider the empty type — the type with no values, which under Curry–Howard is the proposition <span class="mono">&#8869;</span>, falsehood. Is it inhabited? Suppose it were, by a closed term <span class="mono">M : &#8869;</span>. By strong normalization <span class="mono">M</span> reduces to a closed normal form; but the shape of a closed normal term is fixed by its type, and <span class="mono">&#8869;</span> has no introduction rule and so no normal inhabitant at all. Hence there is no closed normal term of type <span class="mono">&#8869;</span>, and — everything normalizing — no closed term of type <span class="mono">&#8869;</span> whatsoever. The empty type is empty; <span class="mono">&#8869;</span> is unprovable; the logic is <i>consistent.</i> Typing bought consistency, and termination is the receipt — they are one fact read on the two sides of the correspondence. A language in which every program halts is a logic in which falsehood has no proof.</p>
+      <p>So the situation has exactly inverted from the combinator section. There, the untyped calculus had the fixed point and was, as a logic, inconsistent — falsehood provable, every type inhabited. Here, the typed calculus lacks the fixed point and is consistent — falsehood unprovable, the empty type empty. The single difference between the two states is the presence or absence of the fixed point, and that one difference governs everything: with it, looping and inconsistency; without it, termination and consistency. We have bought a great deal by typing. The next section is the bill.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V THE PRICE ===== -->
+  <section class="sec" id="price">
+    <div class="sec-head"><span class="num">V · the price</span><h2>The bill is Turing-completeness</h2><p class="sub">A language all of whose programs halt cannot compute everything. Consistency and universality are the two sides the fixed point stands between — and you may have only one.</p></div>
+    <div class="reading">
+      <p>Consistency is not free, and the bill is exact: it is Turing-completeness. The strongly-normalizing typed calculus, by halting always, cannot express every computable function — and the reason is the halting problem, run backwards. A Turing-complete language expresses every computable function, including ones whose termination is undecidable; and since no algorithm decides halting, no Turing-complete language can guarantee that all its programs halt — it must admit possibly-non-terminating ones. The typed calculus guarantees that all its programs halt. Therefore it is <i>not</i> Turing-complete: there are computable functions it cannot define. The very property that gave consistency — every program terminates — is the property that forbids universality. Termination and Turing-completeness are incompatible, and the typed calculus chose termination.</p>
+      <p>So the choice is forced, and a single object governs it. Lay the two regimes side by side. <i>With</i> the fixed point — the untyped calculus, or a typed calculus given a general-recursion operator — you have Turing-completeness, you have programs that loop, and, as a logic, you have inconsistency, the fixed point inhabiting every type. <i>Without</i> it — the simply-typed calculus and the consistent calculi above it — you have termination, you have consistency, and you have a strict cap below Turing-completeness. There is no third regime keeping Turing-completeness <i>and</i> termination <i>and</i> consistency, because all three turn on the one object the first demands and the others forbid. The diagonal is the master switch between two possible worlds of computation, and it throws all three levers at once.</p>
+    </div>
+    <div class="stage">
+      <div class="rev-tabs" id="calcTabs"></div>
+      <div class="redis-panel" id="calcPanel"></div>
+      <figcaption>Four calculi, one switch. Read the verdicts as mirror images: the calculi <i>with</i> the fixed point are Turing-complete but neither terminating nor consistent; those <i>without</i> it are terminating and consistent but capped below Turing-completeness. The fixed point flips all three at once.</figcaption>
+    </div>
+    <div class="reading">
+      <p>And the cap on the consistent side is not a low one — which sharpens the point rather than softening it. One can climb a long way in expressive power while staying terminating and consistent. System F, the polymorphic λ-calculus, is strongly normalizing (Girard, 1972) and consistent, yet it expresses an enormous class of functions — every one whose totality is provable in second-order arithmetic, very nearly everything anyone writes — and above it stand the stronger systems on which modern proof assistants are built, all terminating, all consistent, all able to formalize the deepest mathematics. Yet none of them is Turing-complete, and the single thing each lacks is the fixed point. The price is not the loss of power in general; it is the loss of one specific thing — unrestricted self-application — and the climb up the consistent hierarchy, however high it reaches, never crosses the line the fixed point alone can cross. The cap is precise, and the fixed point is exactly what lies beyond it.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VI THE TRINITY ===== -->
+  <section class="sec" id="trinity">
+    <div class="sec-head"><span class="num">VI · the trinity</span><h2>The reflexive type, and the three worlds as one</h2><p class="sub">Recovering the fixed point means admitting a type equal to its own function space — Scott's reflexive object, in syntax. And behind it: logic, computation, and category are one structure, with the diagonal where they meet.</p></div>
+    <div class="reading">
+      <p>First, the bridge back to the obverse. You can recover Turing-completeness inside a typed calculus, without abandoning types altogether, by admitting one new kind of type — a <i>recursive</i> type. The type <span class="mono">&#964; = &#956;X.(X&#8594;X)</span> is, by definition, a type equal to its own function space: <span class="mono">&#964; &#8773; &#964;&#8594;&#964;</span>. With it, a term of type <span class="mono">&#964;</span> may be applied to itself — being at once a function <span class="mono">&#964;&#8594;&#964;</span> and an argument <span class="mono">&#964;</span> — so the self-application <span class="mono">xx</span> typechecks once more, <span class="mono">Y</span> returns, recursion returns, and strong normalization is lost. But look at what <span class="mono">&#956;X.(X&#8594;X)</span> <i>is</i>: a type <span class="mono">D</span> with <span class="mono">D &#8773; D&#8594;D</span>. That is the <i>reflexive object</i> of the obverse volume — Scott's <span class="mono">D&#8734;</span>, the object isomorphic to its own function space, the thing <span class="mono">Set</span> forbids and the domains permit — here in purely syntactic dress. The recursive type is the reflexive object; to admit it is to admit the diagonal's positive face; and its price, the loss of normalization, is the very price the obverse charged for that face in <span class="mono">Set</span>. Three volumes have met on one object: the reflexive object in categories, the recursive type in computation, and the fixed-point combinator in programs are one thing under three descriptions.</p>
+      <p>Which opens onto the deepest unity the collection can state. The correspondence has a third vertex. Curry–Howard pairs logic with computation; Lambek's theorem adds categories — the simply-typed λ-calculus, intuitionistic logic, and the cartesian closed categories are, all three, the same structure, a fact sometimes called <i>computational trinitarianism.</i> A proposition, a type, and an object; a proof, a program, and a morphism; normalization, evaluation, and the equations of a category: three vocabularies for one mathematics. And the diagonal appears in each, as the same thing seen three ways — in categories, Lawvere's theorem, the construction this collection is built upon; in logic, Curry's paradox and Löb and Gödel, self-reference as inconsistency and incompleteness; in computation, the Y-combinator, self-reference as recursion.</p>
+    </div>
+    <div class="stage">
+      <svg class="trinity-svg" viewBox="0 0 700 408" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Curry-Howard-Lambek trinity: logic, computation, and categories as one structure, with the fixed point at the centre.">
+        <!-- triangle edges -->
+        <line x1="350" y1="92" x2="132" y2="322" stroke="var(--hair)" stroke-width="1.4"/>
+        <line x1="350" y1="92" x2="568" y2="322" stroke="var(--hair)" stroke-width="1.4"/>
+        <line x1="132" y1="322" x2="568" y2="322" stroke="var(--hair)" stroke-width="1.4"/>
+        <!-- centre node: the fixed point -->
+        <circle cx="350" cy="236" r="52" fill="var(--gold-soft)" stroke="var(--gold)" stroke-width="1.6"/>
+        <text x="350" y="231" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--gold-deep)" font-family="'IBM Plex Mono',monospace">THE FIXED</text>
+        <text x="350" y="247" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--gold-deep)" font-family="'IBM Plex Mono',monospace">POINT</text>
+        <text x="350" y="266" font-size="8.5" text-anchor="middle" fill="var(--gold-deep)" font-family="'IBM Plex Mono',monospace" font-style="italic">power &amp; paradox, in each</text>
+        <!-- edge labels -->
+        <g><rect x="186" y="196" width="92" height="19" rx="3" fill="var(--paper)"/><text x="232" y="209" font-size="10.5" text-anchor="middle" fill="var(--soft1)" font-family="'IBM Plex Mono',monospace">Curry–Howard</text></g>
+        <g><rect x="430" y="196" width="62" height="19" rx="3" fill="var(--paper)"/><text x="461" y="209" font-size="10.5" text-anchor="middle" fill="var(--soft1)" font-family="'IBM Plex Mono',monospace">Lambek</text></g>
+        <g><rect x="300" y="313" width="100" height="19" rx="3" fill="var(--paper)"/><text x="350" y="326" font-size="10" text-anchor="middle" fill="var(--soft1)" font-family="'IBM Plex Mono',monospace">one structure</text></g>
+        <!-- vertices -->
+        <text x="350" y="50" font-size="13.5" font-weight="700" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">LOGIC</text>
+        <text x="350" y="66" font-size="9.5" text-anchor="middle" fill="var(--soft1)" font-family="'IBM Plex Mono',monospace">proofs</text>
+        <text x="350" y="82" font-size="9.5" text-anchor="middle" fill="var(--red-deep)" font-family="'IBM Plex Mono',monospace">Curry's paradox · Löb</text>
+        <text x="132" y="352" font-size="13.5" font-weight="700" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">COMPUTATION</text>
+        <text x="132" y="368" font-size="9.5" text-anchor="middle" fill="var(--soft1)" font-family="'IBM Plex Mono',monospace">programs</text>
+        <text x="132" y="384" font-size="9.5" text-anchor="middle" fill="var(--teal-deep)" font-family="'IBM Plex Mono',monospace">the Y-combinator</text>
+        <text x="568" y="352" font-size="13.5" font-weight="700" text-anchor="middle" fill="var(--ink)" font-family="'IBM Plex Mono',monospace">CATEGORIES</text>
+        <text x="568" y="368" font-size="9.5" text-anchor="middle" fill="var(--soft1)" font-family="'IBM Plex Mono',monospace">morphisms</text>
+        <text x="568" y="384" font-size="9.5" text-anchor="middle" fill="var(--teal-deep)" font-family="'IBM Plex Mono',monospace">Lawvere's theorem</text>
+      </svg>
+      <figcaption>Computational trinitarianism: one structure in three vocabularies. <span style="color:var(--gold-deep)">The fixed point</span> sits at the centre — Lawvere's morphism, Curry's proof, and Church's program are the same object, and in each it is at once the source of generative power and the seed of paradox.</figcaption>
+    </div>
+    <div class="reading">
+      <p>So the place of it all is clear. The collection's thesis was that one construction lies behind six famous results. The trinity says something larger — that the three great <i>frameworks</i> in which those results live, category theory and logic and computation, are themselves one framework, and that the diagonal is the precise point at which the three coincide. The fixed point is not a theorem that happens to recur across fields, nor even a construction that happens to unify six results. It is the single place where structure, proof, and computation are revealed to be one thing — and in each of the three it is at once the source of all generative power and the seed of all paradox. Lawvere's morphism, Curry's proof, and Church's program are the same fixed point; and that fixed point is where mathematics, asked to speak of itself, both gains its deepest tool and meets its hardest limit. The collection found the one construction behind the results. The correspondence finds the one construction behind the frameworks — and it is the diagonal, all the way down.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">one term · three worlds</span><span class="ln"></span></div>
+  <div class="coda"><p>Programs are proofs; the fixed-point combinator is recursion as a program and a proof of falsehood as a proof; typing is the discipline that forbids it, devised for exactly that; the ban buys consistency, paid for with termination, paid for in turn with Turing-completeness; and the recursive type that buys universality back is the reflexive object the obverse already named. Expressive power, termination, consistency — the fixed point stands between them, and throws all three levers at once. And behind the whole arrangement stands the trinity: logic, computation, and category are one structure, and the diagonal is where they touch — in each, the source of power and the seed of paradox, and in all three, the same object. <span class="mono">The collection unified six theorems into one construction; the correspondence unifies the three worlds those theorems live in</span> — and finds the same fixed point holding them together, recursion and contradiction, tool and limit, one term read three ways.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deep-dive · proofs, programs, and the fixed point</span></div>
+    <p class="colophon">A deep-dive on the computational face of the construction: the Curry–Howard correspondence, under which the fixed-point combinator is recursion as a program and a proof of falsehood as a proof. The volume states the correspondence; exhibits the fixed-point combinator as Curry's paradox; shows typing to be the diagonal's syntactic ban; derives consistency from strong normalization; prices that consistency at the loss of Turing-completeness; identifies the recursive type that restores the fixed point with the reflexive object of the obverse; and closes on the Curry–Howard–Lambek trinity, in which logic, computation, and category are one structure meeting at the diagonal. The framing is the collection's; the results are the standard results of type theory.</p>
+    <p class="notes"><span class="nl">the correspondence &amp; the combinator.</span> &nbsp;The Curry–Howard correspondence: H. B. Curry (1930s–40s); W. A. Howard, &ldquo;The formulae-as-types notion of construction&rdquo; (1969); the categorical vertex, J. Lambek (cartesian closed categories, 1970s) — &ldquo;computational trinitarianism&rdquo; (R. Harper). The fixed-point combinator <span class="mono">Y</span> is Curry's paradoxical combinator; Curry's paradox (H. B. Curry, 1942) shows the untyped λ-calculus inconsistent as a logic, the Kleene–Rosser paradox (1935) being its precursor.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">the ban &amp; normalization.</span> &nbsp;The simply-typed λ-calculus: A. Church, &ldquo;A formulation of the simple theory of types&rdquo; (1940), introduced to avoid the paradoxes of the untyped calculus; self-application <span class="mono">&#955;x.xx</span> is untypable. Strong normalization: W. W. Tait (1967), by the reducibility method; strong normalization entails consistency, since the empty type <span class="mono">&#8869;</span> has no closed normal inhabitant.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">the price &amp; the reflexive type.</span> &nbsp;Guaranteed termination is incompatible with Turing-completeness (the halting problem). System F (J.-Y. Girard, 1972) is strongly normalizing and consistent yet not Turing-complete. A recursive type <span class="mono">&#956;X.(X&#8594;X)</span> gives a type <span class="mono">D &#8773; D&#8594;D</span> — the reflexive object, Scott's <span class="mono">D&#8734;</span> in syntactic form — restoring the fixed point and Turing-completeness, and forfeiting strong normalization.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+
+/* ===== THE CALCULI ===== */
+const CALC=[
+ {id:"untyped", tab:"untyped \u03BB", side:"power", sideLabel:"the Turing side \u2014 power",
+  props:[["a fixed-point combinator Y","yes"],["Turing-complete","yes"],["strongly normalizing","no"],["consistent as a logic","no"]],
+  note:"The diagonal in full. Church's 1932 calculus: maximal computational power, zero logical safety. Kleene\u2013Rosser (1935) and Curry (1942) showed it proves every proposition. Y is here, and \u03A9 loops forever."},
+ {id:"stlc", tab:"simply-typed \u03BB", side:"safe", sideLabel:"the consistent side \u2014 safety",
+  props:[["a fixed-point combinator Y","no"],["Turing-complete","no"],["strongly normalizing","yes"],["consistent as a logic","yes"]],
+  note:"Church's 1940 fix. Typing bans the self-application Y needs; every term halts (Tait 1967), and falsehood stays unprovable. Consistent and terminating \u2014 but it cannot define every computable function."},
+ {id:"systemf", tab:"System F", side:"safe", sideLabel:"the consistent side \u2014 a high ceiling",
+  props:[["a fixed-point combinator Y","no"],["Turing-complete","no"],["strongly normalizing","yes"],["consistent as a logic","yes"]],
+  note:"The polymorphic \u03BB-calculus (Girard 1972). Far more expressive than the simply-typed calculus \u2014 it defines every function provably total in second-order arithmetic, nearly everything one writes \u2014 yet still strongly normalizing, still consistent, still capped below Turing-completeness. A high ceiling, and the fixed point still beyond it."},
+ {id:"recursive", tab:"typed + recursion", side:"power", sideLabel:"the Turing side \u2014 the fixed point re-admitted",
+  props:[["a fixed-point combinator Y","yes"],["Turing-complete","yes"],["strongly normalizing","no"],["consistent as a logic","no"]],
+  note:"Real languages, and the recursive type \u03BCX.(X\u2192X). A type equal to its own function space \u2014 the reflexive object of the obverse, in syntax \u2014 lets self-application typecheck again. Y returns, universality returns; termination and consistency are surrendered. The fixed point, re-admitted under a name."}
+];
+const CById={}; CALC.forEach(function(c){ CById[c.id]=c; });
+function renderCalcTabs(){
+  const host=document.getElementById("calcTabs"); if(!host) return; host.innerHTML="";
+  CALC.forEach(function(c){
+    const b=E("button","rev-tab"); b.dataset.id=c.id; b.textContent=c.tab;
+    b.addEventListener("click",function(){ selectCalc(c.id); }); host.appendChild(b);
+  });
+}
+function selectCalc(id){
+  const c=CById[id];
+  document.querySelectorAll("#calcTabs .rev-tab").forEach(function(b){ b.classList.toggle("on",b.dataset.id===id); });
+  const host=document.getElementById("calcPanel"); if(!host) return; host.innerHTML="";
+  const head=E("div","redis-head");
+  const lab=E("div","rh-lab"); lab.textContent="the trade-off, made concrete"; head.appendChild(lab);
+  const h=E("h4"); h.textContent=c.tab; head.appendChild(h);
+  host.appendChild(head);
+  const tag=E("div","calc-tag "+c.side); tag.textContent=c.sideLabel; host.appendChild(tag);
+  const grid=E("div","calc-grid");
+  c.props.forEach(function(pr){
+    const cell=E("div","calc-prop");
+    const l=E("span","cp-lab"); l.textContent=pr[0]; cell.appendChild(l);
+    const v=E("span","cp-val "+pr[1]); v.textContent=(pr[1]==="yes"?"yes":"no"); cell.appendChild(v);
+    grid.appendChild(cell);
+  });
+  host.appendChild(grid);
+  const note=E("div","redis-note"); note.innerHTML=c.note; host.appendChild(note);
+}
+
+function init(){
+  try{ renderCalcTabs(); selectCalc("untyped"); }catch(err){ console.error("correspondence: calc",err); }
+}
+if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",init); } else { init(); }
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-calculus.html">← The Calculus</a><a rel="next" href="quodlibet-the-replicator.html">The Replicator →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

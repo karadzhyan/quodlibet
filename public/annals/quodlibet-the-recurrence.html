@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Recurrence — multiple discovery and the one forced object</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the timeline ===== */
+  .tl-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.12fr);gap:1.7rem;align-items:start;}
+  @media(max-width:780px){ .tl-grid{grid-template-columns:1fr;gap:1.1rem;} }
+  .tl-spine{position:relative;padding-left:.2rem;}
+  .tl-spine::before{content:"";position:absolute;left:.34rem;top:.7rem;bottom:.7rem;width:1.5px;background:var(--rule);}
+  .tl-node{position:relative;padding:.5rem .6rem .5rem 1.2rem;cursor:pointer;border-radius:4px;transition:background .14s;}
+  .tl-node:hover{background:rgba(26,24,21,.035);}
+  .tl-node::before{content:"";position:absolute;left:.04rem;top:.86rem;width:10px;height:10px;border-radius:50%;background:var(--paper);border:1.7px solid var(--faintest);transition:all .15s;z-index:1;}
+  .tl-node.on::before{background:var(--ink);border-color:var(--ink);transform:scale(1.12);}
+  .tl-node.keystone::before{border-color:var(--red);} .tl-node.keystone.on::before{background:var(--red-deep);border-color:var(--red-deep);}
+  .tl-node .ty{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:500;letter-spacing:.04em;color:var(--faint);}
+  .tl-node.on .ty{color:var(--ink);} .tl-node.keystone .ty{color:var(--red-deep);}
+  .tl-node .tw{font-family:"Spectral",serif;font-size:1.12rem;font-weight:500;letter-spacing:-.01em;color:var(--ink);margin:.02rem 0;}
+  .tl-node.keystone .tw{color:var(--red-deep);}
+  .tl-node .trow{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+  .dom{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;padding:.1rem .4rem;border-radius:2px;}
+  .dom.set{background:rgba(147,114,52,.12);color:var(--gold-deep);}
+  .dom.logic{background:var(--teal-soft);color:var(--teal-deep);}
+  .dom.comp{background:var(--red-soft);color:var(--red-deep);}
+  .dom.cat{background:rgba(26,24,21,.08);color:var(--ink);}
+  .dom.expo{background:rgba(26,24,21,.04);color:var(--faint);}
+  .tl-node .ta{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faintest);}
+  .tl-node .ta b{color:var(--soft1);font-weight:500;}
+
+  /* the detail panel */
+  .tl-detail{position:sticky;top:1rem;border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);}
+  @media(max-width:780px){ .tl-detail{position:static;} }
+  .tld-head{padding:1.05rem 1.2rem .9rem;border-bottom:1px solid var(--panelhair);}
+  .tld-head.keystone{background:var(--red-soft);}
+  .tld-year{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.14em;color:var(--faint);}
+  .tld-head.keystone .tld-year{color:var(--red-deep);}
+  .tld-who{font-family:"Spectral",serif;font-size:1.65rem;font-weight:500;letter-spacing:-.015em;color:var(--ink);margin:.06rem 0 .35rem;line-height:1.05;}
+  .tld-head.keystone .tld-who{color:var(--red-deep);}
+  .tld-found{padding:1.05rem 1.2rem;font-family:"Spectral",serif;font-size:1rem;line-height:1.62;color:var(--soft1);}
+  .tld-found b{color:var(--ink);font-weight:600;}
+  .costume{margin:0 1.2rem 1.2rem;border:1px dashed var(--panelhair);border-radius:4px;padding:1rem .9rem;text-align:center;background:var(--paper);}
+  .costume.keystone{border:1.5px solid var(--red-line);background:var(--red-soft);}
+  .costume .clab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .costume .cm{font-family:"IBM Plex Mono",monospace;font-size:1.18rem;color:var(--ink);letter-spacing:.01em;overflow-wrap:anywhere;}
+  .costume .cm .ca{color:var(--red-deep);font-weight:500;}
+  .costume.keystone .cm{font-size:1.32rem;}
+  .costume .cset{font-family:"Spectral",serif;font-style:italic;font-size:.86rem;line-height:1.45;color:var(--faint);margin-top:.6rem;}
+
+  /* the twist register strip */
+  .twist-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.3rem;margin:1.5rem 0 .3rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;}
+  .twist-strip .tk{padding:.2rem .5rem;border:1px solid var(--panelhair);border-radius:3px;color:var(--soft1);background:rgba(26,24,21,.02);}
+  .twist-strip .tk.cap{color:var(--red-deep);border-color:var(--red-line);}
+  .twist-strip .ar{color:var(--faintest);}
+  .twist-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.06em;color:var(--faintest);margin-top:.5rem;}
+
+  /* ===== timeline detail: historical aspects (debt / near-miss / gap) ===== */
+  .tld-aspects{margin:0 1.2rem 1rem;display:flex;flex-direction:column;gap:.7rem;}
+  .tld-asp{border-left:1.5px solid var(--hair);padding:.1rem 0 .1rem .8rem;}
+  .tld-asp .al{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faintest);margin-bottom:.25rem;}
+  .tld-asp .at{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .tld-asp .at b{color:var(--ink);font-weight:600;}
+  .tld-asp.debt{border-left-color:var(--gold-line);} .tld-asp.debt .al{color:var(--gold-deep);}
+  .tld-asp.near{border-left-color:var(--red-line);} .tld-asp.near .al{color:var(--red-deep);}
+  .tld-asp.gap{border-left-color:var(--teal-line);} .tld-asp.gap .al{color:var(--teal-deep);}
+
+  /* ===== the rediscovery inspector (independent finders) ===== */
+  .redis-panel{border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);margin-top:.3rem;}
+  .redis-head{padding:1rem 1.2rem .85rem;border-bottom:1px solid var(--panelhair);}
+  .redis-head .rh-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.4rem;}
+  .redis-head h4{font-family:"Spectral",serif;font-weight:500;font-size:1.28rem;letter-spacing:-.01em;margin:0;color:var(--ink);line-height:1.18;}
+  .redis-finds{padding:.35rem 1.2rem .3rem;}
+  .redis-find{display:grid;grid-template-columns:auto 1fr;gap:.18rem .95rem;align-items:baseline;padding:.7rem 0;border-bottom:1px solid var(--hair);}
+  .redis-find:last-child{border-bottom:none;}
+  .redis-find .rf-yr{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:500;color:var(--soft1);white-space:nowrap;}
+  .redis-find .rf-who{grid-column:2;font-family:"Spectral",serif;font-size:1.06rem;font-weight:500;color:var(--ink);}
+  .redis-find .rf-what{grid-column:2;font-size:.9rem;line-height:1.45;color:var(--soft1);}
+  .redis-find .rf-pub{grid-column:2;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.03em;color:var(--teal-deep);margin-top:.12rem;}
+  .redis-find.unpub .rf-yr,.redis-find.unpub .rf-who,.redis-find.unpub .rf-pub{color:var(--red-deep);}
+  @media(max-width:560px){ .redis-find{grid-template-columns:1fr;gap:.12rem;} .redis-find .rf-who,.redis-find .rf-what,.redis-find .rf-pub{grid-column:1;} }
+  .redis-note{margin:.2rem 1.2rem 1.2rem;padding:.85rem 1rem;border-left:2px solid var(--red-line);background:var(--red-soft);border-radius:0 3px 3px 0;font-size:.92rem;line-height:1.55;color:var(--soft1);}
+  .redis-note b{color:var(--ink);font-weight:600;}
+
+  /* ===== the four ranks ledger (the boundary of the unification) ===== */
+  .ranks{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:1.2rem;}
+  .rank-row{display:grid;grid-template-columns:auto minmax(0,1.45fr) minmax(0,1fr);gap:1.1rem;align-items:center;background:var(--paper);padding:.85rem 1.1rem;}
+  .rank-row .rk-name{font-family:"Spectral",serif;font-weight:600;font-size:1.04rem;letter-spacing:-.01em;display:flex;align-items:center;gap:.55rem;}
+  .rank-row .rk-name::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;background:var(--faintest);}
+  .rank-row .rk-what{font-size:.88rem;line-height:1.45;color:var(--soft1);}
+  .rank-row .rk-ex{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--faint);}
+  .rank-row.r1 .rk-name{color:var(--teal-deep);} .rank-row.r1 .rk-name::before{background:var(--teal-deep);}
+  .rank-row.r2 .rk-name{color:var(--gold-deep);} .rank-row.r2 .rk-name::before{background:var(--gold-deep);}
+  .rank-row.r3 .rk-name{color:var(--gold-deep);} .rank-row.r3 .rk-name::before{background:var(--gold-line);}
+  .rank-row.r4 .rk-name{color:var(--red-deep);} .rank-row.r4 .rk-name::before{background:var(--red-deep);}
+  @media(max-width:680px){ .rank-row{grid-template-columns:1fr;gap:.3rem;} }
+  .rank-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;color:var(--faintest);margin-top:.6rem;line-height:1.5;}
+
+  /* ===== aftershocks grid ===== */
+  .after-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .after-grid{grid-template-columns:1fr;} }
+  .after-card{background:var(--paper);padding:1.1rem 1.2rem;}
+  .after-card .ac-when{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;color:var(--red-deep);margin-bottom:.3rem;}
+  .after-card h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .35rem;letter-spacing:-.01em;color:var(--ink);}
+  .after-card h4 .ac-kind{font-family:"IBM Plex Mono",monospace;font-size:.58rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:var(--faintest);margin-left:.5rem;vertical-align:middle;}
+  .after-card p{font-size:.89rem;line-height:1.52;color:var(--soft1);}
+  .after-card p b{color:var(--ink);font-weight:600;}
+
+  /* ===== the 4-tuple comparator (one skeleton, four slots, many fillings) ===== */
+  .ft-skel{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.04rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1rem;letter-spacing:-.01em;line-height:1.7;}
+  .ft-skel .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .ft-skel .slot{color:var(--red-deep);font-weight:600;padding:0 .08em;border-bottom:1.5px solid var(--red-line);}
+  .ft-panel{border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);}
+  .ft-phead{padding:.85rem 1.2rem .7rem;border-bottom:1px solid var(--panelhair);display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;}
+  .ft-phead .fp-who{font-family:"Spectral",serif;font-weight:600;font-size:1.16rem;color:var(--ink);letter-spacing:-.01em;}
+  .ft-phead .fp-yr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .ft-phead .dom{margin-left:auto;}
+  .ft-rows{padding:.3rem 1.2rem;}
+  .ft-row{display:grid;grid-template-columns:6.2rem 1fr;gap:.9rem;align-items:baseline;padding:.6rem 0;border-bottom:1px solid var(--hair);}
+  .ft-row:last-of-type{border-bottom:none;}
+  .ft-row .ftk{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--red-deep);font-weight:500;}
+  .ft-row .ftk .ftk-sub{display:block;font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);font-weight:400;margin-top:.12rem;}
+  .ft-row .ftv{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--ink);line-height:1.45;overflow-wrap:anywhere;}
+  .ft-result{margin:.2rem 1.2rem 1.1rem;padding:.85rem 1rem;background:var(--teal-soft);border-left:2px solid var(--teal-line);border-radius:0 3px 3px 0;}
+  .ft-result .ftr-g{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--teal-deep);margin-bottom:.3rem;overflow-wrap:anywhere;}
+  .ft-result .ftr-up{font-family:"Spectral",serif;font-style:italic;font-size:.92rem;color:var(--soft1);line-height:1.45;}
+  .ft-result.limit{background:var(--red-soft);border-left-color:var(--red-line);}
+  .ft-result.limit .ftr-g{color:var(--red-deep);}
+
+  /* ===== rediscovery taxonomy tags + legend ===== */
+  .rf-kind{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.54rem;letter-spacing:.09em;text-transform:uppercase;padding:.14em .5em;border-radius:2px;border:1px solid var(--red-line);color:var(--red-deep);background:var(--red-soft);margin-left:.55rem;vertical-align:middle;white-space:nowrap;}
+  .redis-legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;justify-content:center;margin-top:.8rem;font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--faint);line-height:1.5;}
+  .redis-legend .rl-item{white-space:nowrap;}
+  .redis-legend .rl-item b{color:var(--red-deep);font-weight:600;}
+
+  /* ===== the decoupling scatter ===== */
+  .scatter-svg{display:block;width:100%;height:auto;}
+  .sc-axis{stroke:var(--panelhair);stroke-width:1.2;}
+  .sc-tick{stroke:var(--hair);stroke-width:1;}
+  .sc-axislab{font-family:"IBM Plex Mono",monospace;font-size:12px;fill:var(--faint);letter-spacing:.04em;}
+  .sc-axisend{font-family:"IBM Plex Mono",monospace;font-size:10.5px;fill:var(--faintest);letter-spacing:.04em;}
+  .sc-corr{stroke:var(--gold-deep);stroke-width:1.4;stroke-dasharray:5 4;opacity:.75;}
+  .sc-corrlab{font-family:"Spectral",serif;font-style:italic;font-size:12px;fill:var(--gold-deep);}
+  .sc-region{fill:var(--red-soft);stroke:var(--red-line);stroke-width:1.1;stroke-dasharray:3 3;}
+  .sc-regionlab{font-family:"IBM Plex Mono",monospace;font-size:10px;fill:var(--red-deep);letter-spacing:.08em;}
+  .sc-pt.merton{fill:var(--paper);stroke:var(--faint);stroke-width:1.6;}
+  .sc-pt.engine{fill:var(--paper);stroke:var(--gold-deep);stroke-width:1.6;}
+  .sc-pt.forced{fill:var(--red-deep);stroke:var(--red-deep);stroke-width:1.6;}
+  .sc-ptlab{font-family:"Spectral",serif;font-size:12.5px;fill:var(--ink);}
+  .sc-ptlab.dim{fill:var(--faint);font-size:11.5px;}
+  .sc-ptnote{font-family:"IBM Plex Mono",monospace;font-size:9.5px;fill:var(--faintest);}
+
+  /* ===== the multiple / singleton diagram ===== */
+  .ms-svg{display:block;width:100%;height:auto;}
+  .ms-band{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;}
+  .ms-h{font-family:"Spectral",serif;font-size:15px;font-weight:600;}
+  .ms-sub{font-family:"Spectral",serif;font-style:italic;font-size:12px;}
+  .ms-tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.04em;}
+
+  /* ===== the attribution (Stigler) inspector ===== */
+  .stig-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin:.2rem 0 0;}
+  @media(max-width:560px){.stig-row{grid-template-columns:1fr;}}
+  .stig-cell{padding:.9rem 1.05rem;background:var(--paper);}
+  .stig-cell.found{background:var(--teal-soft);}
+  .stig-cell.named{background:var(--red-soft);}
+  .stig-cell .stl{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.11em;text-transform:uppercase;margin-bottom:.4rem;}
+  .stig-cell.found .stl{color:var(--teal-deep);}
+  .stig-cell.named .stl{color:var(--red-deep);}
+  .stig-cell .stw{font-family:"Spectral",serif;font-weight:600;font-size:1.12rem;color:var(--ink);letter-spacing:-.01em;line-height:1.15;}
+  .stig-cell .sty{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);margin-top:.25rem;}
+  .stig-name{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin:.75rem 0 .1rem;}
+  .stig-name b{color:var(--ink);font-weight:600;font-family:"Spectral",serif;font-size:1.05rem;letter-spacing:-.01em;text-transform:none;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-annals">The Annals</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a diachronic deep&#8209;dive · on multiple discovery</span></div>
+    <div class="hero-head">
+      <p class="kicker">Why the same thing was found so many times</p>
+      <h1 class="title">The <span class="x">Recurrence</span></h1>
+      <p class="standfirst">The same construction was struck again and again, by people who had never met, in fields with no path between them. The orthodox account of such coincidences is Merton's: discoveries come in multiples because fields ripen, and the moral is that the lone genius is a myth. This volume argues the diagonal's recurrence is a different phenomenon — one that points <em>past</em> the sociology of discovery to the ontology of what is discovered; that splits cleanly into a forced multiple and a contingent singleton; and that ends, fittingly, by turning the construction on its own history.</p>
+      <p class="ed-mark">many hands · one forced object · and the names are accidents</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">found again, and again</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The companion volume, the <i>Annals</i>, tells the whole story of how the diagonal was found — the eighty-year scatter of independent discoveries, and the single paper that finally saw them as one. This volume takes a single thread of that story and pulls it as hard as it will go. The thread is the strangest fact in the record: that the same construction was struck, again and again, by people who had never heard of one another, in fields with no path between them. Set theory, proof theory, the theory of computation — sealed worlds, and the same diagonal in each.</p>
+    <p>There is an orthodox theory of this. Multiple independent discovery is common in science — calculus, natural selection, the conservation of energy, the telephone — and the sociologist Robert Merton built an influential account of it: discoveries are products of a field's ripeness, so that when the conditions are met, whoever reaches the frontier reaches it together. On Merton's reading, multiples deflate the myth of the lone genius and show that science is socially determined. The orthodox lesson of <i>found independently, many times</i> is a lesson about the sociology of discovery.</p>
+    <p>This volume argues that the diagonal's recurrence is a different phenomenon, and teaches a different lesson — and that dissecting the difference opens onto the deepest questions the collection touches: what a mathematical object <i>is</i>, how the order of reasons relates to the order of causes, and why the necessity of a thing can make the credit for it arbitrary. Four moves. <i>First,</i> that there are two kinds of multiple, and the diagonal's is not Merton's. <i>Second,</i> that the diagonal's kind points past sociology, to ontology. <i>Third,</i> that the <i>pieces</i> were forced but the <i>unity</i> was not — and the asymmetry is exact. <i>Fourth,</i> that the more forced the object, the more accidental the name — and that the whole pattern, in the end, is the diagonal applied to its own history.</p>
+  </div>
+
+  <!-- ===== §I THE NORM ===== -->
+  <section class="sec" id="norm">
+    <div class="sec-head"><span class="num">I · the norm</span><h2>The orthodox theory of multiples</h2><p class="sub">Independent, near-simultaneous discovery is not rare; it is the rule. Merton built a sociology on it — and drew from it the deflation of the lone genius.</p></div>
+    <div class="reading">
+      <p>The phenomenon is old and well documented. In 1922 the sociologists William Ogburn and Dorothy Thomas published a list of one hundred and forty-eight cases of the same discovery made independently by two or more people; in 1961 Robert Merton sharpened the observation into a thesis — <i>that all scientific discoveries are in principle multiples, including those that on the surface appear to be singletons.</i> The roster is famous. The calculus (Newton and Leibniz). Natural selection (Darwin and Wallace — who independently arrived at it and mailed Darwin the essay that forced the <i>Origin</i> into print). The conservation of energy (Mayer, Joule, Helmholtz, Colding, and others, all within a decade). Oxygen (Scheele and Priestley). The telephone (Bell and Gray, who filed competing patent claims on the same February day in 1876). Logarithms, sunspots, the periodic table's gaps — the same idea, arriving from several hands at once.</p>
+      <p>Merton's explanation is sociological, and it has become the orthodoxy: a discovery is a function of the state of its field. When the prior results, the instruments, and the questions are all in place, the next step becomes <i>available</i> — and is then taken, independently, by whoever happens to be standing at the frontier. The phrase, much mocked but hard to improve, is that <i>the times were right.</i> The individual, on this view, is to a degree replaceable: had Newton never lived, Leibniz; had Darwin never lived, Wallace. The discovery was going to be made, because the field had made it makeable.</p>
+      <p>From this Merton drew the deflation the theory is known for: the romantic image of the solitary genius wresting a truth from nowhere is, mostly, a myth of attribution. Science has a momentum of its own, and the names attached to its turning points are partly accidents of who reached the available step first. And there is a corollary Merton pressed, which this volume will turn on its head: if multiples are the <i>norm</i>, then it is the <i>singletons</i> — the discoveries made only once, by one person, and apparently by no one else — that are the genuine puzzle, the cases a theory of discovery must work to explain. Hold that inversion. It returns, exactly, in the fourth section.</p>
+    </div>
+  </section>
+
+  <!-- ===== §II THE DISTINCTION ===== -->
+  <section class="sec" id="distinction">
+    <div class="sec-head"><span class="num">II · the distinction</span><h2>Two kinds of multiple</h2><p class="sub">Merton's multiples and the diagonal's look alike and are not. One is a field ripening; the other is a terrain forcing. The diagnostic is whether the discoverers shared a world.</p></div>
+    <div class="reading">
+      <p>Both phenomena answer to the same description — <i>found independently, more than once</i> — and the description hides a difference that is the whole of this volume. Merton's multiples occur on a <i>shared frontier</i>: a common body of prior work, a field whose momentum carries everyone to the same edge, and communication, however indirect — Darwin and Wallace corresponded; Newton and Leibniz had read the same predecessors and worked the same open problems. The diagonal's recurrences occur across <i>sealed</i> fields. Cantor in set theory, Post and Gödel in the theory of proof, Turing in the theory of computation shared no frontier, no common prior work, and no path of transmission whatever. Merton's mechanism — social ripeness, the field being ready — is not merely weak here. It is <i>absent.</i> Whatever the diagonal's recurrence is, it is not a Mertonian multiple.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="faces">
+        <div class="face non">
+          <div class="f-h">the Mertonian multiple</div>
+          <h4>a field ripening</h4>
+          <div class="frow"><span class="fl">the cause</span><span class="fv f">a field reaching readiness</span></div>
+          <div class="frow"><span class="fl">the finders</span><span class="fv f">on one shared frontier</span></div>
+          <div class="frow"><span class="fl">communication</span><span class="fv f">present, direct or not</span></div>
+          <div class="frow"><span class="fl">what recurs</span><span class="fv f">the same <i>result</i></span></div>
+          <div class="frow"><span class="fl">the timing</span><span class="fv f">clustered — the same years</span></div>
+          <div class="frow"><span class="fl">the lesson</span><span class="fv f">the field was ready</span></div>
+        </div>
+        <div class="face std">
+          <div class="f-h">the structural multiple</div>
+          <h4>a terrain forcing</h4>
+          <div class="frow"><span class="fl">the cause</span><span class="fv t">a structural obstruction</span></div>
+          <div class="frow"><span class="fl">the finders</span><span class="fv t">in <i>sealed</i> fields</span></div>
+          <div class="frow"><span class="fl">communication</span><span class="fv t">none — no path at all</span></div>
+          <div class="frow"><span class="fl">what recurs</span><span class="fv t">the same <i>construction</i></span></div>
+          <div class="frow"><span class="fl">the timing</span><span class="fv t">scattered — decades apart</span></div>
+          <div class="frow"><span class="fl">the lesson</span><span class="fv t">the object was there</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The diagnostic can be made geometric, and once it is, the argument becomes hard to evade. Give every pair of discoveries two coordinates: their <i>historical distance</i> — how far apart their authors stood in time, in field, in any channel of contact — and their <i>logical distance</i> — how related the results are, from <i>identical</i> at one extreme to <i>unrelated</i> at the other. In the ordinary run of science these two are <i>correlated</i>: you tend to discover what your neighbours are discovering, so things found close together are usually logically close, and things found far apart are usually unrelated. That correlation is the diagonal line below. Merton's multiples sit near its bottom-left corner — close in both senses. The merely <i>analogous</i> results, the shared-engine fixed-point theorems of analysis, sit a little up and to the left — found within one connected community, genuinely similar but not the same. And then there is the diagonal's own family.</p>
+    </div>
+    <div class="stage">
+      <svg class="scatter-svg" viewBox="0 0 720 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scatter of logical distance against historical distance">
+        <!-- axes -->
+        <line class="sc-axis" x1="95" y1="385" x2="700" y2="385"/>
+        <line class="sc-axis" x1="95" y1="385" x2="95" y2="55"/>
+        <!-- axis labels -->
+        <text class="sc-axislab" x="397" y="455" text-anchor="middle">historical distance between the discoverers&#8202;&#8594;</text>
+        <text class="sc-axisend" x="120" y="408" text-anchor="start">same years · shared field</text>
+        <text class="sc-axisend" x="685" y="408" text-anchor="end">decades apart · sealed fields</text>
+        <text class="sc-axislab" x="-220" y="34" text-anchor="middle" transform="rotate(-90 0 0)">logical distance between the results&#8202;&#8594;</text>
+        <text class="sc-axisend" x="62" y="380" text-anchor="end">identical</text>
+        <text class="sc-axisend" x="62" y="70" text-anchor="end">unrelated</text>
+        <!-- correlation line -->
+        <line class="sc-corr" x1="130" y1="360" x2="660" y2="80"/>
+        <text class="sc-corrlab" x="350" y="150" text-anchor="start">the normal correlation —</text>
+        <text class="sc-corrlab" x="350" y="168" text-anchor="start">you find what your neighbours find</text>
+        <!-- forced region -->
+        <rect class="sc-region" x="500" y="320" width="190" height="65" rx="3"/>
+        <text class="sc-regionlab" x="595" y="312" text-anchor="middle">only structural forcing reaches here</text>
+        <!-- Mertonian points -->
+        <circle class="sc-pt merton" cx="158" cy="352" r="6.5"/>
+        <text class="sc-ptlab dim" x="170" y="356" text-anchor="start">Newton · Leibniz</text>
+        <circle class="sc-pt merton" cx="206" cy="334" r="6.5"/>
+        <text class="sc-ptlab dim" x="218" y="338" text-anchor="start">Darwin · Wallace</text>
+        <text class="sc-ptnote" x="150" y="372" text-anchor="start">Mertonian — ripe</text>
+        <!-- shared engine point -->
+        <circle class="sc-pt engine" cx="258" cy="236" r="6.5"/>
+        <text class="sc-ptlab dim" x="270" y="233" text-anchor="start">Brouwer · Banach · Knaster–Tarski</text>
+        <text class="sc-ptnote" x="270" y="249" text-anchor="start">shared engine — analogous, not identical</text>
+        <!-- diagonal instances (forced) -->
+        <circle class="sc-pt forced" cx="566" cy="360" r="6.5"/>
+        <circle class="sc-pt forced" cx="606" cy="350" r="6.5"/>
+        <circle class="sc-pt forced" cx="644" cy="357" r="6.5"/>
+        <text class="sc-ptlab" x="548" y="345" text-anchor="end">Cantor · Gödel · Turing —</text>
+        <text class="sc-ptlab" x="548" y="363" text-anchor="end">the same arrow, 45 years apart</text>
+      </svg>
+      <figcaption>The diagonal's instances fall where the correlation forbids: <span style="color:var(--red-deep)">identical results at maximal separation</span>. A connection transmitted through a community needs its discoverers to be close; so a point in the bottom-right corner — tightest logical link, widest historical gap — cannot be transmitted. It can only be forced. The corner is a detector of structural necessity.</figcaption>
+    </div>
+    <div class="reading">
+      <p>That is the argument in one picture. Transmission needs proximity; the diagonal's instances have none, yet they are not similar but <i>the same</i> — proven the same, later, by Lawvere. No social process puts a point in that corner. Only a structure beneath all three fields, forcing the same construction on each as it matures, can. The recurrence is not the field ripening. It is the terrain showing through.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III THE INVERSION ===== -->
+  <section class="sec" id="inversion">
+    <div class="sec-head"><span class="num">III · the inversion</span><h2>Sociology, or ontology</h2><p class="sub">A Mertonian multiple is evidence about the field. A structural multiple is evidence about the object. The diagonal's recurrence turns Merton's lesson inside out.</p></div>
+    <div class="reading">
+      <p>Naming the two kinds is not pedantry; it changes what each is <i>evidence of.</i> A Mertonian multiple is evidence about a <i>field</i> — that its prior work, its instruments, its questions had reached a state in which the next step was available. It tells you about a social and cognitive condition. A structural multiple is evidence about an <i>object</i> — that there is a thing, sitting beneath the fields, real enough and forced enough that any sufficiently developed approach runs into it. It tells you about what exists independently of any field's state. The two readings face in opposite directions: one toward the community, one past it.</p>
+      <p>This is where the diagonal's recurrence inverts the orthodoxy. Merton deployed multiples <i>against</i> the decisive individual and <i>for</i> the determining society: the genius is replaceable, the field is sovereign. The diagonal's structural multiples make the contrary move — they point past the society as well. No state of set theory explains why the theory of proof and the theory of computation, which knew nothing of it or of each other, independently produced the <i>same arrow.</i> A shared social condition cannot be the cause, because there was no sharing. Only a structure common to all three — forcing the same construction on each, at the threshold each crossed alone — accounts for the convergence. Merton deflated the genius to elevate the field; the diagonal's recurrence deflates the field, in turn, to reveal the object. The lone genius and the sovereign field are both, here, beside the point. What the convergence is about is the thing being converged upon.</p>
+      <p>This bears, as carefully as anything in the collection, on whether mathematical objects are <i>found</i> or <i>made</i> — and it is worth stating the bearing precisely, because it is strong but not a proof. If the constructions of mathematics were free human inventions — conventions we lay down, fictions we agree to — it would be a standing mystery why sealed fields, inventing freely, should invent the <i>same</i> one. Independent convergence across non-communicating contexts is just what one expects if a real structure is being discovered, and just what is hard to explain if there is only stipulation. So the recurrence is a genuine constraint on the philosophy of mathematics: any account must explain why the diagonal keeps being found. Realism explains it at once — there is something there. But the anti-realist is not refuted, and honesty requires saying how he escapes: he can grant that the <i>rules</i> of any consistent self-referential formalism force the construction, and insist that this is a fact about the constraints — consistency together with self-reference — and not about a Platonic heaven. On that reading the recurrence shows the <i>robustness</i> of the construction under those constraints, which the realist and the structuralist can both accept while disagreeing about what grounds them. What no one can do is wave the convergence away as coincidence. It has a structural cause; that much is common ground, and it is not small.</p>
+      <p>One word has been carrying weight throughout — <i>forced</i> — and it should be paid for. The diagonal is not forced causally: no physical law compels it. It is not forced psychologically: no one was made to think it. It is forced in the sense of <i>structural inevitability</i> — any system that crosses the self-reference threshold <i>contains</i> the construction as a matter of logical necessity, whether or not a mind ever notices. The discovery, then, is the recognition of something already present, which is exactly why it can be made independently: there is a determinate thing there to be found, the same for everyone who looks from far enough in. And the epistemology has a rare closing move. The claim that the recurrence is best explained by a forced object is an <i>abduction</i> — an inference to the best explanation. But this abduction was, decades later, <i>confirmed deductively</i>: Lawvere proved the object. It is an unusual thing to be able to say — that an inference to the best explanation about the structure of mathematics was afterwards <i>verified by proving the structure.</i> The clue did not merely persuade. It came true.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV THE ASYMMETRY ===== -->
+  <section class="sec" id="asymmetry">
+    <div class="sec-head"><span class="num">IV · the asymmetry</span><h2>The pieces were forced; the unity was not</h2><p class="sub">Every limitative result is a structural multiple — found a dozen times. The unification is a singleton — found once, nearly lost. The asymmetry is exact, and it locates where forcing operates.</p></div>
+    <div class="reading">
+      <p>Run the test over the whole record and a sharp asymmetry appears. Every <i>limitative result</i> is a structural multiple. The paradox that bears Russell's name was Zermelo's first; incompleteness was anticipated by Post and re-derived, in its second half, by von Neumann; undecidability was formalized three independent ways in a single year; the undefinability of truth was Gödel's silently before it was Tarski's in print. Forced, found independently, again and again. But the <i>unification</i> — the recognition that all of these are one construction — is not a multiple. It is a <i>singleton</i>: found essentially once, by Lawvere in 1969; overlooked for the better part of three decades; recovered and made legible by Yanofsky in 2003. The pieces were struck a dozen times. The unity was struck once. Why the difference?</p>
+      <p>The answer is exact, and it is the most important thing this volume has to say. The limitative results are forced by a <i>local</i> threshold — self-reference <i>within</i> a single field — and every field crosses that threshold on its own clock, independently of every other. That is precisely why they are multiples: each field manufactures its own encounter with the diagonal as it matures, needing nothing from outside. But the <i>unity</i> is invisible from inside any single field. To see that the three constructions are one, you need a vantage <i>above</i> all three — a language in which their shared form can even be written. And no single field's development forces that vantage into being. It is a <i>meta-level</i> achievement, not compelled by any object-level threshold; it had to be <i>invented</i>, and its invention was contingent: the concept of a category arrived only in 1945, and the specific apparatus the unity requires — the cartesian closed category — only across the 1960s, in Lawvere's own hands. The unity is a singleton because its enabling condition was a new mathematical language, and a language, unlike a threshold, is built once and need not be built again.</p>
+    </div>
+    <div class="stage">
+      <svg class="ms-svg" viewBox="0 0 720 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The object level forces a multiple; the meta level yields a singleton">
+        <text class="ms-band" x="360" y="40" text-anchor="middle" fill="var(--faintest)">META LEVEL — a vantage above the fields</text>
+        <circle cx="360" cy="98" r="12" fill="var(--gold-deep)" stroke="var(--gold-deep)"/>
+        <text class="ms-h" x="360" y="76" text-anchor="middle" fill="var(--ink)">the unification — Lawvere, 1969</text>
+        <text class="ms-sub" x="360" y="128" text-anchor="middle" fill="var(--soft1)">not forced by any field · a contingent invention · found once</text>
+        <text class="ms-tag" x="360" y="151" text-anchor="middle" fill="var(--gold-deep)">= a SINGLETON</text>
+        <line x1="70" y1="186" x2="650" y2="186" stroke="var(--hair)" stroke-width="1"/>
+        <text x="360" y="214" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="13" fill="var(--ink)">&#8593;&nbsp; the bridge had to be built &nbsp;&#8595;</text>
+        <text class="ms-tag" x="360" y="234" text-anchor="middle" fill="var(--faint)">category theory · 1945–1968 · forced by no field's ripening</text>
+        <line x1="70" y1="262" x2="650" y2="262" stroke="var(--hair)" stroke-width="1"/>
+        <text class="ms-band" x="360" y="296" text-anchor="middle" fill="var(--faintest)">OBJECT LEVEL — the self-reference threshold</text>
+        <circle cx="135" cy="348" r="8" fill="var(--red-deep)" stroke="var(--red-deep)"/>
+        <circle cx="285" cy="348" r="8" fill="var(--red-deep)" stroke="var(--red-deep)"/>
+        <circle cx="435" cy="348" r="8" fill="var(--red-deep)" stroke="var(--red-deep)"/>
+        <circle cx="585" cy="348" r="8" fill="var(--paper)" stroke="var(--red-line)" stroke-dasharray="2 2"/>
+        <text class="ms-tag" x="135" y="330" text-anchor="middle" fill="var(--soft1)">set theory</text>
+        <text class="ms-tag" x="285" y="330" text-anchor="middle" fill="var(--soft1)">proof theory</text>
+        <text class="ms-tag" x="435" y="330" text-anchor="middle" fill="var(--soft1)">computation</text>
+        <text class="ms-tag" x="585" y="330" text-anchor="middle" fill="var(--faint)">every rich field…</text>
+        <text class="ms-sub" x="360" y="384" text-anchor="middle" fill="var(--soft1)">forced · a reproducible threshold · each field crosses it on its own clock</text>
+        <text class="ms-tag" x="360" y="408" text-anchor="middle" fill="var(--red-deep)">= a MULTIPLE</text>
+      </svg>
+      <figcaption>Forcing lives at the object level, not the meta level. A self-reference threshold is <span style="color:var(--red-deep)">reproducible</span> — every rich field crosses it alone, so the limitative results come as a multiple. A unifying language is <span style="color:var(--gold-deep)">contingent</span> — built once, by particular hands, forced by nothing — so the unity comes as a singleton.</figcaption>
+    </div>
+    <div class="reading">
+      <p>This is exactly the puzzle Merton left standing, now solved. Recall his corollary: if multiples are the norm, the singletons are what demand explanation. Here the explanation is precise. The limitative results are multiples because their cause — the self-reference threshold — is <i>reproducible</i>; every rich field builds it anew. The unification is a singleton because its cause — a new language — is <i>not</i> reproducible; it was a particular invention, and once made it did not need remaking. The general principle has fallen out of the diagonal's history almost by itself: <i>a discovery comes as a multiple to the degree that its enabling conditions are forced and reproducible, and as a singleton to the degree that they are contingent and unrepeatable.</i> Most of science lives between the poles. The diagonal is the rare case that occupies both at once — a forced multiple at the object level and a contingent singleton at the meta level — which is what makes it the cleanest specimen of the whole phenomenon there is.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V THE RECORD / STIGLER ===== -->
+  <section class="sec" id="record">
+    <div class="sec-head"><span class="num">V · the record</span><h2>Necessity makes the name arbitrary</h2><p class="sub">Discovery and credit are two events, and the gap between them is structured. Stigler's law is its shadow — and the more forced the object, the more accidental whose name it keeps.</p></div>
+    <div class="reading">
+      <p>To be discovered and to be <i>registered</i> — to enter the record under a name — are two different events, and a discovery must clear four gates to pass from the first to the second: it must be <i>published</i>, it must be <i>understood</i>, it must be <i>attributed</i>, and it must be <i>taken up</i>. Each gate can fail on its own. The result is that the canonical record is not the set of discoveries; it is a lossy projection of them, and the projection has identifiable failure modes — the same five the <i>Annals</i> catalogues: a finding can be an <i>anticipation</i> (found, written, unpublished), a <i>simultaneity</i> (found at once, and ceded), a <i>withholding</i> (found, and deliberately not printed), a <i>misreading</i> (found, and taken for something smaller), or an <i>overlooking</i> (found, published, and ignored). The record remembers; it just remembers selectively, and along these particular seams.</p>
+      <p>The eponymic shadow of this gap has a name of its own. In 1980 the statistician Stephen Stigler proposed <i>Stigler's law of eponymy</i> — that no scientific discovery is named after its original discoverer — and, with perfect self-awareness, attributed the law to Robert Merton, making &ldquo;Stigler's law&rdquo; an instance of itself. Hubble's law was Lemaître's two years earlier; the Pythagorean theorem was Babylonian; in mathematics the pattern is so routine that the physicist John Baez gave it a corollary — anything named after Professor X was first found by Professor Y, for some Y not equal to X. The diagonal's own history is a parade of the law. Select a result to see the name it carries set against the hand that reached it first.</p>
+    </div>
+    <div class="stage">
+      <div class="rev-tabs" id="stigTabs"></div>
+      <div class="redis-panel" id="stigPanel"></div>
+      <figcaption>The <span style="color:var(--teal-deep)">first finder</span> and the <span style="color:var(--red-deep)">eponym</span> are rarely the same person. Each gap is one of the five failure modes of registration — and in a field of <i>forced</i> objects, the gap is not an accident at the margin but the rule at the center.</figcaption>
+    </div>
+    <div class="reading">
+      <p>Here is the inference the standard literature stops short of. For a <i>structural multiple</i>, the very forcing of the object makes the attribution maximally <i>arbitrary</i> — and not by bad luck but by necessity. Because the object is forced, it keeps being found; because it keeps being found, the question &ldquo;who found it&rdquo; collapses into &ldquo;who happened to publish, in a venue that registered, at a moment the field could hear it&rdquo; — which is pure contingency. The <i>more necessary</i> the object, the <i>more accidental</i> the name. So the two registers the collection keeps distinguishing — the logical, where the object is one and forced, and the historical, where the credit is scattered and contingent — are not merely different at the point of attribution. They are <i>inversely</i> related there: maximal structural necessity produces maximal nominal contingency. The diagonal is necessary. &ldquo;Cantor's,&rdquo; &ldquo;Gödel's,&rdquo; &ldquo;Turing's&rdquo; are accidents of publication — and the more surely the construction was going to be found, the more surely the names on it are arbitrary.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VI THE FIXED POINT ===== -->
+  <section class="sec" id="fixedpoint">
+    <div class="sec-head"><span class="num">VI · the fixed point</span><h2>The diagonal, applied to its own history</h2><p class="sub">The construction is about self-reference. Its history is self-referential at every level — and not as a figure of speech. Self-reference is scale-invariant, so the recurrence recurs.</p></div>
+    <div class="reading">
+      <p>There is a last turn, and it is the one the collection's whole subject demands. The diagonal is the construction a system performs when it turns on itself. And the <i>history</i> of the diagonal turns on itself, repeatedly, at ascending levels. At the <i>object</i> level, the construction is forced, and so is found again and again — the structural multiple of the first four sections. At the <i>meta</i> level, the field's eventual recognition that it keeps finding one construction — the unification — is the field <i>referring to itself</i>, naming its own recurring move; the unification is a self-reference one storey up. And at the <i>meta-meta</i> level, the recognition repeats the fate of the thing recognized: Lawvere's unifying paper was itself overlooked and re-found — the discovery of the unity underwent, in its own life, the <i>found, lost, found</i> career of the unity it described. Even Stigler's law obeys this: a principle about misattribution, itself deliberately misattributed.</p>
+      <p>This is rigorous, not a flourish, and it is worth being exact about why. The pattern repeats at every level because <i>self-reference is scale-invariant.</i> The collection's one thesis is that wherever a domain becomes able to refer to itself, the diagonal appears in it. Now: &ldquo;the history of mathematics reflecting on its own recurring constructions&rdquo; <i>is</i> a domain that refers to itself — it is mathematics naming its own moves, one level up. So the diagonal must appear there too; and it does, three times over — as the forced recurrence of the construction, as the self-referential unification, as the self-instancing law of misattribution. The historical recurrence is not an <i>analogy</i> to the recursion theorem. It <i>is</i> the recursion theorem's phenomenon, occurring at the level of history, because history — once it reflects on itself — satisfies the construction's single premise. This is where the volume's title pays its debt. The construction that <i>is</i> recurrence — the fixed point, the positive face, the engine that returns a thing to itself — <i>recurs,</i> at every level, because recurrence is simply what self-reference does once it can.</p>
+      <p>And so there is no outside, including for this page. To study the recurrence of the diagonal is to perform, one storey higher again, the very recognition the diagonal forces — and to discover that the recognition has, of course, been reached before, in pieces, by others: Merton on the sociology of multiples, Stigler on the drift of names, Lawvere on the unity itself. This volume is one more structural multiple of an idea that was always going to be found, assembled late, in retrospect, out of parts that were lying in separate fields. It could hardly be otherwise. A construction that forces its own rediscovery forces, at the next level, the rediscovery of <i>that</i> — and the writing of it down, by whatever hand happens to be near, under whatever name the record will end up keeping.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">necessary object · accidental names</span><span class="ln"></span></div>
+  <div class="coda"><p>Multiple discovery, dissected, is a window onto the whole. Two kinds — the field ripening, the terrain forcing — sort sociology from ontology. The asymmetry — many forced pieces, one contingent unity — locates the forcing at the object level, never the meta. The gap between finding and naming, with Stigler beside it, shows necessity making credit arbitrary. And the self-reflexivity shows the entire pattern to be the diagonal turned on its own past. The names were accidents; the object was forced; the unity was a singleton, bought with a language built late enough to say it. <span class="mono">Found in pieces, by many hands, because it could be found no other way — and understood whole, once, in retrospect.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a diachronic deep-dive · on multiple discovery</span></div>
+    <p class="colophon">A deep-dive on one thread of the <i>Annals</i>: the fact that the diagonal was found independently, repeatedly, across sealed fields. The volume distinguishes <i>Mertonian</i> multiples (a field ripening) from <i>structural</i> multiples (a terrain forcing); argues that the structural kind is evidence about the object rather than the field, with a measured bearing on mathematical realism; shows that the limitative results are forced multiples while their unification is a contingent singleton, locating the forcing at the object level; and closes on the scale-invariant self-reference of the whole pattern. The framing is the collection's; the underlying results and attributions are the standard ones.</p>
+    <p class="notes"><span class="nl">multiple discovery.</span> &nbsp;W. F. Ogburn &amp; D. Thomas, &ldquo;Are Inventions Inevitable?&rdquo; (1922; 148 cases) · R. K. Merton, &ldquo;Singletons and Multiples in Scientific Discovery&rdquo; (<i>Proc. Amer. Phil. Soc.</i> 105, 1961) — &ldquo;all scientific discoveries are in principle multiples&rdquo; · T. S. Kuhn on the simultaneous discovery of energy conservation. The space of reasons vs. the space of causes: W. Sellars (1956); the context of discovery vs. of justification: H. Reichenbach (1938).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">eponymy.</span> &nbsp;S. M. Stigler, &ldquo;Stigler's Law of Eponymy&rdquo; (<i>Trans. N.Y. Acad. Sci.</i> 39, 1980) — &ldquo;no scientific discovery is named after its original discoverer,&rdquo; attributed by Stigler to Merton, an instance of itself; cf. Merton's &ldquo;Matthew Effect&rdquo; (1968) and Baez's law. Cases: Russell's paradox (Zermelo, c. 1899) · undefinability of truth (Gödel, by 1931) · the recursion theorem (Curry &amp; Church's fixed-point combinator) · Cantor–Schröder–Bernstein (Dedekind, 1887) · Hubble's law (Lemaître, 1927).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">the object &amp; its unity.</span> &nbsp;Lawvere 1969 (the categorical unification; overlooked for decades) · Yanofsky 2003 (the explicit instances) · the language it required: categories (Eilenberg &amp; Mac Lane, 1945), cartesian closed categories (across the 1960s, in Lawvere's work) · Scott's D∞ (Nov. 1969). Necessity confirmed deductively: the abductive case for a forced object, made on the historical pattern, was later proven by Lawvere's theorem.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+
+/* ===== THE ATTRIBUTION (STIGLER) INSPECTOR ===== */
+const STIG=[
+ {id:"russell", tab:"Russell's paradox", name:"Russell's paradox",
+  found:{who:"Ernst Zermelo", yr:"c. 1899 · unpublished"},
+  named:{who:"Bertrand Russell", yr:"1901 · pub. 1903"},
+  mode:"anticipation",
+  note:"Zermelo had the inconsistent set years before Russell, in Göttingen, and did not publish; Russell\u2019s 1902 letter to Frege is the one the record kept. The wall was the same — the name went to whoever wrote it down where it would be read."},
+ {id:"tarski", tab:"Tarski's theorem", name:"Tarski's undefinability of truth",
+  found:{who:"Kurt Gödel", yr:"by 1931 · never published"},
+  named:{who:"Alfred Tarski", yr:"1933 / 1936"},
+  mode:"withholding",
+  note:"Gödel saw that truth could not be defined where provability could be numbered, and let it pass; Tarski proved and published it. The theorem is named for the one who chose to print it, not the one who saw it first."},
+ {id:"kleene", tab:"Kleene's recursion", name:"Kleene's recursion theorem",
+  found:{who:"Curry · Church", yr:"1920s–30s · the fixed-point combinator"},
+  named:{who:"Stephen Kleene", yr:"1938"},
+  mode:"misreading",
+  note:"The engine that hands every function a fixed point — the combinator Y — already sat in Curry\u2019s combinatory logic and Church\u2019s λ-calculus before Kleene gave its recursion-theoretic form the name it now carries. The thing came first; the name came to its clearest statement."},
+ {id:"csb", tab:"Cantor–Schröder–Bernstein", name:"the Cantor–Schröder–Bernstein theorem",
+  found:{who:"Richard Dedekind", yr:"1887 · unpublished"},
+  named:{who:"Cantor · Schröder · Bernstein", yr:"1895–98"},
+  mode:"anticipation",
+  note:"Dedekind wrote a proof on 11 July 1887 — by his chain method, avoiding the axiom of choice — and neither published it nor told Cantor; it surfaced only in his papers, decades after the theorem had taken three other names. Three eponyms, and not the first prover among them — Stigler\u2019s law compressed into a single title."}
+];
+const SById={}; STIG.forEach(function(s){ SById[s.id]=s; });
+function renderStigTabs(){
+  const host=document.getElementById("stigTabs"); if(!host) return; host.innerHTML="";
+  STIG.forEach(function(s){
+    const b=E("button","rev-tab"); b.dataset.id=s.id; b.textContent=s.tab;
+    b.addEventListener("click",function(){ selectStig(s.id); }); host.appendChild(b);
+  });
+}
+function selectStig(id){
+  const s=SById[id];
+  document.querySelectorAll("#stigTabs .rev-tab").forEach(function(b){ b.classList.toggle("on",b.dataset.id===id); });
+  const host=document.getElementById("stigPanel"); if(!host) return; host.innerHTML="";
+  const head=E("div","redis-head");
+  const lab=E("div","rh-lab"); lab.textContent="named for one · found by another"; head.appendChild(lab);
+  const h=E("h4"); h.textContent=s.name; head.appendChild(h);
+  host.appendChild(head);
+  const wrap=E("div"); wrap.style.padding="0 1.2rem";
+  const row=E("div","stig-row");
+  const c1=E("div","stig-cell found");
+  const l1=E("div","stl"); l1.textContent="found first by"; c1.appendChild(l1);
+  const w1=E("div","stw"); w1.textContent=s.found.who; c1.appendChild(w1);
+  const y1=E("div","sty"); y1.textContent=s.found.yr; c1.appendChild(y1);
+  row.appendChild(c1);
+  const c2=E("div","stig-cell named");
+  const l2=E("div","stl"); l2.textContent="named for"; c2.appendChild(l2);
+  const w2=E("div","stw"); w2.textContent=s.named.who; c2.appendChild(w2);
+  const y2=E("div","sty"); y2.textContent=s.named.yr; c2.appendChild(y2);
+  row.appendChild(c2);
+  wrap.appendChild(row);
+  const m=E("div","stig-name"); m.innerHTML="failure mode &nbsp;·&nbsp; <b>"+s.mode+"</b>"; wrap.appendChild(m);
+  host.appendChild(wrap);
+  const note=E("div","redis-note"); note.innerHTML=s.note; host.appendChild(note);
+}
+
+function init(){
+  try{ renderStigTabs(); selectStig("russell"); }catch(err){ console.error("recurrence: stigler",err); }
+}
+if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",init); } else { init(); }
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-threshold.html">← The Threshold</a><a rel="next" href="quodlibet-the-obverse.html">The Obverse →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

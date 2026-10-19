@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Line — the architecture of wage-and-hour law</title>
+<style>
+  :root{
+    --paper:#f1efe7; --ink:#1b1a17; --soft1:#54514a; --faint:#79766b; --faintest:#a6a294;
+    --rule:#dcd8ca; --hair:#e7e3d6; --sel:rgba(47,70,104,.13);
+    --blue:#2f4668; --blue-deep:#223450; --blue-soft:rgba(47,70,104,.10); --blue-line:rgba(47,70,104,.40);
+    --ochre:#a9752c; --ochre-deep:#855a1f; --ochre-soft:rgba(169,117,44,.13); --ochre-line:rgba(169,117,44,.45);
+    --slate:#4a4f52; --slate-deep:#33383a; --slate-soft:rgba(74,79,82,.10);
+    --rust:#9c4a2f; --rust-soft:rgba(156,74,47,.12);
+    --panel:rgba(27,26,23,.014); --panelhair:rgba(27,26,23,.11);
+    --read:38rem; --frame:75rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Source Serif 4",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--blue);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .blue{color:var(--blue-deep);} .ochre{color:var(--ochre-deep);}
+  .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;}
+  .sc{text-transform:uppercase;letter-spacing:.14em;}
+
+  /* hero */
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.09em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5.2rem) auto clamp(1.2rem,3vh,1.8rem);max-width:56rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue-deep);margin:0 0 1.4rem;}
+  h1.title{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:clamp(3.2rem,11vw,8.4rem);line-height:.96;margin:0;}
+  h1.title .x{color:var(--blue);}
+  .standfirst{font-size:clamp(1.06rem,1.45vw,1.24rem);line-height:1.58;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .disclaim{font-family:"IBM Plex Mono",monospace;font-size:.65rem;letter-spacing:.05em;color:var(--faintest);text-align:center;margin:1.5rem auto 0;max-width:42rem;line-height:1.6;text-transform:uppercase;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(36px,11vw,110px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--blue);letter-spacing:.03em;}
+
+  /* prose */
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.12rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Libre Caslon Display",serif;float:left;font-size:4.2rem;line-height:.72;padding:.4rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.6rem auto 0;}
+  .reading p{font-size:1.01rem;line-height:1.75;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.35rem;}
+  .reading h3{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:1.32rem;margin:1.7rem 0 .5rem;color:var(--ink);}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faintest);}
+  em.term{font-style:italic;color:var(--blue-deep);}
+  .pull{font-family:"Libre Caslon Display",serif;font-size:clamp(1.3rem,2.2vw,1.7rem);line-height:1.3;color:var(--ink);max-width:42rem;margin:1.8rem auto;text-align:center;text-wrap:balance;}
+  .pull .mono{font-family:"IBM Plex Mono",monospace;font-size:.7em;color:var(--blue-deep);}
+
+  /* strategy callout */
+  .strat{border:1px solid var(--ochre-line);background:var(--ochre-soft);border-radius:3px;padding:1rem 1.2rem 1.1rem;margin:1.5rem auto 0;max-width:var(--read);}
+  .strat .strat-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ochre-deep);margin-bottom:.55rem;font-weight:600;}
+  .strat p{font-size:.95rem;line-height:1.6;color:var(--soft1);}
+  .strat p+p{margin-top:.55rem;}
+  .strat b{color:var(--ochre-deep);font-weight:600;}
+  .strat .mono{font-size:.84rem;}
+
+  /* distinction callout */
+  .distinct{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.5rem auto 0;max-width:var(--read);}
+  @media(max-width:560px){ .distinct{grid-template-columns:1fr;} }
+  .distinct .dc{background:var(--paper);padding:.95rem 1.1rem;}
+  .distinct .dc .dh{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem;}
+  .distinct .dc.cat .dh{color:var(--blue-deep);} .distinct .dc.quant .dh{color:var(--ochre-deep);}
+  .distinct .dc .dt{font-size:.92rem;line-height:1.5;color:var(--soft1);}
+  .distinct .dc .dt b{color:var(--ink);font-weight:600;}
+
+  /* section heads */
+  .sec{margin-top:clamp(4.2rem,9vh,7rem);scroll-margin-top:2rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.6rem,3vh,2.2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.15em;color:var(--ochre-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:clamp(1.9rem,3.5vw,2.7rem);line-height:1.06;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:1rem auto 0;line-height:1.6;text-wrap:pretty;font-style:italic;}
+
+  /* panels */
+  .stage{max-width:64rem;margin:clamp(2rem,4vh,3rem) auto 0;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.2rem,3vw,2.1rem);box-shadow:0 1px 0 rgba(255,255,255,.4) inset;}
+  .panel-cap{font-family:"IBM Plex Mono",monospace;font-size:.69rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin:0 0 1.1rem;}
+  figcaption{font-size:.85rem;line-height:1.62;color:var(--faint);margin:1.5rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:600;color:var(--soft1);} figcaption .mono{font-size:.82rem;} figcaption i{font-style:italic;}
+
+  /* controls */
+  .controls{display:flex;flex-wrap:wrap;gap:1rem 1.4rem;align-items:center;justify-content:center;}
+  .ctl{display:flex;align-items:center;gap:.7rem;}
+  .ctl-lab{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);white-space:nowrap;}
+  .ctl-val{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);min-width:3.4ch;text-align:right;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:clamp(110px,18vw,170px);height:2px;background:var(--blue-line);border-radius:2px;outline:none;cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--blue);border:2px solid var(--paper);box-shadow:0 0 0 1px var(--blue-deep);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--blue);border:2px solid var(--paper);box-shadow:0 0 0 1px var(--blue-deep);cursor:pointer;}
+  input[type=range].ochre{background:var(--ochre-line);}
+  input[type=range].ochre::-webkit-slider-thumb{background:var(--ochre);box-shadow:0 0 0 1px var(--ochre-deep);}
+  input[type=range].ochre::-moz-range-thumb{background:var(--ochre);box-shadow:0 0 0 1px var(--ochre-deep);}
+  .segctl{display:inline-flex;border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;flex-wrap:wrap;}
+  .segctl button{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.02em;color:var(--faint);background:transparent;border:none;border-right:1px solid var(--panelhair);padding:.5rem .8rem;cursor:pointer;transition:all .14s;}
+  .segctl button:last-child{border-right:none;}
+  .segctl button:hover{background:rgba(27,26,23,.04);}
+  .segctl button.on{background:var(--blue);color:var(--paper);}
+  .segctl.gate button.on{background:var(--slate-deep);}
+
+  /* GROUND diagram */
+  #groundSvg{display:block;width:100%;height:auto;max-width:640px;margin:0 auto;overflow:visible;}
+
+  /* PIPELINE flow + compounding band */
+  .pipeflow{display:flex;align-items:stretch;gap:.5rem;flex-wrap:nowrap;overflow-x:auto;padding-bottom:.3rem;}
+  .pipe-stage{flex:1 1 0;min-width:8.4rem;border:1px solid var(--panelhair);border-radius:3px;padding:.75rem .7rem;text-align:center;background:rgba(27,26,23,.018);position:relative;display:flex;flex-direction:column;gap:.2rem;}
+  .pipe-stage .ps-cut{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ochre-deep);}
+  .pipe-stage .ps-name{font-family:"Libre Caslon Display",serif;font-size:1.02rem;color:var(--ink);line-height:1.1;}
+  .pipe-stage .ps-op{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faint);}
+  .pipe-stage .ps-val{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--blue-deep);margin-top:.15rem;}
+  .pipe-stage.gated{opacity:.34;}
+  .pipe-stage.gate0{border-color:var(--slate);background:var(--slate-soft);}
+  .pipe-arrow{align-self:center;color:var(--faintest);font-family:"IBM Plex Mono",monospace;font-size:1rem;flex:0 0 auto;}
+  .band-wrap{margin-top:1.6rem;}
+  .band-scale{position:relative;height:62px;border-radius:3px;background:rgba(27,26,23,.035);border:1px solid var(--panelhair);margin:1.4rem 0 .4rem;}
+  .band-fill{position:absolute;top:8px;bottom:8px;background:var(--ochre-soft);border-left:2px solid var(--ochre-line);border-right:2px solid var(--ochre-line);border-radius:1px;transition:all .25s;}
+  .band-mid{position:absolute;top:2px;bottom:2px;width:0;border-left:1px dashed var(--faint);transition:left .25s;}
+  .band-marker{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--rust);transition:left .25s;}
+  .band-marker::after{content:attr(data-lab);position:absolute;top:-1.35rem;left:50%;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--rust);white-space:nowrap;}
+  .band-tick{position:absolute;bottom:-1.4rem;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faintest);white-space:nowrap;}
+  .band-read{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;justify-content:center;margin-top:1.7rem;font-size:.95rem;color:var(--soft1);}
+  .band-read .br b{color:var(--ochre-deep);font-weight:600;font-family:"IBM Plex Mono",monospace;font-size:.92rem;}
+  .band-read .br.wide b{color:var(--rust);}
+
+  /* PERSON classification */
+  .class-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(1.2rem,3vw,2rem);align-items:start;}
+  @media(max-width:780px){ .class-grid{grid-template-columns:1fr;} }
+  .factors{display:flex;flex-direction:column;gap:.95rem;}
+  .factor{display:flex;align-items:center;justify-content:space-between;gap:.5rem .9rem;flex-wrap:wrap;}
+  .factor .f-text{display:flex;flex-direction:column;gap:.1rem;flex:1 1 11rem;min-width:0;}
+  .factor .f-lab{font-size:.9rem;color:var(--ink);line-height:1.3;}
+  .factor .f-sub{font-family:"IBM Plex Mono",monospace;font-size:.61rem;color:var(--faintest);text-transform:uppercase;letter-spacing:.06em;}
+  .factor .toggle2{display:inline-flex;border:1px solid var(--panelhair);border-radius:2px;overflow:hidden;flex-shrink:0;}
+  .factor .toggle2 button{font-family:"IBM Plex Mono",monospace;font-size:.65rem;padding:.4rem .65rem;border:none;background:transparent;color:var(--faint);cursor:pointer;border-left:1px solid var(--panelhair);transition:all .12s;white-space:nowrap;}
+  .factor .toggle2 button:first-child{border-left:none;}
+  .factor .toggle2 button.on{background:var(--blue);color:var(--paper);}
+  .verdicts{display:flex;flex-direction:column;gap:.7rem;}
+  .vcard{border:1px solid var(--panelhair);border-radius:3px;padding:.8rem 1rem;display:grid;grid-template-columns:1fr auto;align-items:center;gap:.15rem .8rem;transition:all .2s;}
+  .vcard .vc-name{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);}
+  .vcard .vc-logic{font-family:"IBM Plex Mono",monospace;font-size:.61rem;color:var(--faintest);grid-column:1/2;}
+  .vcard .vc-result{font-family:"Libre Caslon Display",serif;font-size:1.18rem;text-align:right;grid-row:1/3;}
+  .vcard.emp{background:var(--ochre-soft);border-color:var(--ochre-line);} .vcard.emp .vc-result{color:var(--ochre-deep);}
+  .vcard.ic{background:var(--blue-soft);border-color:var(--blue-line);} .vcard.ic .vc-result{color:var(--blue-deep);}
+  .class-disagree{text-align:center;font-size:.92rem;font-style:italic;color:var(--soft1);margin-top:.3rem;line-height:1.5;}
+
+  /* TIME timeline */
+  .tl-wrap{display:flex;flex-direction:column;gap:1.1rem;}
+  .tl-track{position:relative;display:flex;width:100%;height:62px;border-radius:3px;overflow:hidden;border:1px solid var(--panelhair);}
+  .tl-seg{position:relative;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--paper);transition:all .2s;overflow:hidden;min-width:0;cursor:default;}
+  .tl-seg:last-child{border-right:none;}
+  .tl-seg.comp{background:var(--ochre-soft);} .tl-seg.noncomp{background:rgba(27,26,23,.035);}
+  .tl-seg.demin{background:repeating-linear-gradient(45deg,var(--ochre-soft),var(--ochre-soft) 5px,rgba(27,26,23,.03) 5px,rgba(27,26,23,.03) 10px);}
+  .tl-seg .tl-ico{font-family:"IBM Plex Mono",monospace;font-size:.61rem;color:var(--soft1);text-align:center;line-height:1.1;padding:0 2px;}
+  .tl-seg.comp .tl-ico{color:var(--ochre-deep);}
+  .tl-legend{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faint);}
+  .tl-legend span{display:inline-flex;align-items:center;gap:.4rem;}
+  .tl-sw{width:13px;height:13px;border-radius:2px;display:inline-block;border:1px solid var(--panelhair);}
+  .tl-detail{min-height:5rem;border-top:1px solid var(--panelhair);padding-top:.9rem;}
+  .tl-detail .tl-name{font-family:"Libre Caslon Display",serif;font-size:1.18rem;color:var(--ink);}
+  .tl-detail .tl-rule{font-size:.94rem;color:var(--soft1);line-height:1.55;margin-top:.3rem;}
+  .tl-detail .tl-test{font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:var(--blue-deep);margin-top:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+  .tl-detail .tl-cite{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);margin-top:.2rem;}
+  .tl-readout{font-size:.95rem;color:var(--soft1);line-height:1.6;text-align:center;}
+  .tl-readout b{color:var(--ochre-deep);font-weight:600;}
+
+  /* RATE calculator */
+  .calc-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(1.2rem,3vw,2rem);align-items:start;}
+  @media(max-width:780px){ .calc-grid{grid-template-columns:1fr;} }
+  .calc-inputs{display:flex;flex-direction:column;gap:1.05rem;}
+  .calc-inputs .struct{display:flex;flex-direction:column;gap:.5rem;}
+  .calc-inputs .struct-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);}
+  .calc-readout{border:1px solid var(--panelhair);border-radius:3px;padding:1.05rem 1.15rem;background:rgba(27,26,23,.015);}
+  .cr-row{display:flex;justify-content:space-between;align-items:baseline;padding:.4rem 0;border-bottom:1px solid var(--hair);}
+  .cr-row:last-of-type{border-bottom:none;}
+  .cr-row .cr-lab{font-size:.91rem;color:var(--soft1);} .cr-row .cr-val{font-family:"IBM Plex Mono",monospace;font-size:1rem;color:var(--ink);}
+  .cr-row.rate .cr-lab{color:var(--blue-deep);font-weight:600;} .cr-row.rate .cr-val{color:var(--blue-deep);font-weight:600;font-size:1.14rem;}
+  .cr-row.total{border-top:2px solid var(--panelhair);margin-top:.3rem;padding-top:.55rem;}
+  .cr-row.total .cr-lab{color:var(--ochre-deep);font-weight:600;} .cr-row.total .cr-val{color:var(--ochre-deep);font-weight:600;font-size:1.18rem;}
+  .calc-insight{border-left:2px solid var(--blue-line);background:var(--blue-soft);border-radius:0 2px 2px 0;padding:.8rem 1rem;margin-top:1rem;font-size:.92rem;line-height:1.55;color:var(--soft1);}
+  .calc-insight b{color:var(--blue-deep);font-weight:600;}
+  .calc-insight.fp{border-left-color:var(--ochre-line);background:var(--ochre-soft);} .calc-insight.fp b{color:var(--ochre-deep);}
+  .calc-insight .mono{font-size:.82rem;}
+  #iterHost{margin-top:.5rem;}
+  #iterSvg,#floatSvg{display:block;width:100%;height:auto;overflow:visible;}
+
+  /* PROOF */
+  .proof-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;}
+  @media(max-width:740px){ .proof-grid{grid-template-columns:1fr;} }
+  #proofSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .proof-readout .pr-step{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ochre-deep);margin-bottom:.45rem;}
+  .proof-readout h4{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:1.3rem;margin:0 0 .5rem;color:var(--ink);}
+  .proof-readout p{font-size:.95rem;line-height:1.6;color:var(--soft1);}
+  .proof-readout p+p{margin-top:.5rem;}
+  .proof-readout .pr-cite{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);margin-top:.55rem;display:block;}
+
+  /* TRILEMMA */
+  .trilemma{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(1.2rem,3vw,2.2rem);align-items:center;}
+  @media(max-width:780px){ .trilemma{grid-template-columns:1fr;} }
+  #triSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .tri-readout{min-height:9.5rem;}
+  .tri-readout .tr-pair{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--blue-deep);margin-bottom:.5rem;}
+  .tri-readout h4{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:1.4rem;margin:0 0 .5rem;color:var(--ink);}
+  .tri-readout p{font-size:.94rem;line-height:1.6;color:var(--soft1);}
+  .tri-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--faint);margin-top:.6rem;display:block;line-height:1.7;}
+  .tri-controls{display:flex;gap:.5rem;justify-content:center;margin-top:.2rem;flex-wrap:wrap;}
+
+  /* BIAS-VARIANCE */
+  .bv-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;}
+  @media(max-width:780px){ .bv-grid{grid-template-columns:1fr;} }
+  #bvSvg,#bunchSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .bv-readout{min-height:9rem;}
+  .bv-readout .bv-opt{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--blue-deep);margin-bottom:.5rem;}
+  .bv-readout h4{font-family:"Libre Caslon Display",serif;font-weight:400;font-size:1.3rem;margin:0 0 .5rem;color:var(--ink);}
+  .bv-readout p{font-size:.92rem;line-height:1.58;color:var(--soft1);}
+  .bv-readout .bv-decomp{display:flex;flex-wrap:wrap;gap:.5rem 1.3rem;margin-top:.8rem;font-family:"IBM Plex Mono",monospace;font-size:.74rem;}
+  .bv-readout .bv-decomp span b{font-weight:600;}
+  .bv-bias{color:var(--ochre-deep);} .bv-var{color:var(--blue-deep);} .bv-tot{color:var(--ink);}
+
+  /* coda + footer */
+  .coda{max-width:46rem;margin:clamp(4.6rem,10vh,7rem) auto 0;text-align:center;}
+  .coda p{font-family:"Source Serif 4",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--blue-deep);font-size:.85em;}
+  footer{margin-top:clamp(4.6rem,10vh,7rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;margin-bottom:1.4rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.86rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.08em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.84rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .colophon b{color:var(--soft1);font-weight:600;} .colophon+.colophon{margin-top:.9rem;}
+  .refs{font-family:"IBM Plex Mono",monospace;font-size:.71rem;line-height:1.95;color:var(--faintest);margin-top:1.2rem;max-width:74ch;}
+  .refs b{color:var(--faint);font-weight:500;}
+
+  @media (max-width:600px){
+    body{font-size:18px;}
+    .calc-grid,.class-grid,.proof-grid,.trilemma,.bv-grid{grid-template-columns:1fr;}
+    .f-bar{flex-direction:column;gap:.5rem;}
+    input[type=range]{width:44vw;}
+  }
+  @media (max-width:400px){
+    .frame{padding:0 1rem;}
+    input[type=range]{width:34vw;}
+    .ctl{gap:.4rem;} .ctl-lab{font-size:.61rem;} .ctl-val{min-width:3ch;font-size:.78rem;}
+    .segctl button{padding:.42rem .55rem;font-size:.64rem;}
+    .pipe-stage{min-width:7.4rem;}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;} }
+  .anim{transition:all .22s ease;}
+  @media print{
+    body{background:#f1efe7 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10pt;}
+    body::before{display:none !important;}
+    .controls,.segctl,.btn,.toggle2,.tri-controls{display:none !important;}
+    .sec,.panel,.stage,figcaption,.reading,.coda,.strat,.distinct{break-inside:avoid;}
+    .sec-head{break-after:avoid;}
+  }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-companions">Companion Instruments</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Arguendo</span><span class="mh-meta">A review of labor standards · No. 7 · third, recast edition</span></div>
+    <div class="hero-head">
+      <p class="kicker">The architecture of an incomplete bargain</p>
+      <h1 class="title">The <span class="x">Line</span></h1>
+      <p class="standfirst">The employment contract is necessarily incomplete: it sells a capacity to labor over time that no document can fully specify. Wage-and-hour law is the state's mandatory completion of that contract — and it completes it the only way a continuum yields discrete dollars, <em>by cutting</em>. There are four cuts, and they are not parallel but a pipeline; uncertainty at any stage compounds down the line; every cut faces one inescapable trilemma; and where each cut falls is not a technicality but a choice about who bears the cost.</p>
+      <p class="disclaim">An analytical treatise, not legal advice · federal law (FLSA) with California contrasts · doctrine varies by jurisdiction and shifts with each administration · consult counsel for any real matter</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">gate · domain · price · residue</span><span class="ln"></span></div>
+
+  <!-- ============ §1 THE GROUND ============ -->
+  <section class="sec" id="ground">
+    <div class="sec-head"><span class="num">§ 1 · the ground</span><h2>Why the bargain is unfinished</h2><p class="sub">Before any line is drawn, ask what makes work resist the cut. The answer is not metaphysical but institutional — and it tells us exactly where the four boundaries must fall.</p></div>
+    <div class="lede read">
+      <p>A sale of bread ends when the loaf changes hands. The employment contract never closes that way, because it does not buy a finished thing — it buys a <em class="term">capacity to labor over time</em>, exercised later, under direction not yet given. Coase saw why the firm exists at all: some coordination is too contingent to write down, so the parties substitute an open-ended relation of authority for a complete schedule of trades. Simon made the form precise — the worker agrees to accept the employer's direction within a zone, in exchange for a wage — which is to say the contract is <em>deliberately incomplete</em>, a frame around a space it leaves blank.</p>
+      <p>That blankness is not a drafting failure to be cured by better lawyers. It is constitutive. No instrument can specify, in advance, every minute that will count as working, every task that will fall inside the job, every gradation of effort, every contingency of the day. The wage is paid against time-and-availability whose content is settled only as it is lived. And because one party writes the rules and keeps the records, the blank space is also a space of power.</p>
+      <p>Wage-and-hour law is what fills that space — not by agreement, which is why its core protections cannot be waived, but by command. It is the mandatory backstop that completes the contract at exactly the margins the parties left open or that advantage would exploit. And the completion has a shape: the law must take heterogeneous, continuous human activity and render it in one homogeneous metric — dollars per hour. <em class="term">Commensuration of a continuum always leaves a residue at the boundary</em>, and the boundaries are precisely the four dimensions along which the contract was left unfinished.</p>
+      <p>Why by command, and not by a default the parties could contract around? Because the incompleteness here is not symmetric, and three features of the wage relation make a merely optional floor worthless. The labor is <em>sunk and perishable</em>: the worker supplies it before any dispute about its boundaries can arise and cannot withdraw it after, so she is held up ex post — the textbook problem of a relationship-specific investment with no outside option once made. The information is <em>one-sided</em>: the employer writes the schedule and keeps the records, so the worker frequently cannot even know she was underpaid. And waiver carries an <em>externality</em>: the worker who bargains away the floor lowers it for the next, because firms compete on labor cost — a race to the bottom no individual can refuse alone. Each feature defeats a default rule, and — this is the part worth holding onto — each dictates the shape of a particular cut downstream. The holdup is why coverage is mandatory and misclassification actionable; the asymmetry is why the proof cut puts the burden on the record-keeper; the externality is why the floor is fixed collectively and cannot be contracted around (<i>Brooklyn Savings Bank v. O'Neil</i>; <i>Barrentine</i>). The architecture of the doctrine is already legible in the economics of the bargain.</p>
+    </div>
+    <div class="stage" style="max-width:46rem;">
+      <div class="panel">
+        <p class="panel-cap">What the contract leaves blank — and what completes it</p>
+        <svg id="groundSvg" viewBox="0 0 600 250" role="img" aria-label="The employment contract sells a span of capacity over time, leaving four dimensions underspecified: who, when, what worth, and what occurred."></svg>
+      </div>
+      <figcaption>The wage relation fixes a frame — a person, hired, paid over a span — and leaves four things open: <b>who</b> is truly inside the relation, <b>when</b> the capacity is being drawn upon, <b>what</b> a unit of it is worth, and <b>what in fact occurred</b>. Each blank is a boundary the law must draw; together they are the whole of wage-and-hour doctrine.</figcaption>
+    </div>
+  </section>
+
+  <!-- ============ §2 THE PIPELINE ============ -->
+  <section class="sec" id="pipeline">
+    <div class="sec-head"><span class="num">§ 2 · the pipeline</span><h2>Four cuts, in series</h2><p class="sub">The boundaries are not parallel problems but a pipeline of <i>quantizers</i> — each forcing the continuum through a discrete legal category — and the error each introduces propagates and compounds into dollars downstream.</p></div>
+    <div class="reading">
+      <p>Here is the operation the four cuts share — what makes them one problem and not four. Each forces a <em class="term">continuous, many-dimensional reality</em> through a <em>discrete</em> legal category: how economically integrated a worker is, collapsed to employee-or-not; how much of the continuum is work, collapsed to counted-or-not; what an hour is worth, collapsed to a single dollar figure; how certain we are, collapsed to proven-or-not. That operation has a name in information theory — <em class="term">quantization</em>, the encoding of a continuous signal into a finite alphabet — and §7 shows it carries an unavoidable cost. The four are not quite uniform: three quantize the continuum into a <em>decision</em> — in or out, counted or not, proven or not — while valuation quantizes it into a <em>measurement</em>, a dollar figure, and that lone difference is why self-reference surfaces only at the price (Cut III), where the rate is read off a total that already contains it. First, though, the structure. The cuts compose into a pipeline, and the order is not incidental. <em class="term">Coverage</em> is a gate: a covered employee, of a covered enterprise, outside any exemption — a switch that, if open, zeroes everything after it. <em class="term">Compensability</em> defines the domain: which slices of the continuum enter the count as hours. <em class="term">Valuation</em> prices each unit: the regular rate. <em class="term">Proof</em> allocates the residual doubt about all three. Schematically, exposure is a product — coverage, times the compensable hours, times the rate, scaled by the penalties — and because it is a product, error does not add. It <em>multiplies</em>.</p>
+      <p class="cont">This is the structural fact the technicalities obscure. A twenty-percent dispute about hours and a fifteen-percent dispute about the rate do not make a thirty-five-percent quarrel; multiplied, they open a band of exposure roughly twice as wide at the top as at the bottom. The gate, being a zero-or-one, can extinguish a vast sum or unlock it on a single ruling. And the proof cut decides who stands inside that compounded band. Run the pipeline below: set the disputes, open or close the gate, and watch a modest disagreement at each stage become an immodest range of dollars — the range within which every case is actually settled.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <p class="panel-cap">The exposure pipeline — set each stage's dispute and watch the band compound</p>
+        <div class="pipeflow" id="pipeFlow"></div>
+        <div class="controls" style="margin-top:1.5rem">
+          <div class="ctl"><span class="ctl-lab">coverage gate</span><div class="segctl gate" id="pipeGate"><button data-g="1" class="on">covered</button><button data-g="0">not covered</button></div></div>
+          <div class="ctl"><span class="ctl-lab">hours dispute ±</span><input type="range" id="pipeH" min="0" max="40" step="5" value="20"><span class="ctl-val tnum" id="pipeHVal">20%</span></div>
+          <div class="ctl"><span class="ctl-lab">rate dispute ±</span><input type="range" id="pipeR" min="0" max="40" step="5" value="15" class="ochre"><span class="ctl-val tnum" id="pipeRVal">15%</span></div>
+          <div class="ctl"><span class="ctl-lab">liquidated?</span><div class="segctl" id="pipeLiq"><button data-l="0" class="on">single</button><button data-l="1">doubled</button></div></div>
+          <div class="ctl"><span class="ctl-lab">period</span><div class="segctl" id="pipePeriod"><button data-p="1" class="on">2 yr</button><button data-p="1.5">3 yr · willful</button></div></div>
+          <div class="ctl"><span class="ctl-lab">records</span><div class="segctl" id="pipeRec"><button data-r="kept">kept</button><button data-r="missing" class="on">missing</button></div></div>
+        </div>
+        <div class="band-wrap">
+          <div class="band-scale" id="bandScale"></div>
+          <div class="band-read" id="bandRead"></div>
+        </div>
+        <figcaption><span class="mono">exposure = gate × hours × rate × liquidated × period — </span>the stipulated midpoint is a $2,500 overtime-premium claim over a two-year period. The shaded band is the range the multiplied disputes open; the dashed line is the midpoint; the <span style="color:var(--rust)">marker</span> is what the plaintiff can actually recover. <b>Willfulness multiplies twice</b> — it doubles the award as liquidated damages (§ 216(b)) <i>and</i> adds the third year to the class period (§ 255(a)), a combined ×3. When records are <b>missing</b>, the proof cut (§6) resolves the band against the employer and recovery rides near the top; when <b>kept</b>, it collapses to a point. This is why the gate and the proof stage draw the most litigation: one is dispositive, the other allocates everything the middle made uncertain.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ §3 CUT I — THE GATE ============ -->
+  <section class="sec" id="gate">
+    <div class="sec-head"><span class="num">cut I · the gate</span><h2>Who is inside the relation</h2><p class="sub">Coverage is conjunctive — an employee, of a covered enterprise, not exempt — and each conjunct is its own contested line. The same worker can fall on either side, not because the facts differ but because the tests integrate them differently.</p></div>
+    <div class="stage">
+      <div class="panel">
+        <p class="panel-cap">Set the worker's reality — three tests, three ways of cutting one spectrum</p>
+        <div class="class-grid">
+          <div class="factors" id="classFactors"></div>
+          <div class="verdicts" id="classVerdicts"></div>
+        </div>
+        <p class="class-disagree" id="classDisagree"></p>
+        <figcaption><span class="mono">the same facts, integrated differently — </span>the common-law test screens essentially on <b>control</b>. The FLSA's <b>economic-reality</b> test weighs the totality — control, profit and loss, investment, skill, permanence, how integral the work is — as a holistic balance in which <i>no factor is decisive and the count is expressly not mechanical</i> (the DOL's 2024 rule restored exactly this). California's <b>ABC test</b> is categorically different: a <i>conjunction</i> of three independently necessary conditions, where prong B — work outside the usual course of the business — is nearly dispositive on its own (<i>Dynamex</i>; Lab. Code § 2775). One test integrates over everything; the other applies a near-lexical screen. Hence the divergence.</figcaption>
+      </div>
+      <div class="reading">
+        <p><span class="lead-in">three cuts hiding in one&nbsp;&nbsp;</span>The gate is usually spoken of as a single question — employee or not — but it is three. First, employee versus independent contractor, governed above. Second, and almost always assumed away for large firms, enterprise or individual <em>coverage</em>: the FLSA reaches employees of enterprises engaged in commerce above a revenue floor, or individuals themselves engaged in commerce. Third, and most heavily litigated in practice, the <em class="term">exemptions</em> — and the exemptions are a hybrid cut in miniature. A white-collar exemption requires a salary <i>basis</i>, a salary <i>level</i> (a bright-line dollar threshold, a pure rule, and one currently in flux as the 2024 increase was struck down and relitigated), and a <i>duties</i> test — "primary duty," "discretion and independent judgment with respect to matters of significance" — which is irreducibly evaluative. The employer bears the burden of proving the exemption, and the interpretive thumb has shifted: <i>Encino Motorcars v. Navarro</i> (2018) retired the old canon that exemptions are "narrowly construed" in favor of a "fair reading," nudging marginal cases toward exemption.</p>
+      </div>
+      <div class="strat">
+        <p class="strat-lab">strategic stakes — the gate is dispositive and class-wide</p>
+        <p>Because coverage multiplies the whole pipeline by zero or one, it is the highest-leverage attack in the field: a single classification ruling flips an entire workforce at once, which is why misclassification is pleaded first and certified as a class. In California, prong B makes many gig and platform arrangements nearly <b>unwinnable</b> for the hiring entity — if the workers do the company's core work, A and C rarely matter. Exemption fights, by contrast, turn on the <b>duties standard</b>, which resists summary judgment precisely because it is evaluative — and a claim that survives summary judgment is a claim that settles. The defense response runs the other way: structure genuine independence (and document it), and engineer roles to satisfy the duties test cleanly rather than litigate it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ §4 CUT II — THE DOMAIN ============ -->
+  <section class="sec" id="domain">
+    <div class="sec-head"><span class="num">cut II · the domain</span><h2>Which time counts</h2><p class="sub">Compensability is two cuts that are constantly conflated: a categorical one — is this activity work at all? — and a quantum one — even if it is, is the amount too small to count? They are sequential, and they can diverge.</p></div>
+    <div class="distinct">
+      <div class="dc cat"><div class="dh">the categorical cut · 0 or 1</div><div class="dt"><b>Is the activity compensable work?</b> Governed by the principal-activity and <i>integral-and-indispensable</i> test: an intrinsic element of the job that the worker cannot dispense with. Donning required protective gear qualifies (<i>Steiner</i>); a post-shift anti-theft screening does not (<i>Busk</i>). Once the first principal activity occurs, the continuous workday runs to the last (<i>IBP v. Alvarez</i>).</div></div>
+      <div class="dc quant"><div class="dh">the quantum cut · how much</div><div class="dt"><b>If it is work, is the amount trivial?</b> Governed by <i>de minimis</i>: split-second bits may be disregarded, weighed by regularity, aggregate size, and the difficulty of recording (<i>Mt. Clemens</i>; <i>Lindow</i>). California sets this threshold to zero for work that regularly recurs (<i>Troester</i>), so the quantum cut all but disappears there.</div></div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <p class="panel-cap">A warehouse shift — the categorical cut colors each task; the quantum cut governs the contested sliver</p>
+        <div class="tl-wrap">
+          <div class="tl-track" id="tlTrack"></div>
+          <div class="tl-legend">
+            <span><span class="tl-sw" style="background:var(--ochre-soft);border-color:var(--ochre-line)"></span> compensable</span>
+            <span><span class="tl-sw" style="background:repeating-linear-gradient(45deg,var(--ochre-soft),var(--ochre-soft) 3px,rgba(27,26,23,.03) 3px,rgba(27,26,23,.03) 6px)"></span> work, but de minimis</span>
+            <span><span class="tl-sw" style="background:rgba(27,26,23,.035)"></span> not compensable</span>
+            <span><span class="tl-sw" style="background:var(--blue);border:none"></span> the workday's edge</span>
+          </div>
+          <div class="tl-detail" id="tlDetail"></div>
+          <div class="controls" style="margin-top:.3rem">
+            <div class="ctl"><span class="ctl-lab">pre-shift boot-up</span><input type="range" id="tlMin" min="0" max="15" step="0.5" value="3"><span class="ctl-val tnum" id="tlMinVal">3.0 min</span></div>
+            <div class="ctl"><span class="ctl-lab">quantum rule</span><div class="segctl" id="tlJuris"><button data-j="flsa" class="on">FLSA · de minimis</button><button data-j="cal">California · Troester</button></div></div>
+          </div>
+          <p class="tl-readout" id="tlReadout"></p>
+        </div>
+        <figcaption><span class="mono">two cuts, applied in order — </span>boot-up runs the sequence in miniature. <b>First, the categorical cut</b>: is booting a required terminal integral and indispensable? There is a strong case that it is — you cannot perform the principal work without it, as with donning required gear — so it falls inside the continuous workday (the blue edge moves to include it). <b>Then, the quantum cut</b>: federally, a small and irregular sliver may still be brushed aside as de minimis (shown hatched — categorically work, yet disregarded); in California, recurring minutes count, and the hatch resolves to solid. The two cuts are independent: an activity can be work <i>and</i> de minimis, or not work at any size.</figcaption>
+      </div>
+      <div class="reading">
+        <p><span class="lead-in">why the conflation matters&nbsp;&nbsp;</span>Running the two cuts together is the most common analytical error in compensability, and it changes outcomes. Treating boot-up as "de minimis, so non-compensable" skips the prior question — whether it is a principal activity that <i>opens the workday</i>, which, if so, makes the subsequent walking and waiting compensable regardless of the boot-up's own size. The categorical cut sets the workday's boundaries; the quantum cut only trims the edges within them. <i>Troester</i> is best read not as inventing a new category but as refusing the quantum cut for recurring work — leaving the categorical analysis to do the heavy lifting, as it should.</p>
+      </div>
+      <div class="strat">
+        <p class="strat-lab">strategic stakes — off-the-clock exposure is assembled from both cuts</p>
+        <p>Plaintiffs build off-the-clock claims on two rails. The <b>categorical</b> rail: rounding that systematically nets against employees (lawful only if neutral — <i>See's Candy</i>), meal breaks auto-deducted but not truly duty-free, pre- and post-shift tasks that are principal activities. The <b>quantum</b> rail: aggregate the seconds across the workforce and the limitations period until they are unmistakably substantial — <i>Troester's</i> arithmetic, ninety seconds a day into hours a year. The liability hinge is the employer's <b>actual or constructive knowledge</b> of the unrecorded work; and because modern timekeeping can capture nearly anything, the administrative-difficulty rationale that once justified de minimis is eroding. Defense: audit rounding for neutrality, make auto-deductions rebuttable and policed, and — above all — capture the time, which moots the quantum cut entirely.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ============ §5 CUT III — THE PRICE ============ -->
+  <section class="sec" id="price">
+    <div class="sec-head"><span class="num">cut III · the price</span><h2>What a unit is worth</h2><p class="sub">Overtime is one-and-a-half times the regular rate — but the regular rate is a value that depends on total pay, and total pay depends on overtime, which depends on the regular rate. When pay refers to pay, the price must solve for itself.</p></div>
+    <div class="stage">
+      <div class="panel">
+        <p class="panel-cap">Build the pay structure — watch the regular rate resolve, and where it must, iterate</p>
+        <div class="calc-grid">
+          <div class="calc-inputs">
+            <div class="struct">
+              <span class="struct-lab">pay structure</span>
+              <div class="segctl" id="calcStruct" style="display:flex;flex-direction:column;align-items:stretch">
+                <button data-s="plain" class="on">hourly — no bonus</button>
+                <button data-s="flat">hourly + flat bonus → recompute</button>
+                <button data-s="pct">bonus = % of earnings → § 778.210 fixed point</button>
+                <button data-s="rec">bonus = % of total comp → recursive</button>
+                <button data-s="fww">salary · fluctuating workweek → floats</button>
+              </div>
+            </div>
+            <div class="ctl"><span class="ctl-lab">hours worked</span><input type="range" id="calcH" min="40" max="70" step="1" value="50"><span class="ctl-val tnum" id="calcHVal">50</span></div>
+            <div class="ctl" id="calcWWrap"><span class="ctl-lab">hourly rate</span><input type="range" id="calcW" min="10" max="40" step="1" value="20"><span class="ctl-val tnum" id="calcWVal">$20</span></div>
+            <div class="ctl" id="calcBWrap"><span class="ctl-lab" id="calcBLab">bonus</span><input type="range" id="calcB" min="0" max="400" step="20" value="100"><span class="ctl-val tnum" id="calcBVal">$100</span></div>
+            <div class="ctl" id="calcSWrap" style="display:none"><span class="ctl-lab">weekly salary</span><input type="range" id="calcS" min="400" max="1200" step="20" value="600"><span class="ctl-val tnum" id="calcSVal">$600</span></div>
+          </div>
+          <div>
+            <div class="calc-readout" id="calcReadout"></div>
+            <div id="calcInsight"></div>
+          </div>
+        </div>
+        <figcaption><span class="mono">the rate is an actual fact, computed — </span>the regular rate is total straight-time pay over hours, and it must <b>include</b> nondiscretionary pay (29 C.F.R. § 778.108–.209); only the eight categories of § 207(e) — gifts, true discretionary bonuses, paid leave, reimbursements, certain premiums — stay out. The line that does the work is <i>discretionary vs nondiscretionary</i>: a bonus escapes the rate only if both its fact and its amount are withheld to the employer's sole discretion until the end (§ 207(e)(3)); anything announced or expected — production, attendance, retention — is in. The flat bonus springs the trap silently; the percentage-of-earnings bonus is the one structure that is its own overtime premium (§ 778.210); tie the bonus to total compensation and the definition becomes genuinely <b>recursive</b>; and the fluctuating workweek makes the rate <i>float</i> downward with every added hour (<i>Missel</i>).</figcaption>
+      </div>
+      <div class="reading">
+        <p><span class="lead-in">a price that solves for itself&nbsp;&nbsp;</span>Fix the wage in dollars and the loop is degenerate: the rate is just pay over hours. But make a bonus a percentage of total compensation — including the overtime that the bonus itself generates — and the definition closes on its own output. The lawful figure is then the solution of an equation, <span class="mono">T = (wH + p·T)·c</span>, where <span class="mono">c</span> folds the overtime premium into straight-time remuneration. Because that map is an affine contraction — each pass multiplies the gap by <span class="mono">p·c &lt; 1</span> — it has a unique fixed point, and naïve iteration walks straight to it: pay the bonus, see the rate rise, recompute the overtime, which enlarges the bonus, and so on, the corrections shrinking geometrically to <span class="mono">wH·c / (1 − p·c)</span>. The percentage-of-earnings safe harbor of § 778.210 is simply that closed form pre-solved, which is why it needs no recomputation at all.</p>
+        <p class="cont">It is worth being exact about the kinship and its limit. This is a Banach fixed point — a contraction on the real line — not the diagonal, categorical fixed point that forces incompleteness and recursion in the companion essay on self-reference. The resonance is structural: in both, a definition is permitted to reference its own result, and the lawful or consistent value is the one that reproduces itself. The mathematics differs; the shape of the problem does not.</p>
+      </div>
+      <div class="strat">
+        <p class="strat-lab">strategic stakes — the rate is a damages multiplier</p>
+        <p>An understated regular rate underpays <b>every</b> overtime hour, for <b>every</b> affected worker, across the entire limitations period — and is then <b>doubled</b> as liquidated damages unless the employer proves good faith (29 U.S.C. § 216(b)). A systematic rate error of a few percent — a nondiscretionary bonus quietly left out of the rate — is therefore one of the largest exposures in the field, far out of proportion to its per-hour size. Plaintiffs audit pay codes for any nondiscretionary remuneration excluded from the rate; defendants either fold bonuses into the § 778.210 structure or make them genuinely discretionary, and document the basis for any fluctuating-workweek arrangement, whose conditions most employers fail. California raises the stakes again: under <i>Ferra v. Loews</i> (2021), even meal- and rest-period premiums are owed at the <b>regular rate of compensation</b>, nondiscretionary pay included — not the bare base wage — so the same rate error reverberates beyond overtime into the premium-pay claims.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ §6 CUT IV — THE RESIDUE ============ -->
+  <section class="sec" id="residue">
+    <div class="sec-head"><span class="num">cut IV · the residue</span><h2>What is owed when no one can say</h2><p class="sub">The first three cuts run through the world; this one runs through our knowledge of it. Because the edges are fuzzy and the duty to record falls on one party, the last cut decides who bears the doubt the others leave behind.</p></div>
+    <div class="stage">
+      <div class="panel">
+        <p class="panel-cap">The compounded band from §2, now allocated — toggle whether the employer kept records</p>
+        <div class="proof-grid">
+          <div><svg id="proofSvg" viewBox="0 0 460 300" role="img" aria-label="The band of uncertain hours, and which party bears it depending on whether records were kept."></svg></div>
+          <div>
+            <div class="controls" style="justify-content:flex-start;margin-bottom:1.1rem">
+              <div class="ctl"><span class="ctl-lab">employer's records</span><div class="segctl" id="proofRec"><button data-r="yes">kept</button><button data-r="no" class="on">missing</button></div></div>
+            </div>
+            <div class="proof-readout" id="proofReadout"></div>
+          </div>
+        </div>
+        <figcaption><span class="mono">uncertainty is allocated, not discovered — </span>the employer must keep accurate records (§ 211(c)). Where it has not, the employee carries her burden by proving she worked uncompensated and showing the amount by <b>just and reasonable inference</b>; the burden then shifts to the employer to produce precise evidence or negate the inference, and absent that an approximate award stands (<i>Mt. Clemens</i>). The crucial limit: the shift runs to the <b>amount</b> of damages, never to the <b>fact</b> of the violation — the worker must still prove a wrong occurred. At scale, a representative time study can carry the amount classwide (<i>Tyson Foods</i>), provided the damages model matches the liability theory (<i>Comcast</i>) and common questions are not swamped by individual ones (<i>Dukes</i>).</figcaption>
+      </div>
+      <div class="reading">
+        <p><span class="lead-in">the engine, and its precise limit&nbsp;&nbsp;</span>The burden-shift is the plaintiff's evidentiary engine: the employer's own record-keeping failure converts the worker's testimony into a prima facie case and forces the defense to disprove a negative. But its precision matters in both directions. It does not manufacture liability — a plaintiff who cannot show that <i>some</i> uncompensated work occurred gets nothing, however poor the records. What it does is relax the exactness of <i>quantum</i> once liability is shown, shifting to the wrongdoer the risk of the very imprecision its silence created. That is why, in the pipeline of §2, missing records push recovery toward the top of the compounded band: the doubt the first three cuts generated is resolved against the party who could have dispelled it and chose not to.</p>
+      </div>
+      <div class="strat">
+        <p class="strat-lab">strategic stakes — the burden-shift sets settlement value</p>
+        <p>Coupled with representative proof, <i>Mt. Clemens</i> is what makes wage-and-hour <b>class and PAGA</b> actions viable, and it drives settlement toward the high end of the band — the defendant, not the plaintiff, bears the fuzziness the records would have removed. In California, the lever is sturdier still: manageability cannot be used to strike a PAGA claim wholesale (<i>Estrada</i>, 2024), and while arbitration can carve off the individual PAGA claim, the representative claim survives (<i>Viking River</i>; <i>Adolph</i>). The entire defense reduces to one imperative — <b>records, records, records</b>: accurate, contemporaneous timekeeping collapses the band to a point, restores the ordinary burden of proof, and denies the plaintiff the inference that would otherwise do all the work.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ §7 THE CONSTRAINT ============ -->
+  <section class="sec" id="constraint">
+    <div class="sec-head"><span class="num">§ 7 · the constraint</span><h2>The cost of the cut</h2><p class="sub">The earlier edition asserted the trilemma; here it is derived from a single decomposition — and shown to turn on a quantity the triangle hides: how much reliable fact the system can bear.</p></div>
+    <div class="reading">
+      <p>In §2 each cut became a <em class="term">quantizer</em> of the continuum; here is what quantizing costs, and why no cut can pay nothing. Treat a legal rule as an <em class="term">estimator</em> — a procedure that takes the facts of a case and returns the outcome the law is after. Statistical learning theory decomposes any estimator's expected error into three parts, and they are exactly our three corners. <em class="term">Approximation error</em> — how far the best rule of its kind can sit from the truth — is infidelity, and it is large for a coarse rule that cannot bend to the cases. <em class="term">Estimation error</em> — how much the rule's output swings with the particular facts a tribunal happens to find — is indeterminacy, and it is large for a rich rule read from sparse evidence. And <em class="term">complexity</em> — how much the rule must say to specify itself — is the cost of administering it. The corners are not three analogies bolted together; they are the three terms of one decomposition.</p>
+      <p class="cont">What forbids having all three small at once is a bound, not a mood. To shrink approximation error you must enrich the rule — move it toward a standard, give it more degrees of freedom to fit the cases. But a richer rule has more ways to go wrong on limited evidence, so its estimation error grows; structural-risk theory makes the growth precise — estimation error rises with complexity and falls with the quantity of reliable fact. So fidelity demands complexity, and complexity, unless paid for in evidence, buys indeterminacy. The only escape is to spend the third resource outright: a detailed code drives both errors down by enumerating the answer for every case — effectively supplying its own evidence — and pays for it in sheer complexity, the administrability cost. Determinate, faithful, administrable: hold any two, surrender the third. That is the trilemma, and it is now an identity with a bound behind it, not a slogan.</p>
+      <p class="cont">Two quantities therefore govern where the optimal cut falls, and the second is the one the triangle hides. The first is the <em class="term">heterogeneity</em> of the domain — how varied the cases are — and a varied domain punishes a rule's bias, pushing the optimum toward a standard. The second is the <em class="term">evidentiary budget</em> — how much reliable fact the system can actually ascertain and process — and this is nothing other than what the proof cut of §6 governs. When facts are cheap and certain, a standard's estimation error is tamed and the law can afford fidelity; when proof is dear, a rule's determinacy is worth more than a standard the tribunal cannot reliably apply. This is why the case for a compensability <em>standard</em> strengthened exactly as timekeeping technology improved: <i>Troester</i> reasoned that the old administrative-difficulty excuse for the de minimis rule no longer holds once employers can capture the time. The proof cut does not merely allocate residual doubt downstream — the cost of proof feeds back to set the optimal shape of every other cut. Move both sliders below, the variety of the world and the evidence the system can bear, and watch the loss-minimising cut respond.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <p class="panel-cap">The three errors of one estimator — and the two quantities that move the optimal cut</p>
+        <div class="bv-grid">
+          <div><svg id="bvSvg" viewBox="0 0 460 300" role="img" aria-label="Approximation error falls and estimation error rises as a rule becomes a standard; total expected loss is U-shaped, and its interior optimum moves toward the standard as the domain's heterogeneity or the evidentiary budget rises."></svg></div>
+          <div class="bv-readout" id="bvReadout"></div>
+        </div>
+        <div class="controls" style="margin-top:1.4rem">
+          <div class="ctl"><span class="ctl-lab">rule ↔ standard</span><input type="range" id="bvX" min="0" max="100" step="1" value="35"><span class="ctl-val tnum" id="bvXVal">35%</span></div>
+          <div class="ctl"><span class="ctl-lab">heterogeneity of domain</span><input type="range" id="bvH" min="5" max="100" step="5" value="70" class="ochre"><span class="ctl-val tnum" id="bvHVal">70%</span></div>
+          <div class="ctl"><span class="ctl-lab">evidentiary budget</span><input type="range" id="bvM" min="20" max="100" step="5" value="50"><span class="ctl-val tnum" id="bvMVal">1.0×</span></div>
+        </div>
+        <figcaption><span class="mono">expected loss = approximation² + estimation + noise — </span><span style="color:var(--ochre-deep)">approximation error</span> (a coarse rule's systematic miss) falls as the cut moves toward a standard; <span style="color:var(--blue-deep)">estimation error</span> (its swing on the evidence at hand) rises, the faster the scarcer the proof. Their sum is U-shaped; its minimum is the best available cut. The optimum slides toward the standard as the domain grows more <b>heterogeneous</b> <i>or</i> the <b>evidentiary budget</b> grows — which is why a fixed de minimis threshold can be a rule while employee status must be a standard, and why better timekeeping (a larger budget) strengthened the case for a compensability standard in <i>Troester</i>. The proof cut sets the budget; the budget sets the shape of every other cut.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <h3>The triangle is traversed, not occupied</h3>
+      <p>The trilemma is not a one-time choice; rules and standards <i>migrate</i>. A bright-line rule, applied to the cases it betrays, accretes exceptions to cure the unfairness — and a rule riddled with exceptions is a standard. A standard, applied case after case, hardens into presumptions and safe harbors as courts hunt for predictability — and a standard reduced to presumptions is a rule. The field drifts, perpetually, between the corners; reform is the deliberate relocation of a doctrine across the triangle. Watch one such move below: California's AB5 took worker classification from the open <i>Borello</i> standard and dragged it toward the categorical ABC rule — buying determinacy and administrability, paying in fidelity, on a bet that the domain was uniform enough to bear it. The doctrines scatter across the space because the space has no stable centre to settle in.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="trilemma">
+          <div><svg id="triSvg" viewBox="0 0 440 400" role="img" aria-label="A triangle of determinacy, fidelity, and administrability, with wage-and-hour doctrines plotted by where they sit, and a reform shown as a movement."></svg></div>
+          <div class="tri-readout" id="triReadout"></div>
+        </div>
+        <div class="tri-controls">
+          <button class="segctl" id="triReformBtn" style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.04em;color:var(--ochre-deep);background:var(--ochre-soft);border:1px solid var(--ochre-line);border-radius:2px;padding:.5rem .9rem;cursor:pointer">▶ play the AB5 reform — Borello → ABC</button>
+        </div>
+        <figcaption><span class="mono">tap an edge for the pair it keeps; the dots are real doctrines placed by where they sit — </span>the salary-level test and ABC prong B near the rule corner (determinate, administrable, blunt); the economic-reality and integral-and-indispensable standards near fidelity (accurate, unpredictable); the Part 778 regulations near the code edge (determinate and faithful, and famously unwieldy). The field is a scatter across an impossibility, and <b>reform is motion</b>: AB5 is an arrow from the <i>Borello</i> standard to the ABC rule.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ §8 THE GAME ============ -->
+  <section class="sec" id="game">
+    <div class="sec-head"><span class="num">§ 8 · the game</span><h2>The rule invites the move</h2><p class="sub">A cut is not drawn against passive facts. The regulated party rearranges itself around the line — and that response changes what each cut actually costs, in ways the boundary error alone never shows.</p></div>
+    <div class="reading">
+      <p>A cut is drawn against a party who will rearrange the facts to its advantage, which makes the setting of any line a mechanism-design problem: the regulator must choose the quantizer knowing it will be optimised against. The sharpest consequence falls on bright lines. Wherever crossing the line yields a discrete benefit — a salary at the threshold buys the exemption, an hour under forty avoids the premium, a contract just clearing prong B escapes employee status — the regulated party crowds the favourable edge. The employer does not pay what the job is worth or schedule the hours the work needs; it pays exactly the line and schedules exactly to it. Economists call the pile-up <em class="term">bunching</em>, and it is measurable: a spike sits in the salary distribution precisely at the exemption threshold, with a hole carved just beneath. Raise the stakes below and watch the spike grow — and switch to a standard to watch it vanish.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <p class="panel-cap">Bunching at a bright line — employers crowd the favourable side of a threshold</p>
+        <div class="bv-grid">
+          <div><svg id="bunchSvg" viewBox="0 0 460 270" role="img" aria-label="A salary distribution develops a spike exactly at the exemption threshold, with a hole just below, as employers move workers to the line; an open standard leaves the distribution undisturbed."></svg></div>
+          <div class="bv-readout" id="bunchReadout"></div>
+        </div>
+        <div class="controls" style="margin-top:1.4rem">
+          <div class="ctl"><span class="ctl-lab">overtime at stake</span><input type="range" id="bunchV" min="2" max="18" step="2" value="8"><span class="ctl-val tnum" id="bunchVVal">$8k</span></div>
+          <div class="ctl"><span class="ctl-lab">regime</span><div class="segctl gate" id="bunchReg"><button data-r="rule" class="on">bright-line rule</button><button data-r="std">open standard</button></div></div>
+        </div>
+        <figcaption><span class="mono">the rule's hidden bias — </span>where a threshold confers a discrete benefit, the underlying distribution (the faint curve) is deformed into a <span style="color:var(--ochre-deep)">spike</span> at the line and a hole below it: jobs that should pay a little less are pushed up to exactly the threshold. That excess mass is a cost the boundary-error number never sees — the rule distorts the behaviour of the very cases it classifies correctly. A <b>standard</b> has no precise edge to crowd, so it is not gamed; it pays for that with the unpredictability of §7. Gaming and uncertainty are the two prices of fidelity.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Two consequences fall out. First, a rule's true bias exceeds its boundary error: beyond the cases it misclassifies, it <em>distorts the cases it does not</em>, paying a crowd of workers exactly the line rather than their worth — and a standard, having no line to crowd, escapes this particular cost even as it incurs the other. Second, the line is where the law is made and unmade. The cases that litigate are the close ones — clear cases settle, as Priest and Klein observed — so the disputes that reach courts cluster at the very boundary the cut cannot get right, and the doctrine is forever built, and forever destabilised, at its own edge. The regulator's question is therefore not "where is the correct line" but "where is the line that survives the response it provokes" — which is why reform is less a discovery than a move in a game that does not end.</p>
+    </div>
+    <div class="strat">
+      <p class="strat-lab">strategic stakes — the misclassification perfect storm</p>
+      <p>The cleanest place to watch the four cuts compound is the salaried employee misclassified as exempt. When the exemption fails, every cut breaks the same way at once. The <b>gate</b> flips — the worker was nonexempt all along. The <b>price</b> must be reconstructed from scratch: there was never an hourly rate, so the parties fight over whether the salary bought straight time only (a high regular rate, full overtime on top) or all hours worked (the fluctuating-workweek theory, a much lower one). The <b>domain</b> is wide open, because an employee treated as exempt was never clocked — there are <b>no time records at all</b> — and the <b>residue</b> cut hands that absence to the plaintiff, who proves her hours by reasonable inference under <i>Mt. Clemens</i>. Then willfulness doubles the award and adds the third year. The exposures do not add; they multiply, and one classification error becomes the largest number in the case — the pipeline of §2 at full compounding, in the most ordinary fact pattern in the field.</p>
+    </div>
+  </section>
+
+  <!-- ============ §9 SYNTHESIS ============ -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">§ 9 · synthesis</span><h2>The line is a distribution</h2><p class="sub">The last move is to see that where each cut falls is never neutral. To draw a line through the continuum of work is to decide who bears the cost of its being drawn there.</p></div>
+    <div class="reading">
+      <p>Assemble the architecture. Wage-and-hour law is the mandatory completion of a contract that is constitutively incomplete, executed as a pipeline of four quantizers — gate, domain, price, residue — each paying the same rate–distortion price, with error compounding down the line and the proof cut charging the residue to whoever could have recorded it and did not. That is the structure. Two things follow, one strategic and one distributive.</p>
+      <p class="cont">The strategic one makes the pipeline operational. A case's settlement value is, to a first approximation, the expected judgment — the probability of liability times the damages if liable — adjusted for each side's litigation cost and appetite for risk. Lay that over the cuts and every term has an address. The <em>probability</em> is fixed almost entirely at the binary cuts, the gate and the categorical compensability question, which a case wins or loses outright. The <em>expected damages</em> are the midpoint of the compounded band: hours times rate times the penalties. The <em>risk</em> the parties price is the band's <em>width</em>. And the proof cut moves two terms at once — missing records both raise the chance of establishing the violation and slide the conditional damages toward the top of the band — which is why the burden-shift is worth more than it appears, and why the presence or absence of timekeeping, more than any single legal question, sets where a case settles. Willfulness then scales the whole figure twice, doubling the award and adding the third year, a combined multiplier near three on everything beneath it. The map from doctrine to dollars is not loose; it is this product, and a litigator who knows which cut moves which factor knows where the money is.</p>
+      <p class="cont">The distributive one is the deeper, and it begins by noticing what the optimisation in §7 quietly assumed. To speak of an <em>optimal</em> cut — the one that minimises expected loss — is to presuppose a loss function: a settled account of the target the rule should track, against which approximation error is even defined. But the target of wage-and-hour law is not settled. Is it to pay workers for time actually worked, to shift surplus toward labour, to halt a race to the bottom, or to deter employer opportunism? These aims do not coincide, and they price the same error differently — so the loss-minimising cut is optimal only relative to a chosen objective, and choosing the objective is itself the distributive act. The machinery of §7 is real, but it runs only after someone has fixed the loss function, and fixing the loss function is not a technical step; it is the whole political question, entered as a premise. With that in view, the <em class="term">location</em> of each cut is plainly not neutral. A determinate bright line favours neither labour nor capital as such; it favours whoever benefits from where it is drawn — a daily-overtime rule transfers to workers, a high salary threshold that exempts more of them transfers away. An open standard does not split the difference; it relocates the contest to adjudication, advantaging the repeat player and the side that can bear delay and litigation risk. A detailed code advantages those who can afford the experts to read it. There is no neutral place to cut a continuum, because every cut both prices labour and allocates the risk of the pricing — and those are the very stakes the parties were fighting over.</p>
+      <p class="cont">This is why the lines never hold still. The independent-contractor rule, the salary threshold, the conditions on the fluctuating workweek — each flips with the administration, not because the law is unsettled in some remediable way, but because each is a contested position on a trilemma whose every point allocates between capital and labor. The technicalities you began with — the fractions, the exemptions, the counted and uncounted minutes — are the surface of a distributive struggle conducted in the grammar of line-drawing. The companion essay showed that self-reference forces every system rich enough to describe itself to surrender one of universality, negation, and consistency. This one closes on its sibling: the wage relation forces every legal order that would price labor to surrender one of determinacy, fidelity, and administrability — and that surrender is never abstract, because it always names a party to bear it.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,7rem)"><span class="ln"></span><span class="g mono">determinacy · fidelity · administrability</span><span class="ln"></span></div>
+  <div class="coda"><p>The continuum of work will not divide itself; the dollar insists that it must. Each cut the law makes is a position taken — knowing the cost — on an impossibility, and the bill is passed down the pipeline to whoever could not <span class="mono">record their way out of it.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Arguendo</span><span class="f-meta">A review of labor standards · No. 7 · third, recast edition</span></div>
+    <p class="colophon"><b>On method and limits.</b> This is an analytical essay, not legal advice, and it abstracts deliberately. It states federal law under the Fair Labor Standards Act with California as the recurring contrast; the rules differ by jurisdiction and shift with each administration — the independent-contractor regulation, the salary-level threshold, and the conditions on the fluctuating workweek have all changed repeatedly and remain contested. The classification model approximates as a tally a totality test that expressly forbids mechanical counting; treat its verdicts as illustrations of how holistic balancing and conjunctive screening diverge, not as predictions. The regular-rate figures assume a nonexempt employee and the § 207(e) exclusions; the fluctuating workweek carries strict conditions not shown.</p>
+    <p class="colophon"><b>On the two fixed points, and the one decomposition.</b> The recursion in Cut III is a contraction on the real line — a Banach fixed point — mathematically distinct from the diagonal, categorical fixed point of the companion essay on self-reference, with which it shares only its shape: a definition permitted to reference its own output, resolved at the value that reproduces itself. The trilemma is re-founded here on a single framework — the bias–variance–complexity decomposition of statistical learning, bounded by structural risk — in which fidelity is low approximation error, determinacy is low estimation error, and administrability is low complexity, and the three cannot be small together while the evidence is finite. The decomposition is an exact identity and the structural-risk relation an exact bound; the modelling step — treating a legal rule as an estimator of the law's target, a doctrine as a quantizer of the continuum of facts, and the proof regime as the supply of evidence — is where the rigour meets the metaphor. The decomposition is a theorem; that the law obeys it is an argument, though a strong one, and one that presupposes a loss function the law does not in fact settle (see §9). The §7 curves use stylised constants chosen for legibility; what they show <i>exactly</i> is the two comparative statics — that the loss-minimising cut slides toward the standard as the domain grows more heterogeneous, or as the evidentiary budget grows. What is exact throughout is the mathematics of the rate and the holdings cited; what is argued is that the field is one structure, and that the structure is the cost of quantizing a continuum under limited proof.</p>
+    <p class="refs"><b>Authorities.</b> &nbsp;FLSA, 29 U.S.C. § 201 et seq.; Portal-to-Portal Act, 29 U.S.C. § 251 et seq.; 29 C.F.R. Part 778 (regular rate), Part 541 (exemptions), Part 795 (independent contractor). &nbsp;<i>Brooklyn Savings Bank v. O'Neil</i>, 324 U.S. 697 (1945); <i>Barrentine v. Arkansas-Best</i>, 450 U.S. 728 (1981) (non-waivability) &nbsp;· &nbsp;<i>Rutherford Food Corp. v. McComb</i>, 331 U.S. 722 (1947) &nbsp;· &nbsp;<i>Dynamex v. Superior Court</i>, 4 Cal. 5th 903 (2018); Lab. Code § 2775; <i>S.G. Borello & Sons</i>, 48 Cal. 3d 341 (1989) &nbsp;· &nbsp;<i>Encino Motorcars v. Navarro</i>, 584 U.S. 79 (2018) &nbsp;· &nbsp;<i>Steiner v. Mitchell</i>, 350 U.S. 247 (1956); <i>IBP, Inc. v. Alvarez</i>, 546 U.S. 21 (2005); <i>Integrity Staffing v. Busk</i>, 574 U.S. 27 (2014); <i>Sandifer v. U.S. Steel</i>, 571 U.S. 220 (2014) &nbsp;· &nbsp;<i>Anderson v. Mt. Clemens Pottery</i>, 328 U.S. 680 (1946); <i>Lindow v. United States</i>, 738 F.2d 1057 (9th Cir. 1984); <i>Troester v. Starbucks</i>, 5 Cal. 5th 829 (2018) &nbsp;· &nbsp;<i>Overnight Motor v. Missel</i>, 316 U.S. 572 (1942); <i>Ferra v. Loews</i>, 11 Cal. 5th 858 (2021) &nbsp;· &nbsp;<i>Tyson Foods v. Bouaphakeo</i>, 577 U.S. 442 (2016); <i>Comcast v. Behrend</i>, 569 U.S. 27 (2013); <i>Wal-Mart v. Dukes</i>, 564 U.S. 338 (2011); <i>Estrada v. Royalty Carpet Mills</i>, 15 Cal. 5th 263 (2024); <i>Viking River Cruises v. Moriana</i>, 596 U.S. 639 (2022); <i>Adolph v. Uber</i>, 14 Cal. 5th 1104 (2023). &nbsp;Foundations: Coase, <i>The Nature of the Firm</i> (1937); Simon, <i>A Formal Theory of the Employment Relationship</i> (1951). &nbsp;Line-drawing: Kennedy, <i>Form and Substance</i> (1976); Kaplow, <i>Rules versus Standards</i> (1992).</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+(function(){
+const NS="http://www.w3.org/2000/svg";
+function S(t,a){const n=document.createElementNS(NS,t);if(a)for(const k in a)n.setAttribute(k,a[k]);return n;}
+function T(s){return document.createTextNode(s);}
+function E(tag,cls,html){const n=document.createElement(tag);if(cls)n.className=cls;if(html!=null)n.innerHTML=html;return n;}
+const $=id=>document.getElementById(id);
+const money=x=>"$"+x.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money0=x=>"$"+Math.round(x).toLocaleString("en-US");
+
+/* ============ §1 GROUND DIAGRAM ============ */
+(function drawGround(){
+  const s=$("groundSvg"); if(!s) return;
+  const defs=S("defs"); const mk=S("marker",{id:"gArr",viewBox:"0 0 10 10",refX:8,refY:5,markerWidth:6,markerHeight:6,orient:"auto"}); mk.appendChild(S("path",{d:"M0,0 L10,5 L0,10 z",fill:"var(--faintest)"})); defs.appendChild(mk); s.appendChild(defs);
+  s.appendChild(S("line",{x1:60,y1:30,x2:540,y2:30,stroke:"var(--faintest)","stroke-width":1,"marker-end":"url(#gArr)"}));
+  let tl=S("text",{x:300,y:19,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"9",fill:"var(--faint)","letter-spacing":".1em"}); tl.appendChild(T("THE SPAN THE WAGE IS PAID OVER")); s.appendChild(tl);
+  s.appendChild(S("rect",{x:60,y:40,width:480,height:30,rx:3,fill:"var(--blue-soft)",stroke:"var(--blue-line)","stroke-width":1}));
+  let bl=S("text",{x:300,y:59,"text-anchor":"middle","font-family":"Source Serif 4,serif","font-style":"italic","font-size":"13",fill:"var(--blue-deep)"}); bl.appendChild(T("what is sold: a capacity to labor, over time")); s.appendChild(bl);
+  const cols=[{x:90,who:"WHO",cut:"the gate",sub:"coverage"},{x:230,who:"WHEN",cut:"the domain",sub:"compensability"},{x:370,who:"WHAT WORTH",cut:"the price",sub:"valuation"},{x:510,who:"WHAT HAPPENED",cut:"the residue",sub:"proof"}];
+  cols.forEach(c=>{
+    s.appendChild(S("line",{x1:c.x,y1:70,x2:c.x,y2:108,stroke:"var(--panelhair)","stroke-width":1}));
+    let w=S("text",{x:c.x,y:100,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"9",fill:"var(--ochre-deep)","letter-spacing":".05em"}); w.appendChild(T(c.who)); s.appendChild(w);
+    s.appendChild(S("rect",{x:c.x-52,y:112,width:104,height:40,rx:2,fill:"none",stroke:"var(--faintest)","stroke-width":1,"stroke-dasharray":"4 3"}));
+    let q=S("text",{x:c.x,y:139,"text-anchor":"middle","font-family":"Libre Caslon Display,serif","font-size":"20",fill:"var(--faintest)"}); q.appendChild(T("?")); s.appendChild(q);
+    let cn=S("text",{x:c.x,y:172,"text-anchor":"middle","font-family":"Libre Caslon Display,serif","font-size":"13",fill:"var(--ink)"}); cn.appendChild(T(c.cut)); s.appendChild(cn);
+    let sb=S("text",{x:c.x,y:187,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--faint)","letter-spacing":".04em"}); sb.appendChild(T(c.sub)); s.appendChild(sb);
+  });
+  let foot=S("text",{x:300,y:218,"text-anchor":"middle","font-family":"Source Serif 4,serif","font-style":"italic","font-size":"12",fill:"var(--soft1)"}); foot.appendChild(T("four blanks the contract leaves open — and the four cuts that fill them")); s.appendChild(foot);
+})();
+
+/* ============ §2 PIPELINE + COMPOUNDING BAND ============ */
+let pGate=1,pDH=0.20,pDR=0.15,pLiq=0,pPeriod=1,pRec="missing";
+const PBASE=2500, AXMAX=15000;
+function pipeCalc(){
+  if(pGate===0) return {gate0:true};
+  const m=(pLiq?2:1)*pPeriod, mid=PBASE*m;
+  if(pRec==="kept") return {lo:mid,mid:mid,hi:mid,rec:mid,mult:1,collapsed:true};
+  const lo=PBASE*(1-pDH)*(1-pDR)*m, hi=PBASE*(1+pDH)*(1+pDR)*m;
+  return {lo:lo,mid:mid,hi:hi,rec:lo+0.92*(hi-lo),mult:lo>0?hi/lo:1};
+}
+function pipeRender(){
+  const flow=$("pipeFlow"); flow.innerHTML="";
+  const stages=[
+    {cut:"cut I · gate",name:"Coverage",op:"× 0 or 1",val:pGate?"× 1":"× 0",g0:pGate===0},
+    {cut:"cut II · domain",name:"Hours",op:"compensable",val:"± "+Math.round(pDH*100)+"%"},
+    {cut:"cut III · price",name:"Rate",op:"per hour",val:"± "+Math.round(pDR*100)+"%"},
+    {cut:"cut IV · residue",name:"Exposure",op:((pLiq?2:1)*pPeriod)>1?("band × "+((pLiq?2:1)*pPeriod)):"the band",val:""}
+  ];
+  stages.forEach((s,i)=>{
+    if(i>0){ const ar=E("div","pipe-arrow"); ar.textContent=(i===3?"=":"×"); flow.appendChild(ar); }
+    const c=E("div","pipe-stage anim"+(s.g0?" gate0":"")+(pGate===0&&i>0?" gated":""));
+    c.innerHTML="<div class='ps-cut'>"+s.cut+"</div><div class='ps-name'>"+s.name+"</div><div class='ps-op'>"+s.op+"</div>"+(s.val?"<div class='ps-val'>"+s.val+"</div>":"");
+    flow.appendChild(c);
+  });
+  const r=pipeCalc(), scale=$("bandScale"); scale.innerHTML="";
+  if(r.gate0){
+    scale.innerHTML="<div style='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:\"Libre Caslon Display\",serif;font-size:1.05rem;color:var(--slate-deep)'>no claim — the gate is closed</div>";
+    $("bandRead").innerHTML="<div class='br'>Coverage runs first and multiplies everything after it. <b style='color:var(--slate-deep)'>× 0</b> ends the case before a single hour is counted.</div>";
+    return;
+  }
+  const pct=v=>Math.max(0,Math.min(100,v/AXMAX*100));
+  const fill=E("div","band-fill"); fill.style.left=pct(r.lo)+"%"; fill.style.width=Math.max(0.4,(pct(r.hi)-pct(r.lo)))+"%"; if(r.collapsed){fill.style.background="var(--ochre)";} scale.appendChild(fill);
+  if(!r.collapsed){ const mid=E("div","band-mid"); mid.style.left=pct(r.mid)+"%"; scale.appendChild(mid); }
+  const mk=E("div","band-marker"); mk.style.left=pct(r.rec)+"%"; mk.setAttribute("data-lab",(r.collapsed?"exact ":"recover ")+money0(r.rec)); scale.appendChild(mk);
+  [0,5000,10000,15000].forEach(t=>{ const tk=E("div","band-tick"); tk.style.left=pct(t)+"%"; tk.textContent="$"+(t/1000)+"k"; scale.appendChild(tk); });
+  $("bandRead").innerHTML = r.collapsed
+    ? "<div class='br'>records kept → the band collapses; exposure is computed exactly at <b>"+money0(r.mid)+"</b></div><div class='br'>the disputes no longer matter — accurate records moot them</div>"
+    : "<div class='br'>band: <b>"+money0(r.lo)+" – "+money0(r.hi)+"</b></div><div class='br "+(r.mult>=2?"wide":"")+"'>top / bottom: <b>"+r.mult.toFixed(2)+"×</b></div><div class='br'>midpoint: <b>"+money0(r.mid)+"</b></div><div class='br'>recoverable: <b>"+money0(r.rec)+"</b></div>";
+}
+$("pipeGate").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("pipeGate").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");pGate=+b.dataset.g;pipeRender();}));
+$("pipeLiq").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("pipeLiq").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");pLiq=+b.dataset.l;pipeRender();}));
+$("pipePeriod").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("pipePeriod").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");pPeriod=+b.dataset.p;pipeRender();}));
+$("pipeRec").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("pipeRec").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");pRec=b.dataset.r;pipeRender();}));
+$("pipeH").addEventListener("input",e=>{pDH=+e.target.value/100;$("pipeHVal").textContent=e.target.value+"%";pipeRender();});
+$("pipeR").addEventListener("input",e=>{pDR=+e.target.value/100;$("pipeRVal").textContent=e.target.value+"%";pipeRender();});
+pipeRender();
+
+/* ============ CUT I — CLASSIFICATION ============ */
+const FACT=[
+ {key:"control", lab:"Who sets how the work is done?", sub:"manner & means", a:["the firm","the worker"]},
+ {key:"core",    lab:"Is the work part of the firm's usual business?", sub:"prong B", a:["yes, core","no, outside"]},
+ {key:"trade",   lab:"Does the worker run an established trade?", sub:"prong C", a:["no","yes"]},
+ {key:"profit",  lab:"Can skill bring the worker profit or loss?", sub:"economic reality", a:["no","yes"]},
+ {key:"perm",    lab:"Is the engagement ongoing or project-based?", sub:"permanence", a:["ongoing","project"]}
+];
+const cstate={control:1, core:0, trade:1, profit:1, perm:1};
+function classify(){
+  const s=cstate;
+  const control = s.control===0 ? "Employee":"Contractor";
+  const ctrlLogic = s.control===0 ? "control rests with firm \u21d2 employee" : "worker controls the means \u21d2 contractor";
+  const cCount = Object.values(s).reduce((a,b)=>a+b,0);
+  const econ = cCount>=3 ? "Contractor":"Employee";
+  const econLogic = "totality leans "+(cCount>=3?"independent":"dependent")+" ("+cCount+"/5 factors)";
+  let abc, abcLogic;
+  if(s.core===0){ abc="Employee"; abcLogic="prong B fails \u21d2 employee (A, C moot)"; }
+  else if(s.control===1 && s.trade===1){ abc="Contractor"; abcLogic="A \u00b7 B \u00b7 C all met \u21d2 contractor"; }
+  else { abc="Employee"; abcLogic=(s.control===0?"prong A":"prong C")+" fails \u21d2 employee"; }
+  return {control,ctrlLogic,econ,econLogic,abc,abcLogic};
+}
+function classRender(){
+  const host=$("classFactors"); host.innerHTML="";
+  FACT.forEach(f=>{
+    const row=E("div","factor"), tx=E("div","f-text");
+    tx.appendChild(E("div","f-lab",f.lab)); tx.appendChild(E("div","f-sub",f.sub)); row.appendChild(tx);
+    const tg=E("div","toggle2");
+    f.a.forEach((opt,idx)=>{ const b=E("button",cstate[f.key]===idx?"on":null,opt); b.addEventListener("click",()=>{cstate[f.key]=idx;classRender();}); tg.appendChild(b); });
+    row.appendChild(tg); host.appendChild(row);
+  });
+  const v=classify(), vh=$("classVerdicts"); vh.innerHTML="";
+  [{name:"Common-law \u00b7 control",res:v.control,logic:v.ctrlLogic},
+   {name:"FLSA \u00b7 economic reality",res:v.econ,logic:v.econLogic},
+   {name:"California \u00b7 ABC",res:v.abc,logic:v.abcLogic}].forEach(c=>{
+    const card=E("div","vcard "+(c.res==="Employee"?"emp":"ic"));
+    card.innerHTML="<div class='vc-name'>"+c.name+"</div><div class='vc-logic'>"+c.logic+"</div><div class='vc-result'>"+c.res+"</div>";
+    vh.appendChild(card);
+  });
+  const nEmp=[v.control,v.econ,v.abc].filter(x=>x==="Employee").length;
+  $("classDisagree").innerHTML=(nEmp===0||nEmp===3)
+    ? "All three tests agree here \u2014 a clear case, where the three ways of cutting coincide."
+    : "Same worker, same facts. <b style='color:var(--ochre-deep)'>"+nEmp+" of 3</b> find an employee; <b style='color:var(--blue-deep)'>"+(3-nEmp)+" of 3</b> find a contractor \u2014 the verdict is set by <i>how</i> the test integrates the facts, not by the facts.";
+}
+classRender();
+
+/* ============ CUT II — TIMELINE (two cuts) ============ */
+const SEG=[
+ {w:2.6,ico:"drive",name:"The drive to work",cat:false,rule:"Ordinary home-to-work commuting is never compensable \u2014 the paradigm preliminary activity.",cite:"Portal-to-Portal Act"},
+ {w:1.3,ico:"walk",name:"Walking in from the lot",cat:false,rule:"Before the first principal activity, the worker is not yet on the clock.",cite:"Portal-to-Portal Act"},
+ {w:1.5,ico:"boot",name:"Booting the required terminal",cat:"contested",rule:"",cite:""},
+ {w:1.7,ico:"don",name:"Donning required protective gear",cat:true,rule:"Donning integral, employer-required gear is itself a principal activity \u2014 it opens the workday.",cite:"Steiner v. Mitchell (1956)",test:"categorical: integral & indispensable"},
+ {w:1.3,ico:"walk",name:"Walking to the station, geared up",cat:true,rule:"Inside the continuous workday: after a principal activity, the walking and waiting between are on the clock.",cite:"IBP v. Alvarez (2005)",test:"categorical: continuous workday"},
+ {w:5,ico:"THE SHIFT",name:"The shift itself",cat:true,rule:"The principal activities the worker was hired to perform.",cite:"FLSA \u00a7 207",test:"categorical: principal activity"},
+ {w:1.6,ico:"doff",name:"Doffing the gear",cat:true,rule:"Removing the integral gear is the last principal activity \u2014 still within the workday.",cite:"IBP v. Alvarez (2005)",test:"categorical: continuous workday"},
+ {w:2,ico:"screen",name:"Anti-theft exit screening",cat:false,rule:"Not integral and indispensable: the workers were employed to handle products, not to be searched, and the screening could be eliminated without impairing the work.",cite:"Integrity Staffing v. Busk (2014)",test:"categorical: fails integral & indispensable"},
+ {w:2.6,ico:"drive",name:"The drive home",cat:false,rule:"Postliminary travel \u2014 off the clock.",cite:"Portal-to-Portal Act"}
+];
+let tlJuris="flsa", tlMin=3; const DEMIN=10;
+function bootCounted(){ return tlJuris==="cal" ? true : (tlMin>DEMIN); }
+function tlRender(){
+  const track=$("tlTrack"); track.innerHTML="";
+  const firstC=2, lastC=6;
+  SEG.forEach((s,i)=>{
+    let cls="tl-seg anim ";
+    if(s.cat===true) cls+="comp"; else if(s.cat===false) cls+="noncomp"; else cls += bootCounted()?"comp":"demin";
+    const seg=E("div",cls); seg.style.flexGrow=s.w;
+    if(i===firstC) seg.style.borderLeft="3px solid var(--blue)";
+    if(i===lastC) seg.style.borderRight="3px solid var(--blue)";
+    seg.appendChild(E("div","tl-ico",s.ico));
+    const show=()=>{ tlDetail(i); [...track.children].forEach(c=>c.style.outline=""); seg.style.outline="1.5px solid var(--blue)"; seg.style.outlineOffset="-1.5px"; };
+    seg.addEventListener("mouseenter",show); seg.addEventListener("click",show);
+    track.appendChild(seg);
+  });
+  tlReadoutUpd();
+}
+function tlDetail(i){
+  const s=SEG[i], d=$("tlDetail"); let name=s.name, rule=s.rule, cite=s.cite, test=s.test||"", status, statusColor;
+  if(s.cat==="contested"){
+    const counted=bootCounted(); name += " \u2014 "+tlMin.toFixed(1)+" min"; test="categorical: integral (a principal activity) \u2713";
+    if(tlJuris==="cal"){ rule="Categorically a principal activity, and California applies no de minimis cut to regularly recurring work \u2014 so the minutes are counted."; cite="Troester v. Starbucks (2018)"; status="ON THE CLOCK"; statusColor="var(--ochre-deep)"; }
+    else if(counted){ rule="Categorically a principal activity, and at this length no longer a trifle \u2014 the de minimis cut does not reach it. Counted."; cite="Lindow v. United States (1984)"; status="ON THE CLOCK"; statusColor="var(--ochre-deep)"; }
+    else { rule="Categorically work \u2014 it opens the workday \u2014 but the quantum cut disregards it: a small, irregular sliver may be treated as de minimis under federal law, though it was truly worked."; cite="Mt. Clemens (1946); Lindow (1984)"; status="WORK, BUT DE MINIMIS"; statusColor="var(--faint)"; }
+  } else { status = s.cat ? "ON THE CLOCK":"OFF THE CLOCK"; statusColor = s.cat?"var(--ochre-deep)":"var(--faintest)"; }
+  d.innerHTML="<div class='tl-name'>"+name+" &nbsp;<span style='font-family:IBM Plex Mono,monospace;font-size:.66rem;color:"+statusColor+";letter-spacing:.05em'>"+status+"</span></div>"+
+    "<div class='tl-rule'>"+rule+"</div>"+(test?"<div class='tl-test'>"+test+"</div>":"")+"<div class='tl-cite'>"+cite+"</div>";
+}
+function tlReadoutUpd(){
+  const yr=(tlMin*5*52/60), counted=bootCounted();
+  $("tlReadout").innerHTML = tlJuris==="cal"
+    ? "California: the "+tlMin.toFixed(1)+"-min boot-up is categorically work <i>and</i> survives the quantum cut \u2014 <b>counted</b>, about "+yr.toFixed(1)+" hours a year."
+    : (counted ? "Federal: at "+tlMin.toFixed(1)+" min the boot-up clears the de minimis threshold \u2014 <b>counted</b>."
+               : "Federal: the "+tlMin.toFixed(1)+"-min boot-up is categorically work but <b>de minimis</b> \u2014 uncounted \u2014 though it totals "+yr.toFixed(1)+" hours a year.");
+}
+$("tlMin").addEventListener("input",e=>{tlMin=parseFloat(e.target.value);$("tlMinVal").textContent=tlMin.toFixed(1)+" min";tlRender();tlDetail(2);});
+$("tlJuris").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("tlJuris").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tlJuris=b.dataset.j;tlRender();tlDetail(2);}));
+tlRender(); tlDetail(2);
+
+/* ============ CUT III — RATE CALCULATOR ============ */
+let cStruct="plain";
+function calcRead(){
+  const H=parseInt($("calcH").value), w=parseInt($("calcW").value), OT=Math.max(0,H-40), c=1+0.5*OT/H;
+  let R, straight, otprem, total, insight;
+  if(cStruct==="plain"){
+    R=w; straight=w*H; otprem=0.5*w*OT; total=straight+otprem;
+    insight="<div class='calc-insight'>A plain hourly wage is the degenerate case: the regular rate <b>is</b> the wage, <span class='mono'>"+money(w)+"</span>. Nothing refers to itself.</div>";
+  } else if(cStruct==="flat"){
+    const B=parseInt($("calcB").value);
+    straight=w*H+B; R=straight/H; otprem=0.5*R*OT; total=straight+otprem; const under=0.5*(B/H)*OT;
+    insight="<div class='calc-insight'>The bonus is remuneration, so it <b>lifts the regular rate</b> from "+money(w)+" to <span class='mono'>"+money(R)+"</span>. Overtime must be recomputed on the higher rate \u2014 paying time-and-a-half on "+money(w)+" alone underpays by <b>"+money(under)+"</b>. Fixed in dollars, the loop stays harmless.</div>";
+  } else if(cStruct==="pct"){
+    const p=parseInt($("calcB").value)/100, base=w*H+0.5*w*OT;
+    total=base*(1+p); R=w*(1+p); straight=w*H*(1+p); otprem=0.5*R*OT;
+    insight="<div class='calc-insight fp'>The <b>closed-form fixed point</b> of \u00a7 778.210. Paid as the same percentage of straight-time <i>and</i> overtime earnings, the bonus already carries its own overtime premium \u2014 total is simply <span class='mono'>base \u00d7 (1+"+p.toFixed(2)+")</span>, and <b>no recomputation is needed</b>. The percentage on the overtime earnings <i>is</i> the premium on the bonus.</div>";
+  } else if(cStruct==="rec"){
+    const p=parseInt($("calcB").value)/100;
+    if(p*c>=1){ R=w; straight=w*H; otprem=0.5*w*OT; total=straight+otprem;
+      insight="<div class='calc-insight fp'>At this percentage the map is no longer a contraction (<span class='mono'>p\u00b7c \u2265 1</span>) and the equation has no finite solution. Lower the bonus.</div>"; }
+    else { total=w*H*c/(1-p*c); const B=p*total; straight=w*H+B; R=straight/H; otprem=0.5*R*OT;
+      insight="<div class='calc-insight fp'>Now the bonus is a percentage of <i>total compensation \u2014 including the overtime it itself generates</i> \u2014 so the definition is <b>recursive</b>: <span class='mono'>T = (wH + p\u00b7T)\u00b7c</span>. The map is an affine contraction (ratio <span class='mono'>p\u00b7c = "+(p*c).toFixed(2)+"</span>), so iteration converges to the unique fixed point <span class='mono'>wH\u00b7c / (1 \u2212 p\u00b7c)</span>. \u00a7 778.210 is this, pre-solved.<div id='iterHost'></div></div>"; }
+  } else {
+    const Sal=parseInt($("calcS").value); R=Sal/H; straight=Sal; otprem=0.5*R*OT; total=Sal+otprem;
+    insight="<div class='calc-insight'>The regular rate <b>floats</b>: salary \u00f7 hours = <span class='mono'>"+money(R)+"</span>. Add an hour and it falls \u2014 each overtime hour is paid <span class='mono'>0.5 \u00d7 "+money0(Sal)+" \u00f7 hours</span>, <b>less than the hour before</b>. Working more makes overtime cheaper.<div class='float-viz' id='floatHost'></div></div>";
+  }
+  $("calcReadout").innerHTML=[
+    {l:"Regular rate",v:money(R),c:"rate"},
+    {l:cStruct==="fww"?"Salary (straight-time)":"Straight-time pay",v:money(straight)},
+    {l:"Overtime premium ("+OT+" hrs)",v:money(otprem)},
+    {l:"Total for the week",v:money(total),c:"total"}
+  ].map(r=>"<div class='cr-row "+(r.c||"")+"'><span class='cr-lab'>"+r.l+"</span><span class='cr-val tnum'>"+r.v+"</span></div>").join("");
+  $("calcInsight").innerHTML=insight;
+  if(cStruct==="rec" && p_ok()) drawIter(w,H,parseInt($("calcB").value)/100);
+  if(cStruct==="fww") drawFloat(parseInt($("calcS").value),H);
+}
+function p_ok(){ const H=parseInt($("calcH").value), c=1+0.5*Math.max(0,H-40)/H, p=parseInt($("calcB").value)/100; return p*c<1; }
+function drawIter(w,H,p){
+  const host=$("iterHost"); if(!host) return; host.innerHTML="";
+  const OT=Math.max(0,H-40), c=1+0.5*OT/H, Tstar=w*H*c/(1-p*c);
+  let seq=[w*H*c]; for(let i=0;i<8;i++) seq.push((w*H+p*seq[seq.length-1])*c);
+  const svg=S("svg",{viewBox:"0 0 320 126",id:"iterSvg"}); host.appendChild(svg);
+  const x0=38,x1=300,y0=16,y1=92, n=seq.length-1, sx=i=>x0+i/n*(x1-x0), ymin=seq[0], ymax=Tstar+(Tstar-ymin)*0.06||Tstar+1, sy=v=>y1-(v-ymin)/(ymax-ymin)*(y1-y0);
+  svg.appendChild(S("line",{x1:x0,y1:sy(Tstar),x2:x1,y2:sy(Tstar),stroke:"var(--ochre-line)","stroke-width":1,"stroke-dasharray":"3 3"}));
+  let al=S("text",{x:x1,y:sy(Tstar)-4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--ochre-deep)"}); al.appendChild(T("T* = "+money(Tstar))); svg.appendChild(al);
+  let d=""; seq.forEach((v,i)=>{ d+=(i===0?"M":"L")+sx(i).toFixed(1)+","+sy(v).toFixed(1)+" "; });
+  svg.appendChild(S("path",{d:d,fill:"none",stroke:"var(--blue)","stroke-width":1.4}));
+  seq.forEach((v,i)=>svg.appendChild(S("circle",{cx:sx(i),cy:sy(v),r:(i===0?3:2),fill:(i===0?"var(--blue-deep)":"var(--blue)")})));
+  let t0=S("text",{x:sx(0)+4,y:sy(seq[0])+12,"text-anchor":"start","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--blue-deep)"}); t0.appendChild(T("T\u2080 = "+money0(seq[0]))); svg.appendChild(t0);
+  let xl=S("text",{x:(x0+x1)/2,y:y1+22,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8",fill:"var(--faintest)","letter-spacing":".06em"}); xl.appendChild(T("ITERATION \u2192 FIXED POINT   (contraction ratio p\u00b7c = "+(p*c).toFixed(2)+")")); svg.appendChild(xl);
+}
+function drawFloat(Sal,Hnow){
+  const host=$("floatHost"); if(!host) return; host.innerHTML="";
+  const svg=S("svg",{viewBox:"0 0 320 112",id:"floatSvg"}); host.appendChild(svg);
+  const x0=36,x1=308,y0=16,y1=90, H0=40,H1=70, sx=h=>x0+(h-H0)/(H1-H0)*(x1-x0), rAt=h=>Sal/h, rmin=Sal/H1, rmax=Sal/H0, sy=r=>y1-(r-rmin)/(rmax-rmin)*(y1-y0);
+  svg.appendChild(S("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:"var(--panelhair)","stroke-width":1}));
+  let d=""; for(let h=H0;h<=H1;h+=1){ d+=(h===H0?"M":"L")+sx(h).toFixed(1)+","+sy(rAt(h)).toFixed(1)+" "; }
+  svg.appendChild(S("path",{d:d,fill:"none",stroke:"var(--blue)","stroke-width":1.6}));
+  svg.appendChild(S("line",{x1:sx(Hnow),y1:sy(rAt(Hnow)),x2:sx(Hnow),y2:y1,stroke:"var(--ochre-line)","stroke-width":1,"stroke-dasharray":"2 2"}));
+  svg.appendChild(S("circle",{cx:sx(Hnow),cy:sy(rAt(Hnow)),r:3.5,fill:"var(--ochre)"}));
+  let lb=S("text",{x:sx(Hnow),y:sy(rAt(Hnow))-7,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"9",fill:"var(--ochre-deep)"}); lb.appendChild(T(money(rAt(Hnow)))); svg.appendChild(lb);
+  ["40","55","70"].forEach(h=>{ let t=S("text",{x:sx(+h),y:y1+13,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--faintest)"}); t.appendChild(T(h+"h")); svg.appendChild(t); });
+  let yl=S("text",{x:x0-3,y:y0+3,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--faintest)"}); yl.appendChild(T("rate")); svg.appendChild(yl);
+}
+function structSwitch(s){
+  cStruct=s;
+  $("calcStruct").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.s===s));
+  $("calcWWrap").style.display=(s==="fww")?"none":"flex";
+  $("calcSWrap").style.display=(s==="fww")?"flex":"none";
+  $("calcBWrap").style.display=(s==="flat"||s==="pct"||s==="rec")?"flex":"none";
+  if(s==="flat"){ const b=$("calcB"); b.min=0;b.max=400;b.step=20;b.value=100; $("calcBLab").textContent="bonus"; $("calcBVal").textContent="$100"; }
+  if(s==="pct"||s==="rec"){ const b=$("calcB"); b.min=0;b.max=25;b.step=1;b.value=10; $("calcBLab").textContent="% of "+(s==="rec"?"total":"earnings"); $("calcBVal").textContent="10%"; }
+  calcRead();
+}
+$("calcStruct").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>structSwitch(b.dataset.s)));
+$("calcH").addEventListener("input",e=>{$("calcHVal").textContent=e.target.value;calcRead();});
+$("calcW").addEventListener("input",e=>{$("calcWVal").textContent="$"+e.target.value;calcRead();});
+$("calcB").addEventListener("input",e=>{$("calcBVal").textContent=((cStruct==="pct"||cStruct==="rec")?e.target.value+"%":"$"+e.target.value);calcRead();});
+$("calcS").addEventListener("input",e=>{$("calcSVal").textContent="$"+e.target.value;calcRead();});
+structSwitch("plain");
+
+/* ============ CUT IV — PROOF ============ */
+let proofRec="no";
+function proofRender(){
+  const svg=$("proofSvg"); svg.innerHTML="";
+  const x0=44,x1=418,axisY=212, H0=40,H1=64, sx=h=>x0+(h-H0)/(H1-H0)*(x1-x0);
+  svg.appendChild(S("line",{x1:x0,y1:axisY,x2:x1,y2:axisY,stroke:"var(--panelhair)","stroke-width":1.2}));
+  [40,48,56,64].forEach(h=>{ svg.appendChild(S("line",{x1:sx(h),y1:axisY,x2:sx(h),y2:axisY+5,stroke:"var(--faintest)","stroke-width":1})); let t=S("text",{x:sx(h),y:axisY+19,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"9",fill:"var(--faintest)"}); t.appendChild(T(h+"h")); svg.appendChild(t); });
+  let axl=S("text",{x:(x0+x1)/2,y:axisY+38,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--faint)","letter-spacing":".1em"}); axl.appendChild(T("HOURS WORKED THAT WEEK")); svg.appendChild(axl);
+  const lo=46, hi=58, claimed=55, truth=53;
+  if(proofRec==="no"){
+    svg.appendChild(S("rect",{x:sx(lo),y:76,width:sx(hi)-sx(lo),height:axisY-76,fill:"var(--ochre-soft)",stroke:"var(--ochre-line)","stroke-width":1,rx:2}));
+    svg.appendChild(S("path",{d:"M"+sx(lo)+",66 L"+sx(lo)+",58 L"+sx(hi)+",58 L"+sx(hi)+",66",fill:"none",stroke:"var(--ochre-line)","stroke-width":1}));
+    let bl=S("text",{x:(sx(lo)+sx(hi))/2,y:48,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"9.5",fill:"var(--ochre-deep)"}); bl.appendChild(T("a band of doubt \u2014 the true hours")); svg.appendChild(bl);
+    let inb=S("text",{x:(sx(lo)+sx(hi))/2,y:152,"text-anchor":"middle","font-family":"Source Serif 4,serif","font-style":"italic","font-size":"12.5",fill:"var(--ochre-deep)"}); inb.appendChild(T("charged to the employer")); svg.appendChild(inb);
+    svg.appendChild(S("line",{x1:sx(claimed),y1:76,x2:sx(claimed),y2:axisY,stroke:"var(--ochre-deep)","stroke-width":1,"stroke-dasharray":"3 2"}));
+    let cl=S("text",{x:sx(claimed),y:axisY-7,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--ochre-deep)"}); cl.appendChild(T("claimed")); svg.appendChild(cl);
+  } else {
+    svg.appendChild(S("line",{x1:sx(truth),y1:76,x2:sx(truth),y2:axisY,stroke:"var(--blue)","stroke-width":2}));
+    svg.appendChild(S("circle",{cx:sx(truth),cy:76,r:5,fill:"var(--blue)"}));
+    let kl=S("text",{x:sx(truth),y:62,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"9.5",fill:"var(--blue-deep)"}); kl.appendChild(T("known to the minute")); svg.appendChild(kl);
+    let kc=S("text",{x:sx(truth),y:axisY-7,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--blue-deep)"}); kc.appendChild(T("53.0 h")); svg.appendChild(kc);
+  }
+  $("proofReadout").innerHTML = proofRec==="no"
+    ? "<div class='pr-step'>records missing \u2014 the burden shifts</div><h4>The inference stands</h4><p>The worker proves she performed uncompensated work and shows its extent by <i>just and reasonable inference</i>; the burden then shifts to the employer to produce precise evidence or negate the inference, and absent that an approximate award stands.</p><p><b style='color:var(--ochre-deep)'>The precise limit:</b> the shift runs to the <i>amount</i>, never the <i>fact</i> of the violation. A worker who cannot show that some uncompensated work occurred recovers nothing \u2014 however poor the records.</p><span class='pr-cite'>Anderson v. Mt. Clemens Pottery (1946) \u00b7 Tyson Foods (2016)</span>"
+    : "<div class='pr-step'>records kept \u2014 no inference needed</div><h4>Computed to the minute</h4><p>With accurate records there is no band: the hours are a point and damages follow by arithmetic. The record-keeping duty is the cheapest way to keep the doubt from ever arising \u2014 and the burden-shift exists precisely to deny any advantage to the employer who skips it.</p><span class='pr-cite'>FLSA \u00a7 211(c)</span>";
+}
+$("proofRec").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("proofRec").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");proofRec=b.dataset.r;proofRender();}));
+proofRender();
+
+/* ============ §7 BIAS-VARIANCE ============ */
+(function(){
+  const B0=1.0, V0=0.6, N=0.10, HMAX=1.8;
+  let bvX=0.35, bvH=0.70, bvM=1.0;
+  const bias2=(x,h)=>B0*h*(1-x)*(1-x);
+  const vari=(x,m)=>(V0/m)*x*x;
+  const tot=(x,h,m)=>bias2(x,h)+vari(x,m)+N;
+  const xstar=(h,m)=>(B0*h*m)/(B0*h*m+V0);
+  function bvRender(){
+    const h=bvH*HMAX, m=bvM, svg=$("bvSvg"); svg.innerHTML="";
+    const x0=46,x1=440,y0=22,y1=250, YMAX=2.05;
+    const sx=x=>x0+x*(x1-x0), sy=v=>y1-Math.min(v,YMAX)/YMAX*(y1-y0);
+    svg.appendChild(S("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:"var(--panelhair)","stroke-width":1.2}));
+    svg.appendChild(S("line",{x1:x0,y1:y0,x2:x0,y2:y1,stroke:"var(--panelhair)","stroke-width":1}));
+    let rl=S("text",{x:x0,y:y1+18,"text-anchor":"start","font-family":"IBM Plex Mono,monospace","font-size":"9",fill:"var(--faint)","letter-spacing":".08em"}); rl.appendChild(T("RULE")); svg.appendChild(rl);
+    let sl=S("text",{x:x1,y:y1+18,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":"9",fill:"var(--faint)","letter-spacing":".08em"}); sl.appendChild(T("STANDARD")); svg.appendChild(sl);
+    let yl=S("text",{x:x0-6,y:y0+4,"text-anchor":"end","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--faintest)"}); yl.appendChild(T("loss")); svg.appendChild(yl);
+    const curve=(fn,stroke,dash,wid)=>{ let d=""; for(let i=0;i<=100;i++){ const x=i/100; d+=(i===0?"M":"L")+sx(x).toFixed(1)+","+sy(fn(x)).toFixed(1)+" "; } const p=S("path",{d:d,fill:"none",stroke:stroke,"stroke-width":wid}); if(dash)p.setAttribute("stroke-dasharray",dash); svg.appendChild(p); };
+    curve(x=>bias2(x,h),"var(--ochre)","4 3",1.5);
+    curve(x=>vari(x,m),"var(--blue)","4 3",1.5);
+    curve(x=>tot(x,h,m),"var(--ink)",null,2.2);
+    const xs=xstar(h,m);
+    svg.appendChild(S("line",{x1:sx(xs),y1:sy(tot(xs,h,m)),x2:sx(xs),y2:y1,stroke:"var(--faintest)","stroke-width":1,"stroke-dasharray":"2 2"}));
+    svg.appendChild(S("circle",{cx:sx(xs),cy:sy(tot(xs,h,m)),r:3,fill:"var(--ink)"}));
+    let ol=S("text",{x:sx(xs),y:sy(tot(xs,h,m))-8,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--ink)"}); ol.appendChild(T("optimum")); svg.appendChild(ol);
+    svg.appendChild(S("line",{x1:sx(bvX),y1:y0,x2:sx(bvX),y2:y1,stroke:"var(--blue-line)","stroke-width":1.4}));
+    svg.appendChild(S("circle",{cx:sx(bvX),cy:sy(tot(bvX,h,m)),r:4,fill:"var(--blue)",stroke:"var(--paper)","stroke-width":1}));
+    const leg=[["bias\u00b2","var(--ochre-deep)"],["variance","var(--blue-deep)"],["total","var(--ink)"]];
+    leg.forEach((L,i)=>{ const lx=x0+8+i*92; svg.appendChild(S("line",{x1:lx,y1:y0+4,x2:lx+14,y2:y0+4,stroke:L[1],"stroke-width":2})); let t=S("text",{x:lx+18,y:y0+7,"font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:L[1]}); t.appendChild(T(L[0])); svg.appendChild(t); });
+    const b=bias2(bvX,h), v=vari(bvX,m), tt=tot(bvX,h,m);
+    let pos, posH4;
+    if(bvX < xs-0.06){ posH4="Too rule-like \u2014 approximation error dominates"; pos="The cut is coarser than the domain warrants: predictable, but systematically wrong on the marginal cases."; }
+    else if(bvX > xs+0.06){ posH4="Too standard-like \u2014 estimation error dominates"; pos="The cut is finer than the evidence can support: faithful in principle, but its outcome swings with whatever facts the tribunal happens to find."; }
+    else { posH4="At the optimum"; pos="The cut sits where approximation and estimation error balance \u2014 the most the law can ask of one estimator at this heterogeneity and this evidentiary budget."; }
+    const hWord = bvH<0.34 ? "uniform" : (bvH<0.67 ? "mixed" : "highly varied");
+    const mWord = bvM<0.8 ? "scarce" : (bvM<1.4 ? "ordinary" : "abundant");
+    const optWord = xs<0.34 ? "near a rule" : (xs<0.6 ? "between a rule and a standard" : "well toward a standard");
+    $("bvReadout").innerHTML =
+      "<div class='bv-opt'>loss-minimising cut: x* = "+Math.round(xs*100)+"% toward standard</div>"+
+      "<h4>"+posH4+"</h4>"+
+      "<p>Domain <b>"+hWord+"</b>, reliable fact <b>"+mWord+"</b> \u2014 so the optimum sits <b>"+optWord+"</b>. "+pos+" Both levers push one way: a varied domain, or richer evidence, each buys a more faithful standard; a uniform domain, or scarce proof, each rewards a blunt rule. The evidentiary budget is what the proof cut of \u00a76 governs.</p>"+
+      "<div class='bv-decomp'><span class='bv-bias'>approx. (bias\u00b2) <b>"+b.toFixed(2)+"</b></span><span class='bv-var'>estim. (var) <b>"+v.toFixed(2)+"</b></span><span class='bv-tot'>total <b>"+tt.toFixed(2)+"</b></span></div>";
+  }
+  $("bvX").addEventListener("input",e=>{bvX=+e.target.value/100;$("bvXVal").textContent=e.target.value+"%";bvRender();});
+  $("bvH").addEventListener("input",e=>{bvH=+e.target.value/100;$("bvHVal").textContent=e.target.value+"%";bvRender();});
+  $("bvM").addEventListener("input",e=>{bvM=+e.target.value/50;$("bvMVal").textContent=bvM.toFixed(1)+"\u00d7";bvRender();});
+  bvRender();
+})();
+
+/* ============ §7 TRILEMMA (doctrines + reform) ============ */
+const TRI={
+ "DA":{pair:"determinacy + administrability", drop:"F", h:"Bright lines", p:"Keep predictability and simplicity, surrender fidelity. A flat number anyone applies the same way \u2014 forty hours, a salary threshold, a fixed de minimis floor, prong B \u2014 that severs the continuum at an arbitrary point and betrays the cases on either side of the cut.", ex:"the 40-hour week \u00b7 salary-level test \u00b7 ABC prong B \u00b7 fixed de minimis"},
+ "FA":{pair:"fidelity + administrability", drop:"D", h:"Open standards", p:"Keep fidelity and simplicity, surrender predictability. One faithful instruction \u2014 weigh the totality, ask what is integral and indispensable \u2014 that bends to each case's truth, but whose outcome no one can know until a court has ruled.", ex:"economic-reality test \u00b7 integral-and-indispensable \u00b7 Troester case-by-case"},
+ "DF":{pair:"determinacy + fidelity", drop:"A", h:"Detailed codes", p:"Keep predictability and fidelity, surrender simplicity. A separate rule for every contingency \u2014 the regular-rate regulations prescribe the treatment of each kind of pay \u2014 precise and faithful at once, at the cost of staggering, expert-only complexity, and boundary fights at its own definitions.", ex:"29 C.F.R. Part 778 \u00b7 the exemption duties tests"}
+};
+const VX={ D:{x:220,y:58,label:"Determinacy"}, F:{x:72,y:332,label:"Fidelity"}, A:{x:368,y:332,label:"Administrability"} };
+function bary(d,f,a){ return {x:d*VX.D.x+f*VX.F.x+a*VX.A.x, y:d*VX.D.y+f*VX.F.y+a*VX.A.y}; }
+const DOCS=[
+ {n:"salary level", w:[0.46,0.10,0.44], dx:0, dy:-9},
+ {n:"ABC prong B", w:[0.40,0.17,0.43], dx:14, dy:4},
+ {n:"de minimis", w:[0.36,0.13,0.51], dx:6, dy:13},
+ {n:"\u00a7 778 code", w:[0.45,0.42,0.13], dx:0, dy:-9},
+ {n:"economic reality", w:[0.16,0.58,0.26], dx:-6, dy:13},
+ {n:"integral & indisp.", w:[0.23,0.55,0.22], dx:-4, dy:-9},
+ {n:"Borello", w:[0.27,0.49,0.24], dx:18, dy:-8}
+];
+let triSel="DA";
+function triRender(){
+  const s=$("triSvg"); s.innerHTML="";
+  const defs=S("defs"); const mk=S("marker",{id:"arrOch",viewBox:"0 0 10 10",refX:8,refY:5,markerWidth:6,markerHeight:6,orient:"auto"}); mk.appendChild(S("path",{d:"M0,0 L10,5 L0,10 z",fill:"var(--ochre-deep)"})); defs.appendChild(mk); s.appendChild(defs);
+  [["DA","D","A"],["FA","F","A"],["DF","D","F"]].forEach(([k,p,q])=>{ const on=(k===triSel), a=VX[p], b=VX[q];
+    s.appendChild(S("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:on?"var(--blue)":"var(--panelhair)","stroke-width":on?3:1.6}));
+    const hit=S("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:"transparent","stroke-width":26,style:"cursor:pointer"});
+    hit.addEventListener("click",()=>{triSel=k;triRender();}); s.appendChild(hit);
+  });
+  // doctrine dots
+  DOCS.forEach(doc=>{ const pt=bary(doc.w[0],doc.w[1],doc.w[2]);
+    s.appendChild(S("circle",{cx:pt.x,cy:pt.y,r:3.4,fill:"var(--ochre)",stroke:"var(--paper)","stroke-width":1}));
+    const anchor = doc.dx<0?"end":(doc.dx>0?"start":"middle");
+    let lab=S("text",{x:pt.x+doc.dx,y:pt.y+doc.dy,"text-anchor":anchor,"font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--ochre-deep)"}); lab.appendChild(T(doc.n)); s.appendChild(lab);
+  });
+  const dropV=TRI[triSel].drop;
+  for(const key of ["D","F","A"]){ const v=VX[key], dropped=(key===dropV);
+    s.appendChild(S("circle",{cx:v.x,cy:v.y,r:30,fill:dropped?"var(--paper)":"var(--ink)",stroke:dropped?"var(--faintest)":"var(--ink)","stroke-width":1.4,"stroke-dasharray":dropped?"3 3":"none",opacity:dropped?"0.5":"1"}));
+    let t=S("text",{x:v.x,y:v.y+5,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"16","font-weight":"600",fill:dropped?"var(--faintest)":"var(--paper)"}); t.appendChild(T(key)); s.appendChild(t);
+    const below=(key!=="D"), ly=below?v.y+50:v.y-42;
+    let lab=S("text",{x:v.x,y:ly,"text-anchor":"middle","font-family":"Libre Caslon Display,serif","font-size":"14.5",fill:dropped?"var(--faintest)":"var(--ink)"}); lab.appendChild(T(v.label)); s.appendChild(lab);
+  }
+  const r=TRI[triSel];
+  $("triReadout").innerHTML="<div class='tr-pair'>keep \u2014 "+r.pair+"</div><h4>"+r.h+"</h4><p>"+r.p+"</p><span class='ex'>"+r.ex+"</span>";
+}
+function playReform(){
+  const s=$("triSvg"); const old=s.querySelector("#reformLayer"); if(old) old.remove();
+  const g=S("g",{id:"reformLayer"}); s.appendChild(g);
+  const bd=DOCS.find(d=>d.n==="Borello"), ab=DOCS.find(d=>d.n==="ABC prong B");
+  const p0=bary(bd.w[0],bd.w[1],bd.w[2]), p1=bary(ab.w[0],ab.w[1],ab.w[2]);
+  g.appendChild(S("line",{x1:p0.x,y1:p0.y,x2:p1.x,y2:p1.y,stroke:"var(--ochre-deep)","stroke-width":1.6,"stroke-dasharray":"4 3","marker-end":"url(#arrOch)"}));
+  let lab=S("text",{x:(p0.x+p1.x)/2+4,y:(p0.y+p1.y)/2-7,"font-family":"IBM Plex Mono,monospace","font-size":"9.5",fill:"var(--ochre-deep)","font-weight":"600"}); lab.appendChild(T("AB5")); g.appendChild(lab);
+  const tok=S("circle",{cx:p0.x,cy:p0.y,r:5,fill:"var(--ochre)",stroke:"var(--paper)","stroke-width":1}); g.appendChild(tok);
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches){ tok.setAttribute("cx",p1.x); tok.setAttribute("cy",p1.y); return; }
+  let st=null; const dur=1300;
+  function step(ts){ if(!st)st=ts; let k=Math.min(1,(ts-st)/dur), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    tok.setAttribute("cx",p0.x+(p1.x-p0.x)*e); tok.setAttribute("cy",p0.y+(p1.y-p0.y)*e); if(k<1) requestAnimationFrame(step); }
+  requestAnimationFrame(step);
+}
+$("triReformBtn").addEventListener("click",playReform);
+triRender();
+
+/* ============ §8 BUNCHING ============ */
+(function(){
+  let bV=8, bReg="rule";
+  const MU=48, SIG=18, SSTAR=50, XLO=8, XHI=92;
+  const pdf=x=>Math.exp(-((x-MU)*(x-MU))/(2*SIG*SIG))/(SIG*Math.sqrt(2*Math.PI));
+  function cdf(x){ let n=500,lo=-30,h=(x-lo)/n,s=0; for(let i=0;i<n;i++) s+=pdf(lo+(i+0.5)*h)*h; return s; }
+  function bunchRender(){
+    const svg=$("bunchSvg"); svg.innerHTML="";
+    const x0=44,x1=442,y0=20,y1=238, nb=42, bw=(XHI-XLO)/nb;
+    const sx=x=>x0+(x-XLO)/(XHI-XLO)*(x1-x0), W=(x1-x0)/nb*0.8;
+    const mass = bReg==="rule" ? (cdf(SSTAR)-cdf(SSTAR-bV)) : 0;
+    let heights=[], maxH=0;
+    for(let i=0;i<nb;i++){ const c=XLO+(i+0.5)*bw; let bh=pdf(c);
+      if(bReg==="rule" && c>=SSTAR-bV && c<SSTAR) bh=pdf(c)*0.05;
+      heights.push({c,bh}); if(bh>maxH)maxH=bh; }
+    const spikeH = bReg==="rule" ? pdf(SSTAR)+mass/bw : 0;
+    if(spikeH>maxH) maxH=spikeH;
+    const sy=h=>y1-h/maxH*(y1-y0);
+    svg.appendChild(S("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:"var(--panelhair)","stroke-width":1.2}));
+    heights.forEach(b=>{ svg.appendChild(S("rect",{x:sx(b.c)-W/2,y:sy(b.bh),width:W,height:y1-sy(b.bh),fill:"var(--blue-soft)",stroke:"var(--blue-line)","stroke-width":0.5})); });
+    let d=""; for(let x=XLO;x<=XHI;x+=1){ d+=(x===XLO?"M":"L")+sx(x).toFixed(1)+","+sy(pdf(x)).toFixed(1)+" "; }
+    svg.appendChild(S("path",{d:d,fill:"none",stroke:"var(--faint)","stroke-width":1,"stroke-dasharray":"3 2",opacity:0.65}));
+    if(bReg==="rule"){ svg.appendChild(S("rect",{x:sx(SSTAR)-W/2,y:sy(spikeH),width:W,height:y1-sy(spikeH),fill:"var(--ochre)",stroke:"var(--ochre-deep)","stroke-width":0.7})); }
+    svg.appendChild(S("line",{x1:sx(SSTAR),y1:y0-2,x2:sx(SSTAR),y2:y1,stroke:"var(--ink)","stroke-width":1,"stroke-dasharray":"4 3"}));
+    let tl=S("text",{x:sx(SSTAR),y:y0-6,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--ink)"}); tl.appendChild(T("threshold")); svg.appendChild(tl);
+    let xl=S("text",{x:(x0+x1)/2,y:y1+20,"text-anchor":"middle","font-family":"IBM Plex Mono,monospace","font-size":"8.5",fill:"var(--faint)","letter-spacing":".08em"}); xl.appendChild(T("SALARY \u2192")); svg.appendChild(xl);
+    if(bReg==="rule"){
+      $("bunchReadout").innerHTML="<div class='bv-opt'>bunched at the line: "+(mass*100).toFixed(0)+"% of jobs</div><h4>Paid the line, not the job</h4><p>Crossing the threshold buys the exemption, so employers raise salaries from just below to <i>exactly</i> the line \u2014 a <span style='color:var(--ochre-deep)'>spike</span> at the threshold, a hole beneath it. <b>"+(mass*100).toFixed(0)+"%</b> of jobs here are paid the line rather than their worth. That excess mass is the rule's <b>behavioural distortion</b> \u2014 bias the boundary-error number never captures. Raise the stakes and the bunch grows.</p>";
+    } else {
+      $("bunchReadout").innerHTML="<div class='bv-opt'>nothing to bunch at</div><h4>The standard is not gamed</h4><p>An open standard draws no precise line, so there is no favourable edge to crowd \u2014 the distribution is undisturbed and pay tracks the work. The standard buys this with the unpredictability of \u00a77. Gaming and uncertainty are the two ways a legal order pays for fidelity.</p>";
+    }
+  }
+  $("bunchV").addEventListener("input",e=>{bV=+e.target.value;$("bunchVVal").textContent="$"+e.target.value+"k";bunchRender();});
+  $("bunchReg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("bunchReg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");bReg=b.dataset.r;bunchRender();}));
+  bunchRender();
+})();
+
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="../the-lathe.html">← The Lathe</a><a rel="next" href="the-wage-monopsony-apparatus.html">The Wage Monopsony Apparatus · The One Number →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

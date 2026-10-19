@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Combinators — the fixed point, in plural</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== code runner ===== */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner .rn-head{display:flex;justify-content:space-between;align-items:center;padding:.5rem .85rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner .rn-title{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner .rn-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--paper);background:var(--teal-deep);border:none;border-radius:3px;padding:.35rem .85rem;cursor:pointer;transition:opacity .15s;}
+  .runner .rn-btn:hover{opacity:.85;}
+  .runner pre{margin:0;padding:.85rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.62;color:var(--ink);overflow-x:auto;white-space:pre;tab-size:2;}
+  .runner .rn-out{border-top:1px dashed var(--panelhair);padding:.7rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.6;color:var(--teal-deep);min-height:1.4rem;white-space:pre-wrap;}
+  .runner .rn-out .ol{color:var(--faintest);}
+  .runner .rn-out.match{background:var(--teal-soft);}
+
+  /* ===== denotational iteration ===== */
+  .denot-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .dn-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .dn-btn:hover{opacity:.85;} .dn-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .dn-func{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;}
+  .dn-func .hl{color:var(--red-deep);}
+  .dn-chain{display:flex;flex-direction:column;gap:.4rem;}
+  .dn-row{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:baseline;padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .dn-row .dn-lab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--gold-deep);white-space:nowrap;}
+  .dn-row .dn-map{display:flex;flex-wrap:wrap;gap:.3rem;}
+  .dn-pair{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.12rem .4rem;border-radius:2px;background:rgba(26,24,21,.05);color:var(--ink);}
+  .dn-pair.fresh{background:var(--teal-soft);color:var(--teal-deep);font-weight:500;}
+  .dn-pair.undef{background:transparent;color:var(--faintest);}
+  .dn-converge{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);padding:.7rem;border:1px solid var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.4rem;}
+  .dn-miss{text-align:center;font-size:.84rem;color:var(--faint);font-style:italic;margin-top:.3rem;}
+
+  /* ===== von Neumann schematic ===== */
+  .vn{display:grid;grid-template-columns:1fr;gap:1.1rem;margin-top:.3rem;}
+  #vnSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .vn-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:640px){ .vn-legend{grid-template-columns:1fr;} }
+  .vn-cell{background:var(--paper);padding:.85rem 1rem;}
+  .vn-cell .vc-k{font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;margin-bottom:.25rem;}
+  .vn-cell.u .vc-k{color:var(--teal-deep);} .vn-cell.c .vc-k{color:var(--gold-deep);} .vn-cell.d .vc-k{color:var(--red-deep);}
+  .vn-cell p{font-size:.84rem;line-height:1.5;color:var(--soft1);margin:0;}
+
+  /* ===== β-reduction tracer ===== */
+  .beta{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.012);}
+  .beta-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.5rem .85rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);flex-wrap:wrap;}
+  .beta-head .bh-t{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .beta-where{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faintest);}
+  .beta-body{padding:.4rem .4rem .8rem;}
+  .beta-line{display:grid;grid-template-columns:auto 1fr;gap:.7rem;align-items:baseline;padding:.5rem .8rem;border-radius:3px;animation:rise .3s ease;}
+  .beta-line + .beta-line{margin-top:.18rem;}
+  .beta-line .bl-rule{font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:var(--faintest);white-space:nowrap;padding-top:.15rem;}
+  .beta-line .bl-term{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.5;color:var(--ink);overflow-x:auto;}
+  .beta-line.knot{background:var(--teal-soft);}
+  .beta-line .knot-w{color:var(--teal-deep);font-weight:500;}
+  .beta-redex{background:rgba(178,58,46,.13);border-radius:2px;padding:0 .12em;}
+  .beta-new{color:var(--teal-deep);font-weight:500;}
+  .beta-gr{color:var(--faintest);}
+  .beta-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;padding:.8rem;border-top:1px dashed var(--panelhair);}
+  .beta-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);text-align:center;}
+  .beta-readout b{color:var(--ink);}
+
+  /* ===== corecursion / greatest-fixed-point stream ===== */
+  .stream-head{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;}
+  .stream-head .hl{color:var(--teal-deep);}
+  .stream-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin-bottom:.9rem;}
+  .stream-pick{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;}
+  .strm-opt{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.32rem .7rem;cursor:pointer;transition:all .15s;}
+  .strm-opt:hover{background:rgba(26,24,21,.05);}
+  .strm-opt.on{background:var(--teal-deep);color:var(--paper);border-color:var(--teal-deep);}
+  .stream-belt{display:flex;align-items:stretch;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:3.2rem;padding:.3rem 0;}
+  .strm-cell{font-family:"IBM Plex Mono",monospace;font-size:.8rem;min-width:2.4rem;text-align:center;padding:.5rem .55rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);display:flex;flex-direction:column;gap:.15rem;animation:rise .3s ease;}
+  .strm-cell .si{font-size:.56rem;color:var(--faintest);}
+  .strm-cell.fresh{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);font-weight:500;}
+  .strm-cell.tail{border-style:dashed;color:var(--faintest);background:transparent;justify-content:center;}
+  .strm-readout{text-align:center;font-size:.84rem;color:var(--faint);font-style:italic;margin-top:.7rem;}
+  .strm-readout b{font-style:normal;color:var(--teal-deep);font-weight:600;}
+
+  /* ===== Banach cobweb ===== */
+  .cob-head{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--soft1);margin-bottom:.9rem;}
+  .cob-maps{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.9rem;}
+  .cob-map{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.32rem .72rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.4rem;}
+  .cob-map:hover{background:rgba(26,24,21,.05);}
+  .cob-map.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .cob-map .cm-dot{width:7px;height:7px;border-radius:50%;}
+  .cob-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(1rem,2.5vw,1.8rem);align-items:start;}
+  @media(max-width:720px){ .cob-grid{grid-template-columns:1fr;} }
+  #cobSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cob-side{display:flex;flex-direction:column;gap:.9rem;}
+  .cob-controls{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;}
+  .cob-readout{font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.7;color:var(--ink);border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:.7rem .85rem;}
+  .cob-readout .ck{color:var(--faint);}
+  .cob-readout .cv{color:var(--teal-deep);font-weight:500;}
+  .cob-readout .cv.warn{color:var(--red-deep);}
+  .cob-verdict{font-size:.88rem;line-height:1.5;padding:.8rem 1rem;border-radius:3px;}
+  .cob-verdict.ok{background:var(--teal-soft);color:var(--teal-deep);}
+  .cob-verdict.no{background:var(--red-soft);color:var(--red-deep);}
+  .cob-verdict b{font-weight:600;}
+
+  /* ===== the power face — spectrum of givenness ===== */
+  .spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:880px){ .spectrum{grid-template-columns:1fr 1fr;} }
+  @media(max-width:520px){ .spectrum{grid-template-columns:1fr;} }
+  .sp-cell{background:var(--paper);padding:1.05rem 1.1rem;display:flex;flex-direction:column;gap:.45rem;}
+  .sp-cell .sp-tag{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);}
+  .sp-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.06rem;margin:0;color:var(--ink);}
+  .sp-cell .sp-form{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);}
+  .sp-cell .sp-how{font-size:.84rem;line-height:1.45;color:var(--soft1);}
+  .sp-cell .sp-grade{margin-top:auto;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;padding-top:.5rem;border-top:1px solid var(--hair);}
+  .sp-cell.g-imm{box-shadow:inset 4px 0 0 var(--teal-line);} .sp-cell.g-imm h4,.sp-cell.g-imm .sp-grade{color:var(--teal-deep);}
+  .sp-cell.g-asc{box-shadow:inset 4px 0 0 var(--gold-line);} .sp-cell.g-asc h4,.sp-cell.g-asc .sp-grade{color:var(--gold-deep);}
+  .sp-cell.g-met{box-shadow:inset 4px 0 0 var(--teal-line);} .sp-cell.g-met h4,.sp-cell.g-met .sp-grade{color:var(--teal-deep);}
+  .sp-cell.g-non{box-shadow:inset 4px 0 0 var(--red-line);} .sp-cell.g-non h4,.sp-cell.g-non .sp-grade{color:var(--red-deep);}
+  .sp-arrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.05em;color:var(--faint);text-align:center;margin-top:.9rem;}
+  .sp-arrow .gd{color:var(--teal-deep);} .sp-arrow .rd{color:var(--red-deep);}
+
+  /* quiet cross-volume tie */
+  .tieback{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.05em;color:var(--faintest);text-align:center;max-width:40rem;margin:1.2rem auto 0;line-height:1.7;}
+  .tieback b{color:var(--faint);font-weight:500;}
+
+  /* intra-page contents / wayfinding */
+  .contents{max-width:var(--read);margin:clamp(2.6rem,6vh,4.2rem) auto 0;padding:1.5rem 1.7rem 1.6rem;border:1px solid var(--rule);border-radius:3px;}
+  .contents .ct-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:0 0 1.2rem;}
+  .contents ol{list-style:none;margin:0;padding:0;}
+  .contents li{margin:0 0 .85rem;padding-left:2.7rem;position:relative;}
+  .contents li:last-child{margin-bottom:0;}
+  .contents .ct-n{position:absolute;left:0;top:.08rem;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faintest);letter-spacing:.05em;}
+  .contents a.ct-t{color:var(--ink);text-decoration:none;font-weight:500;font-size:1.02rem;border-bottom:1px solid transparent;transition:border-color .15s;}
+  .contents a.ct-t:hover{border-bottom-color:var(--ink);}
+  .contents .ct-d{display:block;font-size:.83rem;line-height:1.5;color:var(--faint);margin-top:.2rem;font-style:italic;}
+  .contents .ct-dives{margin-top:1.35rem;padding-top:1.15rem;border-top:1px solid var(--rule);font-size:.82rem;line-height:1.75;color:var(--faint);}
+  .contents .ct-dives .ct-lab{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faintest);display:block;margin-bottom:.55rem;}
+  .contents .ct-dives a{color:var(--soft1);text-decoration:none;border-bottom:1px solid var(--rule);transition:border-color .15s;}
+  .contents .ct-dives a:hover{border-bottom-color:var(--soft1);}
+  .reading[id],.thm[id],.spectrum[id]{scroll-margin-top:2rem;}
+</style>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-engine">The Engine</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deep-dive companion · drawn from The Engine, §I</span></div>
+    <div class="hero-head">
+      <p class="kicker">The engine's self-portrait</p>
+      <h1 class="title">The <span class="x">Combinators</span></h1>
+      <p class="standfirst"><em>The Engine</em> showed that when the twist admits a fixed point, the construction does not forbid self-reference — it <em>hands</em> it over, and the term that does the handing is the fixed-point combinator <span class="mono">Y</span>. But there is no <em>the</em>. There is a population: infinitely many combinators, no two alike, organised by a single operator that is itself the recursion pattern. This companion takes the term that builds everything and turns it over as an object in its own right — Curry against Turing, the machine that will not run, the generator of the whole family, the price types exact, and the one term in which the corpus's entire thesis is folded.</p>
+      <p class="ed-mark">the plural · the machine that will not run · the generator · the price of types · one term</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">Y F = F(Y F)</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>In <i>The Engine</i> the fixed-point combinator was a tool: feed it a description of a recursive function and it returns the function, the knot tied without a name. We wrote <span class="mono">Y</span> and moved on. But the definite article was a convenience, and a misleading one. A <i>fixed-point combinator</i> is any closed term <span class="mono">Y</span> for which <span class="mono">Y F = F(Y F)</span> holds for every <span class="mono">F</span> — and the terms that satisfy it are not one but infinitely many, no two of them convertible. The engine, asked to name itself, returns a crowd.</p>
+    <p>This is not a curiosity of cataloguing. The crowd is <i>structured</i>, and the structure is the recursion pattern itself: there is a single operator <span class="mono">δ</span> whose fixed points are exactly the fixed-point combinators, and feeding any one of them to <span class="mono">δ</span> yields another. To ask <i>what are all the combinators</i> is to ask a fixed-point question — and the term that answers every other fixed-point question answers this one too. Along the way the same object that grants recursion will, when its twist is implication-to-falsum rather than a recursive functional, grant <i>Curry's paradox</i>: the power face and the limit face of the whole corpus, struck from one term by changing what it is pointed at.</p>
+    <p>Five movements. <b>The plural</b>: that <span class="mono">Y</span> is one of many, and the precise sense — convertibility against reduction — in which Curry's combinator and Turing's differ. <b>The machine that will not run</b>: why Curry's <span class="mono">Y</span> diverges the moment you try to execute it, and the thunked combinator that does not. <b>The generator</b>: the operator <span class="mono">δ</span>, the infinite hierarchy it breeds, and what is known and unknown about the shape of the family. <b>The price of types</b>: why the combinator vanishes under the simple type discipline, where it can be bought back, and how, in a logic, it becomes a bomb. And <b>one term</b>: the combinator read three ways at once — as the least fixed point, as Kleene's recursion theorem, as Lawvere's positive direction — the diagonal that builds, compressed into a single object you can hold in the hand.</p>
+  </div>
+
+  <nav class="contents" aria-label="Contents">
+    <p class="ct-h">the fixed point, in plural · five movements</p>
+    <ol>
+      <li><span class="ct-n">I</span><a class="ct-t" href="#plural">The plural</a><span class="ct-d">a fixed-point combinator is any <span class="mono">Y</span> with <span class="mono">Y F = F(Y F)</span> — and there are infinitely many; Curry's against Turing's, convertibility against reduction, with confluence and combinatory logic in the companion <span class="mono">The Plural</span></span></li>
+      <li><span class="ct-n">II</span><a class="ct-t" href="#cbv">The machine that will not run</a><span class="ct-d">why Curry's <span class="mono">Y</span> diverges under eager evaluation, and the <span class="mono">Z</span> combinator that thunks its way to termination</span></li>
+      <li><span class="ct-n">III</span><a class="ct-t" href="#generator">The generator</a><span class="ct-d">the operator <span class="mono">δ</span> whose fixed points are the combinators — the infinite hierarchy they form — whose natural history is taken up in the companion <span class="mono">The Clock</span></span></li>
+      <li><span class="ct-n">IV</span><a class="ct-t" href="#types">The price of types</a><span class="ct-d">strong normalization forbids the combinator; recursive types and PCF buy it back; and in a logic it becomes Curry's paradox — the full price taken up in the companion <span class="mono">The Toll</span></span></li>
+      <li><span class="ct-n">V</span><a class="ct-t" href="#thesis">One term, the whole thesis</a><span class="ct-d">the combinator as least fixed point, as recursion theorem, as Lawvere's positive direction — the corpus folded into a single object, whose full mathematics is the companion <span class="mono">The Operator</span></span></li>
+    </ol>
+    <div class="ct-dives"><span class="ct-lab">deep readings within</span>The live excursions: the <a href="#tracer">reduction tracer</a> that watches Turing's <span class="mono">Θ</span> step to its own unfolding (I); the <a href="#zcomb">call-by-value combinators</a> diverging and the <span class="mono">Z</span> that does not (II); the <a href="#hierarchy">δ-generated hierarchy</a> (III); <a href="#paradox">Curry's paradox</a> assembled from a single fixed point (IV); and the <a href="#vector">vector combinator</a> that recurses through several functions at once (V).</div>
+  </nav>
+
+  <!-- ===== §I THE PLURAL ===== -->
+  <section class="sec" id="plural">
+    <div class="sec-head"><span class="num">I · the plural</span><h2>There is no <span style="font-style:italic">the</span> combinator</h2><p class="sub">A fixed-point combinator is any closed term that hands every function its fixed point. The terms that qualify are infinitely many — and the two most famous differ in a way that turns out to be the difference between an equation and a direction.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">the definition, and the crowd&nbsp;&nbsp;</span>Strip away the definite article and state the thing plainly. A <i>fixed-point combinator</i> is a closed <span class="mono">λ</span>-term <span class="mono">Y</span> such that, for <i>every</i> term <span class="mono">F</span>, the equation <span class="mono">Y F = F(Y F)</span> holds under <span class="mono">β</span>-conversion. That is the whole specification — and it does not pin down a term. It pins down a <i>property</i>, and infinitely many terms have it, none of them convertible to any other. Curry's <span class="mono">Y = λf.(λx.f(x&#8202;x))(λx.f(x&#8202;x))</span> is the one everyone quotes, but it is a representative, not a definition. The third movement will show the family is endless and that one operator manufactures it. Here we look at just two members, because the difference between them is the cleanest lesson the subject teaches.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">two combinators, two strengths — convertibility against reduction</div>
+      <div class="ts">Curry's <span class="mono">Y</span> gives <span class="mono">Y F =β F(Y F)</span>: the two terms are <i>convertible</i>. They share a common reduct <span class="mono">F(W)</span> — but <span class="mono">Y F</span> never reduces <i>to</i> the term <span class="mono">F(Y F)</span>; it reduces <i>past</i> it, to something they both reach. Turing's <span class="mono">Θ = (λx.λf.f(x&#8202;x&#8202;f))(λx.λf.f(x&#8202;x&#8202;f))</span> gives the strictly stronger <span class="mono">Θ F →→ F(Θ F)</span>: in two leftmost steps it <i>reduces</i> to its own unfolding, the literal term <span class="mono">F(Θ F)</span>. Convertibility is a symmetric equation; reduction is an oriented arrow. The tracer below runs both engines so the distinction stops being a claim and becomes a thing you watch.</div>
+    </div>
+    <div class="stage">
+      <div class="beta" id="tracer">
+        <div class="beta-head">
+          <span class="beta-where" id="trWhere">reducing&nbsp;&nbsp;Θ&#8202;f</span>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <button class="dn-btn ghost" id="trTuring">Θ&#8202;f · Turing</button>
+            <button class="dn-btn ghost" id="trCurry">Y&#8202;f · Curry</button>
+            <button class="dn-btn ghost" id="trDelta">(Y&#8202;δ)&#8202;f</button>
+          </div>
+        </div>
+        <div class="beta-body" id="trBody"></div>
+        <div class="beta-controls">
+          <button class="dn-btn" id="trStep">reduce once — leftmost-outermost ↓</button>
+          <button class="dn-btn ghost" id="trReset">reset</button>
+          <span class="beta-readout" id="trReadout"></span>
+        </div>
+      </div>
+      <figcaption><span class="mono">f is a free variable standing for any functional — </span>each line is one <span class="mono">β</span>-step, the contracted redex shaded. Watch for the moment the term first takes the form <span class="mono">f(&#8230;)</span>: for Turing the argument is <span class="mono">Θ&#8202;f</span> itself — it has reduced to its unfolding; for Curry the argument is a <i>reduct</i> of <span class="mono">Y&#8202;f</span>, not <span class="mono">Y&#8202;f</span> — convertible, never equal.</figcaption>
+    </div>
+    <div class="reading" id="tracer-note">
+      <p><span class="lead-in">why a direction, and not just an equation&nbsp;&nbsp;</span>It would be easy to file this under pedantry — surely a fixed point is a fixed point. But the equation and the arrow part company exactly where it matters: when you stop asking what a program <i>equals</i> and start asking how it <i>runs</i>. An operational semantics is a reduction relation, not a congruence; a compiler rewrites, it does not solve equations; a proof of progress or productivity reasons step by step. In that setting Turing's <span class="mono">Θ F →→ F(Θ F)</span> is exactly the guarantee you need — the program advances, in finite reductions, into one copy of <span class="mono">F</span> wrapped around itself — and Curry's bare convertibility is not. It is no accident that this is the same shape as Kleene's recursion theorem from <i>The Engine</i>'s second movement, where a program <i>reduces</i> to one applied to its own description. Turing's combinator is that theorem's operational body; Curry's is its extensional ghost. Same fixed point; one of them moves.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">confluence, no binding, and one content&nbsp;&nbsp;</span>Two further facts complete the syntactic picture. The convertibility that certifies Curry's combinator is coherent only because reduction is <i>confluent</i> — Church and Rosser's theorem that any two reduction paths meet at a common reduct, which also renders normal forms unique and the calculus consistent. And the binding the combinator appears to require is dispensable entirely: combinatory logic rewrites every <span class="mono">λ</span>-term, the fixed point included, in two constants <span class="mono">S</span> and <span class="mono">K</span> with no variables at all — the fixed point reappearing as a finite, variable-free string that computes exactly as before. The infinite family, the two equalities, the confluence that reconciles them, and the two formalisms are developed in full — with the fixed point shown to be the one invariant beneath them all — in the companion to this movement, <i>The Plural</i>.</p>
+    </div>
+  </section>
+
+  <!-- ===== §II THE MACHINE THAT WILL NOT RUN ===== -->
+  <section class="sec" id="cbv">
+    <div class="sec-head"><span class="num">II · the machine that will not run</span><h2>The combinator that diverges</h2><p class="sub">On paper Curry's <span class="mono">Y</span> is a fixed-point combinator. In a machine that evaluates eagerly — which is to say almost every machine — it is an infinite loop. The repair is one <span class="mono">η</span>-expansion, and it is why real languages quietly use a different term.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">where the paper combinator stalls&nbsp;&nbsp;</span>The convertibility <span class="mono">Y F =β F(Y F)</span> holds, but conversion is silent about the <i>order</i> in which a machine performs the steps — and order is everything. Under <i>call-by-value</i>, the eager regime in which a function's argument is fully evaluated before the call, watch what <span class="mono">Y F</span> does. It reduces to <span class="mono">(λx.F(x&#8202;x))(λx.F(x&#8202;x))</span>; to apply this, the machine must first evaluate the argument — but the argument, once substituted, regenerates <span class="mono">(λx.F(x&#8202;x))(λx.F(x&#8202;x))</span>, which must again be evaluated, and so on, forever, <i>before</i> <span class="mono">F</span> is ever touched. The combinator never reaches the very function it was built to call. On paper it converges; in the machine it spins.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">Z — the same fixed point, sheathed in a thunk</div>
+      <div class="ts">The cure is to stop the self-application from firing before its argument arrives. Replace the recursive occurrence <span class="mono">x&#8202;x</span> with its <span class="mono">η</span>-expansion <span class="mono">λv.&#8202;x&#8202;x&#8202;v</span> — a function, hence a value the eager machine will not reduce until it is applied — giving <span class="mono">Z = λf.(λx.f(λv.x&#8202;x&#8202;v))(λx.f(λv.x&#8202;x&#8202;v))</span>. Now <span class="mono">Z F</span> hands <span class="mono">F</span> a <i>thunk</i> for the recursive call, to be forced only when <span class="mono">F</span> actually recurses. <span class="mono">Z</span> is a fixed-point combinator with the same extensional behaviour as <span class="mono">Y</span> and the additional virtue of terminating under eager evaluation. Turing's <span class="mono">Θ</span> takes the identical thunk to run eagerly; the recipe is general.</div>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="zcomb">
+        <div class="dn-func">three combinators, run under JavaScript's eager (call-by-value) evaluation, on the factorial functional<br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">naive Curry and naive Turing have no <span class="mono">η</span>-thunk; Z does</span></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="zRun">run all on fact(6) ▶</button>
+          <button class="dn-btn ghost" id="zReset">reset</button>
+        </div>
+        <div class="dn-chain" id="zList"></div>
+        <div class="dn-miss" id="zReadout"></div>
+        <figcaption><span class="mono">&ldquo;diverges&rdquo; is a caught stack overflow — </span>the eager machine recurring into the self-application without end. Only the thunked <span class="mono">Z</span> reaches the factorial. The combinator that works in theory and the combinator that works in practice are different terms.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">two strategies, and the manual reinvention of laziness&nbsp;&nbsp;</span>The split runs along the oldest fault line in evaluation. Curry's <span class="mono">Y</span> works under <i>normal-order</i> reduction — outermost first, arguments left unevaluated until needed — which is exactly the lazy strategy under which the conversion <span class="mono">Y F = F(Y F)</span> doubles as a terminating computation; a lazy language such as Haskell can write <span class="mono">Y</span> directly and run it. <i>Applicative-order</i> evaluation — innermost first, the eager default of ML, Scheme, JavaScript — cannot, and the <span class="mono">η</span>-expansion in <span class="mono">Z</span> is precisely a hand-built scrap of laziness, a thunk inserted to defer what the strategy would otherwise force too soon. So the difference between <span class="mono">Y</span> and <span class="mono">Z</span> is not a difference of fixed points. It is the difference between a language that delays and a language that does not — and the combinator, asked to run in the impatient one, must carry its own patience with it.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">two orders, and which one is faithful — standardization</div>
+      <div class="ts">A term may have many redexes; the choice of which to contract is the <i>evaluation order</i>. <i>Normal order</i> takes the leftmost-outermost redex first, <i>applicative order</i> the leftmost-innermost. The standardization theorem of Curry and Feys guarantees normal order is <b>normalizing</b>: if a term has a normal form, leftmost-outermost reduction reaches it. This is precisely why Curry's <span class="mono">Y</span> succeeds under normal order — the recursive call is left unevaluated until needed — and loops under applicative order, which forces it first. Plotkin's call-by-value <span class="mono">λ</span>-calculus (1975) makes the eager regime exact: the value restriction <span class="mono">β<sub>v</sub></span> contracts <span class="mono">(λx.M)V</span> only when <span class="mono">V</span> is already a value, so the divergence is written into the calculus itself, and <span class="mono">Z</span>'s thunk is what restores a value where a computation stood.</div>
+    </div>
+  </section>
+
+  <!-- ===== §III THE GENERATOR ===== -->
+  <section class="sec" id="generator">
+    <div class="sec-head"><span class="num">III · the generator</span><h2>The family is endless, and one operator breeds it</h2><p class="sub">The combinators are not a scattered list. They are the fixed points of a single term <span class="mono">δ</span> — itself nothing but the recursion pattern with the recursion abstracted out — and feeding any combinator to <span class="mono">δ</span> yields the next.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">the recursion knot, abstracted&nbsp;&nbsp;</span>Look at what a fixed-point combinator <i>does</i>: given <span class="mono">f</span>, it produces something behaving as <span class="mono">f</span> applied to (the combinator's own result for <span class="mono">f</span>). Write that shape down with the self-reference left as an open hole <span class="mono">y</span>, and you have <span class="mono">δ = λy.λf.f(y&#8202;f)</span>. This little term is the engine of the whole family, in the most literal sense the subject allows: its fixed points are <i>exactly</i> the fixed-point combinators, and it is generative.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the combinators are the fixed points of <span class="mono">δ</span></div>
+      <div class="ts"><span class="mono">Y</span> is a fixed-point combinator <b>if and only if</b> <span class="mono">Y =βη δ&#8202;Y</span>. <i>Why:</i> if <span class="mono">Y =βη δ&#8202;Y</span> then <span class="mono">Y F =βη (δ&#8202;Y) F = F(Y F)</span>, so <span class="mono">Y</span> is an fpc; conversely, if <span class="mono">Y F =β F(Y F)</span> then by <span class="mono">η</span>, <span class="mono">Y =βη λf.Y&#8202;f =βη λf.f(Y&#8202;f) = δ&#8202;Y</span>. So the fixed-point combinators are precisely the fixed points of <span class="mono">δ</span> under <span class="mono">βη</span>. And <span class="mono">δ</span> breeds: for any fpc <span class="mono">Y</span>, the term <span class="mono">Y&#8202;δ</span> is itself a fixed point of <span class="mono">δ</span> — hence again an fpc — because <span class="mono">Y</span>, being an fpc, satisfies <span class="mono">Y&#8202;δ =β δ(Y&#8202;δ)</span>. From Curry's <span class="mono">Y</span> the sequence <span class="mono">Y, Yδ, (Yδ)δ, …</span> therefore runs out an infinity of combinators, no two convertible — though by a discrimination subtler than any Böhm tree can register, as the panels below make precise. To ask <i>what are all the fixed-point combinators</i> is itself a fixed-point question, and it is answered by a fixed point.</div>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="hierarchy">
+        <div class="dn-func">δ = λy.λf.<span class="hl">f(y&#8202;f)</span> &nbsp;— the recursion knot, with the recursion left as a hole<br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">every fixed-point combinator is a fixed point of δ · feed any one to δ and another comes out</span></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="genNext">apply δ — generate the next combinator</button>
+          <button class="dn-btn ghost" id="genReset">reset to Y</button>
+        </div>
+        <div class="dn-chain" id="genList"></div>
+        <div class="dn-miss" id="genReadout"></div>
+        <figcaption><span class="mono">each row is a distinct fixed-point combinator — </span>made by feeding the one above to <span class="mono">δ</span>, and checked by running its call-by-value image on the factorial functional. The terms grow without bound; the property they share never changes. <span class="mono">δ</span> is the engine, making more of the engine.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">one tree, told apart by tempo&nbsp;&nbsp;</span>The family hides a genuine surprise. Because every combinator satisfies <span class="mono">Y&#8202;f =β f(Y&#8202;f)</span>, head reduction drives each of them into the identical unfolding <span class="mono">f(f(f(&#8230;)))</span> — they share one <i>Böhm tree</i>, <span class="mono">λf.f<sup>ω</sup></span>, and so are equal to every instrument that reads only the eventual shape of a computation, Böhm's separation theorem included. Yet they are not the same term: Curry's and Turing's do not interconvert, and the tower <span class="mono">Y, Yδ, Yδ², …</span> never repeats. What separates them is not <i>what</i> they compute but <i>how fast</i> — the <b>clock</b>, the tempo of head reduction, which Endrullis, Hendriks and Klop annotate onto the tree and which the Owl <span class="mono">δ</span> provably slows by exactly two at each postfixing, the steady tick running <span class="mono">1, 3, 5, …</span>. And no procedure can so much as recognise a combinator: the set is closed under conversion and non-trivial, so by Scott and Curry it is undecidable.</p>
+      <p>That is the headcount and the first surprise; the natural history is a volume in itself. Smullyan's aviary, where the generator is an Owl <span class="mono">(δ = S&#8202;I)</span> and the fixed-point combinator a Sage bird assembled from three others <span class="mono">(Θ = B&#8202;M&#8202;L)</span>; the clocked Böhm trees that discriminate where the bare tree is silent, and the ladder of ever-finer clocks above them; the open frontier of the fixed-point property and Statman's still-undecided double combinator; and the full reach of the undecidability — all of it is taken up by a companion to this movement, <i>The Clock</i>, which follows the population of fixed-point combinators on its own terms.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV THE PRICE OF TYPES ===== -->
+  <section class="sec" id="types">
+    <div class="sec-head"><span class="num">IV · the price of types</span><h2>What types take, and what they make explode</h2><p class="sub">Impose the simple type discipline and the combinator vanishes — every term halts, so no term can manufacture non-termination. Recursive types and PCF buy it back. And in a logic, the very same fixed point is not a tool but a bomb.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">why the engine disappears under types&nbsp;&nbsp;</span>The fixed-point combinator is the source of non-termination — that is its job, to let a computation refer to itself without end until a base case stops it. So in any setting where <i>everything</i> halts, it cannot exist. The simply-typed <span class="mono">λ</span>-calculus is exactly such a setting: every well-typed term is strongly normalizing, reaching a normal form by every path. A fixed-point combinator would let you build a term with no normal form — <span class="mono">Y(λx.x)</span> reduces to itself forever — so no fixed-point combinator is typable. And the obstruction is visible right at the knot: <span class="mono">x&#8202;x</span> demands a type <span class="mono">A</span> with <span class="mono">A = A → A</span>, and no simple type satisfies that equation.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">forbidden, restored, and the gap between&nbsp;&nbsp;</span>Two facts bound the engine once it is put under types. First it is <i>forbidden</i>: the simply-typed <span class="mono">λ</span>-calculus is strongly normalizing — Tait's reducibility theorem — so it can hold no fixed-point combinator at all, because self-application <span class="mono">x&#8202;x</span> has no finite type and <span class="mono">Y</span> is built from nothing else. Recursion is <i>restored</i> only by admitting recursive types <span class="mono">D ≅ D → A</span>, a syntactic reflexive object on which the diagonal typechecks — and the instant it is admitted, normalization is lost again, the two being one and the same purchase. Second, even restored inside a usable language — PCF, typed yet Turing-complete — the combinator's <i>meaning</i> outruns anything a program can observe: the standard model is adequate but not fully abstract, harbouring functions like parallel-or that no sequential term denotes. Strong normalization and the reducibility method, recursive types and their price, the full abstraction problem and its resolution in the semantics of games — the whole cost of a tamed fixed point — is taken up by a companion to this movement, <i>The Toll</i>.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the same fixed point, pointed at falsehood&nbsp;&nbsp;</span>Now read the combinator through the Curry–Howard correspondence, where a type is a proposition and a term is its proof. A fixed-point combinator at the level of proofs would be a proof of <i>anything</i> — and that is not a figure of speech. Suppose a logic admits a proposition <span class="mono">C</span> equivalent to <span class="mono">C → ⊥</span>: a fixed point of the operation <span class="mono">X ↦ (X → ⊥)</span>, the propositional twin of the very self-application the combinator performs. Then, using nothing but implication and that fixed point — <i>no negation, no excluded middle</i> — one derives <span class="mono">⊥</span>. This is <b>Curry's paradox</b>, and the proof term that carries it is the fixed-point combinator itself, looping at the level of proofs. The stepper assembles the derivation; watch that it never once appeals to a law of negation.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="paradox">
+        <div class="dn-func">Curry's paradox — from one fixed point of <span class="mono">X ↦ (X → ⊥)</span>, a proof of <span class="mono">⊥</span><br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">the same machinery that grants recursion, aimed at falsehood</span></div>
+        <div class="dn-chain" id="cpList"></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="cpNext">reveal next step ↓</button>
+          <button class="dn-btn ghost" id="cpReset">reset</button>
+        </div>
+        <div class="dn-miss" id="cpReadout"></div>
+        <figcaption><span class="mono">implication and a fixed point — nothing else — </span>suffice to reach <span class="mono">⊥</span>. This is why a consistent type theory must forbid an unrestricted <span class="mono">Y</span>: strong normalization is not a limitation grafted on, it <i>is</i> the consistency. The term that builds recursion and the term that detonates a logic are one term, differing only in what it is pointed at.</figcaption>
+      </div>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the proof of falsehood is the diverging combinator</div>
+      <div class="ts">Make the proof term explicit. Under Curry–Howard the fixed point <span class="mono">C ≅ (C → ⊥)</span> means a term of type <span class="mono">C</span> is also a term of type <span class="mono">C → ⊥</span>. Take <span class="mono">M = λx.x&#8202;x</span>: given <span class="mono">x : C</span>, the isomorphism reads <span class="mono">x : C → ⊥</span>, so <span class="mono">x&#8202;x : ⊥</span> and <span class="mono">M : C → ⊥</span>; by the isomorphism again <span class="mono">M : C</span>; hence <span class="mono">M&#8202;M : ⊥</span>. But <span class="mono">M&#8202;M = (λx.x&#8202;x)(λx.x&#8202;x) = Ω</span> — the canonical non-terminating term, which reduces only to itself, and the exact self-application at the core of <span class="mono">Y = λf.(λx.f(x&#8202;x))(λx.f(x&#8202;x))</span>. The &ldquo;proof&rdquo; of <span class="mono">⊥</span> is the combinator with its brakes off: a term that never reaches a normal form. This is why consistency <i>is</i> normalization — the contradiction and the non-terminating computation are one object, and to forbid either is to forbid the other.</div>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">the power face and the limit face, from a single term</div>
+      <p>Hold the two readings together. Point the fixed-point operator at a recursive functional — a description of factorial, of a stream, of a self-building machine — and it hands you the construction: this is <i>The Engine</i>'s entire power face. Point the identical operator at the proposition <span class="mono">X → ⊥</span> and it hands you a contradiction: this is the corpus's limit face, the Liar and Curry's paradox, the wall <i>The Ascent</i> and <i>The Descent</i> spend their length against. Nothing about the combinator changed — only its target. The fixed point that builds and the fixed point that bounds are not analogues or cousins; in the <span class="mono">λ</span>-calculus they are the same machine, and the dial that <i>The Mirror</i> named — does the twist admit a fixed point — is here the choice of what to feed a single term. Recursion and paradox are the two things one combinator does.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V ONE TERM, THE WHOLE THESIS ===== -->
+  <section class="sec" id="thesis">
+    <div class="sec-head"><span class="num">V · one term</span><h2>The whole thesis, in a single object</h2><p class="sub">The three lenses the corpus has used — order semantics, computability, category theory — converge on the combinator. It is the least fixed point, Kleene's recursion theorem, and Lawvere's positive direction at once: not three analogies, but one term seen three ways.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">read three ways at once&nbsp;&nbsp;</span>Everything the corpus has said about generative self-reference can be read off this one term, because the combinator is where the three faces of the subject meet. Give it a denotational meaning, in Scott's <span class="mono">D∞</span> or in the semantics of PCF, and <span class="mono">⟦Y⟧</span> turns out to be the <i>least-fixed-point operator</i>, <span class="mono">⟦Y⟧(f) = ⊔ₙ fⁿ(⊥)</span> — so the ascending chain of <i>The Engine</i>'s third movement, the empty function climbing to factorial, is literally what <span class="mono">Y</span> <i>denotes</i>. Read it computationally and it is Kleene's recursion theorem of the second movement, a program with access to itself. Read it categorically and it is the constructive content of Lawvere's positive direction from <i>The Mirror</i> — the fixed point every endomap of a reflexive object <span class="mono">D ≅ Dᴰ</span> is guaranteed. One term; three theorems; one fact.</p>
+    </div>
+    <div class="trilemma">
+      <div class="tri-cell">
+        <div class="tc-n">order semantics</div>
+        <h4>the least fixed point</h4>
+        <p><span class="mono">⟦Y⟧(f) = ⊔ₙ fⁿ(⊥)</span> in <span class="mono">D∞</span> and PCF. The combinator <i>denotes</i> the bottom-up ascent — <i>The Engine</i>, §III. Syntax and order theory, one operator.</p>
+      </div>
+      <div class="tri-cell">
+        <div class="tc-n">computability</div>
+        <h4>the recursion theorem</h4>
+        <p>A program with access to its own description — Kleene's second recursion theorem, in the <span class="mono">λ</span>-calculus. The combinator is the effective fixed point — <i>The Engine</i>, §II.</p>
+      </div>
+      <div class="tri-cell">
+        <div class="tc-n">category theory</div>
+        <h4>Lawvere's positive direction</h4>
+        <p>The fixed point every endomap of a reflexive object <span class="mono">D ≅ Dᴰ</span> receives. The combinator is the witness — <i>The Mirror</i>; <i>The Engine</i>, §I.</p>
+      </div>
+    </div>
+    <p class="tri-note">Not three resemblances — three readings of one term. The combinator is the corpus's thesis with the prose removed.</p>
+    <div class="thm teal">
+      <div class="tl">the three readings provably coincide — adequacy</div>
+      <div class="ts">These are not loose analogies; they are forced to agree. In the denotational semantics <span class="mono">⟦Y⟧(f)</span> is a fixed point of <span class="mono">f</span>, and the least one is Kleene's ascent <span class="mono">⊔ₙ fⁿ(⊥)</span> — the empty approximation, iterated. <i>Computational adequacy</i> (Plotkin, 1977) closes the loop: a program's denotation is non-trivial exactly when the program evaluates to a value, so the operational behaviour of the syntactic combinator and the order-theoretic least fixed point cannot diverge — they compute the same partial function, on every input. The combinator one <i>writes</i>, the combinator a machine <i>runs</i>, and the least fixed point one <i>defines</i> are three descriptions of a single operator, pinned together by adequacy.</div>
+    </div>
+    <div class="thm gold">
+      <div class="tl">how Y witnesses Lawvere — the diagonal, run forwards</div>
+      <div class="ts">The categorical reading is not a gesture but an identity. Lawvere's theorem, in its positive direction, says that where application is point-surjective — where every map can be named, as on a reflexive object <span class="mono">D ≅ Dᴰ</span> — every endomap <span class="mono">f</span> has a fixed point, by a <i>constructive</i> proof. Given <span class="mono">f</span>, form the diagonal <span class="mono">h = λx.f(x&#8202;x)</span>; name it by the point <span class="mono">h</span> itself; then <span class="mono">h&#8202;h →β f(h&#8202;h)</span> is the fixed point. And that term <span class="mono">h&#8202;h = (λx.f(x&#8202;x))(λx.f(x&#8202;x))</span> is, on the nose, the first reduct of <span class="mono">Y&#8202;f</span>. The combinator <i>is</i> the constructive content of Lawvere's positive direction — and the self-application <span class="mono">x&#8202;x</span> at its heart is precisely the diagonal of Cantor, of Gödel, of the Liar, the one move the whole corpus turns on. The diagonal that, twisted by negation, drives a system to a wall here builds a fixed point instead: <i>The Combinators</i> is the diagonal of <i>The Diagonal</i>, run in the single direction that yields rather than forbids.</div>
+    </div>
+    <div class="reading" id="vector-note">
+      <p><span class="lead-in">recursion through several functions at once&nbsp;&nbsp;</span>A last demonstration of the term's reach. Recursion is rarely solitary in practice — definitions come in mutually-dependent bundles, <span class="mono">even</span> calling <span class="mono">odd</span> calling <span class="mono">even</span>. One might expect this to need a new combinator. It does not. Bundle the several functions into a single object indexed by a selector, take the <i>ordinary</i> fixed point of the bundle-transformer, and project — and the lone combinator threads the whole mutual recursion. This is the <span class="mono">λ</span>-calculus face of Bekić's theorem, and the term-level twin of <i>The Engine</i>'s double recursion theorem, the two programs that printed each other. The fixed point that closes through one function closes through any finite number.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="vector">
+        <div class="dn-func">one fixed-point combinator, threading two mutually-defined functions<br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">even(n) = n=0 ? true : odd(n−1) &nbsp;·&nbsp; odd(n) = n=0 ? false : even(n−1)</span></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="vecRun">run even / odd on 0…11 ▶</button>
+          <button class="dn-btn ghost" id="vecReset">reset</button>
+        </div>
+        <div class="dn-chain" id="vecList"></div>
+        <div class="dn-miss" id="vecReadout"></div>
+        <figcaption><span class="mono">neither function is defined alone — </span>each is given only in terms of the other, and a single combinator, applied to the bundle, supplies both. Mutual recursion is not a new power; it is the same fixed point, taken of a tuple.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the laws, and the operator behind them&nbsp;&nbsp;</span>The combinator obeys an equational theory — the Conway identities (fixpoint, parameter, composition, double-dagger) that are complete for the least-fixed-point operator over continuous functions — and through them the fixed point shows its most abstract face: the <i>trace</i> of a feedback loop, recursion and iteration and cyclic information flow as a single structure. These four readings — the least fixed point of Kleene, the operational combinator, Lawvere's diagonal, and the diagrammatic trace — are not four operators but one, pinned together by adequacy and the Conway laws. The full mathematics of the fixed-point <i>operator</i> — Kleene's construction from below, the adequacy that makes it faithful to computation, the diagonal that ties it to the corpus's thesis, and the trace that makes it universal — is the subject of a companion to this movement, <i>The Operator</i>.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">δ&#8202;Y =βη Y</span><span class="ln"></span></div>
+
+  <div class="coda"><p><em>The Engine</em> argued, across five movements, that the diagonal which bounds is the diagonal which builds. This companion has shown that the building is done by a term — and that the term is not one but a structured infinity, organised by the very pattern it performs, terminating only when it carries its own patience, vanishing under types and returning by an act of will, and, pointed at falsehood instead of a recursive functional, detonating a logic. Read it in order theory and it is a least fixed point; in computability, a recursion theorem; in category theory, Lawvere's positive direction. The whole corpus — the wall and the engine, the limit and the power, the dial that turns between them — is folded into this one object, and folded so tightly that to ask what all such objects are is to ask the question they were built to answer. <span class="mono">The fixed point that builds the world is a single term, and the term is the thesis.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deep-dive companion · the fixed point, in plural</span></div>
+    <p class="colophon">A tier-two companion to <i>The Engine</i>, drawn from its first movement. Where <i>The Engine</i> uses the fixed-point combinator as a tool and moves on, this volume stops on the term itself and turns it over: the plurality the definite article hid, the convertibility/reduction split between Curry's combinator and Turing's, the divergence under eager evaluation and the thunked <span class="mono">Z</span> that cures it, the generator <span class="mono">δ</span> and the infinite family it breeds, the disappearance under types and the return under recursive types or PCF, Curry's paradox as the same fixed point pointed at falsehood, and the three convergent readings — least fixed point, recursion theorem, Lawvere's positive direction. The <i>readings</i> are the corpus's; the mathematics is classical and is hand-verified before it is written.</p>
+    <p class="notes"><span class="nl">on the combinators.</span> &nbsp;A fixed-point combinator is any closed term <span class="mono">Y</span> with <span class="mono">Y F = F(Y F)</span> for all <span class="mono">F</span>. Curry's <span class="mono">Y = λf.(λx.f(x&#8202;x))(λx.f(x&#8202;x))</span> is <i>convertible</i> to its unfolding — <span class="mono">Y F =β F(Y F)</span>, meeting at the common reduct <span class="mono">F((λx.f(x&#8202;x))(λx.f(x&#8202;x)))</span> — but <span class="mono">Y F</span> does not <i>reduce</i> to <span class="mono">F(Y F)</span>; Turing's <span class="mono">Θ = (λx.λf.f(x&#8202;x&#8202;f))(λx.λf.f(x&#8202;x&#8202;f))</span> has the reduction property <span class="mono">Θ F →→ F(Θ F)</span> in two leftmost-outermost steps. The tracer runs a genuine de Bruijn <span class="mono">β</span>-reducer (leftmost-outermost), rendering terms with named binders. Under call-by-value both naive combinators diverge — the self-application fires before <span class="mono">F</span> is reached — while <span class="mono">Z = λf.(λx.f(λv.x&#8202;x&#8202;v))(λx.f(λv.x&#8202;x&#8202;v))</span> <span class="mono">η</span>-expands the recursive call into a thunk and terminates. The generator <span class="mono">δ = λy.λf.f(y&#8202;f)</span> characterises the family: <span class="mono">Y</span> is an fpc iff <span class="mono">Y =βη δ&#8202;Y</span>, and <span class="mono">Y&#8202;δ</span> is an fpc whenever <span class="mono">Y</span> is, so <span class="mono">Y, Yδ, (Yδ)δ, …</span> are pairwise non-convertible — a fact no ordinary Böhm tree can witness, since all fpc’s share one; it is established by the clocked Böhm trees of Endrullis, Hendriks and Klop, which record the tempo of head reduction. The fine structure was charted by Böhm, Statman, and Intrigila, including subtle non-existence results; Statman's conjectured <i>double</i> fixed-point combinator (an fpc with <span class="mono">Y&#8202;δ =β Y</span>) remains an open problem, an Intrigila proof of 1997 having been found wanting (Endrullis, 2011). Klop's self-documenting combinator <span class="mono">$</span>, twenty-six copies of one term, spells <i>this is a fixed point combinator</i> when written out.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on types and paradox.</span> &nbsp;The simply-typed <span class="mono">λ</span>-calculus and System F are strongly normalizing (Tait; Girard), so neither admits a fixed-point combinator and <span class="mono">x&#8202;x</span> is untypable in both — it would require <span class="mono">A = A → A</span>, unsolvable by a simple type. The combinator returns under a recursive type <span class="mono">μα.&#8202;α → α</span>, or as PCF's primitive <span class="mono">Y<sub>σ</sub> : (σ → σ) → σ</span> with <span class="mono">Y<sub>σ</sub> f → f(Y<sub>σ</sub> f)</span>. Under Curry–Howard a fixed-point combinator at the level of proofs is a proof of anything: from a proposition <span class="mono">C</span> with <span class="mono">C ↔ (C → ⊥)</span> — a fixed point of <span class="mono">X ↦ (X → ⊥)</span> — one derives <span class="mono">⊥</span> using implication alone (assume <span class="mono">C</span>, obtain <span class="mono">C → ⊥</span> and hence <span class="mono">⊥</span>, so <span class="mono">C → ⊥</span>; then <span class="mono">C</span>; then <span class="mono">⊥</span>). This is <i>Curry's paradox</i>, with the combinator as its looping proof term — and the reason strong normalization is identical to consistency: forbidding the unrestricted combinator <i>is</i> forbidding the contradiction. The same fixed-point pressure recurs one storey up: Girard's paradox shows that a type of all types (<span class="mono">Type : Type</span>) is inconsistent.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on the three readings.</span> &nbsp;In Scott's <span class="mono">D∞</span> and the semantics of PCF, <span class="mono">⟦Y⟧</span> is the least-fixed-point operator <span class="mono">f ↦ ⊔ₙ fⁿ(⊥)</span>: the syntactic combinator denotes the order-theoretic least fixed point of <i>The Engine</i>'s third movement. Computationally it is Kleene's second recursion theorem in the <span class="mono">λ</span>-calculus (second movement); categorically it is the constructive witness of Lawvere's positive direction for a reflexive object <span class="mono">D ≅ Dᴰ</span> (<i>The Mirror</i>; first movement). Mutual recursion through several functions is handled by a single combinator via the bundle-and-project construction — the <span class="mono">λ</span>-calculus form of Bekić's theorem — demonstrated here on <span class="mono">even</span>/<span class="mono">odd</span>; it is the term-level twin of the double recursion theorem.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Schönfinkel 1924 &amp; Curry (combinatory logic, combinatory completeness) · Curry &amp; Feys (the Y-combinator, standardization, Curry's paradox) · Church / Turing 1937 (the Θ combinator) · Klop (the self-documenting combinator) · Böhm (Böhm trees, the separation theorem, the Böhm sequence of fpc's) · Endrullis, Hendriks &amp; Klop (clocked Böhm trees; β-discrimination of fixed-point combinators) · Smullyan (the Owl, δ = SI) · Statman &amp; Intrigila 1997, 2000 (the structure of fixed-point combinators; the fixed-point property) · Endrullis 2011 (on the double-fpc proof) · Scott &amp; Curry (recursive inseparability of <span class="mono">β</span>-closed sets) · Tait / Girard (strong normalization of STLC and System F) · Scott 1969–1972 (<span class="mono">D∞</span>) · Plotkin 1975 (call-by-value), 1977 (PCF, adequacy, the full abstraction problem) · Milner 1977 (the fully abstract model) · Abramsky–Jagadeesan–Malacaria &amp; Hyland–Ong 2000 (game semantics) · Bekić 1969 (simultaneous fixed points) · Bloom &amp; Ésik 1993 (iteration theories, the Conway identities) · Hasegawa &amp; Hyland 1997 (fixed-point operators as traces) · Kleene 1938 (the recursion theorem) · Lawvere 1969.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){var e=document.createElement(t);if(c)e.className=c;return e;}
+function sup(n){var m={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};return String(n).replace(/\d/g,function(d){return m[d];});}
+
+/* ============ de Bruijn β-engine + named printer (reduction tracer) ============ */
+function V(n){return {v:n};} function L(b){return {l:b};} function A(s,t){return {a:[s,t]};} function K(n){return {c:n};}
+function shift(d,c,t){ if("v"in t)return t.v>=c?V(t.v+d):t; if("c"in t)return t; if("l"in t)return L(shift(d,c+1,t.l)); return A(shift(d,c,t.a[0]),shift(d,c,t.a[1])); }
+function subst(j,s,t){ if("v"in t)return t.v===j?s:t; if("c"in t)return t; if("l"in t)return L(subst(j+1,shift(1,0,s),t.l)); return A(subst(j,s,t.a[0]),subst(j,s,t.a[1])); }
+function contract(r){ return shift(-1,0,subst(0,shift(1,0,r.a[1]),r.a[0].l)); }
+function step(t){ if("a"in t){ if("l"in t.a[0])return contract(t); var s=step(t.a[0]); if(s)return A(s,t.a[1]); var u=step(t.a[1]); if(u)return A(t.a[0],u); return null; } if("l"in t){ var b=step(t.l); return b?L(b):null; } return null; }
+var POOL=["g","x","y","z","u","v","w","p","q","r","s","h"];
+function show(t,depth,names){ depth=depth||0; names=names||[];
+  if("c"in t)return t.c;
+  if("v"in t){ var nm=names[names.length-1-t.v]; return nm!==undefined?nm:("#"+t.v); }
+  if("l"in t){ var nm2=POOL[depth%POOL.length]; return "λ"+nm2+"."+show(t.l,depth+1,names.concat(nm2)); }
+  var Lx=t.a[0],Rx=t.a[1];
+  var ls=("l"in Lx)?"("+show(Lx,depth,names)+")":show(Lx,depth,names);
+  var rs=("a"in Rx||"l"in Rx)?"("+show(Rx,depth,names)+")":show(Rx,depth,names);
+  return ls+" "+rs;
+}
+function isUnfold(t){ return t&&t.a&&t.a[0]&&("c"in t.a[0])&&t.a[0].c==="f"; }
+
+var M=L(A(V(1),A(V(0),V(0)))), Ycurry=L(A(M,M));
+var TA=L(L(A(V(0),A(A(V(1),V(1)),V(0))))), Theta=A(TA,TA);
+var deltaT=L(L(A(V(0),A(V(1),V(0)))));
+var fvar=K("f");
+var trCases={
+  turing:{name:"Θ f", base:A(Theta,fvar), note:"↑ exactly f(Θ f) — Θ f has reduced to its own unfolding (a reduction, not merely a conversion)."},
+  curry:{name:"Y f", base:A(Ycurry,fvar), note:"↑ f(W), a reduct of Y f — convertible to f(Y f), yet Y f never literally becomes f(Y f)."},
+  delta:{name:"(Y δ) f", base:A(A(Ycurry,deltaT),fvar), note:"↑ the form f(…) — (Y δ) is itself a fixed-point combinator, as the generator guarantees."}
+};
+var trKey="turing", trSteps=[], trU=-1, TR_CAP=6;
+function trLoad(k){ trKey=k; trSteps=[trCases[k].base]; trU=isUnfold(trSteps[0])?0:-1; trRender(); }
+function trReduce(){ if(trSteps.length-1>=TR_CAP)return; var n=step(trSteps[trSteps.length-1]); if(!n)return; trSteps.push(n); if(trU<0&&isUnfold(n))trU=trSteps.length-1; trRender(); }
+function trRender(){
+  var body=document.getElementById("trBody"); body.innerHTML="";
+  document.getElementById("trWhere").textContent="reducing   "+trCases[trKey].name;
+  for(var i=0;i<trSteps.length;i++){
+    var line=E("div","beta-line");
+    var num=E("span","beta-gr"); num.textContent=i+":";
+    var term=E("span",(i===trU)?"mono beta-new":"mono"); term.textContent=show(trSteps[i]);
+    line.appendChild(num); line.appendChild(term); body.appendChild(line);
+  }
+  var ro=document.getElementById("trReadout");
+  if(trU>=0)ro.textContent=trCases[trKey].note;
+  else if(trSteps.length-1>=TR_CAP)ro.textContent="(this reduction does not terminate — capped)";
+  else ro.textContent="step to reduce";
+  var btn=document.getElementById("trStep"); var done=(trSteps.length-1>=TR_CAP); btn.disabled=done; btn.style.opacity=done?".4":"1";
+}
+
+/* ============ call-by-value runner ============ */
+function zRun(){
+  var list=document.getElementById("zList"); list.innerHTML="";
+  var factMaker=function(r){return function(n){return n<=1?1:n*r(n-1);};};
+  var rows=[
+    {lab:"Y · Curry (naive)", run:function(){var Y=function(f){return (function(x){return f(x(x));})(function(x){return f(x(x));});}; return Y(factMaker)(6);}},
+    {lab:"Θ · Turing (naive)", run:function(){var Ta=function(x){return function(f){return f(x(x)(f));};}; var T=Ta(Ta); return T(factMaker)(6);}},
+    {lab:"Z · thunked", run:function(){var Z=function(f){return (function(x){return f(function(v){return x(x)(v);});})(function(x){return f(function(v){return x(x)(v);});});}; return Z(factMaker)(6);}}
+  ];
+  for(var i=0;i<rows.length;i++){
+    var verdict, cls;
+    try{ var val=rows[i].run(); verdict="= "+val; cls="dn-pair fresh"; }
+    catch(e){ verdict="diverges — stack overflow"; cls="dn-pair undef"; }
+    var row=E("div","dn-row");
+    var lab=E("span","dn-lab"); lab.textContent=rows[i].lab;
+    var pair=E("span",cls); pair.textContent=verdict;
+    row.appendChild(lab); row.appendChild(pair); list.appendChild(row);
+  }
+  document.getElementById("zReadout").textContent="only the thunked Z reaches the function — the eager machine cannot run the paper combinators.";
+}
+function zReset(){ document.getElementById("zList").innerHTML=""; document.getElementById("zReadout").textContent=""; }
+
+/* ============ δ-generator: fpc_0 = Z ; fpc_{k+1} = fpc_k(δ) ============ */
+var GEN_CAP=6;
+var genZ=function(f){return (function(x){return f(function(v){return x(x)(v);});})(function(x){return f(function(v){return x(x)(v);});});};
+var genDelta=function(y){return function(f){return function(v){return f(function(w){return y(f)(w);})(v);};};};
+var genFactMaker=function(r){return function(n){return n<=1?1:n*r(n-1);};};
+function genLabel(k){ return k===0?"Y":"Yδ"+(k===1?"":sup(k)); }
+var genCount=1;
+function genRender(){
+  var list=document.getElementById("genList"); list.innerHTML="";
+  var fpc=genZ;
+  for(var k=0;k<genCount;k++){
+    var val; try{ val=fpc(genFactMaker)(6); }catch(e){ val="—"; }
+    var row=E("div","dn-row");
+    var lab=E("span","dn-lab"); lab.innerHTML=genLabel(k)+"<span style='color:var(--faintest);font-size:.66rem'> &nbsp;"+(k===0?"= Z":"= "+genLabel(k-1)+"·δ")+"</span>";
+    var pair=E("span","dn-pair fresh"); pair.textContent="fact(6) = "+val;
+    row.appendChild(lab); row.appendChild(pair); list.appendChild(row);
+    fpc=fpc(genDelta);
+  }
+  document.getElementById("genReadout").textContent=genCount+" distinct fixed-point combinators, each computing the factorial — of infinitely many.";
+  var btn=document.getElementById("genNext"); var done=(genCount>=GEN_CAP); btn.disabled=done; btn.style.opacity=done?".4":"1";
+}
+function genNext(){ if(genCount<GEN_CAP){ genCount++; genRender(); } }
+function genReset(){ genCount=1; genRender(); }
+
+/* ============ Curry's paradox stepper ============ */
+var cpSteps=[
+  "Fix a proposition C with C ↔ (C → ⊥) — a fixed point of the operation X ↦ (X → ⊥). A naive comprehension, or a self-referential definition, supplies it, exactly as Y supplies a term-level fixed point.",
+  "Assume C. From C → (C → ⊥) obtain C → ⊥; with the assumed C, modus ponens gives ⊥. Discharging the assumption: ⊢ C → ⊥.",
+  "From (C → ⊥) → C together with the C → ⊥ just proved: ⊢ C.",
+  "From C and C → ⊥, modus ponens: ⊢ ⊥.   ∎"
+];
+var cpShown=0;
+function cpRender(){
+  var list=document.getElementById("cpList"); list.innerHTML="";
+  for(var i=0;i<cpShown;i++){
+    var row=E("div","beta-line");
+    var num=E("span","beta-gr"); num.textContent=(i+1)+".";
+    var txt=E("span"); txt.style.fontSize=".84rem"; txt.style.lineHeight="1.5"; txt.textContent=cpSteps[i];
+    row.appendChild(num); row.appendChild(txt); list.appendChild(row);
+  }
+  var ro=document.getElementById("cpReadout");
+  if(cpShown>=cpSteps.length)ro.textContent="⊥ from implication and one fixed point — no negation anywhere. The proof term that carries it is the fixed-point combinator, looping at the level of proofs.";
+  else if(cpShown===0)ro.textContent="reveal the derivation step by step";
+  else ro.textContent="";
+  var btn=document.getElementById("cpNext"); var done=(cpShown>=cpSteps.length); btn.disabled=done; btn.style.opacity=done?".4":"1";
+}
+function cpNext(){ if(cpShown<cpSteps.length){ cpShown++; cpRender(); } }
+function cpReset(){ cpShown=0; cpRender(); }
+
+/* ============ vector / mutual fixed point: even / odd ============ */
+function vecRun(){
+  var list=document.getElementById("vecList"); list.innerHTML="";
+  var Z=function(f){return (function(x){return f(function(v){return x(x)(v);});})(function(x){return f(function(v){return x(x)(v);});});};
+  var F=function(bundle){return function(i){return i===0?function(n){return n===0?true:bundle(1)(n-1);}:function(n){return n===0?false:bundle(0)(n-1);};};};
+  var fixB=Z(F), even=fixB(0), odd=fixB(1);
+  var es="", os="";
+  for(var n=0;n<=11;n++){ es+=(even(n)?"T":"F"); os+=(odd(n)?"T":"F"); if(n<11){es+="  ";os+="  ";} }
+  var r1=E("div","dn-row"); var l1=E("span","dn-lab"); l1.textContent="even"; var p1=E("span","dn-pair fresh"); p1.textContent=es; r1.appendChild(l1); r1.appendChild(p1); list.appendChild(r1);
+  var r2=E("div","dn-row"); var l2=E("span","dn-lab"); l2.textContent="odd"; var p2=E("span","dn-pair fresh"); p2.textContent=os; r2.appendChild(l2); r2.appendChild(p2); list.appendChild(r2);
+  document.getElementById("vecReadout").textContent="n = 0…11 · both functions supplied by one combinator applied to their bundle (T = true, F = false).";
+}
+function vecReset(){ document.getElementById("vecList").innerHTML=""; document.getElementById("vecReadout").textContent=""; }
+
+/* ============ wiring ============ */
+function init(){
+  try{ trLoad("turing");
+    document.getElementById("trTuring").addEventListener("click",function(){trLoad("turing");});
+    document.getElementById("trCurry").addEventListener("click",function(){trLoad("curry");});
+    document.getElementById("trDelta").addEventListener("click",function(){trLoad("delta");});
+    document.getElementById("trStep").addEventListener("click",trReduce);
+    document.getElementById("trReset").addEventListener("click",function(){trLoad(trKey);});
+  }catch(e){}
+  try{ document.getElementById("zRun").addEventListener("click",zRun);
+    document.getElementById("zReset").addEventListener("click",zReset);
+  }catch(e){}
+  try{ genRender();
+    document.getElementById("genNext").addEventListener("click",genNext);
+    document.getElementById("genReset").addEventListener("click",genReset);
+  }catch(e){}
+  try{ cpRender();
+    document.getElementById("cpNext").addEventListener("click",cpNext);
+    document.getElementById("cpReset").addEventListener("click",cpReset);
+  }catch(e){}
+  try{ document.getElementById("vecRun").addEventListener("click",vecRun);
+    document.getElementById("vecReset").addEventListener("click",vecReset);
+  }catch(e){}
+}
+if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",init); } else { init(); }
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-engine.html">← The Engine</a><a rel="next" href="quodlibet-the-plural.html">The Plural →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

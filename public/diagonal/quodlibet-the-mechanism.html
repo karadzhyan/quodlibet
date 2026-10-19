@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Mechanism — how a system learns to name itself</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.10); --red-line:rgba(178,58,46,.40);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.11); --teal-line:rgba(44,110,106,.40);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.42);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup.fn{font-size:.62em;line-height:0;vertical-align:super;color:var(--red-deep);font-family:"IBM Plex Mono",monospace;padding-left:.1em;}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;
+    border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1.2rem,3vh,2rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.6rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.2rem,11vw,8.4rem);line-height:.94;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.08rem,1.45vw,1.28rem);line-height:1.56;color:var(--soft1);margin:clamp(1.5rem,3vh,2.2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.6rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2.2rem,5vh,3.4rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  /* ---------- prose ---------- */
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.06rem;line-height:1.78;margin:0 0 1.15rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.4rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.6rem auto 0;}
+  .reading p{font-size:1.02rem;line-height:1.76;margin:0 0 1.02rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.35rem;}
+  .reading.wide{max-width:42rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+  .drop em{font-style:italic;color:var(--ink);}
+
+  /* ---------- section heads ---------- */
+  .sec{margin-top:clamp(4.2rem,9vh,7rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.5rem,3vh,2.2rem);max-width:47rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.85rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1.01rem;color:var(--soft1);max-width:39rem;margin:1rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  /* ---------- panels / figures ---------- */
+  .stage{max-width:62rem;margin:clamp(1.8rem,4vh,2.8rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;
+    padding:clamp(1.2rem,3vw,2.2rem);box-shadow:0 1px 0 rgba(255,255,255,.4) inset;}
+  .panel-cap{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin:0 0 1rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.4rem auto 0;max-width:40rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+  figcaption .mono{font-size:.82rem;}
+
+  /* ---------- argument map ---------- */
+  #argmap{display:block;width:100%;height:auto;max-width:60rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- formal theorem block ---------- */
+  .theorem{border:1px solid var(--ink);border-radius:3px;background:rgba(26,24,21,.018);padding:clamp(1.1rem,2.6vw,1.8rem) clamp(1.2rem,3vw,2rem);position:relative;}
+  .theorem .thlab{position:absolute;top:-.72rem;left:1.2rem;background:var(--paper);padding:0 .6rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);}
+  .theorem .stmt{font-size:1.04rem;line-height:1.66;color:var(--ink);}
+  .theorem .stmt b{font-weight:600;}
+  .theorem .stmt .mono{font-size:.92rem;}
+  .theorem .proof{margin-top:1.1rem;padding-top:.95rem;border-top:1px solid var(--panelhair);font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .theorem .proof .plab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-right:.5rem;}
+  .theorem .qed{float:right;color:var(--ink);}
+  .formula{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);text-align:center;margin:.9rem auto;line-height:1.9;letter-spacing:.01em;}
+  .formula .em{color:var(--red-deep);font-weight:500;}
+  .formula.teal .em{color:var(--teal-deep);}
+  .corner{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  .corner > div{background:var(--paper);padding:.85rem 1rem;}
+  .corner .h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.3rem;}
+  .corner .v{font-size:.92rem;line-height:1.45;color:var(--soft1);}
+  @media(max-width:560px){ .corner{grid-template-columns:1fr;} }
+
+  /* ---------- callout / aside ---------- */
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.4rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.84rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);}
+  .callout.teal .cl-lab{color:var(--teal-deep);}
+  .callout.teal p .mono{color:var(--teal-deep);}
+
+  /* ---------- Cantor grid ---------- */
+  .cantor-wrap{display:flex;flex-direction:column;align-items:center;gap:1.1rem;}
+  .cgrid{display:grid;gap:3px;}
+  .crow{display:grid;gap:3px;grid-auto-flow:column;align-items:center;}
+  .clabel{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);width:3.4ch;text-align:right;padding-right:.5rem;}
+  .cell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px solid var(--panelhair);border-radius:2px;
+    background:rgba(26,24,21,.012);cursor:pointer;user-select:none;transition:background .12s,color .12s,border-color .12s;color:var(--soft1);}
+  .cell:hover{background:rgba(26,24,21,.05);}
+  .cell.diag{border-color:var(--red-line);background:var(--red-soft);color:var(--red-deep);font-weight:500;box-shadow:0 0 0 1px var(--red-line) inset;}
+  .escape-row{display:grid;gap:3px;grid-auto-flow:column;align-items:center;margin-top:.5rem;}
+  .escape-row .clabel{color:var(--red-deep);font-weight:500;}
+  .ecell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px dashed var(--red-line);border-radius:2px;color:var(--red-deep);font-weight:500;background:var(--red-soft);}
+  .cantor-note{font-size:.9rem;color:var(--soft1);text-align:center;max-width:34rem;line-height:1.55;}
+  .cantor-note .mono{color:var(--red-deep);}
+
+  /* ---------- buttons ---------- */
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+    background:rgba(26,24,21,.022);border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .95rem;cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .btn:hover{background:rgba(26,24,21,.06);}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .btn.red{color:#fff;background:var(--red);border-color:var(--red-deep);} .btn.red:hover{background:var(--red-deep);}
+  .btn.teal{color:#fff;background:var(--teal);border-color:var(--teal-deep);} .btn.teal:hover{background:var(--teal-deep);}
+  .controls{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;align-items:center;}
+
+  /* ---------- The Machine ---------- */
+  .machine{display:grid;gap:1.2rem;}
+  .selector{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .seltab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--faint);
+    background:transparent;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .8rem;cursor:pointer;
+    transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.12rem;min-width:5.4rem;}
+  .seltab .yr{font-size:.6rem;color:var(--faintest);letter-spacing:.06em;}
+  .seltab:hover{background:rgba(26,24,21,.04);}
+  .seltab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .seltab.on .yr{color:rgba(244,241,232,.6);}
+  .seltab.on.rec{background:var(--teal-deep);border-color:var(--teal-deep);}
+  .seltab.on.rec .yr{color:rgba(244,241,232,.6);}
+  .mach-grid{display:grid;grid-template-columns:1fr 1.28fr;gap:clamp(1rem,2.4vw,1.7rem);align-items:start;}
+  @media(max-width:780px){ .mach-grid{grid-template-columns:1fr;} }
+  .skeleton{border:1px solid var(--panelhair);border-radius:3px;padding:1.1rem 1.1rem 1.3rem;background:rgba(26,24,21,.015);}
+  .skeleton .lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.85rem;}
+  .sk-line{font-family:"IBM Plex Mono",monospace;font-size:.9rem;line-height:1.9;color:var(--soft1);}
+  .sk-line .sub{color:var(--red-deep);font-weight:500;}
+  .sk-line.rec .sub{color:var(--teal-deep);}
+  .sk-defn{display:grid;grid-template-columns:auto 1fr;gap:.28rem .8rem;margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--panelhair);
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.5;color:var(--faint);}
+  .sk-defn b{color:var(--red-deep);font-weight:500;}
+  .sk-defn.rec b{color:var(--teal-deep);}
+  .derivation{display:grid;gap:.5rem;}
+  .deriv-title{font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);margin-bottom:.05rem;}
+  .deriv-body{font-size:.96rem;line-height:1.6;color:var(--soft1);}
+  .deriv-body .mono{font-size:.84rem;color:var(--ink);background:rgba(26,24,21,.04);padding:.05em .3em;border-radius:2px;}
+  .deriv-step{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.68;color:var(--ink);
+    background:rgba(26,24,21,.025);border-left:2px solid var(--red-line);padding:.65rem .85rem;border-radius:0 2px 2px 0;margin:.25rem 0;white-space:pre-wrap;}
+  .deriv-step.rec{border-left-color:var(--teal-line);}
+  .fate-row{display:grid;grid-template-columns:auto 1fr;gap:.3rem .7rem;font-size:.88rem;line-height:1.5;margin-top:.2rem;}
+  .fate-row .fk{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .fate-row .fv{color:var(--soft1);}
+  .fate-row .fv b{color:var(--ink);font-weight:500;}
+  .verdict{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;padding:.85rem 1.05rem;border-radius:3px;background:var(--red-soft);border:1px solid var(--red-line);}
+  .verdict.rec{background:var(--teal-soft);border-color:var(--teal-line);}
+  .verdict .tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .verdict.rec .tag{color:var(--teal-deep);}
+  .verdict .txt{font-size:.94rem;color:var(--soft1);font-style:italic;}
+
+  /* ---------- code runner (quine / Y) ---------- */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner-bar{display:flex;justify-content:space-between;align-items:center;padding:.5rem .8rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner-bar .ttl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner pre{margin:0;padding:.95rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;word-break:break-word;overflow-x:auto;}
+  .runner .rout{border-top:1px dashed var(--panelhair);padding:.8rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.6;color:var(--soft1);white-space:pre-wrap;word-break:break-word;min-height:1.5rem;}
+  .runner .rout .ok{color:var(--teal-deep);font-weight:500;}
+  .runner .rout .lbl{color:var(--faintest);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:.25rem;}
+
+  /* ---------- hinge ---------- */
+  .hinge-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2.4vw,1.7rem);}
+  @media(max-width:700px){ .hinge-grid{grid-template-columns:1fr;} }
+  .hinge-card{border:1px solid var(--panelhair);border-radius:3px;padding:1.15rem;text-align:center;background:rgba(26,24,21,.012);}
+  .hinge-card svg{display:block;width:100%;height:auto;max-width:240px;margin:.3rem auto .7rem;overflow:visible;}
+  .hinge-card h4{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin:0 0 .2rem;}
+  .hinge-card .verdict-line{font-size:.9rem;font-style:italic;line-height:1.5;margin-top:.5rem;}
+  .hinge-card.lim h4{color:var(--red-deep);} .hinge-card.lim .verdict-line{color:var(--red-deep);}
+  .hinge-card.rec h4{color:var(--teal-deep);} .hinge-card.rec .verdict-line{color:var(--teal-deep);}
+
+  /* ---------- four fates strip ---------- */
+  .fates{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:820px){ .fates{grid-template-columns:1fr 1fr;} }
+  @media(max-width:460px){ .fates{grid-template-columns:1fr;} }
+  .fate{background:var(--paper);padding:1rem 1rem 1.1rem;}
+  .fate .fn{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .fate .fh{font-family:"Spectral",serif;font-style:italic;font-size:1.06rem;color:var(--ink);margin-bottom:.35rem;line-height:1.2;}
+  .fate .fb{font-size:.86rem;line-height:1.48;color:var(--soft1);}
+  .fate .fr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.5;}
+  .fate.f-red{box-shadow:inset 3px 0 0 var(--red-line);} .fate.f-red .fh{color:var(--red-deep);}
+  .fate.f-teal{box-shadow:inset 3px 0 0 var(--teal-line);} .fate.f-teal .fh{color:var(--teal-deep);}
+  .fate.f-gold{box-shadow:inset 3px 0 0 var(--gold-line);} .fate.f-gold .fh{color:var(--gold-deep);}
+
+  /* ---------- Löb derivation chain ---------- */
+  .lobchain{display:grid;gap:.4rem;max-width:46rem;margin:1.4rem auto 0;}
+  .lobstep{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);}
+  .lobstep .ln{color:var(--faintest);font-size:.7rem;}
+  .lobstep .ex{color:var(--ink);}
+  .lobstep .ex .em{color:var(--red-deep);}
+  .lobstep .why{color:var(--faint);font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;text-align:right;}
+  .lobstep.key{border-color:var(--red-line);background:var(--red-soft);}
+
+  /* ---------- bridge table ---------- */
+  .bridge{max-width:55rem;margin:clamp(1.5rem,3vh,2.2rem) auto 0;}
+  .bridge-row{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .bridge-row+.bridge-row{margin-top:1px;}
+  .bcell{background:var(--paper);padding:.9rem 1.05rem;}
+  .bcell .h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .bcell .v{font-size:.93rem;line-height:1.45;color:var(--soft1);}
+  .bcell .v b{font-weight:500;color:var(--ink);}
+  .bridge-head .bcell{background:rgba(26,24,21,.025);}
+  .bridge-head .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:1rem;}
+  @media(max-width:660px){ .bridge-row{grid-template-columns:1fr;} }
+
+  /* ---------- trilemma ---------- */
+  .trilemma{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;}
+  @media(max-width:780px){ .trilemma{grid-template-columns:1fr;} }
+  #triSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .tri-readout{min-height:9rem;}
+  .tri-readout .tr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.5rem;}
+  .tri-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.3rem;margin:0 0 .5rem;color:var(--ink);}
+  .tri-readout p{font-size:.95rem;line-height:1.58;color:var(--soft1);}
+  .tri-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faint);margin-top:.6rem;display:block;line-height:1.6;}
+  .tri-readout .mech{font-size:.86rem;color:var(--faint);margin-top:.55rem;line-height:1.5;font-style:italic;}
+
+  /* ---------- coda + footer ---------- */
+  .coda{max-width:46rem;margin:clamp(4.5rem,10vh,7rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.4rem,2.5vw,1.95rem);line-height:1.34;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.88em;}
+  .coda .mono.t{color:var(--teal-deep);}
+  footer{margin-top:clamp(4.5rem,10vh,7rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:66ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:66ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+  .refs{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.95;color:var(--faintest);margin-top:1.2rem;max-width:70ch;}
+  .refs b{color:var(--faint);font-weight:500;}
+
+  /* ---------- Kleene ascent (§VII) ---------- */
+  .asc-wrap{display:grid;gap:4px;max-width:31rem;margin:.4rem auto 0;}
+  .asc-row{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .85rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);
+    transition:background .14s,border-color .14s;}
+  .asc-row .asc-lab{color:var(--faint);white-space:nowrap;}
+  .asc-row .asc-map{color:var(--soft1);word-break:break-word;}
+  .asc-row.cur{border-color:var(--teal-line);background:var(--teal-soft);}
+  .asc-row.cur .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-row.lim{border-style:dashed;border-color:var(--teal-line);}
+  .asc-row.lim .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:35rem;margin:.95rem auto 0;font-style:italic;}
+  .asc-note .mono{font-style:normal;color:var(--teal-deep);font-size:.82rem;}
+
+  /* ---------- value-lattice dial (§VIII) ---------- */
+  .dial{display:grid;gap:1.1rem;}
+  .dial-sel{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .dial-stage{display:flex;justify-content:center;padding:.3rem 0;}
+  #dialViz{display:block;width:100%;height:auto;max-width:30rem;overflow:visible;}
+  .dial-readout{min-height:7rem;max-width:42rem;margin:0 auto;text-align:center;}
+  .dial-readout .dr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.45rem;color:var(--faint);}
+  .dial-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.26rem;margin:0 0 .45rem;color:var(--ink);}
+  .dial-readout p{font-size:.94rem;line-height:1.56;color:var(--soft1);}
+  .dial-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.62;}
+  .dial-readout.red .dr-pair{color:var(--red-deep);}
+  .dial-readout.teal .dr-pair{color:var(--teal-deep);}
+  .dial-readout.gold .dr-pair{color:var(--gold-deep);}
+
+  /* ---------- de Jongh–Sambin fixed-point grid (§IX) ---------- */
+  .fpgrid{max-width:56rem;margin:1.3rem auto 0;}
+  .fprow{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .fprow+.fprow{margin-top:1px;}
+  .fpcell{background:var(--paper);padding:.85rem 1.05rem;}
+  .fpcell .h{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.38rem;}
+  .fpcell .v{font-family:"IBM Plex Mono",monospace;font-size:.85rem;line-height:1.55;color:var(--soft1);}
+  .fpcell .v .em{color:var(--gold-deep);font-weight:500;}
+  .fpcell .vn{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .fpcell .vn b{color:var(--ink);font-weight:500;}
+  .fphead .fpcell{background:rgba(26,24,21,.025);}
+  .fphead .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:.98rem;}
+  @media(max-width:660px){ .fprow{grid-template-columns:1fr;} }
+
+  /* ---------- twist classifier (§III) ---------- */
+  .tclass{max-width:43rem;margin:.4rem auto 0;display:grid;gap:1.05rem;}
+  .tclass-q{display:grid;gap:.5rem;}
+  .tclass-q .ql{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);}
+  .tclass-q .qt{font-size:.95rem;line-height:1.5;color:var(--soft1);}
+  .tclass-q .qt b{color:var(--ink);font-weight:600;}
+  .tclass-opts{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .topt{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.01em;color:var(--faint);
+    border:1px solid var(--panelhair);border-radius:2px;padding:.36rem .82rem;background:var(--paper);cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .topt:hover{background:rgba(26,24,21,.04);}
+  .topt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .topt.dis{opacity:.32;pointer-events:none;}
+  .tclass-out{border-top:1px solid var(--panelhair);padding-top:1.1rem;text-align:center;min-height:7rem;}
+  .tclass-out .to-pair{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.42rem;color:var(--faint);}
+  .tclass-out h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.24rem;margin:0 0 .42rem;color:var(--ink);}
+  .tclass-out p{font-size:.93rem;line-height:1.56;color:var(--soft1);max-width:40rem;margin:0 auto;}
+  .tclass-out .to-ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.6;}
+  .tclass-out.red .to-pair{color:var(--red-deep);}
+  .tclass-out.teal .to-pair{color:var(--teal-deep);}
+  .tclass-out.gold .to-pair{color:var(--gold-deep);}
+
+  /* ---------- GL Kripke frame (§IX) ---------- */
+  #glFrame{display:block;width:100%;height:auto;max-width:34rem;margin:0 auto;overflow:visible;}
+  .glframe-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .glframe-note .mono{font-style:normal;color:var(--gold-deep);font-size:.82rem;}
+
+  /* ---------- the Kernel: comparison axes + diagrams ---------- */
+  .cmp-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .cmp-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .cmp-axes .av{color:var(--soft1);line-height:1.42;}
+  .cmp-axes .av b{color:var(--ink);font-weight:600;}
+  #kccc,#kproof{display:block;width:100%;height:auto;max-width:35rem;margin:0 auto;overflow:visible;}
+  .kdiag-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .kdiag-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  /* ---------- the Mechanism: diagrams ---------- */
+  #secEval,#dgtrace{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+
+  @media (max-width:600px){ body{font-size:18px;} .mach-grid{grid-template-columns:1fr;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{
+    body{background:#f4f1e8 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5pt;}
+    body::before{display:none !important;}
+    .btn,.controls,.selector,.runner-bar .btn{display:none !important;}
+    .sec,.panel,.stage,figcaption,.reading,.coda,.theorem,.fates,.runner{break-inside:avoid;}
+    .sec-head{break-after:avoid;}
+  }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-diagonal">The Diagonal</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the mechanism · second deepening</span></div>
+    <div class="hero-head">
+      <p class="kicker">How the snake comes to bite its own tail</p>
+      <h1>The Mechanism</h1>
+      <p class="standfirst">Lawvere's theorem asks for one thing: a system that can name all of its own operations. The Kernel <i>assumed</i> that power; this is how it is <b>built</b>. Nothing in ordinary grammar lets a sentence point at itself or a program read its own text — and yet, by a single construction repeated in four settings, both become not merely possible but <i>forced</i>. The arithmetisation of syntax, the diagonal function, the recursion theorem, the combinatory algebras, and the reflexive object are not four tricks. They are one move: a section of evaluation.</p>
+      <p class="ed-mark">component II of the diagonal · the machinery of reflexivity, isolated and deepened — representability and the coding of syntax, the diagonal lemma derived from the diagonal function, the s&#8209;m&#8209;n and recursion theorems with a running quine, partial combinatory algebras and combinatory completeness, the reflexive object <span class="mono">D ≅ D<sup class="fn" style="vertical-align:super">D</sup></span>, and the single structural fact beneath all four</p>
+    </div>
+  </header>
+
+  <!-- ============ §I THE OBSTACLE ============ -->
+  <section class="sec" id="obstacle">
+    <div class="sec-head"><span class="num">I · the obstacle</span><h2>Grammar forbids the inward turn</h2><p class="sub">Before reflexivity can be built it must be understood why it is not free. Nothing in the surface syntax of a language lets an expression refer to <i>itself</i> — and the precise shape of that obstruction is exactly what the mechanism must overcome.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the sentence that is not yet written&nbsp;&nbsp;</span>"This sentence is unprovable" sounds like a definition, but read as one it is circular in a way that does not obviously bottom out. To write it formally we would need a sentence <span class="mono">S</span> equal to <span class="mono">¬Prov(⌜S⌝)</span> — yet <span class="mono">⌜S⌝</span>, the code of <span class="mono">S</span>, cannot be supplied until <span class="mono">S</span> exists, and <span class="mono">S</span> cannot be written until <span class="mono">⌜S⌝</span> is known. Substitution, the one tool the grammar offers, makes this worse rather than better: substituting a formula's code into the formula yields a <i>longer</i> formula, never one that contains its own, completed code. The fixed point we want is a fixed point of <b>substitution itself</b>, and the surface grammar provides no such thing.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the same wall, in three rooms&nbsp;&nbsp;</span>The obstruction is not peculiar to arithmetic. A program that wishes to print its own text faces it squarely: a program is a finite string, but the string is not available to the program as it runs unless it was somehow built in — and building in the full string seems to require a string strictly larger than itself, which then must contain <i>that</i>, and so on. A set that contains exactly the things satisfying a property would let any predicate name a set — but <span class="mono">{x : x ∉ x}</span> shows the naïve version cannot be coherent. And a space that contained all of its own self&#8209;maps would let every map be a point — but Cantor forbids it for plain sets. In each room the same wall: <b>the surface structure does not close on itself</b>, and naïvely forcing it to either fails to terminate or collapses. The mechanism is whatever lets the structure close <i>without</i> either.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">what must be produced — a fixed point of substitution</div>
+      <p>State the requirement exactly and the path forward appears. We do not need a sentence that literally contains its own code — that is the impossible object. We need a sentence <span class="mono">S</span> and a substitution operation <span class="mono">sub</span> such that <span class="mono">S</span> is <i>provably equivalent</i> to the result of applying the target predicate to <span class="mono">⌜S⌝</span>, where <span class="mono">⌜S⌝</span> is reached not by containment but by <b>computation</b> — by running <span class="mono">sub</span> on a smaller seed. The whole mechanism, in every guise, is the construction of a <b>fixed point of a substitution (or application) operator</b>: in arithmetic the operator is the diagonal function; in computation it is program&#8209;specialisation; in the λ&#8209;calculus it is self&#8209;application. The inward turn is achieved not by grammar but by a coded operation whose own fixed point the grammar can then name. Everything below is four ways of building that operator and taking its fixed point.</p>
+    </div>
+  </section>
+
+  <!-- ============ §II ARITHMETISATION ============ -->
+  <section class="sec" id="coding">
+    <div class="sec-head"><span class="num">II · arithmetisation</span><h2>Syntax becomes arithmetic</h2><p class="sub">The first and decisive step is to make a theory of numbers able to <i>talk about its own formulas</i>. Once syntactic operations are arithmetic functions the theory can represent, the system has gained the power to name itself — and the rest is the diagonal.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">coding&nbsp;&nbsp;</span>Assign to every symbol a number, to every finite string of symbols a number built from its parts — by prime exponents, or any effective pairing — and to every formula and every proof its <b>Gödel number</b>. The assignment is mechanical and invertible: from a number one recovers the string, and one can decide whether a number codes a well&#8209;formed formula, a sentence, a proof. What matters is not the particular scheme but its effect: <i>finite syntactic objects are now numbers</i>, and operations on syntax are now functions on numbers. The act of substituting one formula into another, the act of checking that a sequence of formulas is a valid derivation — each becomes an arithmetic function of the corresponding codes.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">representability — the bridge that bears the weight&nbsp;&nbsp;</span>Coding alone is bookkeeping; the load is carried by <b>representability</b>. A function <span class="mono">f : ℕ → ℕ</span> is <i>represented</i> in a theory <span class="mono">T</span> by a formula <span class="mono">F(x, y)</span> when <span class="mono">T</span> not only gets every value right but <i>knows</i> it does so uniquely:</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Definition · representability</span>
+        <div class="formula" style="line-height:1.85">for every <span class="mono">n</span>: &nbsp; ⊢<sub style="font-size:.7em">T</sub> F(<span class="mono">n̄</span>, <span class="mono">f(n)‾</span>) &nbsp;&nbsp;and&nbsp;&nbsp; ⊢<sub style="font-size:.7em">T</sub> ∀y &#8201;( F(<span class="mono">n̄</span>, y) → y = <span class="mono">f(n)‾</span> )</div>
+        <div class="stmt" style="font-size:.96rem">where <span class="mono">n̄</span> is the numeral for <span class="mono">n</span>. The theory proves the right output and proves it is the <i>only</i> output. A theory as weak as Robinson arithmetic <span class="mono">Q</span> already represents <b>every computable function</b> — in particular every primitive recursive one.</div>
+        <div class="proof"><span class="plab">why it is enough</span> Representability is what turns "the theory could in principle compute this" into "the theory can <i>reason</i> about this." Because the syntactic operations we need — above all substitution and the diagonal function — are primitive recursive, they are represented; and a represented function can be plugged into the diagonal construction and the theory will prove the resulting equivalence. Coding makes syntax into numbers; representability makes those numbers something the theory can manipulate from the inside. That is precisely the section of evaluation §VII will name. <span class="qed">∎</span></div>
+      </div>
+      <figcaption>Representability is the exact strength at which a theory becomes <i>reflexive</i>. It is the arithmetic shadow of weak point&#8209;surjectivity: the theory reproduces each syntactic operation's behaviour on every input, with no claim grander than that — and, by the Kernel, that is all the diagonal needs.</figcaption>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the operations that must be represented</div>
+      <p>Two functions do the real work, and both are primitive recursive, hence represented in any sufficiently strong arithmetic. <b>Substitution</b> <span class="mono">sub(⌜φ(x)⌝, n) = ⌜φ(n̄)⌝</span> takes the code of a formula and a number and returns the code of the formula with that numeral plugged in. The <b>diagonal function</b> <span class="mono">d(⌜θ⌝) = ⌜θ(⌜θ⌝)⌝</span> — the special case that substitutes a formula's <i>own</i> code into itself — is built from <span class="mono">sub</span> in one line. Represent these and the inward turn is mechanically available: the theory can speak of "the formula obtained by feeding <span class="mono">θ</span> its own quotation," and can prove the basic equalities that govern it. The provability predicate <span class="mono">Prov(x)</span> — "<span class="mono">x</span> codes a provable sentence" — is then a <span class="mono">Σ₁</span> formula built over the represented "is a proof of" relation. Everything the limitative theorems need is assembled from these few represented operations.</p>
+    </div>
+  </section>
+
+  <!-- ============ §III THE DIAGONAL FUNCTION ============ -->
+  <section class="sec" id="diaglemma">
+    <div class="sec-head"><span class="num">III · the diagonal function</span><h2>A sentence catches its own tail</h2><p class="sub">With substitution represented, the inward turn is one short construction. It is the precise mechanism by which "this sentence" acquires a referent — and it has exactly one moving part.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the one moving part&nbsp;&nbsp;</span>Recall the diagonal function <span class="mono">d(⌜θ(x)⌝) = ⌜θ(⌜θ⌝)⌝</span> — given the code of a one&#8209;variable formula, return the code of that formula applied to the numeral of <i>its own</i> code. It is primitive recursive (it is just <span class="mono">sub</span> with both arguments tied together), so the theory represents it. The diagonal lemma is what this single represented operation buys: for <i>any</i> predicate <span class="mono">ψ(x)</span>, a sentence equivalent to <span class="mono">ψ</span> applied to itself.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">The diagonal lemma · derived in full</span>
+        <div class="formula teal" style="text-align:left;line-height:1.95">
+          given &nbsp;<span class="mono">ψ(x)</span>, &nbsp;set &nbsp;<span class="mono">θ(x) := ψ( d(x) )</span><br>
+          then &nbsp;<span class="mono">θ(⌜θ⌝) = ψ( d(⌜θ⌝) ) = ψ( ⌜θ(⌜θ⌝)⌝ )</span><br>
+          write &nbsp;<span class="mono">S := θ(⌜θ⌝)</span> &nbsp;⟹&nbsp; <span class="mono">⊢ &nbsp;S ↔ ψ(⌜S⌝)</span>
+        </div>
+        <div class="proof"><span class="plab">read the middle line</span> <span class="mono">S</span> is the result of feeding <span class="mono">θ</span> its own quotation. By the definition of <span class="mono">d</span>, that result equals <span class="mono">ψ</span> applied to the quotation of <i>that very result</i> — i.e. of <span class="mono">S</span> itself. Because <span class="mono">d</span> is represented, the theory <i>proves</i> the equality <span class="mono">d(⌜θ⌝) = ⌜S⌝</span>, and the biconditional follows. <b>No formula literally contains its own code.</b> The self&#8209;reference is achieved by a fixed point of the substitution operator <span class="mono">d</span> — which is a Lawvere fixed point, one storey down. <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">the construction — how the tail is caught</p>
+        <div><svg id="dgtrace" role="img" aria-label="The diagonal construction: a formula theta applied to its own code yields a sentence S provably equivalent to psi applied to the code of S."></svg></div>
+        <p class="kdiag-note" id="dgtraceNote"></p>
+      </div>
+      <figcaption>The seed is <span class="mono">θ</span>; feeding it its own quotation produces <span class="mono">S</span>; and the diagonal function was built so that this very act makes <span class="mono">S</span> assert <span class="mono">ψ</span> of <span class="mono">S</span>. The loop closes not by containment but by a represented computation — which the theory can then name and prove about.</figcaption>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">intensional, not literal — and why it had to wait for 1931</div>
+      <p>The reference is <b>intensional</b>: <span class="mono">S</span> contains the code of <span class="mono">θ</span>, not of <span class="mono">S</span>, and only after substitution does <span class="mono">θ(⌜θ⌝)</span> provably coincide with <span class="mono">ψ(⌜S⌝)</span>. Contrast the λ&#8209;calculus, where self&#8209;application <span class="mono">x x</span> is <i>literal</i> and "the term is its own name" needs no coding. Same fixed point, two grades of literalness — and the intensional grade is exactly the one that had to await Gödel, because it presupposes the discovery that <i>syntax can be arithmetised at all</i>. Gödel's true innovation was not the diagonal, which Cantor already had, but the coding that lets a theory of numbers <b>become</b> a reflexive object. Choose <span class="mono">ψ = ¬Prov</span> and <span class="mono">S</span> is Gödel's sentence; <span class="mono">ψ = ¬True</span> and it is the Liar; <span class="mono">ψ = Prov → φ</span> and it is the key to Löb — the same fixed point, built once, hostile or harmless by the choice of <span class="mono">ψ</span> alone.</p>
+    </div>
+  </section>
+
+  <!-- ============ §IV THE RECURSION THEOREM ============ -->
+  <section class="sec" id="recursion">
+    <div class="sec-head"><span class="num">IV · the recursion theorem</span><h2>A program with its own source</h2><p class="sub">Computation makes the same fixed point tangible and runnable. Two theorems do it: the s&#8209;m&#8209;n theorem, which specialises programs computably, and Kleene's recursion theorem, which hands every program transformation a fixed point.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">s-m-n — substitution, computed&nbsp;&nbsp;</span>The computational analogue of <span class="mono">sub</span> is the <b>s&#8209;m&#8209;n theorem</b>: there is a <i>total computable</i> function <span class="mono">s</span> that hardwires inputs into programs. Given a program <span class="mono">e</span> of two arguments and a value <span class="mono">x</span>, <span class="mono">s(e, x)</span> is a program of one argument with <span class="mono">φ<sub style="font-size:.72em">s(e,x)</sub>(y) = φ<sub style="font-size:.72em">e</sub>(x, y)</span>. Specialising a program to a fixed input is itself something a program can do — the stored&#8209;program principle in its sharpest form. This is exactly the represented substitution of §III, now an effective operation on code rather than on formulas.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Kleene's second recursion theorem · 1938</span>
+        <div class="stmt">For every total computable <span class="mono">f</span>, there is a program <span class="mono">e</span> with <span class="mono">φ<sub style="font-size:.72em">e</sub> = φ<sub style="font-size:.72em">f(e)</sub></span> — a program that behaves exactly as <span class="mono">f</span> applied to its own code dictates.</div>
+        <div class="proof"><span class="plab">construction</span> Using s&#8209;m&#8209;n, set the diagonal map <span class="mono">δ(x) = s(x, x)</span>. Choose a program <span class="mono">v</span> with <span class="mono">φ<sub style="font-size:.72em">v</sub>(x, y) = φ<sub style="font-size:.72em">f(δ(x))</sub>(y)</span>, and let <span class="mono">e = δ(v) = s(v, v)</span>. Then <span class="mono">φ<sub style="font-size:.72em">e</sub> = φ<sub style="font-size:.72em">s(v,v)</sub> = λy.&#8201;φ<sub style="font-size:.72em">v</sub>(v, y) = λy.&#8201;φ<sub style="font-size:.72em">f(δ(v))</sub>(y) = φ<sub style="font-size:.72em">f(e)</sub></span>. The structure is the diagonal lemma's exactly: a diagonalised seed <span class="mono">v</span>, fed its own specialisation, yields the fixed point. <span class="qed">∎</span></div>
+      </div>
+      <figcaption>The recursion theorem is the executable diagonal lemma. Where the lemma gives a <i>sentence</i> equivalent to a predicate of its own code, the theorem gives a <i>program</i> equivalent to a transformation of its own code — and the proof is the same diagonal, run on indices instead of formulas.</figcaption>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.6rem,3vh,2.2rem)">
+      <p><span class="lead-in">the purest case — a quine&nbsp;&nbsp;</span>Take <span class="mono">f</span> to be the transformation "given a code <span class="mono">c</span>, return a program that ignores its input and prints <span class="mono">c</span>." Its fixed point <span class="mono">e</span> is a program that prints <span class="mono">e</span> — its own source, reconstructed from itself, reading no file and naming itself by no variable. A <b>quine</b> is the recursion theorem made to run. The example below is one, and it is the diagonal lemma in executable form: a string that is first <i>quoted</i> — the analogue of <span class="mono">⌜θ⌝</span> — and then <i>printed into a copy of itself</i> — the analogue of <span class="mono">θ(⌜θ⌝)</span>. Run it; the output is the program, character for character.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="runner">
+        <div class="runner-bar"><span class="ttl">a quine · the executable diagonal lemma</span><button class="btn teal" id="quineRun">▶&nbsp; run it</button></div>
+        <pre id="quineCode"></pre>
+        <div class="rout" id="quineOut"><span class="lbl">output</span><span style="color:var(--faintest)">press run — the data string is quoted, then printed into a copy of itself; the result is the source, exactly.</span></div>
+      </div>
+      <figcaption>The variable <span class="mono">d</span> holds the program <i>as data</i>; printing <span class="mono">"var d = " + quote(d) + ";" + d</span> reproduces both lines. That doubling — code that contains its own quotation and prints the quotation back into code — is the fixed point of the substitution operator, the same one the diagonal lemma names in arithmetic.</figcaption>
+    </div>
+  </section>
+
+  <!-- ============ §V COMBINATORY COMPLETENESS ============ -->
+  <section class="sec" id="pca">
+    <div class="sec-head"><span class="num">V · combinatory completeness</span><h2>Naming becomes application</h2><p class="sub">Strip arithmetic and machines away and the bare algebraic essence of reflexivity remains: a set with a single operation, rich enough that every operation it can define is already one of its own elements.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">a partial combinatory algebra&nbsp;&nbsp;</span>Take a set <span class="mono">A</span> with one partial operation — <b>application</b> <span class="mono">a · b</span> — and two distinguished elements <span class="mono">k</span> and <span class="mono">s</span> obeying <span class="mono">k·a·b = a</span> and <span class="mono">s·a·b·c = (a·c)·(b·c)</span> (with the usual definedness caveats). That is a <b>partial combinatory algebra</b>, and it is the whole structure. From <span class="mono">k</span> and <span class="mono">s</span> alone one recovers a <i>bracket abstraction</i> <span class="mono">λ*x.&#8201;t</span> — a syntactic procedure that, for any expression <span class="mono">t</span> built from variables and application, produces an element behaving as the function <span class="mono">x ↦ t</span>. This is <b>combinatory completeness</b>, and it is point&#8209;surjectivity in its most distilled form.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Combinatory completeness ⟹ a fixed-point combinator</span>
+        <div class="stmt">In any partial combinatory algebra, every definable function is named by an element — for each term <span class="mono">t(x₁,…,xₙ)</span> there is <span class="mono">⟨t⟩ ∈ A</span> with <span class="mono">⟨t⟩·a₁·⋯·aₙ = t[a₁,…,aₙ]</span> — and consequently there is a <b>fixed&#8209;point combinator</b>: an element <span class="mono">Y</span> with <span class="mono">Y·f = f·(Y·f)</span> for all <span class="mono">f</span>.</div>
+        <div class="formula teal">⟨λ*x. f(x&#8201;x)⟩ &nbsp;=&nbsp; w &nbsp;&nbsp;⟹&nbsp;&nbsp; w·w = f·(w·w) &nbsp;&nbsp;(set Y·f = w·w)</div>
+        <div class="proof"><span class="plab">read</span> The algebra names all its own operations on itself — which is exactly the hypothesis of Lawvere's theorem with the naming <span class="mono">φ</span> internal. Applying the theorem in its positive direction, the self&#8209;application term <span class="mono">λ*x.&#8201;f(x&#8201;x)</span> is named, and self&#8209;applying that name produces a fixed point of <span class="mono">f</span>. <b>Kleene's recursion theorem is this statement</b> in the partial combinatory algebra of the computable functions, where application is <span class="mono">n·m = φ<sub style="font-size:.72em">n</sub>(m)</span>. Combinatory completeness is the abstract engine; the recursion theorem and the quine are its instances. <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">where these algebras live — Kleene's models and Turing categories</div>
+      <p>Partial combinatory algebras are not exotic; the canonical one is the foundation of computability itself. <b>Kleene's first model</b> takes <span class="mono">A = ℕ</span> with application <span class="mono">n·m = φ<sub style="font-size:.72em">n</sub>(m)</span> — apply the <span class="mono">n</span>&#8209;th program to <span class="mono">m</span> — and its combinatory completeness <i>is</i> the s&#8209;m&#8209;n theorem, its fixed&#8209;point combinator <i>is</i> the recursion theorem. The term model of the untyped λ&#8209;calculus is another; Scott's <span class="mono">D∞</span> and the graph model are reflexive&#8209;object realisations of more. Cockett and Hofstra's <b>Turing categories</b> are the categorical home: a partial combinatory algebra generates a category of "computable maps" — assemblies, or partial equivalence relations — in which the algebra appears as a reflexive object, and "the recursion theorem" becomes a structural feature of that category rather than a fact about <span class="mono">ℕ</span>. Self&#8209;reference in arithmetic and self&#8209;reference in computation are therefore not cousins but a single theorem read in two combinatory algebras — one through Gödel&#8209;coding, the other through <span class="mono">s</span> and <span class="mono">k</span>.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VI THE REFLEXIVE OBJECT ============ -->
+  <section class="sec" id="reflexive">
+    <div class="sec-head"><span class="num">VI · the reflexive object</span><h2>A space that holds its own maps</h2><p class="sub">The geometric culmination of reflexivity is a single object isomorphic to its own function space. Plain sets can never be one — that is Cantor — but domains can, and there self&#8209;reference becomes total.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">D ≅ D<sup class="fn" style="vertical-align:super">D</sup>&nbsp;&nbsp;</span>The most extreme form of "a system names its own operations" is an object whose elements <i>are</i> its own self&#8209;maps: a <b>reflexive object</b>, one with an isomorphism <span class="mono">D ≅ D<sup class="fn" style="vertical-align:super">D</sup></span>. There the naming <span class="mono">φ</span> is the isomorphism itself — every point is already a function and every function already a point — so point&#8209;surjectivity is automatic and Lawvere's theorem runs in its positive direction without qualification: every endomorphism has a fixed point, and a fixed&#8209;point combinator exists. The untyped λ&#8209;calculus is the <i>syntactic</i> reflexive object, where every term applies to every term; its models are the <i>semantic</i> ones.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">how Scott escaped Cantor&nbsp;&nbsp;</span>For plain sets the object is impossible: by Cantor <span class="mono">|D<sup class="fn" style="vertical-align:super">D</sup>| &gt; |D|</span> whenever <span class="mono">|D| ≥ 2</span>, so no set is its own full function space. Scott's insight (1969–72) was to change what "function" means. Build <span class="mono">D∞</span> as the inverse limit of <span class="mono">D₀, &#8201;D₁ = [D₀ → D₀], &#8201;D₂ = [D₁ → D₁], …</span> — but with <span class="mono">[− → −]</span> the <b>continuous</b> maps between domains, threaded by embedding–projection pairs. The limit satisfies <span class="mono">D∞ ≅ [D∞ → D∞]</span> on the nose. The Cantorian obstruction is dissolved because the continuous function space is vastly smaller than the full one: restricting to maps that respect the order and limits lets the space rejoin its own function space without the diagonal forcing a strict jump. By Lambek's lemma the isomorphism is genuine — <span class="mono">D∞</span> is a true fixed point of the functor <span class="mono">X ↦ [X → X]</span>, not a one&#8209;way map.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the same fact the Kernel turned on — reflexivity confers, structure dodges</div>
+      <p>This is where the Mechanism rejoins the Kernel exactly. The Kernel showed that the universal fixed&#8209;point property is never owned by a non&#8209;trivial codomain in <span class="mono">Set</span> — it is <i>conferred</i> by a point&#8209;surjective naming. The reflexive object is that naming pushed to its limit: an object that confers the property on itself by literally containing its own maps. And the trick that makes it possible — passing from all functions to <i>continuous</i> functions — is the same move that gives domains a least element <span class="mono">⊥</span> and hence the order&#8209;theoretic fixed&#8209;point operator. So the two fixed&#8209;point theorems meet here once more: the reflexive object hands the diagonal a fixed point of every endomap (Lawvere), and its order hands the same map a <i>least</i> one (Knaster–Tarski), and in <span class="mono">D∞</span> they coincide. Reflexivity, built to its extreme, <i>is</i> the object whose existence the whole positive theory presumed.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VII ONE PHENOMENON ============ -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">VII · one phenomenon</span><h2>Four guises, one section</h2><p class="sub">Coding, the recursion theorem, the combinators, the reflexive object — they are not four mechanisms but one, seen four times. Each provides the same single thing: a <i>section</i> of evaluation.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">what reflexivity is, exactly&nbsp;&nbsp;</span>Evaluation <span class="mono">ev : B<sup class="fn" style="vertical-align:super">A</sup> × A → B</span> applies a name to an argument; it always exists in a cartesian closed universe. What does <i>not</i> always exist is a way to turn the system's operations <i>into</i> such names from the inside — a <b>section</b> of evaluation, a point&#8209;surjective <span class="mono">A → B<sup class="fn" style="vertical-align:super">A</sup></span> that packages operations as objects the system can hold and feed back to <span class="mono">ev</span>. <b>Reflexivity is precisely the existence of that section.</b> And the four constructions of this fascicle are four ways to build it.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">the section of evaluation — what each guise provides</p>
+        <div><svg id="secEval" role="img" aria-label="Evaluation applies a name to an argument; a section turns the system's own operations into names, and the four mechanisms each realise that section."></svg></div>
+        <p class="kdiag-note" id="secEvalNote"></p>
+      </div>
+      <figcaption>Evaluation runs left along the bottom and always exists; the <b>section</b> climbs back up and does not. Gödel&#8209;coding, s&#8209;m&#8209;n, bracket abstraction, and the isomorphism <span class="mono">D ≅ D<sup class="fn" style="vertical-align:super">D</sup></span> are four constructions of the one upward arrow — and naïve comprehension is a fifth that <i>fails</i>.</figcaption>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.6rem,3vh,2.2rem)">
+      <p><span class="lead-in">the four sections, named&nbsp;&nbsp;</span>Read each construction as the section it builds. <b>Gödel&#8209;numbering</b> is the section for arithmetic: the quotation <span class="mono">⌜·⌝</span> turns formulas — operations on syntax — into numbers the theory quantifies over, so operations become internal data. The <b>s&#8209;m&#8209;n theorem</b> is the section for computation: a program is already a datum, and specialisation packages any parametrised computation as a single program. <b>Bracket abstraction</b> <span class="mono">λ*</span> is the section for a combinatory algebra: it sends each definable operation to an element <span class="mono">⟨t⟩</span> of the algebra itself. And the <b>reflexive object</b> is the section made into geometry: the isomorphism <span class="mono">D ≅ D<sup class="fn" style="vertical-align:super">D</sup></span> identifies operations with objects outright, the section and its evaluation becoming mutually inverse. Code becomes number, computation becomes datum, operation becomes element, map becomes point — one move, four notations.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">and the section that cannot be built — Cantor, once more</div>
+      <p>The naïve fifth case is the one that fails, and its failure is the whole negative theory. <b>Naïve comprehension</b> would be the section for sets: every predicate <span class="mono">φ</span> already names a set <span class="mono">{x : φ(x)}</span>, so the power object would be a retract of the universe and every operation internal. Cantor's theorem is exactly the proof that <i>plain sets refuse this section</i> — no <span class="mono">A → 𝒫(A)</span> is point&#8209;surjective, because the fixed&#8209;point&#8209;free swap on <span class="mono">{0,1}</span> would otherwise be forced to rest. Russell's paradox is the same refusal, felt as contradiction the moment the section is assumed anyway. So the entire landscape is one question asked of one arrow: <b>does a section of evaluation exist?</b> Where it does — arithmetic, computation, the λ&#8209;calculus, a reflexive object — self&#8209;reference is built, and the diagonal forces its fixed points. Where it cannot — plain sets, full truth, a total halting predicate — the attempt to build it <i>is</i> the impossibility proof. The Kernel proved what the section delivers; the Mechanism is the catalogue of how it is, and is not, made.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">φ : A → Bᴬ</span><span class="ln"></span></div>
+  <div class="coda"><p>One requirement underlies every self&#8209;referential phenomenon: that a system turn its own operations into objects it can hold. That requirement is a section of evaluation, and it is built four ways — by coding syntax into number, by storing programs as data, by abstracting operations into combinators, by an object that is its own function space. Each is the same arrow climbing back from values to names; each makes the inward turn that grammar forbids; and each hands the diagonal exactly what it needs to force a fixed point. The sentence that names itself, the program that prints itself, the term that applies to itself, the space that contains its own maps — four faces of the single act by which a system comes to speak of itself. Beneath them all: <span class="mono t">φ : A → Bᴬ</span>, point&#8209;surjective — the section that makes the mirror, after which every fixed point the rest of the fascicle studies is already inevitable.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the mechanism · component II</span></div>
+    <p class="colophon">The second of the diagonal's constituent components: the machinery of reflexivity, by which a system acquires the power Lawvere's theorem assumes. Where the Kernel took a point&#8209;surjective naming as given and drew its consequences, this volume builds that naming — through the arithmetisation of syntax and representability, the diagonal function and the lemma it yields, the s&#8209;m&#8209;n and recursion theorems with a running quine, partial combinatory algebras and combinatory completeness, and the reflexive object <span class="mono">D ≅ D<sup class="fn" style="vertical-align:super">D</sup></span> — and shows the four to be one construction: a section of evaluation. The arithmetic results follow Gödel (1931) and Carnap (1934); the computational ones, Kleene (1938); the combinatory algebra, Schönfinkel and Curry, with the modern categorical treatment due to Cockett–Hofstra; the reflexive object, Scott (1972) and Lambek (1968); the unifying frame, Lawvere (1969) and Yanofsky (2003). The companion volumes take up the four fates the forced fixed point can meet, and the law that governs the whole.</p>
+    <p class="notes"><span class="nl">technical qualifications.</span> &nbsp;Representability is stated for a theory at least as strong as Robinson's <span class="mono">Q</span>, which represents every computable (hence every primitive recursive) function; the diagonal function and substitution are primitive recursive. The diagonal lemma's self&#8209;reference is <i>intensional</i> — mediated by a fixed point of the substitution operator — and yields a sentence provably equivalent to the predicate of its own code. Kleene's recursion theorem gives a fixed point up to extensional behaviour (equality of the computed functions, not of indices); the s&#8209;m&#8209;n theorem provides the total computable specialisation it relies on. A partial combinatory algebra requires <span class="mono">k</span> and <span class="mono">s</span> with the stated equations under a partial application; combinatory completeness is bracket abstraction, and the fixed&#8209;point combinator follows in any such algebra. Kleene's first model is <span class="mono">ℕ</span> under <span class="mono">n·m = φ<sub style="font-size:.72em">n</sub>(m)</span>. The reflexive object <span class="mono">D ≅ D<sup class="fn" style="vertical-align:super">D</sup></span> uses <i>continuous</i> function spaces and exists in suitable categories of domains (Scott's <span class="mono">D∞</span>), never in the category of sets — which is precisely Cantor's theorem; Lambek's lemma certifies the isomorphism. "Section of evaluation" is used in the informal sense of a point&#8209;surjective internalisation of the function space, the structural common form of the four constructions, not a claim that a single categorical section exists uniformly across all four settings.</p>
+    <p class="refs"><b>Sources.</b> &nbsp;Schönfinkel, building blocks of logic (1924) · Gödel, <i>Über formal unentscheidbare Sätze</i> (1931) · Curry, combinatory logic (1930s) · Carnap, <i>Logische Syntax der Sprache</i> (1934) · Tarski, <i>Der Wahrheitsbegriff</i> (1936) · Kleene, recursion and s&#8209;m&#8209;n theorems (1938, 1943) · Lambek, the lemma on initial algebras (1968) · Lawvere, <i>Diagonal Arguments and Cartesian Closed Categories</i> (1969) · Scott, <span class="mono">D∞</span> models of the λ&#8209;calculus (1972) · Smullyan, <i>Diagonalization and Self&#8209;Reference</i> (1994) · Yanofsky (2003) · Cockett &amp; Hofstra, <i>Introduction to Turing categories</i> (2008).</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function E(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
+  function S(name,attrs){var e=document.createElementNS(SVGNS,name);if(attrs)for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+  function T(t){return document.createTextNode(t);}
+  function svgText(parent,x,y,str,o){o=o||{};var t=S("text",{x:x,y:y,"text-anchor":o.anchor||"middle","font-family":o.mono?"IBM Plex Mono, monospace":"Spectral, serif","font-size":o.size||"13",fill:o.fill||"var(--ink)"});if(o.style)t.setAttribute("font-style",o.style);if(o.weight)t.setAttribute("font-weight",o.weight);if(o.spacing)t.setAttribute("letter-spacing",o.spacing);t.appendChild(T(str));parent.appendChild(t);return t;}
+  function arrowDefs(svg,id,color){var defs=S("defs",{});var mk=S("marker",{id:id,markerWidth:"9",markerHeight:"9",refX:"7.5",refY:"3",orient:"auto",markerUnits:"strokeWidth"});mk.appendChild(S("path",{d:"M0,0 L7,3 L0,6 Z",fill:color}));defs.appendChild(mk);svg.appendChild(defs);}
+  function arrow(svg,x1,y1,x2,y2,mk,color,w,dash){var a={x1:x1,y1:y1,x2:x2,y2:y2,stroke:color||"var(--soft1)","stroke-width":w||"1.5","marker-end":"url(#"+mk+")"};var ln=S("line",a);if(dash){ln.setAttribute("stroke-dasharray",dash);}svg.appendChild(ln);return ln;}
+
+  /* ============ §III — the diagonal construction trace ============ */
+  function dgtraceRender(){
+    var svg=document.getElementById("dgtrace"); if(!svg)return;
+    svg.setAttribute("viewBox","0 0 480 250"); svg.innerHTML="";
+    arrowDefs(svg,"dg","var(--soft1)");
+    arrowDefs(svg,"dgt","var(--teal-deep)");
+    function box(cx,cy,label,sub,tone){
+      var w=138,h=44;
+      svg.appendChild(S("rect",{x:cx-w/2,y:cy-h/2,width:w,height:h,rx:3,fill:tone?"var(--teal-soft)":"var(--paper)",stroke:tone?"var(--teal-line)":"var(--panelhair)","stroke-width":"1.2"}));
+      svgText(svg,cx,cy+(sub?-3:4),label,{mono:true,size:"12.5",weight:"600",fill:"var(--ink)"});
+      if(sub)svgText(svg,cx,cy+14,sub,{size:"9.5",style:"italic",fill:"var(--faint)"});
+    }
+    var y=78;
+    box(86,y,"θ(x) = ψ(d(x))","the seed");
+    box(240,y,"S = θ(⌜θ⌝)","feed θ its code");
+    box(394,y,"S ↔ ψ(⌜S⌝)","the fixed point",true);
+    arrow(svg,86+70,y,240-70,y,"dg");
+    arrow(svg,240+70,y,394-70,y,"dg");
+    svgText(svg,163,y-12,"apply to ⌜θ⌝",{size:"9.5",style:"italic",fill:"var(--faint)"});
+    svgText(svg,317,y-12,"d(⌜θ⌝) = ⌜S⌝",{mono:true,size:"9.5",fill:"var(--faint)"});
+    // equality chain
+    svgText(svg,240,y+58,"θ(⌜θ⌝)  =  ψ( d(⌜θ⌝) )  =  ψ( ⌜S⌝ )",{mono:true,size:"12",fill:"var(--ink)"});
+    // self-reference loop on the fixed-point box
+    var p=S("path",{d:"M "+(394+62)+" "+(y+6)+" C "+(470)+" "+(y+44)+", "+(360)+" "+(y+58)+", "+(394)+" "+(y+24),fill:"none",stroke:"var(--teal-deep)","stroke-width":"1.4","marker-end":"url(#dgt)"});
+    svg.appendChild(p);
+    svgText(svg,452,y+44,"⌜S⌝ inside S",{size:"9",style:"italic",fill:"var(--teal-deep)",anchor:"end"});
+    var note=document.getElementById("dgtraceNote");
+    if(note)note.innerHTML="The seed <span class='mono'>θ</span> is fed its own quotation; the diagonal function <span class='mono'>d</span> was built so that <span class='mono'>d(⌜θ⌝)</span> is the code of the <i>result</i> — so <span class='mono'>S</span> ends up asserting <span class='mono'>ψ</span> of <span class='mono'>S</span>. Self&#8209;reference by computation, not by containment.";
+  }
+
+  /* ============ §IV — the runnable quine (honest data quine) ============ */
+  var quineSource =
+    "var d = \"print(\\\"var d = \\\" + JSON.stringify(d) + \\\";\\\\n\\\" + d)\";\n" +
+    "print(\"var d = \" + JSON.stringify(d) + \";\\n\" + d)";
+  function setupQuine(){
+    var pre=document.getElementById("quineCode"); if(pre)pre.textContent=quineSource;
+    var btn=document.getElementById("quineRun"); if(!btn)return;
+    btn.addEventListener("click",function(){
+      var out="";
+      function print(x){ out+=String(x); }
+      try{ eval(quineSource); }catch(e){ out="error: "+e.message; }
+      var box=document.getElementById("quineOut");
+      if(box){
+        var ok = (out===quineSource);
+        box.innerHTML="<span class='lbl'>output"+(ok?" — <span class='ok'>output === source ✓</span>":"")+"</span>"+
+          out.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      }
+    });
+  }
+
+  /* ============ §VII — the section of evaluation ============ */
+  function secEvalRender(){
+    var svg=document.getElementById("secEval"); if(!svg)return;
+    svg.setAttribute("viewBox","0 0 480 250"); svg.innerHTML="";
+    arrowDefs(svg,"se","var(--soft1)");
+    arrowDefs(svg,"ser","var(--red-deep)");
+    arrowDefs(svg,"set","var(--teal-deep)");
+    function node(cx,cy,label,sub,tone){
+      svgText(svg,cx,cy,label,{mono:true,size:"13.5",weight:"600",fill:tone==="r"?"var(--red-deep)":"var(--ink)"});
+      if(sub)svgText(svg,cx,cy+15,sub,{size:"10",style:"italic",fill:"var(--faint)"});
+    }
+    var OPS={x:110,y:185}, NAME={x:250,y:72}, VAL={x:400,y:185};
+    node(OPS.x,OPS.y,"operations","of the system");
+    node(NAME.x,NAME.y,"Bᴬ","internal names");
+    node(VAL.x,VAL.y,"B","values");
+    // section s : operations -> B^A  (upward, teal, "does not always exist")
+    arrow(svg,OPS.x+14,OPS.y-16,NAME.x-58,NAME.y+16,"set","var(--teal-deep)","1.6");
+    svgText(svg,150,118,"section s",{mono:true,size:"11",fill:"var(--teal-deep)",anchor:"start"});
+    svgText(svg,150,132,"name an operation",{size:"9.5",style:"italic",fill:"var(--faint)",anchor:"start"});
+    // ev : B^A -> B  (downward right, "always exists")
+    arrow(svg,NAME.x+58,NAME.y+16,VAL.x-14,VAL.y-16,"se");
+    svgText(svg,346,118,"ev(−, a)",{mono:true,size:"11",fill:"var(--soft1)"});
+    svgText(svg,346,132,"apply — always exists",{size:"9.5",style:"italic",fill:"var(--faint)"});
+    // baseline operations -> values direct (the composite)
+    arrow(svg,OPS.x+44,VAL.y,VAL.x-22,VAL.y,"se","var(--faintest)","1.1");
+    svgText(svg,255,VAL.y+16,"f : A → B",{mono:true,size:"10",fill:"var(--faintest)"});
+    // realizations
+    svgText(svg,240,222,"s realised:  ⌜·⌝ coding  ·  s-m-n  ·  λ* abstraction  ·  D ≅ Dᴰ",{mono:true,size:"10.5",fill:"var(--teal-deep)"});
+    svgText(svg,240,238,"s refused:  naïve comprehension — Cantor",{mono:true,size:"10.5",fill:"var(--red-deep)"});
+    var note=document.getElementById("secEvalNote");
+    if(note)note.innerHTML="Evaluation (right, grey) always exists; the <span class='mono'>section s</span> (left, teal) — turning the system's operations into names it can hold — does not. Reflexivity <i>is</i> the existence of that upward arrow, and the four mechanisms are four ways to draw it.";
+  }
+
+  /* ============ INIT ============ */
+  function init(){
+    try{ dgtraceRender(); }catch(e){}
+    try{ setupQuine(); }catch(e){}
+    try{ secEvalRender(); }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-kernel.html">← The Kernel</a><a rel="next" href="quodlibet-the-ceiling.html">The Ceiling →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ascent — why the diagonal cannot be escaped</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-project-library">Project Edition</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the third panel · with The Diagonal &amp; The Atlas</span></div>
+    <div class="hero-head">
+      <p class="kicker">The limit is permanent — and the proof is the limit itself</p>
+      <h1 class="title">The <span class="x">Ascent</span></h1>
+      <p class="standfirst"><em>The Diagonal</em> showed that Cantor, Gödel, and Turing are one theorem. <em>The Atlas</em> mapped the territory that theorem rules — and the systems that escape it. This is the question both left open: can you ever <em>leave</em>? The answer is no, and it is not a mood but a theorem. Every repair of a limit relocates it one level up; the ladder of repairs is well-ordered and has no top; and the impossibility of completing it is the diagonal, turned on itself.</p>
+      <p class="ed-mark">revenge · the reflection ladder · the diagonal of the diagonal</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">⌜ no top ⌝</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The first two panels established a construction and a map. <i>The Diagonal</i> proved that negation has no fixed point in the two truth-values, and that this single fact — read forwards as recursion, backwards as limitation — generates Cantor, Russell, Gödel, and Turing alike. <i>The Atlas</i> charted everything that construction reaches, including the consistent systems that evade it by denying one of its hypotheses: stratify, restrict, discipline, weaken, tolerate. But an escape raises a question the map could only gesture at. When set theory restricts comprehension, or Tarski stratifies truth, or Kripke admits a third value — has the limit been <i>defeated</i>, or merely <i>moved</i>?</p>
+    <p>The claim of this panel is that it is always moved, never defeated, and that this is provable. The phenomenon has a name in the theory of truth — <i>revenge</i> — and a precise shape in the theory of proof — the <i>reflection ladder</i>. In both, the pattern is identical: a repair quiets the paradox at the level where it appeared, and a strengthened version of the paradox, expressible only one level up, breaks the repair. You climb; the limit climbs with you.</p>
+    <p>And the deepest form of the result is the most beautiful, because it is self-similar. The operation that performs the repair — <i>add to the system the soundness it was missing</i> — has no fixed point among consistent, effectively given theories, for exactly the reason negation has none among the truth-values: a theory equal to its own repair would prove its own consistency, which Gödel forbids. So the ineliminability of the diagonal <i>is</i> the diagonal, one level up. The limit on escaping the limit is the limit. We prove it in three movements.</p>
+  </div>
+
+  <!-- ===== §I REVENGE ===== -->
+  <section class="sec" id="revenge">
+    <div class="sec-head"><span class="num">I · revenge</span><h2>The paradox you cannot silence</h2><p class="sub">Each repair of the Liar quiets it at the level where it appeared — and is broken by a stronger Liar at the level above. The deficit is conserved.</p></div>
+    <div class="reading">
+      <p>The Liar — <i>this sentence is false</i> — is the diagonal in its barest semantic form: a truth predicate plays the self-naming, negation plays the twist with no fixed point, and the sentence is the forced fixed point that cannot exist. <i>The Atlas</i> listed three families of repair for it. The temptation is to think any of them <i>solves</i> the paradox. Watch, instead, what each one actually buys — and what it cannot say.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="rev-tabs" id="revTabs"></div>
+        <div id="revStages"></div>
+        <figcaption><span class="mono">select a repair — </span>each tames the Liar in front of it and is undone by a <span class="red">strengthened Liar</span> one level up. The paradox is never removed; it is relocated to the language that talks about the repair.</figcaption>
+      </div>
+    </div>
+    <div class="thm">
+      <div class="tl">the invariant</div>
+      <div class="ts"><b>Conservation of deficit.</b> No theory of its own semantics can be at once <i>closed</i> — defining and deciding its own truth — <i>consistent</i>, and <i>effective</i> (recursively axiomatized). The three are jointly unsatisfiable; that joint unsatisfiability is precisely Tarski's and Gödel's theorems. A repair can buy any <i>two</i> by surrendering the third. It can never buy all three. The total deficit is invariant under repair.</div>
+    </div>
+    <div class="reading">
+      <p class="cont">So the stepper is not a list of failures but a tour of one fixed quantity changing its address. Truth-value gaps keep consistency and effectiveness and surrender closure — which is exactly why the gapped language cannot express its own <span class="mono">is&nbsp;not&nbsp;true</span>. Contextualism keeps a kind of closure and consistency by surrendering a single effective standpoint — truth becomes irreducibly level-relative. Each move pays the same tax at a different window. The next movement shows the same accountancy in the harder currency of proof, where the repair is explicit and its cost can be measured to the ordinal.</p>
+    </div>
+  </section>
+  <!-- ===== §II THE ASCENT ===== -->
+  <section class="sec" id="ascent">
+    <div class="sec-head"><span class="num">II · the ascent</span><h2>The ladder with no top</h2><p class="sub">To repair Gödel is to add the consistency the system could not prove. The repaired system cannot prove <i>its</i> consistency. The climb is forced, well-ordered, and unbounded.</p></div>
+    <div class="reading">
+      <p>In proof rather than truth, the repair stops being a metaphor and becomes an operation you can write down. Gödel's second theorem says a consistent, effectively axiomatized theory <span class="mono">T</span> — extending even a fragment of arithmetic — cannot prove its own consistency, <span class="mono">Con(T)</span>. The obvious remedy is to stop asking it to prove what it cannot and simply <i>add</i> it: form <span class="mono">T + Con(T)</span>. The new theory is honestly stronger; it proves a true sentence the old one did not. But <span class="mono">T + Con(T)</span> is again consistent and effective — so it cannot prove <i>its</i> consistency, <span class="mono">Con(T + Con(T))</span>. Add that. The remedy is permanent employment.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="ladder-controls">
+          <button class="lad-btn" id="ladBtn">add the missing Con — climb ↑</button>
+          <button class="lad-btn ghost" id="ladReset">reset</button>
+          <span class="lad-readout" id="ladReadout"></span>
+        </div>
+        <div class="ladder" id="ladder"></div>
+        <div class="lad-banner" id="ladBanner">no self-justifying top has been reached — and none can be</div>
+        <div class="lad-miss" id="ladMiss"></div>
+        <figcaption><span class="mono">each rung adds the consistency the rung below could not prove — </span>and is itself a consistent, effective theory that cannot prove its own. Climb as long as you like; the readout will never report a theory that justifies itself.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>How far does the climb go, and how do you measure it? Not by counting rungs — after <span class="mono">ω</span> of them you take the union and keep going — but by the theory's <i>proof-theoretic ordinal</i>: the order-type of the longest well-ordering the theory can prove <i>is</i> a well-ordering. For Peano arithmetic that ordinal is <span class="mono">ε₀</span>, the limit of the tower <span class="mono">ω, ω^ω, ω^(ω^ω), …</span> — and, in a coincidence the subject seems to insist upon, the least ordinal <span class="mono">α</span> with <span class="mono">ω^α = α</span>: a fixed point of exponentiation sitting at the exact height of arithmetic. Each turn of the reflection ladder raises the ordinal; the ordinals run upward without bound, past <span class="mono">Γ₀</span> — the Feferman–Schütte ordinal marking the ceiling of predicative reasoning — and far beyond.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the transfinite climb — and why even it does not escape</div>
+      <p>Could the climb, pushed all the way, finally finish? Turing (1939) and Feferman (1962) asked exactly this, iterating reflection along the ordinals themselves. Feferman proved something startling: a progression by reflection, continued far enough, proves <i>every</i> true <span class="mono">Π⁰₁</span> sentence — arithmetic appears, at the transfinite limit, to be complete. But the completeness is a ghost. It is path-dependent <span class="mono">(Feferman–Spector, 1962)</span>: which sentences get proved depends on which route through the ordinals you take, and the routes that succeed demand ordinal notations whose <i>well-foundedness</i> is itself not arithmetically decidable. You have not removed the incompleteness. You have relocated it — out of the theory and into the well-foundedness of the ladder you had to assume in order to climb.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III THE DIAGONAL OF THE DIAGONAL ===== -->
+  <section class="sec" id="meta">
+    <div class="sec-head"><span class="num">III · the diagonal of the diagonal</span><h2>Why there is no top</h2><p class="sub">The reason the ladder never ends is the reason the Liar never dies. The repair operation has no fixed point — for exactly the reason negation has none.</p></div>
+    <div class="reading">
+      <p>Step back from truth and from proof to the operation common to both. Call it <span class="mono">R</span>: given a system, <span class="mono">R</span> returns the system <i>plus the soundness it was missing</i> — the reflection principle that says <i>what I prove is true</i>. The semantic ladder and the proof-theoretic ladder are both iterations of this one operation. And a <i>top</i> of either ladder would be a <i>fixed point</i> of <span class="mono">R</span>: a system <span class="mono">T</span> with <span class="mono">T = R(T)</span>, one that already contains its own soundness — a complete, consistent, self-justifying foundation. The whole question of escape reduces to a single one. Does that fixed point exist?</p>
+    </div>
+    <div class="stage">
+      <div class="hinge">
+        <div class="hinge-side left">
+          <div class="hs-lab">the ladder — the operation R</div>
+          <h4>R never returns</h4>
+          <p>Repair each system by adding the soundness it lacked. The result is always strictly stronger; the chain ascends and never comes back to itself.</p>
+          <div class="chain">T<br><span class="gr">⊊</span>&nbsp;R(T)<br><span class="gr">⊊</span>&nbsp;R²(T)<br><span class="gr">⊊</span>&nbsp;R³(T)<br><span class="gr">⊊</span>&nbsp;<span class="hot">⋯&nbsp;&nbsp;no top</span></div>
+        </div>
+        <div class="hinge-side right">
+          <div class="hs-lab">the forbidden rest</div>
+          <h4>The fixed point cannot exist</h4>
+          <p>A top would be a system equal to its own repair — one that already proves its own soundness, hence its own consistency.</p>
+          <div class="forbidden">T = R(T)<br>⟹&nbsp;T ⊢ Con(T)<br><span class="x">✗</span>&nbsp;&nbsp;Gödel · Löb</div>
+        </div>
+      </div>
+      <figcaption>Compare <i>The Diagonal</i>'s hinge: negation has no fixed point in <span class="mono">{T,F}</span>, so it cycles and never rests. Here the repair operator has no fixed point in the consistent theories, so it <b>ascends</b> and never rests. Same absence, one level up.</figcaption>
+    </div>
+    <div class="thm red">
+      <div class="tl">the keystone</div>
+      <div class="ts"><b>Repair is fixed-point-free.</b> Let <span class="mono">R(T) = T + Rfn(T)</span>, where <span class="mono">Rfn(T)</span> collects the reflection sentences <span class="mono">"if T proves φ, then φ."</span> For consistent, recursively axiomatized <span class="mono">T ⊇ Q</span>: among those sentences is <span class="mono">"if T proves ⊥, then ⊥"</span> — which <i>is</i> <span class="mono">Con(T)</span>. If <span class="mono">T</span> proved its own <span class="mono">Rfn(T)</span>, it would prove <span class="mono">Con(T)</span>; by Gödel's second theorem it would then be inconsistent. So consistent <span class="mono">T ⊬ Rfn(T)</span>, and <span class="mono">R(T) ⊋ T</span> strictly. <b>R has no fixed point among the consistent r.e. theories</b> — for exactly the reason <span class="mono">¬</span> has none among the truth-values.</div>
+    </div>
+    <div class="reading">
+      <p>Read that against the engine of the whole subject. Negation has no fixed point in the two truth-values: that is the diagonal, and it forbids a complete, consistent truth predicate — the content of the Liar, of Tarski, of Gödel's first theorem. Repair has no fixed point in the consistent effective theories: that is the diagonal <i>again</i>, one level up, and it forbids a complete, consistent foundation — the content of the ladder's having no top. The two impossibilities are not analogous. They are the same impossibility, the same construction <span class="mono">g(x)=α(φ(x)(x))</span> with no fixed point for its twist, applied at two different heights. To ask for a final foundation is to ask negation to have a fixed point. The request is identical; only the floor has changed.</p>
+    </div>
+    <div class="reading wide">
+      <p><span class="lead-in">the same trilemma, one storey up&nbsp;&nbsp;</span>And the conservation law of the first movement returns in its sharpest form. The deficit a self-referential theory cannot escape is the impossibility of holding three things at once:</p>
+    </div>
+    <div class="stage narrow">
+      <div class="trilemma">
+        <div class="tri-cell"><div class="tc-n">corner one</div><h4>Closure</h4><p>The system expresses and decides its own truth and soundness — it names <i>all</i> its own semantic facts.</p></div>
+        <div class="tri-cell"><div class="tc-n">corner two</div><h4>Consistency</h4><p>The system proves no contradiction.</p></div>
+        <div class="tri-cell"><div class="tc-n">corner three</div><h4>Effectiveness</h4><p>The system is recursively axiomatized; its own syntax is representable within it.</p></div>
+      </div>
+      <div class="tri-note">Pick any <b>two</b>. All three together are exactly what Tarski and Gödel forbid — and <i>closure</i> is nothing but the point-surjective self-naming the diagonal requires. The conservation trilemma <b>is</b> Lawvere's theorem, read at the level of theories instead of values.</div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">ω^α = α</span><span class="ln"></span></div>
+  <div class="coda"><p><em>The Diagonal</em> showed the construction is one. <em>The Atlas</em> showed the territory is vast. <em>The Ascent</em> shows the territory has no edge you can step over — only a higher floor, and above it another, the staircase standing in for the roof it will never have. Truth outruns proof at every level, and the outrunning is itself the deepest theorem. <span class="mono">The limit on escaping the limit is the limit.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the third panel · the ascent</span></div>
+    <p class="colophon">The closing panel of a trilogy: <i>The Diagonal</i> (the construction unifying Cantor, Russell, Gödel, Turing, and recursion), <i>The Atlas</i> (the universe of results it reaches), and <i>The Ascent</i> (the proof that the limit is ineliminable). The keystone — that the reflection operator <span class="mono">R(T)=T+Rfn(T)</span> is fixed-point-free on the consistent recursively-axiomatized theories — is a direct reading of Gödel's second theorem; the claim that this makes the ineliminability of incompleteness <i>itself</i> a fixed-point phenomenon is the author's framing.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;"Reflection" here is local reflection, the schema <span class="mono">Prov_T(⌜φ⌝)→φ</span>; its weakest instance is <span class="mono">Con(T)</span>, and the strengths <span class="mono">Con ⊊ local Rfn ⊊ uniform RFN</span> all give strictly stronger theories. The proof-theoretic ordinal of PA is <span class="mono">ε₀</span> (Gentzen, 1936), the least solution of <span class="mono">ω^α=α</span>; <span class="mono">Γ₀</span> is the Feferman–Schütte ordinal. The transfinite-completeness result and its path-dependence are Feferman (1962) and Feferman–Spector (1962); the well-foundedness obstruction is genuinely non-arithmetical (<span class="mono">Π¹₁</span>). "Revenge" is the standard term for the strengthened-Liar phenomenon (Kripke 1975 noted "the ghost of the Tarski hierarchy"). The conservation trilemma is a framing, not a single cited theorem; its impossibility is carried by Tarski's undefinability and Gödel's incompleteness together.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Gödel 1931 · Tarski 1936 · Gentzen 1936 · Turing 1939 · Löb 1955 · Feferman 1962 · Feferman–Spector 1962 · Schütte (Γ₀) · Kripke 1975 · Parsons / Burge / Glanzberg (contextualism) · Lawvere 1969 · Yanofsky 2003.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+function TXT(s){return document.createTextNode(s);}
+
+/* ===== REVENGE STEPPER ===== */
+const STAGES=[
+ { tab:"classical", n:"the ground",
+   repair:"Two truth-values, T and F. Negation is the twist — and it has no fixed point.",
+   aLab:"the sentence", aSent:"L : “L is false.”", aVal:"asks for ¬’s fixed point",
+   aText:"A truth predicate names L’s value; negation flips it. The sentence demands a value equal to its own negation.",
+   bLab:"the contradiction", bSent:"L is true ⟺ L is false.",
+   bText:"No element of {T, F} is fixed by ¬. The forced fixed point simply cannot exist.",
+   vKind:"broken", vHtml:"<b>Paradox.</b> The Liar is the diagonal in its barest semantic form — negation with no fixed point in the values." },
+ { tab:"truth-value gaps", n:"repair ①",
+   repair:"Admit a third value ⊥ (undefined); build truth as Kripke’s least fixed point on partial interpretations.",
+   aLab:"what it settles", aSent:"L : “L is false.”", aVal:"⊥ (ungrounded)",
+   aText:"L never enters the least fixed point, so it stays undefined. No contradiction — the Liar is tamed and the language stays consistent.",
+   bLab:"the strengthened Liar", bSent:"L⁺ : “L⁺ is not true.”   (not-true = F or ⊥)",
+   bText:"If L⁺ = ⊥ then L⁺ is not true — so L⁺ is true. The gapped language cannot consistently express its own “not true.”",
+   vKind:"broken", vHtml:"<b>Broken, one level up.</b> Consistency was bought by surrendering closure: “is not true” is exactly what the object language can no longer say. <span class='rev-val'>the ghost of the hierarchy returns</span>" },
+ { tab:"contextualism", n:"repair ②",
+   repair:"Index truth to levels or contexts (Tarski; Parsons, Burge, Glanzberg). Each language’s truth lives in the next.",
+   aLab:"what it settles", aSent:"L⁺ assessed at level 0", aVal:"not-true₀ , then true₁",
+   aText:"L⁺ is not-true₀; the very act of asserting its untruth is a true claim at level 1. Each fixed level is consistent and complete for the one below.",
+   bLab:"the strengthened Liar", bSent:"L^∞ : “L^∞ is not true at any level.”",
+   bText:"Quantifying over all levels at once reinstates the paradox: there is no context-free truth in which L^∞ can be placed.",
+   vKind:"broken", vHtml:"<b>Broken, one level up.</b> A single, level-free standpoint — effectiveness — was the price. Truth is now irreducibly relative to a level." },
+ { tab:"transfinite reflection", n:"repair ③",
+   repair:"Iterate the repair through the ordinals — the ascent of Movement II — climbing past every level.",
+   aLab:"what it settles", aSent:"each sentence at some stage T_α", aVal:"decided, pointwise",
+   aText:"For any single sentence there is a level T_α that decides it. The climb is well-ordered and, sentence by sentence, leaves nothing behind.",
+   bLab:"the revenge at the limit", bSent:"“the path I climbed is well-founded.”",
+   bText:"Completing the climb requires knowing which ordinal notations are well-founded — a Π¹₁ fact no arithmetical level can certify (Feferman–Spector).",
+   vKind:"broken", vHtml:"<b>Relocated, not removed.</b> The deficit moves out of the theory and into the well-foundedness of the ladder — the highest, and last, place it can hide." }
+];
+let revStageEls=[];
+function renderRevenge(){
+  const tabHost=document.getElementById("revTabs"), stageHost=document.getElementById("revStages");
+  tabHost.innerHTML=""; stageHost.innerHTML=""; revStageEls=[];
+  STAGES.forEach((s,i)=>{
+    const tab=E("button","rev-tab"); const rn=E("span","rn"); rn.textContent=s.n; tab.appendChild(TXT(s.tab)); tab.appendChild(rn);
+    tab.addEventListener("click",()=>selectRev(i)); tabHost.appendChild(tab);
+    const st=E("div","rev-stage");
+    const rep=E("div"); rep.style.cssText="font-size:.92rem;line-height:1.5;color:var(--soft1);margin-bottom:1rem;text-align:center;font-style:italic;";
+    rep.innerHTML="<span class='mono' style='font-style:normal;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest)'>the repair&nbsp;&nbsp;</span>"+s.repair; st.appendChild(rep);
+    const grid=E("div","rev-grid");
+    const a=E("div","rev-cell tame");
+    a.innerHTML="<div class='rc-lab'>"+s.aLab+"</div><div class='rev-sentence'>"+s.aSent+" <span class='tag'>→ "+s.aVal+"</span></div><p>"+s.aText+"</p>";
+    const b=E("div","rev-cell revenge");
+    b.innerHTML="<div class='rc-lab'>"+s.bLab+"</div><div class='rev-sentence'>"+s.bSent+"</div><p>"+s.bText+"</p>";
+    grid.appendChild(a); grid.appendChild(b); st.appendChild(grid);
+    const v=E("div","rev-verdict "+(s.vKind==="broken"?"broken":"tamed")); v.innerHTML=s.vHtml; st.appendChild(v);
+    stageHost.appendChild(st); revStageEls.push(st);
+  });
+  selectRev(0);
+}
+function selectRev(i){
+  document.querySelectorAll("#revTabs .rev-tab").forEach((t,j)=>t.classList.toggle("on",j===i));
+  revStageEls.forEach((s,j)=>s.classList.toggle("show",j===i));
+}
+
+/* ===== ASCENT LADDER ===== */
+function sub(n){ const m={"0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","6":"₆","7":"₇","8":"₈","9":"₉"}; return String(n).replace(/\d/g,d=>m[d]); }
+const LADDER=(function(){
+  const a=[];
+  a.push({idx:"T₀", thy:"PA", neu:null, cant:"Con(T₀)"});
+  for(let i=1;i<=5;i++) a.push({idx:"T"+sub(i), thy:"T"+sub(i-1)+" + Con(T"+sub(i-1)+")", neu:"Con(T"+sub(i-1)+")", cant:"Con(T"+sub(i)+")"});
+  a.push({idx:"T_ω", thy:"⋃ₙ Tₙ", neu:"all finite Con", cant:"Con(T_ω)", tf:true});
+  a.push({idx:"T_ω₊₁", thy:"T_ω + Con(T_ω)", neu:"Con(T_ω)", cant:"Con(T_ω₊₁)", tf:true});
+  a.push({idx:"T_ω₊₂", thy:"T_ω₊₁ + Con(T_ω₊₁)", neu:"Con(T_ω₊₁)", cant:"Con(T_ω₊₂)", tf:true});
+  a.push({idx:"T_α", thy:"…+Con(T_β) for every notation β<α", neu:"every lower Con", cant:"— there is no top —", tf:true, cap:true});
+  return a;
+})();
+let ladStep=0;
+function renderLadderRung(spec){
+  const host=document.getElementById("ladder");
+  const r=E("div","lrung"+(spec.tf?" transfinite":""));
+  const li=E("span","li"); li.textContent=spec.idx;
+  const lt=E("span","lt");
+  if(spec.neu){ lt.innerHTML=spec.thy.replace(spec.neu,"<span class='new'>"+spec.neu+"</span>"); }
+  else { lt.textContent=spec.thy; }
+  const lo=E("span","lo"); lo.textContent= spec.cap? spec.cant : ("⊬ "+spec.cant);
+  r.appendChild(li); r.appendChild(lt); r.appendChild(lo); host.appendChild(r);
+}
+function ladderUpdate(){
+  const top=LADDER[Math.min(ladStep,LADDER.length-1)];
+  const ro=document.getElementById("ladReadout");
+  if(top.cap){ ro.innerHTML="top reached: <b>none</b> — the climb is transfinite"; }
+  else { ro.innerHTML="current top: <b>"+top.idx+"</b> · height ≥ "+(ladStep===0?"ε₀":"ε₀, climbing"); }
+  const miss=document.getElementById("ladMiss");
+  if(top.cap){ miss.textContent="every rung was solid; there was always another. A fixed point T = R(T) would prove its own Con — forbidden."; }
+  else { miss.innerHTML=top.idx+" cannot prove "+top.cant+", so the next rung is strictly stronger — forever."; }
+  const btn=document.getElementById("ladBtn");
+  if(ladStep>=LADDER.length-1){ btn.disabled=true; btn.style.opacity=".45"; btn.textContent="no top — that is the theorem"; }
+}
+function ladderStep(){
+  if(ladStep>=LADDER.length-1) return;
+  ladStep++; renderLadderRung(LADDER[ladStep]); ladderUpdate();
+}
+function ladderReset(){
+  ladStep=0; const host=document.getElementById("ladder"); host.innerHTML=""; renderLadderRung(LADDER[0]);
+  const btn=document.getElementById("ladBtn"); btn.disabled=false; btn.style.opacity="1"; btn.textContent="add the missing Con — climb ↑";
+  ladderUpdate();
+}
+
+function init(){
+  try{ renderRevenge(); }catch(e){ console.error("revenge",e); }
+  try{ ladderReset();
+    document.getElementById("ladBtn").addEventListener("click",ladderStep);
+    document.getElementById("ladReset").addEventListener("click",ladderReset);
+  }catch(e){ console.error("ladder",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-engine.html">← Previous study</a><a rel="next" href="quodlibet-the-descent.html">Next study →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

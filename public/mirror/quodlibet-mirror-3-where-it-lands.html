@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where It Lands — The Mirror, III of VI — Quodlibet</title>
+<style>
+
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (the costumes) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+  .vol-card .vc-fill{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--soft1);background:rgba(26,24,21,.035);border-radius:3px;padding:.4rem .55rem;margin:.55rem 0 .15rem;letter-spacing:-.01em;}
+  .vol-card .vc-fill .av{color:var(--red-deep);} .vol-card .vc-fill .pv{color:var(--teal-deep);}
+
+  /* ===== tier badge (mirrors the portal's epistemic discipline) ===== */
+  .tier{display:inline-flex;align-items:center;gap:.4em;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);background:rgba(26,24,21,.05);border-radius:20px;padding:.22em .6em;margin-bottom:.55rem;}
+  .tier::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--faintest);}
+  .tier.proved{color:var(--teal-deep);} .tier.proved::before{background:var(--teal-deep);}
+  .tier.framing{color:var(--gold-deep);} .tier.framing::before{background:transparent;border:1.3px solid var(--gold-deep);}
+  .tier.keystone{color:var(--ink);} .tier.keystone::before{background:var(--ink);}
+
+  /* ===== commutative diagram (the categorical home, drawn) ===== */
+  #cdSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cd-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.7rem;}
+
+  /* ===== four fates of the forced point ===== */
+  .fate4{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .fate4{grid-template-columns:1fr;} }
+  .fcell{background:var(--paper);padding:1.05rem 1.15rem;border-top:2px solid var(--panelhair);}
+  .fcell.lim{border-top-color:var(--red-line);} .fcell.pow{border-top-color:var(--teal-line);} .fcell.absorb{border-top-color:var(--gold-line);}
+  .fcell .fc-n{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem;color:var(--faintest);}
+  .fcell.lim .fc-n{color:var(--red-deep);} .fcell.pow .fc-n{color:var(--teal-deep);} .fcell.absorb .fc-n{color:var(--gold-deep);}
+  .fcell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .4rem;color:var(--ink);}
+  .fcell p{font-size:.87rem;line-height:1.52;color:var(--soft1);}
+  .fcell .fc-where{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faint);margin-top:.55rem;display:block;}
+  .fcell .fc-where b{color:var(--soft1);font-weight:500;}
+
+  /* ===== dial genus badge ===== */
+  .dial-outcome .genus{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:rgba(26,24,21,.05);border-radius:20px;padding:.2em .65em;margin-top:.7rem;}
+  .dial-note{font-size:.82rem;line-height:1.5;color:var(--faint);font-style:italic;text-align:center;margin-top:.55rem;max-width:38rem;margin-left:auto;margin-right:auto;}
+  .dial-note b{font-style:normal;font-weight:600;color:var(--soft1);}
+
+  /* ===== chunk-page chrome ===== */
+  .rdg-progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--ink);opacity:.5;z-index:60;transition:width .1s linear;}
+  @media print{ .rdg-progress,.chunk-dots,.chunk-foot{display:none!important;} }
+  .mh-name a{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s ease;}
+  .mh-name a:hover{border-color:var(--faintest);}
+  .chunk-dots{display:flex;justify-content:center;gap:.18rem;flex-wrap:wrap;margin:1.1rem auto 0;}
+  .chunk-dots a,.chunk-dots span.cur{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;color:var(--faintest);
+    font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;padding:.3rem .55rem;border-radius:20px;transition:color .15s ease,background .15s ease;}
+  .chunk-dots .tt{display:none;}
+  .chunk-dots a:hover{color:var(--soft1);background:rgba(26,24,21,.045);}
+  .chunk-dots a:hover .tt{display:inline;}
+  .chunk-dots span.cur{color:var(--paper);background:var(--ink);}
+  .chunk-dots span.cur .tt{display:inline;}
+  @media(max-width:560px){ .chunk-dots a .tt{display:none!important;} }
+  .xref{color:inherit;text-decoration:none;border-bottom:1px dotted var(--faintest);}
+  .xref:hover{border-bottom-color:var(--soft1);}
+  .chunk-foot{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap;
+    border-top:1px solid var(--rule);margin-top:clamp(3rem,7vh,5rem);padding-top:1.5rem;}
+  .chunk-foot a{text-decoration:none;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.03em;color:var(--soft1);
+    border-bottom:1px solid transparent;transition:color .15s ease,border-color .15s ease;}
+  .chunk-foot a:hover{color:var(--ink);border-color:var(--faintest);}
+  .chunk-foot .hub{color:var(--red-deep);}
+  .chunk-foot .nv{max-width:43%;}
+  .chunk-foot .nv.dim{visibility:hidden;}
+  .chunk-prov{text-align:center;font-size:.82rem;color:var(--faint);margin:1.8rem auto 0;max-width:40rem;line-height:1.6;font-style:italic;}
+  .chunk-prov a{color:var(--soft1);}
+  /* ===== deep-lands: instance ledger table ===== */
+  .ltab-wrap{overflow-x:auto;max-width:47rem;margin:1.5rem auto .3rem;-webkit-overflow-scrolling:touch;}
+  .ltab{width:100%;min-width:35rem;border-collapse:collapse;font-size:.85rem;line-height:1.45;}
+  .ltab caption{caption-side:top;font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);text-align:left;margin-bottom:.55rem;}
+  .ltab th,.ltab td{text-align:left;padding:.5rem .65rem;border-bottom:1px solid var(--hair);vertical-align:top;}
+  .ltab thead th{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--rule);font-weight:500;}
+  .ltab .mono{font-size:.8rem;}
+  .ltab .fate{font-family:"IBM Plex Mono",monospace;font-size:.59rem;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+  .ltab .inst{font-weight:600;white-space:nowrap;}
+  .ltab .vd{color:var(--soft1);}
+  .ltab tr.lim .fate,.ltab tr.lim .inst{color:var(--red-deep);}
+  .ltab tr.pow .fate,.ltab tr.pow .inst{color:var(--teal-deep);}
+  .ltab tr.absorb .fate,.ltab tr.absorb .inst{color:var(--gold-deep);}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="../assets/edition.css">
+<meta name="description" content="Where It Lands — a complete interactive reading in Quodlibet, by Arthur Karadzhyan.">
+</head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a>
+<nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../library.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html#readings">Readings</a><a href="../library.html">Full collection</a></div></nav>
+<div class="rdg-progress" id="rdgProgress" aria-hidden="true"></div>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name"><a href="../the-mirror.html">Quodlibet &middot; The Mirror</a></span><span class="mh-meta">movement III of VI</span></div>
+    <nav class="chunk-dots" aria-label="The six movements">
+    <a href="quodlibet-mirror-1-theorem.html"><span class="rn">I</span><span class="tt">the theorem</span></a>
+    <a href="quodlibet-mirror-2-proof.html"><span class="rn">II</span><span class="tt">the proof</span></a>
+    <span class="cur"><span class="rn">III</span><span class="tt">where it lands</span></span>
+    <a href="quodlibet-mirror-4-what-grants-it.html"><span class="rn">IV</span><span class="tt">what grants it</span></a>
+    <a href="quodlibet-mirror-5-the-dial.html"><span class="rn">V</span><span class="tt">the dial</span></a>
+    <a href="quodlibet-mirror-6-the-costumes.html"><span class="rn">VI</span><span class="tt">the costumes</span></a>
+    </nav>
+    <div class="hero-head">
+      <p class="kicker">The Mirror &middot; movement III of VI</p>
+      <h1 class="title">Where It <span class="x">Lands</span></h1>
+      <p class="standfirst">The construction never asks whether the fixed point exists; it produces it. What the world decides is only what the point is permitted to <em>be</em>. This movement follows the one forced point to its four destinations &mdash; absent, recursion, paradox, incompleteness &mdash; and shows they are the leaves of a single short decision, two of them the very same diagonal pointed two ways.</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">α(s) = s</span><span class="ln"></span></div>
+
+<section class="sec" id="lands">
+    <div class="sec-head"><span class="num">III · where it lands</span><h2>The fixed point is never absent</h2><p class="sub">The construction does not ask whether <span class="mono">s</span> exists; it produces it. What the world decides is only what <span class="mono">s</span> is permitted to be — and that one question has two faces.</p></div>
+    <div class="reading">
+      <p>Return to the proof and notice a strangeness it passed over in silence. The construction is <i>unconditional</i>: given the mirror, it forces the point <span class="mono">s = φ(a)(a)</span> and proves <span class="mono">α(s) = s</span> for <i>every</i> twist whatsoever. Yet the simplest twist of all — negation on the two truth-values — plainly has no fixed point: nothing equals its own opposite. Both facts cannot stand unless something quietly gives. What gives is the unspoken premise that <span class="mono">s</span> must be one of the answers in <span class="mono">B</span>. It need not be. The forced fixed point is never absent; it is only <i>relocated</i> — pushed out of the values and into whatever the surrounding world will let it be. <i>Limitation</i> is the name we give that relocation when the world is too rigid to seat it at all.</p>
+    </div>
+    <div class="reading">
+      <p class="cont">So the dial's single bit — does <span class="mono">α</span> rest somewhere in <span class="mono">B</span>? — resolves, on inspection, into four destinations for the one forced point, sorted by whether the mirror genuinely exists, whether <span class="mono">B</span> is roomy enough to host the value, and whether the twist is a real, total negation.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="fate4">
+          <div class="fcell lim">
+            <div class="fc-n">fate one · no host</div>
+            <h4>Absent</h4>
+            <p>The system is not reflexive and the twist rests nowhere, so no value can exist to be <span class="mono">s</span>. The diagonal yields no paradox — it yields a witness that the naming was never onto.</p>
+            <span class="fc-where"><b>Cantor</b> · the halting decider</span>
+          </div>
+          <div class="fcell pow">
+            <div class="fc-n">fate two · divergent</div>
+            <h4>Recursion</h4>
+            <p>The mirror is genuine and <span class="mono">B</span> can host the point — as a self-describing object, or a computation that never settles, a <span class="mono">⊥</span>. No catastrophe; this is the engine of everything.</p>
+            <span class="fc-where"><b>Y</b> · quines · the recursion theorem</span>
+          </div>
+          <div class="fcell lim">
+            <div class="fc-n">fate three · explosive</div>
+            <h4>Paradox</h4>
+            <p>Reflexivity, a real negation, and demanded coherence all at once: the forced point becomes a proof of its own falsehood. The three cannot stand together, and the system detonates.</p>
+            <span class="fc-where"><b>Russell</b> · the Liar · Curry</span>
+          </div>
+          <div class="fcell absorb">
+            <div class="fc-n">fate four · undecided</div>
+            <h4>Incompleteness</h4>
+            <p>The twisted predicate is expressible but strictly weaker than truth, so the point lands as a sentence the system can neither affirm nor deny. No contradiction — it simply survives, undecided.</p>
+            <span class="fc-where"><b>Gödel</b> · Löb</span>
+          </div>
+        </div>
+        <figcaption><span class="mono">one construction, one forced point — </span>the four results are four answers to a single question: <b>where is <span class="mono">s</span> allowed to land?</b> Reflexivity and the character of the twist decide; the construction itself never varies.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The sorting deserves to be made exact, because the four are not loose impressions but the leaves of a short decision. Run the construction and ask, in order. <b>Does a genuine mirror exist?</b> Where its existence is the open question — is there a surjection, a decider? — a fixed-point-free twist answers it: <i>no</i>, and that <i>no</i> is the whole result. This is <b>Absent</b>. Take the halting decider: let <span class="mono">A</span> be programs, <span class="mono">B = {halts, loops}</span>, <span class="mono">φ(e)</span> the function program <span class="mono">e</span> computes, and <span class="mono">α</span> the swap. The diagonal <span class="mono">g(e) = ¬(φ(e)(e))</span> — loop if <span class="mono">e</span> halts on its own code, halt if it loops — becomes programmable the instant a decider exists, and running it on its own code <span class="mono">c</span> forces <span class="mono">g(c) = ¬g(c)</span>. So no decider exists; the forced point cannot be located, because the mirror that would name it cannot be built. Cantor is the same sentence with <span class="mono">B = Ω</span>: no set lists its own subsets.</p>
+      <p class="cont"><b>If instead the mirror is stipulated</b> — naïve comprehension grants membership as a total predicate, naïve truth grants the <span class="mono">T</span>-schema — then the identical fixed-point-free twist refutes not the mirror but the <i>system</i>: the forced point is a sentence equal to its own negation, and the theory is inconsistent. This is <b>Paradox</b> — and it is worth seeing that Paradox and Absent are <i>one diagonal pointed two ways</i>: aimed at an open mirror it reads <i>no such map</i>, aimed at a stipulated one it reads <i>no such system</i>. The choice of which is forced by nothing in the construction; it is forced by whether the world had already promised the mirror. <b>If the mirror is genuine and the twist does rest</b>, there is no obstruction at all — <b>Recursion</b>. And in the one case left — mirror stipulated, twist fixed-point-free, but the predicate <i>weaker</i> than a total negation, obeying only Löb's laws and not the full <span class="mono">T</span>-schema — the contradiction cannot complete, and the forced point lands as a sentence the system can neither prove nor refute. This is <b>Incompleteness</b>: the paradox that could not detonate.</p>
+    </div>
+    <div class="reading">
+      <p>The decision is clean; the instances at its leaves are worth naming precisely, because each is one tuple <span class="mono">(A, B, φ, α)</span> in the single construction. Set in a row, they show how little changes as one walks from a theorem of recursion to a theorem of limitation &mdash; only whether the twist rests, and whether the world had already promised the mirror.</p>
+    </div>
+    <div class="ltab-wrap">
+      <table class="ltab">
+        <caption>one construction, seven landings</caption>
+        <thead><tr><th>fate</th><th>instance</th><th>mirror&nbsp; <span class="mono">φ : A → Bᴬ</span></th><th>twist <span class="mono">α</span></th><th>the forced point <span class="mono">s = α(s)</span></th></tr></thead>
+        <tbody>
+          <tr class="pow"><td class="fate">recursion</td><td class="inst">Y · Kleene</td><td><span class="mono">D ≅ Dᴰ</span>, or programs, real</td><td class="mono">any</td><td class="vd">a value: a program fixed by <span class="mono">α</span></td></tr>
+          <tr class="lim"><td class="fate">absent</td><td class="inst">Cantor</td><td>set <span class="mono">X → P(X)</span>, candidate</td><td class="mono">¬</td><td class="vd">no surjection <span class="mono">X ↠ P(X)</span></td></tr>
+          <tr class="lim"><td class="fate">absent</td><td class="inst">Halting</td><td><span class="mono">programs → 2</span>, candidate</td><td class="mono">flip</td><td class="vd">no decider exists</td></tr>
+          <tr class="lim"><td class="fate">absent</td><td class="inst">Tarski</td><td><span class="mono">sentences → 2</span>, candidate</td><td class="mono">¬</td><td class="vd">truth is undefinable</td></tr>
+          <tr class="lim"><td class="fate">paradox</td><td class="inst">Russell</td><td><span class="mono">V → P(V)</span>, stipulated total</td><td class="mono">¬</td><td class="vd">the system is inconsistent</td></tr>
+          <tr class="lim"><td class="fate">paradox</td><td class="inst">Liar</td><td><span class="mono">sentences → 2</span>, T-schema</td><td class="mono">¬</td><td class="vd">the system is inconsistent</td></tr>
+          <tr class="absorb"><td class="fate">incomplete</td><td class="inst">Gödel</td><td><span class="mono">formulas → prov</span>, real</td><td class="mono">¬Prov</td><td class="vd"><span class="mono">G</span> is undecided</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="reading">
+      <p>Absent is not three coincidences but a class. By <b>Rice&rsquo;s theorem</b> &mdash; a corollary of the recursion fate &mdash; <i>every</i> nontrivial property of a program&rsquo;s behaviour is undecidable: a decider for such a property would, through the recursion theorem, let one build a program that does the opposite of what the property predicts of it &mdash; a fixed-point-free twist on the would-be deciders, forbidding its own. Halting is only the most famous line in an endless ledger of <i>no such map</i>.</p>
+    </div>
+    <div class="reading">
+      <p>The two fates that made <span class="mono">B</span> a space of truth-values need a mirror inside <i>syntax</i> &mdash; a way for a formal system to name its own sentences and substitute them into themselves. That mirror is a theorem, not an assumption, and it is the exact point where Gödel&rsquo;s argument touches Lawvere&rsquo;s.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the diagonal lemma · Gödel–Carnap</div>
+      <div class="ts">Let <span class="mono">T</span> represent every primitive recursive function (e.g. extend Robinson&rsquo;s <span class="mono">Q</span>). For each formula <span class="mono">ψ(x)</span> with one free variable there is a sentence <span class="mono">G</span> with <span class="mono">T ⊢ G ↔ ψ(⌜G⌝)</span>.</div>
+    </div>
+    <div class="reading">
+      <p>The proof <i>is</i> the diagonal. The operation that substitutes a formula&rsquo;s own code into itself, <span class="mono">diag(⌜θ⌝) = ⌜θ(⌜θ⌝)⌝</span>, is primitive recursive, so it is represented by some formula. Given <span class="mono">ψ</span>, let <span class="mono">θ(x) := ψ(diag(x))</span> and put <span class="mono">G := θ(⌜θ⌝)</span>. Then <span class="mono">G = ψ(diag(⌜θ⌝)) = ψ(⌜G⌝)</span>: the sentence asserts <span class="mono">ψ</span> of its own code. Read in the category of formulas this is Lawvere exactly &mdash; <span class="mono">diag</span> is the mirror <span class="mono">φ</span>, the map carrying a thing to itself-applied-to-itself; <span class="mono">ψ</span> is the twist <span class="mono">α</span>; <span class="mono">G</span> is the forced point <span class="mono">s = φ(a)(a)</span> with <span class="mono">a = ⌜θ⌝</span>. Lawvere noted the identity in 1969. It is not an analogy; it is the same fixed point in another cartesian closed category.</p>
+    </div>
+    <div class="reading">
+      <p>Feed that mirror the twist <i>unprovability</i>. With <span class="mono">Prov(x) := ∃y Proof(y, x)</span>, the lemma yields <span class="mono">G</span> with <span class="mono">T ⊢ G ↔ ¬Prov(⌜G⌝)</span> &mdash; a sentence that says <i>I am not provable</i>. If <span class="mono">T</span> is consistent it cannot prove <span class="mono">G</span>: a proof would yield <span class="mono">Prov(⌜G⌝)</span> by necessitation and <span class="mono">¬Prov(⌜G⌝)</span> from <span class="mono">G</span>, at once. If <span class="mono">T</span> is ω-consistent &mdash; Rosser sharpens this to mere consistency &mdash; it cannot prove <span class="mono">¬G</span> either. So <span class="mono">G</span> is independent: true in the standard model, unprovable in <span class="mono">T</span>. The forced point exists, a perfectly good sentence; what it has lost is a truth-value the system can reach.</p>
+    </div>
+    <div class="callout gold">
+      <div class="cl-lab">why the contradiction cannot complete</div>
+      <p>Here is the exact seam between Paradox and Incompleteness. The Liar uses <i>truth</i>, which obeys the full <b>T-schema</b> <span class="mono">True(⌜S⌝) ↔ S</span> for every <span class="mono">S</span>; the diagonal then gives <span class="mono">L ↔ ¬True(⌜L⌝) ↔ ¬L</span> &mdash; a flat <span class="mono">L ↔ ¬L</span> &mdash; and the system detonates. Gödel uses <i>provability</i>, which obeys only the weaker Hilbert–Bernays–Löb conditions &mdash; <span class="mono">⊢S ⟹ ⊢Prov(⌜S⌝)</span>, distribution of <span class="mono">Prov</span> over <span class="mono">→</span>, and <span class="mono">⊢Prov(⌜S⌝)→Prov(⌜Prov(⌜S⌝)⌝)</span> &mdash; and crucially <b>not</b> the reflection <span class="mono">Prov(⌜S⌝) → S</span>. Without reflection, <span class="mono">G ↔ ¬Prov(⌜G⌝)</span> can never become <span class="mono">G ↔ ¬G</span>; the contradiction stalls one step short and precipitates as undecidability. <b>Incompleteness is paradox minus reflection.</b></p>
+    </div>
+    <div class="reading">
+      <p>That missing step is itself a theorem. <b>Löb (1955):</b> <span class="mono">T ⊢ Prov(⌜S⌝) → S</span> holds <i>only</i> when <span class="mono">T ⊢ S</span> already. The reflection a system would need to finish the Liar is available to it for nothing but its own theorems &mdash; never for <span class="mono">G</span>, whose unprovability <i>is</i> the failure of <span class="mono">Prov(⌜G⌝) → G</span>. The modal logic <span class="mono">GL</span>, with <span class="mono">□</span> for provability and the lone axiom <span class="mono">□(□A → A) → □A</span>, axiomatizes precisely the schemata every such system must obey; the Gödel sentence is the fixed point of <span class="mono">¬□</span>, and de Jongh and Sambin proved those fixed points always exist and are unique. The gap between truth and provability is not vague. It is the exact width of Löb&rsquo;s theorem.</p>
+    </div>
+    <div class="reading">
+      <p>The same seam, seen from the other fate, is Tarski&rsquo;s theorem &mdash; and it is why Gödel had to reach for provability in the first place.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">Tarski&rsquo;s undefinability of truth · 1936</div>
+      <div class="ts">For any consistent <span class="mono">T</span> representing the primitive recursive functions, no formula <span class="mono">True(x)</span> satisfies <span class="mono">T ⊢ True(⌜S⌝) ↔ S</span> for all sentences <span class="mono">S</span>. Arithmetical truth is not arithmetically definable.</div>
+    </div>
+    <div class="reading">
+      <p>The proof is a single turn of the diagonal: were there such a <span class="mono">True</span>, the lemma applied to <span class="mono">¬True(x)</span> would give <span class="mono">L ↔ ¬True(⌜L⌝) ↔ ¬L</span>, and <span class="mono">T</span> would be inconsistent. So truth is the <b>Absent</b> fate for a predicate &mdash; <i>no such map</i> &mdash; the very same diagonal as the Liar, read against an open mirror instead of a stipulated one. And now the picture closes. Truth is undefinable because it carries reflection and would explode; provability is definable because it lacks reflection and merely incompletes. Gödel&rsquo;s move was to substitute the definable, weaker mirror &mdash; provability &mdash; for the undefinable, stronger one &mdash; truth &mdash; so that the diagonal&rsquo;s contradiction, denied the reflection it needs to detonate, deposits a true-but-unprovable sentence instead. <b>Incompleteness is the controlled demolition of the Liar:</b> the same charge, the same fuse, defused by exactly the reflection the system cannot prove of itself.</p>
+    </div>
+    <div class="reading">
+      <p>Read across the four and one axis organizes them. They are sorted by how the world answers a single question — <i>where may <span class="mono">s</span> live?</i> — which has just two moving parts: whether the mirror genuinely exists, and whether the answer-space <span class="mono">B</span> is roomy enough to seat the value the twist demands. Both hold and the point is recursion; the room runs short and the point is forced into paradox, into undecidability, or clean out of existence. The fates are therefore a ledger of <i>demand</i> — an accounting of what the forced point becomes when nothing in the values will seat it.</p>
+      <p class="cont">A ledger of demand implies a matching ledger of <i>supply</i>, because the same construction, run on a kinder world, hands the point back whole. By what right does <i>any</i> fixed point exist? That is the question the next movement takes up — and the two ledgers, laid side by side, turn out to be one, balanced to the entry.</p>
+    </div>
+  </section>
+
+  <nav class="chunk-foot">
+    <a class="nv prev" href="quodlibet-mirror-2-proof.html">← II · the proof</a>
+    <a class="hub" href="../the-mirror.html">the full synthesis · The Mirror</a>
+    <a class="nv next" href="quodlibet-mirror-4-what-grants-it.html">IV · what grants it →</a>
+  </nav>
+  <p class="chunk-prov">A movement of <a href="../the-mirror.html"><i>The Mirror</i></a>, the keystone of <i>Quodlibet</i>. The theorem and its five-line proof are Lawvere&rsquo;s (1969); the synthesis is the author&rsquo;s.</p>
+</div>
+<script>
+"use strict";
+
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+
+function initProg(){
+  var prog=document.getElementById("rdgProgress");
+  function up(){ var h=document.documentElement; var max=h.scrollHeight-h.clientHeight; if(prog) prog.style.width=((max>0?h.scrollTop/max:0)*100).toFixed(2)+"%"; }
+  window.addEventListener("scroll",up,{passive:true}); window.addEventListener("resize",up); up();
+}
+
+function init(){
+  try{ initProg(); }catch(e){ console.error("prog",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-mirror-2-proof.html">← The Proof</a><a rel="next" href="quodlibet-mirror-4-what-grants-it.html">What Grants It →</a></nav>
+<script src="../assets/edition.js"></script>
+</body>
+</html>

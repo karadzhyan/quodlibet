@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Regress — grounding is ascent, and the ascent conserves the obstruction</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);margin:0 0 .6rem;}
+  .callout p:last-child{margin-bottom:0;}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* two-origins faces */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.76rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* stepper (order-type zoom) */
+  .step-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.2rem;}
+  .step-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .9rem;cursor:pointer;transition:all .15s;}
+  .step-tab:hover{background:rgba(26,24,21,.05);}
+  .step-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .step-stage{display:none;}
+  .step-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .otz{display:block;width:100%;height:auto;overflow:visible;}
+  .step-cap{text-align:center;font-size:.88rem;line-height:1.55;color:var(--soft1);margin-top:1rem;max-width:40rem;margin-left:auto;margin-right:auto;text-wrap:pretty;}
+  .step-cap b{color:var(--ink);font-weight:600;}
+
+  /* three-column property grid */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .grid3{grid-template-columns:1fr;} }
+  .g3{background:var(--paper);padding:1.05rem 1.1rem;}
+  .g3 .g3-n{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .g3 h4{font-family:"Spectral",serif;font-weight:500;font-size:1.06rem;margin:0 0 .35rem;color:var(--ink);}
+  .g3 p{font-size:.84rem;line-height:1.5;color:var(--soft1);}
+
+  .codesvg,.anatsvg{display:block;width:100%;height:auto;overflow:visible;}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* page-specific: the regress */
+  .figsvg{display:block;width:100%;height:auto;overflow:visible;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-descent">The Descent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the regress · the receding ground from The Descent</span></div>
+    <div class="hero-head">
+      <p class="kicker">To find the floor, you must climb</p>
+      <h1 class="title">The <span class="x">Regress</span></h1>
+      <p class="standfirst"><em>The Descent</em> found no floor: <span class="mono">ℕ</span> cannot be fixed from inside, and grounding a theory from <em>outside</em> only relocates the problem upward. This panel follows the relocation to its end. To ground a theory is to prove it sound, and proving it sound demands a stronger theory — so the search for bedrock compels an endless <em>ascent</em>. The ground recedes upward, and the climb that would reach it conserves the very obstruction it was meant to escape.</p>
+      <p class="ed-mark">grounding is ascent · the progression · Turing's climb · Feferman's limit · the proof-theoretic ordinal</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">T ⊊ T+RFN(T) ⊊ ⋯</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The descent left one move unmade. <em>The Impostors</em>, <em>The Relativity</em>, and <em>The Original</em> all looked <i>inward</i>: no first-order theory fixes its model, and the rivals to <span class="mono">ℕ</span> — arithmetic and set-theoretic alike — flood the gap. The obvious recourse is to look <i>outward</i>: if a theory cannot ground its own meaning, perhaps a richer metatheory can ground it from above, certifying that its theorems are true and its model the intended one. This panel follows that recourse, and finds it the strangest passage in the corpus. The search for a floor turns out to be a climb.</p>
+    <p>The reason is a single chain of implication. To ground a theory <span class="mono">T</span> from a metatheory <span class="mono">M</span> — to have <span class="mono">M</span> certify that <span class="mono">T</span> is <i>sound</i>, that what <span class="mono">T</span> proves is true — is for <span class="mono">M</span> to prove a <i>reflection principle</i> for <span class="mono">T</span>. Reflection is strong enough to prove consistency; by Gödel's second theorem no theory proves its own consistency; so no theory grounds itself, and <span class="mono">M</span> must be strictly stronger than <span class="mono">T</span>. But then <span class="mono">M</span> wants grounding too, by a stronger <span class="mono">M′</span>, without end. The floor is always one storey up. To stand on bedrock you must keep climbing, and the bedrock keeps rising with you.</p>
+    <p>What makes this more than a vertigo is that the climb has an exact anatomy. It is a <i>transfinite progression</i> — Turing's ordinal logic, Feferman's iterated reflection — indexed not by ordinals but by ordinal <i>notations</i>, because a theory can only ascend to a stage it can <i>name</i>. Pushed to its limit, the climb reaches completeness: enough reflection, transfinitely iterated, proves every truth of arithmetic. But the limit is reached only non-effectively — which notations to climb is a problem harder than any the climb settles — so the incompleteness is never spent, only displaced from the theorems into the geometry of the ascent. And how far a <i>self-justifying</i> climb can reach is measured precisely, by an ordinal. We ascend in six movements.</p>
+  </div>
+
+  <!-- ===== §I GROUNDING IS ASCENT ===== -->
+  <section class="sec" id="ascent">
+    <div class="sec-head"><span class="num">I · grounding is ascent</span><h2>The floor is one storey up</h2><p class="sub">To ground a theory is to prove it sound; proving it sound takes a stronger theory; so the search for bedrock forces a climb that never lands.</p></div>
+    <div class="reading">
+      <p>Make the recourse precise. We want a metatheory <span class="mono">M</span> that <i>grounds</i> the object theory <span class="mono">T</span> — that settles what <span class="mono">T</span>'s intended model is and certifies that <span class="mono">T</span> speaks truly of it. At a minimum, this means <span class="mono">M</span> proves that every theorem of <span class="mono">T</span> is true: the <i>soundness</i> of <span class="mono">T</span>. Formalized, soundness is a <b>reflection principle</b>, <span class="mono">RFN(T)</span>, the schema <span class="mono">Prov<sub>T</sub>(⌜φ⌝) → φ</span> ranging over all sentences <span class="mono">φ</span>. To ground <span class="mono">T</span> is to assert that what it proves holds — and that assertion is exactly reflection.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">the grounding theorem — no theory is its own floor</div>
+      <div class="ts">Reflection is not a mild addition. <b><span class="mono">RFN(T) ⊢ Con(T)</span></b>: a theory all of whose theorems are true cannot prove <span class="mono">0 = 1</span>, so its proving anything at all certifies its consistency. But by <b>Gödel's second theorem</b> <span class="mono">T ⊬ Con(T)</span>, hence <span class="mono">T ⊬ RFN(T)</span> — <b>no consistent theory grounds itself.</b> A metatheory <span class="mono">M</span> that grounds <span class="mono">T</span> must therefore be strictly stronger, <span class="mono">M ⊋ T</span>; and <span class="mono">M</span>, being a theory, wants a ground of its own, a stronger <span class="mono">M′</span>, and so without end. The chain <span class="mono">T ⊊ M ⊊ M′ ⊊ ⋯</span> cannot terminate in a self-grounding base. <b>The floor recedes upward</b>: to reach bedrock one must climb, and the climb has no top.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <svg class="figsvg" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The grounding regress drawn as an upward ladder: each theory's ground is a stronger theory above it, without end.">
+          <text x="320" y="26" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing=".1em" fill="var(--faint)">THE GROUND OF EACH THEORY IS A STRONGER THEORY ABOVE IT</text>
+          <g font-family="IBM Plex Mono, monospace">
+            <rect x="180" y="210" width="280" height="34" rx="3" fill="rgba(26,24,21,.03)" stroke="var(--panelhair)"/>
+            <text x="320" y="231" text-anchor="middle" font-size="12" fill="var(--ink)">T   (the object theory)</text>
+            <rect x="180" y="160" width="280" height="34" rx="3" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+            <text x="320" y="181" text-anchor="middle" font-size="12" fill="var(--gold-deep)">M = T + RFN(T)   grounds T</text>
+            <rect x="180" y="110" width="280" height="34" rx="3" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+            <text x="320" y="131" text-anchor="middle" font-size="12" fill="var(--gold-deep)">M′ = M + RFN(M)   grounds M</text>
+            <rect x="180" y="60" width="280" height="34" rx="3" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+            <text x="320" y="81" text-anchor="middle" font-size="12" fill="var(--gold-deep)">M″   grounds M′</text>
+          </g>
+          <g stroke="var(--gold-deep)" stroke-width="1.4" fill="none">
+            <path d="M320 210 L320 196" marker-end="url(#au)"/>
+            <path d="M320 160 L320 146" marker-end="url(#au)"/>
+            <path d="M320 110 L320 96" marker-end="url(#au)"/>
+          </g>
+          <text x="320" y="50" text-anchor="middle" font-size="16" fill="var(--gold-deep)" font-family="IBM Plex Mono, monospace">⋮</text>
+          <text x="490" y="135" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--red-deep)">no</text>
+          <text x="490" y="151" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--red-deep)">self-</text>
+          <text x="490" y="167" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--red-deep)">grounding</text>
+          <text x="490" y="183" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--red-deep)">base</text>
+          <text x="150" y="135" text-anchor="end" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--faint)">each</text>
+          <text x="150" y="151" text-anchor="end" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--faint)">grounds</text>
+          <text x="150" y="167" text-anchor="end" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--faint)">the one</text>
+          <text x="150" y="183" text-anchor="end" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--faint)">below</text>
+          <defs><marker id="au" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6" fill="none" stroke="var(--gold-deep)" stroke-width="1.2"/></marker></defs>
+        </svg>
+        <figcaption>Grounding drawn upward. To secure <span class="mono">T</span> you ascend to <span class="mono">T + RFN(T)</span>; to secure <i>that</i> you ascend again; the bedrock you are reaching for is always the next theory above. <b>The search for a floor is a ladder with no bottom rung — and no top.</b></figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p class="cont">This is the exact twin of <em>The Ascent</em>, turned over. There the question was completeness, and the ladder rose because no consistent system proves its own soundness, so there is no roof. Here the question is grounding, and the same theorem — <span class="mono">T ⊬ RFN(T)</span>, Gödel's second — says there is no floor: no theory certifies itself, so the certifying must be passed upward forever. One ladder, read in two directions; one theorem forbidding both the self-proving summit and the self-grounding base. What remains is to see the ladder's <i>structure</i> — for it is not a vague infinity but a precise transfinite object, and its precision is where the next surprise lives.</p>
+    </div>
+  </section>
+
+  <!-- ===== §II THE PROGRESSION ===== -->
+  <section class="sec" id="progression">
+    <div class="sec-head"><span class="num">II · the progression</span><h2>The ladder, indexed by the ordinals</h2><p class="sub">The grounding regress is a transfinite progression of theories — climbable only as far as the climber can name the stage, and naming is where the difficulty hides.</p></div>
+    <div class="reading">
+      <p>Give the ladder its rungs. Start with <span class="mono">T₀ = T</span>. At each successor step add the reflection principle for the stage below: <span class="mono">T<sub>α+1</sub> = T<sub>α</sub> + RFN(T<sub>α</sub>)</span> — or, in the leaner version, <span class="mono">+ Con(T<sub>α</sub>)</span>. At a limit stage, take the union of everything below. This is a <i>transfinite recursive progression</i>, the object Turing introduced in 1939 as an "ordinal logic" and Feferman developed in 1962. But there is a catch already in the indexing. To climb to a transfinite stage <span class="mono">α</span>, the construction must <i>refer</i> to <span class="mono">α</span> — and a theory can only refer to an ordinal it can <i>name</i>. So the progression is indexed not by ordinals but by <b>ordinal notations</b>: concrete, recursive descriptions of ordinals, the members of Kleene's <span class="mono">O</span>. The ladder rises exactly as high as the climber can write down where it is going.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">Turing 1939 · Feferman 1962 — the reflection progression</div>
+      <div class="ts">Along a path through the ordinal notations, define <span class="mono">T<sub>0</sub> = T</span>, <span class="mono">T<sub>α+1</sub> = T<sub>α</sub> + RFN(T<sub>α</sub>)</span>, and unions at limits, with each stage's axioms recursively enumerable <i>relative to the notation</i>. The result is a recursively presented family of theories climbing the consistency strength of <span class="mono">T</span> stage by stage. Each rung is forced by the grounding theorem of <span class="mono">§I</span>: <span class="mono">T<sub>α</sub></span> cannot prove its own <span class="mono">Con</span>, so <span class="mono">T<sub>α+1</sub></span> is strictly stronger, and the progression is the grounding regress made into a precise transfinite object. The whole of the question becomes: <i>how high can it climb, and what does it reach?</i></div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="step-tabs" role="tablist">
+          <button class="step-tab on" data-stage="0">the base · α=0</button>
+          <button class="step-tab" data-stage="1">finite climb</button>
+          <button class="step-tab" data-stage="2">through the transfinite</button>
+          <button class="step-tab" data-stage="3">the limit — and the catch</button>
+        </div>
+        <div class="step-stage show" data-stage="0">
+          <svg class="figsvg" viewBox="0 0 600 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stage 0: PA proves much but not its own consistency.">
+            <line x1="40" y1="60" x2="560" y2="60" stroke="var(--panelhair)" stroke-width="1"/>
+            <circle cx="90" cy="60" r="5" fill="var(--teal-deep)"/>
+            <text x="90" y="84" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--teal-deep)">T₀ = PA</text>
+            <circle cx="470" cy="60" r="5" fill="none" stroke="var(--red-line)" stroke-width="1.4" stroke-dasharray="2 3"/>
+            <text x="470" y="84" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--red-deep)">Con(PA)</text>
+            <text x="470" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--red-deep)">✗ Gödel II</text>
+          </svg>
+          <p class="step-cap"><b>The base cannot certify itself.</b> <span class="mono">PA</span> proves an immense body of arithmetic — but not <span class="mono">Con(PA)</span>, by Gödel's second theorem. The very statement that would ground it lies just out of its own reach. So the climb must begin.</p>
+        </div>
+        <div class="step-stage" data-stage="1">
+          <svg class="figsvg" viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Finite climb: each stage proves the consistency of the one below, but stays incomplete.">
+            <line x1="40" y1="64" x2="560" y2="64" stroke="var(--panelhair)" stroke-width="1"/>
+            <g fill="var(--teal-deep)"><circle cx="100" cy="64" r="5"/><circle cx="240" cy="64" r="5"/><circle cx="380" cy="64" r="5"/><circle cx="500" cy="64" r="5"/></g>
+            <g font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--teal-deep)" text-anchor="middle">
+              <text x="100" y="88">T₀</text><text x="240" y="88">T₁</text><text x="380" y="88">T₂</text><text x="500" y="88">T₃ …</text>
+            </g>
+            <g stroke="var(--gold-deep)" stroke-width="1.2" fill="none">
+              <path d="M112 50 Q170 36 228 50" marker-end="url(#a2u)"/>
+              <path d="M252 50 Q310 36 368 50" marker-end="url(#a2u)"/>
+              <path d="M392 50 Q446 36 488 50" marker-end="url(#a2u)"/>
+            </g>
+            <text x="300" y="26" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--gold-deep)">each adds Con of the last — Tₙ₊₁ ⊢ Con(Tₙ)</text>
+            <defs><marker id="a2u" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="var(--gold-deep)" stroke-width="1.1"/></marker></defs>
+          </svg>
+          <p class="step-cap">Each finite rung proves the consistency of the one beneath it — and is itself still incomplete, since Gödel's theorem applies to <span class="mono">T<sub>n</sub></span> in turn. After <span class="mono">n</span> steps you have consistency iterated <span class="mono">n</span> times, and no nearer a base that grounds itself. The finite climb never closes.</p>
+        </div>
+        <div class="step-stage" data-stage="2">
+          <svg class="figsvg" viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Through the transfinite: at omega take unions, and climb on to epsilon-naught where PA's consistency is reached.">
+            <line x1="40" y1="64" x2="560" y2="64" stroke="var(--panelhair)" stroke-width="1"/>
+            <g fill="var(--teal-deep)"><circle cx="80" cy="64" r="4"/><circle cx="130" cy="64" r="4"/><circle cx="180" cy="64" r="4"/></g>
+            <text x="225" y="68" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--soft1)">⋯</text>
+            <circle cx="280" cy="64" r="5.5" fill="var(--gold-deep)"/>
+            <text x="280" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--gold-deep)">ω</text>
+            <text x="280" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="var(--gold-deep)">union</text>
+            <g fill="var(--teal-deep)"><circle cx="340" cy="64" r="4"/><circle cx="390" cy="64" r="4"/></g>
+            <text x="430" y="68" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--soft1)">⋯</text>
+            <circle cx="500" cy="64" r="6" fill="var(--teal-deep)"/>
+            <text x="500" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--teal-deep)">ε₀</text>
+            <text x="500" y="40" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="9.5" fill="var(--teal-deep)">Con(PA) here — Gentzen</text>
+          </svg>
+          <p class="step-cap">At the limit <span class="mono">ω</span> the union proves <span class="mono">Con(T<sub>n</sub>)</span> for every <span class="mono">n</span>; the climb passes <span class="mono">ω, ω+1, …</span> and decides ever more arithmetic. Gentzen's measure of <span class="mono">PA</span> appears as a milestone: the consistency of <span class="mono">PA</span> is exactly what the climb reaches at the ordinal <span class="mono">ε₀</span>. The ascent has genuine transfinite power.</p>
+        </div>
+        <div class="step-stage" data-stage="3">
+          <svg class="figsvg" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The limit: along all notations the progression is complete, but recognizing the path is Pi-1-1 and some paths stay incomplete.">
+            <line x1="40" y1="75" x2="360" y2="75" stroke="var(--panelhair)" stroke-width="1"/>
+            <g fill="var(--teal-deep)"><circle cx="80" cy="75" r="4"/><circle cx="140" cy="75" r="4"/><circle cx="200" cy="75" r="4"/></g>
+            <text x="250" y="79" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--soft1)">⋯</text>
+            <circle cx="320" cy="75" r="5" fill="var(--ink)"/>
+            <text x="320" y="98" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--ink)">a fork in O</text>
+            <path d="M328 71 L470 44" stroke="var(--teal-line)" stroke-width="1.5" fill="none" marker-end="url(#a3a)"/>
+            <path d="M328 79 L470 110" stroke="var(--red-line)" stroke-width="1.5" fill="none" marker-end="url(#a3b)"/>
+            <text x="556" y="42" text-anchor="end" font-family="Spectral, serif" font-style="italic" font-size="10.5" fill="var(--teal-deep)">right path → all true arithmetic</text>
+            <text x="556" y="56" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="var(--teal-deep)">complete (Feferman)</text>
+            <text x="556" y="108" text-anchor="end" font-family="Spectral, serif" font-style="italic" font-size="10.5" fill="var(--red-deep)">wrong path → still incomplete</text>
+            <text x="556" y="122" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="var(--red-deep)">Feferman–Spector</text>
+            <text x="300" y="142" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--ink)">recognizing the right notations is Π¹₁-complete</text>
+            <defs>
+              <marker id="a3a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="var(--teal-deep)" stroke-width="1.1"/></marker>
+              <marker id="a3b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="var(--red-deep)" stroke-width="1.1"/></marker>
+            </defs>
+          </svg>
+          <p class="step-cap"><b>The summit is reached — but not by computation.</b> Climbing reflection along <i>all</i> of Kleene's <span class="mono">O</span> proves every truth of arithmetic; yet which notations to climb is a <span class="mono">Π¹₁</span>-complete problem, and along some paths the progression stays incomplete forever. Completeness is real and uncomputable. The next movements make each half exact.</p>
+        </div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The stepper has previewed the whole drama. A precise transfinite ladder, forced rung by rung; a finite climb that never closes; a transfinite reach that recovers Gentzen's measure of <span class="mono">PA</span> and presses past it; and a limit at which completeness is attained — but only along the right path through the notations, and choosing that path is harder than anything the path proves. The two halves of that limit are two theorems, one of Turing's and one of Feferman's, and they are the heart of this panel.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III TURING'S CLIMB ===== -->
+  <section class="sec" id="turing">
+    <div class="sec-head"><span class="num">III · Turing's climb</span><h2>Completeness from below — for Π⁰₁</h2><p class="sub">Iterating consistency, the progression eventually proves every true Π⁰₁ sentence. But the stage that catches a given truth depends on the notation you choose.</p></div>
+    <div class="reading">
+      <p>Turing's 1939 thesis asked exactly the right question of the consistency progression: how much of arithmetic does climbing consistency settle? His answer was the first sign that the regress, though endless, is not powerless. Restrict attention to the <span class="mono">Π⁰₁</span> sentences — those of the form "for all <span class="mono">n</span>, <span class="mono">D(n)</span>" with <span class="mono">D</span> decidable, the class that contains every consistency statement and every "this program never halts." Turing proved that the progression based on iterated consistency is <b>complete for <span class="mono">Π⁰₁</span></b>: every <i>true</i> <span class="mono">Π⁰₁</span> sentence is proved at some stage. The finitary core of arithmetic is reachable from below, by climbing consistency alone.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">Turing, 1939 — the Π⁰₁-completeness of the consistency progression</div>
+      <div class="ts"><b>Every true <span class="mono">Π⁰₁</span> sentence is provable at some stage of the iterated-consistency progression.</b> Strikingly, the stages needed are <i>low</i>: for each true <span class="mono">Π⁰₁</span> sentence a notation for an ordinal as small as <span class="mono">ω + 1</span> already suffices. The catch — which Turing saw and named — is that the notation depends on the sentence: a <i>different</i> path of length <span class="mono">ω + 1</span> for each truth, and no effective way to choose it. The completeness is real but <b>notation-relative</b>: the difficulty is not in the height of the climb but in knowing <i>which</i> climb of that height to make. The hardness has not vanished; it has moved into the choice of path.</div>
+    </div>
+    <div class="reading">
+      <p class="cont">Two boundaries frame the result. Below, it is a genuine triumph: the consistency statements that Gödel's theorem keeps out of any single theory are all recovered, somewhere up the ladder — the finitary floor <i>is</i> reachable by ascent. But the result reaches only <span class="mono">Π⁰₁</span>, and the floor the descent was after — a full grounding, true of <i>every</i> arithmetic sentence — lies higher in the hierarchy. To climb past <span class="mono">Π⁰₁</span> to all of arithmetic, mere consistency is too weak; one needs the full strength of reflection. That is the step Feferman took, and it reaches the summit — at a price exact enough to name.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV FEFERMAN'S LIMIT ===== -->
+  <section class="sec" id="feferman">
+    <div class="sec-head"><span class="num">IV · Feferman's limit</span><h2>Completeness, and its price</h2><p class="sub">Iterating uniform reflection along all of Kleene's O proves every true arithmetic sentence — but the climb cannot be computed, and the incompleteness is conserved.</p></div>
+    <div class="reading">
+      <p>Feferman replaced consistency with the full <i>uniform reflection</i> principle and let the progression climb along <i>all</i> of Kleene's <span class="mono">O</span>, every notation at once. The result is the most vertiginous theorem in the neighbourhood: the progression proves <b>every true sentence of arithmetic</b>, of whatever quantifier complexity. Completeness from below, in full — the summit <em>The Ascent</em> declared unreachable by any single effective theory <i>is</i> reached, by the transfinite iteration of reflection. For a moment it looks as though the regress has, against all expectation, terminated in bedrock. It has not, and seeing why is the whole point.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">Feferman, 1962 — completeness attained, non-effectively</div>
+      <div class="ts"><b>Iterating uniform reflection along Kleene's <span class="mono">O</span> proves every true arithmetic sentence.</b> But the completeness is uncomputable on two counts. First, the index set <span class="mono">O</span> is <span class="mono">Π¹₁</span>-<i>complete</i> — recognizing which expressions are genuine ordinal notations is as hard as the hardest <span class="mono">Π¹₁</span> problem, harder than the entire arithmetical hierarchy the climb is settling. Second, by <b>Feferman–Spector</b> there are paths through <span class="mono">O</span> along which the progression stays <i>incomplete</i> forever; completeness holds only along the right paths, and those cannot be selected effectively. The summit is reached, but <b>the climb cannot be computed</b>. The ascent does not dissolve incompleteness — it relocates it.</div>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">the conservation of incompleteness</div>
+      <p>This is the law the whole corpus keeps meeting, in its sharpest form. Iterated reflection is the most powerful tool available for grounding arithmetic, and used to the limit it <i>does</i> reach completeness — yet it does not <b>spend</b> the incompleteness, it <b>conserves</b> it. What was, in Gödel's hands, the unprovability of a single sentence becomes, here, the <span class="mono">Π¹₁</span>-complexity of recognizing the right path through the notations. The barrier is not lowered; it is moved — out of the theorems, into the geometry of the climb. You can complete arithmetic. You cannot compute the completion. The diagonal that began the corpus is not escaped by ascent; it is carried up the ladder intact, displaced but never paid.</p>
+    </div>
+    <div class="reading">
+      <p>So this is the precise content of "the ground recedes." It does not mean the floor is unreachable in principle — Feferman shows it is reachable, at the transfinite limit. It means the reaching cannot be <i>carried out</i>: no effective procedure climbs to the grounding, because the procedure would have to solve a <span class="mono">Π¹₁</span>-complete problem to know where to climb. Grounding is available only to a reasoner who can already survey the whole of <span class="mono">O</span> — which is to say, to no reasoner that computes. The bedrock exists at the top of the ladder, and the ladder's rungs, past a point, can only be located by an oracle the descent has shown no theory to possess.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V THE SELF-JUSTIFYING CLIMB ===== -->
+  <section class="sec" id="autonomous">
+    <div class="sec-head"><span class="num">V · the self-justifying climb</span><h2>How far you can honestly reach</h2><p class="sub">If you may ascend only to ordinals you have already justified, the climb stops at a definite ordinal — and that ordinal measures the theory.</p></div>
+    <div class="reading">
+      <p>Feferman's completeness leaned on an outside oracle: the right notations were handed in, chosen non-effectively from the whole of <span class="mono">O</span>. Take the oracle away and impose the honest discipline instead — you may climb to a stage <span class="mono">α</span> only once you have <i>proved</i> that the notation for <span class="mono">α</span> really is a well-ordering. This is an <b>autonomous progression</b>: each new height must be earned by the heights already secured, with nothing assumed that has not been justified. Now the climb cannot leap; it can only grow by what it can certify. And a climb that grows only by self-certification does not rise forever. It closes at a definite ordinal — the exact altitude reachable without borrowing.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">autonomous progressions and the ordinal Γ₀ — Feferman, Schütte</div>
+      <div class="ts">For reasoning that accepts only what is justified by what it has already justified — <i>predicative</i> reasoning — the autonomous climb has a precise ceiling: the <b>Feferman–Schütte ordinal <span class="mono">Γ₀</span></b>, the supremum of the ordinals an autonomous progression can earn. Below <span class="mono">Γ₀</span> lies everything predicatively justifiable; at and above it, every further step would require assuming a well-ordering not yet secured — an impredicative loan. The receding ground, for a self-grounding reasoner, recedes to exactly <span class="mono">Γ₀</span> and no further. The endless ladder of <span class="mono">§I</span> turns out, under the honest discipline, to have a <i>measured</i> reach — and the measure is an ordinal.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <svg class="figsvg" viewBox="0 0 640 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Proof-theoretic ordinals on a line: epsilon-naught for PA, Gamma-naught for predicativity, and beyond.">
+          <text x="320" y="26" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing=".1em" fill="var(--faint)">EACH THEORY'S REACH IS AN ORDINAL — ITS PROOF-THEORETIC STRENGTH</text>
+          <line x1="50" y1="80" x2="600" y2="80" stroke="var(--panelhair)" stroke-width="1.2"/>
+          <path d="M590 80 L600 80 M594 76 L602 80 L594 84" fill="none" stroke="var(--faintest)" stroke-width="1.1"/>
+          <circle cx="95" cy="80" r="4" fill="var(--soft1)"/>
+          <text x="95" y="102" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--soft1)">ω</text>
+          <circle cx="230" cy="80" r="5.5" fill="var(--teal-deep)"/>
+          <text x="230" y="102" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--teal-deep)">ε₀</text>
+          <text x="230" y="58" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="10.5" fill="var(--teal-deep)">PA · Gentzen</text>
+          <circle cx="400" cy="80" r="6" fill="var(--gold-deep)"/>
+          <text x="400" y="102" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--gold-deep)">Γ₀</text>
+          <text x="400" y="58" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="10.5" fill="var(--gold-deep)">predicativity · Feferman–Schütte</text>
+          <circle cx="530" cy="80" r="5" fill="var(--red-deep)"/>
+          <text x="530" y="102" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--red-deep)">ψ(Ω…)</text>
+          <text x="530" y="58" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="10" fill="var(--red-deep)">impredicative · beyond</text>
+          <text x="320" y="134" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="11" fill="var(--faint)">the supremum of the well-orderings a theory can prove — how high its honest climb reaches</text>
+        </svg>
+        <figcaption>The ordinal as gauge. A theory's <i>proof-theoretic ordinal</i> is the supremum of the well-orderings it can prove — the exact height its self-justifying climb attains. <span class="mono">ε₀</span> for <span class="mono">PA</span>, <span class="mono">Γ₀</span> for predicative analysis, larger ordinals for stronger theories. <b>The receding ground is measured, theory by theory, in ordinals.</b></figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the regress, mapped&nbsp;&nbsp;</span>This is what the endless ladder becomes once measured. To every theory there belongs a single ordinal — its proof-theoretic ordinal — recording how far the consistency climb runs before that theory's strength is spent: <span class="mono">ε₀</span> for <span class="mono">PA</span>, <span class="mono">Γ₀</span> at the predicative limit, the Bachmann–Howard ordinal and beyond for the impredicative theories. The ordinal is a precise gauge of grounding power: it says exactly how much of the climb a theory can perform on its own, and exactly where it must borrow. The regress is not a fog. It is an ordered tower, each storey a theory, each height an ordinal, and the discipline of ordinal analysis is the science of reading those heights. The floor a theory can stand on is its ordinal; the floor it cannot reach is everything above.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VI SYNTHESIS ===== -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">VI · the receding ground</span><h2>What the climb conserves</h2><p class="sub">Grounding is ascent; the ascent reaches bedrock only at the transfinite, only non-effectively; and the obstruction is conserved, not dissolved.</p></div>
+    <div class="stage">
+      <div class="panel">
+        <svg class="figsvg" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One ladder read in two directions: The Ascent climbs for completeness, The Regress for grounding; Gödel II forbids both ends.">
+          <line x1="320" y1="40" x2="320" y2="180" stroke="var(--ink)" stroke-width="1.6"/>
+          <g stroke="var(--ink)" stroke-width="1.2"><path d="M300 60 L340 60"/><path d="M300 90 L340 90"/><path d="M300 120 L340 120"/><path d="M300 150 L340 150"/></g>
+          <text x="320" y="30" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink)">one ladder</text>
+          <path d="M250 150 L250 60" fill="none" stroke="var(--red-deep)" stroke-width="1.5" marker-end="url(#aup)"/>
+          <text x="150" y="92" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="12.5" fill="var(--red-deep)">The Ascent</text>
+          <text x="150" y="110" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--soft1)">climb for completeness</text>
+          <text x="150" y="125" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--red-deep)">no roof</text>
+          <path d="M390 150 L390 60" fill="none" stroke="var(--gold-deep)" stroke-width="1.5" marker-end="url(#aup2)"/>
+          <text x="500" y="92" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="12.5" fill="var(--gold-deep)">The Regress</text>
+          <text x="500" y="110" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--soft1)">climb for grounding</text>
+          <text x="500" y="125" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--gold-deep)">no floor</text>
+          <text x="320" y="200" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink)">Gödel II forbids both ends — T ⊬ Con(T)</text>
+          <text x="320" y="219" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="11" fill="var(--faint)">the obstruction is conserved: displaced into the path, measured by the ordinal</text>
+          <defs>
+            <marker id="aup" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6" fill="none" stroke="var(--red-deep)" stroke-width="1.2"/></marker>
+            <marker id="aup2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6" fill="none" stroke="var(--gold-deep)" stroke-width="1.2"/></marker>
+          </defs>
+        </svg>
+        <figcaption>One ladder, two directions. <em>The Ascent</em> climbs it seeking a roof and finds none; <em>The Regress</em> climbs it seeking a floor and finds none — and both are barred by the single theorem <span class="mono">T ⊬ Con(T)</span>. The obstruction is never spent: <b>conserved, displaced into the path, measured by the ordinal.</b></figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Gather the ascent. To ground a theory is to prove it sound, and proving it sound forces a strictly stronger theory — so the search for a floor is a climb, and the climb is a precise transfinite progression indexed by ordinal notations. Turing's climb reaches every true <span class="mono">Π⁰₁</span> sentence; Feferman's reaches every truth of arithmetic — but only non-effectively, the incompleteness conserved as the <span class="mono">Π¹₁</span>-complexity of recognizing the path. And the honestly reachable ground, the height a self-justifying reasoner can earn, is measured exactly by a proof-theoretic ordinal. The regress that <em>The Descent</em> named is now fully mechanized: no self-grounding base, a transfinite completion that no machine can compute, and each theory's reach pinned to an ordinal.</p>
+      <p class="cont">So this is the proof-theoretic twin of the descent the other panels traced in semantics. <em>The Impostors</em>, <em>The Relativity</em>, and <em>The Original</em> showed the floor cannot be fixed from <i>inside</i> — no theory pins its own model. <em>The Regress</em> shows it cannot be reached from <i>outside</i> either, except by an ascent that never lands at any computable stage and conserves Gödel's obstruction at every height. The two halves meet in one verdict: the ground is real — there is a true arithmetic, an intended model, a bedrock of fact — and it is reachable from no position the reasoner can occupy, neither below by definition nor above by computation. The diagonal that opened the corpus is carried, undissolved, up the entire ladder. It is the fixed point with no fixed point, and the descent's last word is that you cannot get beneath it: every floor you build rests on a higher one, forever, and the only footing is at infinity.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">RFN(T) ⊢ Con(T)</span><span class="ln"></span></div>
+  <div class="coda"><p>The Descent found no floor, and tried to build one from above. The Regress is what the building costs. To ground a theory you climb to a stronger one, and the bedrock rises with you; pursued to the limit the climb reaches the bottom — but only along a path no machine can find. <span class="mono">The ground is real. It recedes upward, exactly as fast as you climb.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the regress · the receding ground from The Descent</span></div>
+    <p class="colophon">A standalone treatment of <i>The Descent</i>'s third movement — "the ground recedes" — developed into the proof theory the parent volume could only name. The load-bearing results are classical: that a reflection principle proves consistency, so by Gödel's second theorem no theory proves its own reflection; Turing's ordinal logics and the <span class="mono">Π⁰₁</span>-completeness of the consistency progression; Feferman's transfinite recursive progressions and the completeness of iterated uniform reflection along Kleene's <span class="mono">O</span>; the <span class="mono">Π¹₁</span>-completeness of <span class="mono">O</span> and the Feferman–Spector incomplete paths; autonomous progressions and the Feferman–Schütte ordinal <span class="mono">Γ₀</span>; and Gentzen's <span class="mono">ε₀</span> as the proof-theoretic ordinal of <span class="mono">PA</span>. The framing — "grounding is ascent," "the floor is one storey up," the conservation of incompleteness into the geometry of the climb, and the identification of this ladder with <em>The Ascent</em>'s read in the opposite direction — is the author's, and is exposition, not theorem. That the regress is forced and that its transfinite completion is non-effective are precise; the reading of both as a single conserved obstruction is interpretive.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;The uniform reflection principle <span class="mono">RFN(T)</span> proves <span class="mono">Con(T)</span> (instantiate at <span class="mono">⊥</span>), so by Gödel's second theorem <span class="mono">T ⊬ RFN(T)</span> for consistent r.e. <span class="mono">T</span> extending a weak base; a grounding metatheory is therefore strictly stronger, and the regress cannot bottom out. The progression <span class="mono">T<sub>α+1</sub> = T<sub>α</sub> + RFN(T<sub>α</sub>)</span> with unions at limits is indexed by ordinal notations (Kleene's <span class="mono">O</span>), since the construction must name its stages; this is Turing's ordinal logic (1939) and Feferman's transfinite recursive progressions (1962). Turing proved the iterated-consistency progression complete for true <span class="mono">Π⁰₁</span> sentences, with notations for ordinals as small as <span class="mono">ω+1</span> sufficing for each but depending on the sentence. Feferman proved that iterating uniform reflection along <span class="mono">O</span> proves every true arithmetic sentence; the completeness is non-effective because <span class="mono">O</span> is <span class="mono">Π¹₁</span>-complete and, by Feferman–Spector, there are paths along which the progression stays incomplete. Autonomous progressions — climbing only to notations whose well-ordering has already been proved — have supremum <span class="mono">Γ₀</span> for predicative reasoning (Feferman 1964; Schütte). A theory's proof-theoretic ordinal is the supremum of the recursive well-orderings it proves; for <span class="mono">PA</span> it is <span class="mono">ε₀</span> (Gentzen 1936), for predicative analysis <span class="mono">Γ₀</span>, with larger ordinals (Bachmann–Howard and beyond) for impredicative theories. The completeness theorems concern provability somewhere in the progression, not in any single effective theory, consistent with Gödel's first theorem throughout.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Gentzen 1936 · Turing 1939 · Feferman 1962 · Feferman–Spector 1962 · Feferman 1964 · Schütte · Kreisel · Pohlers (ordinal analysis).</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+(function(){
+  var tabs = document.querySelectorAll(".step-tab");
+  var stages = document.querySelectorAll(".step-stage");
+  function show(s){
+    tabs.forEach(function(t){ t.classList.toggle("on", t.getAttribute("data-stage") === s); });
+    stages.forEach(function(st){ st.classList.toggle("show", st.getAttribute("data-stage") === s); });
+  }
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){ show(t.getAttribute("data-stage")); });
+  });
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-relativity.html">← The Relativity</a><a rel="next" href="quodlibet-the-confluence.html">The Confluence →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

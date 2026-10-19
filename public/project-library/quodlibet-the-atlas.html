@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Atlas — the universe of the diagonal</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.10); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.11); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.13); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    /* connection-type colors */
+    --t-id:#8f2d23; --t-cor:#b23a2e; --t-kin:#937234; --t-gen:#2c6e6a; --t-echo:#9a9384; --t-esc:#565147;
+    --read:37rem; --frame:78rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+
+  /* hero */
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.4rem,6vh,4.4rem) auto clamp(1rem,2.5vh,1.8rem);max-width:56rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3rem,10vw,7.6rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.24rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:45rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  /* prose */
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  /* section heads */
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.7rem,3.2vw,2.45rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:64rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:48rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,2rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* three genera */
+  .genera{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:820px){ .genera{grid-template-columns:1fr;} }
+  .genus{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .genus .gtag{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .genus h3{font-family:"Spectral",serif;font-weight:500;font-size:1.28rem;margin:0 0 .15rem;}
+  .genus .who{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);margin-bottom:.8rem;}
+  .genus .stmt{font-size:.94rem;line-height:1.55;color:var(--soft1);margin-bottom:.85rem;}
+  .genus .role{font-size:.9rem;line-height:1.5;color:var(--ink);border-top:1px solid var(--panelhair);padding-top:.8rem;}
+  .genus .role b{font-weight:500;}
+  .genus.g1{box-shadow:inset 4px 0 0 var(--red-line);} .genus.g1 h3{color:var(--red-deep);}
+  .genus.g2{box-shadow:inset 4px 0 0 var(--gold-line);} .genus.g2 h3{color:var(--gold-deep);}
+  .genus.g3{box-shadow:inset 4px 0 0 var(--teal-line);} .genus.g3 h3{color:var(--teal-deep);}
+
+  /* ---- the map ---- */
+  .map-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(1.2rem,3vw,2.2rem);align-items:start;}
+  @media(max-width:900px){ .map-wrap{grid-template-columns:1fr;} }
+  #atlasSvg{display:block;width:100%;height:auto;overflow:visible;cursor:default;}
+  .map-aside{position:sticky;top:1.2rem;display:flex;flex-direction:column;gap:1.1rem;}
+  @media(max-width:900px){ .map-aside{position:static;} }
+  .legend{border:1px solid var(--panelhair);border-radius:3px;padding:1rem 1.1rem;background:rgba(26,24,21,.012);}
+  .legend .lh{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem;}
+  .legend-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;font-size:.84rem;color:var(--soft1);line-height:1.3;cursor:pointer;border-radius:3px;padding:.18rem .3rem;transition:background .12s;}
+  .legend-row:hover{background:rgba(26,24,21,.04);}
+  .legend-row.off{opacity:.38;}
+  .legend-row .dot{width:11px;height:11px;border-radius:50%;flex:none;}
+  .legend-row .nm{font-weight:500;color:var(--ink);}
+  .legend-row .ct{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);}
+  .legend .note{font-size:.78rem;color:var(--faint);line-height:1.45;margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--panelhair);font-style:italic;}
+
+  .detail{border:1px solid var(--panelhair);border-radius:3px;padding:1.15rem 1.2rem 1.3rem;background:rgba(26,24,21,.012);min-height:11rem;}
+  .detail .dprompt{font-size:.9rem;color:var(--faint);line-height:1.55;font-style:italic;}
+  .detail .dtype{display:inline-flex;align-items:center;gap:.4rem;font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;border-radius:2px;margin-bottom:.7rem;}
+  .detail .dtype .dot{width:8px;height:8px;border-radius:50%;}
+  .detail h3{font-family:"Spectral",serif;font-weight:500;font-size:1.4rem;line-height:1.12;margin:0 0 .1rem;}
+  .detail .dmeta{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);margin-bottom:.7rem;}
+  .detail .dgloss{font-size:.98rem;line-height:1.5;color:var(--ink);margin-bottom:.6rem;}
+  .detail .ddetail{font-size:.9rem;line-height:1.6;color:var(--soft1);}
+  .detail .dsee{margin-top:.85rem;padding-top:.7rem;border-top:1px solid var(--panelhair);font-size:.8rem;color:var(--faint);}
+  .detail .dsee a{color:var(--red-deep);text-decoration:none;border-bottom:1px solid var(--red-line);cursor:pointer;}
+
+  /* filter bar */
+  .filterbar{max-width:64rem;margin:0 auto clamp(1rem,2vh,1.5rem);}
+  .fb-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:.5rem;}
+  .fb-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-right:.4rem;min-width:5.5rem;}
+  .chip{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.28rem .7rem;cursor:pointer;transition:all .14s;white-space:nowrap;}
+  .chip:hover{background:rgba(26,24,21,.05);}
+  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .chip .cdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:.35rem;vertical-align:middle;}
+  .fb-meta{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:.4rem;flex-wrap:wrap;}
+  .fb-count{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);}
+  .fb-count b{color:var(--ink);font-weight:500;}
+  .fb-clear{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red-deep);background:none;border:none;cursor:pointer;border-bottom:1px solid var(--red-line);padding:0 0 1px;}
+
+  /* catalog */
+  .catalog{max-width:70rem;margin:clamp(1.4rem,3vh,2.2rem) auto 0;}
+  .cat-region{margin-bottom:1.8rem;}
+  .cat-region-head{display:flex;align-items:baseline;gap:.8rem;border-bottom:1px solid var(--rule);padding-bottom:.5rem;margin-bottom:1rem;}
+  .cat-region-head h3{font-family:"Spectral",serif;font-weight:500;font-size:1.22rem;margin:0;}
+  .cat-region-head .rc{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);}
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.7rem;}
+  .card{border:1px solid var(--panelhair);border-radius:3px;padding:.85rem .95rem 1rem;background:rgba(26,24,21,.012);cursor:pointer;transition:background .14s,border-color .14s,transform .14s;position:relative;}
+  .card:hover{background:rgba(26,24,21,.04);border-color:var(--faintest);}
+  .card.hidden{display:none;}
+  .card .ctag{display:inline-flex;align-items:center;gap:.35rem;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem;}
+  .card .ctag .dot{width:7px;height:7px;border-radius:50%;}
+  .card h4{font-family:"Spectral",serif;font-weight:500;font-size:1.04rem;line-height:1.15;margin:0 0 .25rem;color:var(--ink);}
+  .card h4 .yr{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--faintest);font-weight:400;margin-left:.4rem;}
+  .card .cg{font-size:.85rem;line-height:1.45;color:var(--soft1);}
+  .card .cd{font-size:.82rem;line-height:1.5;color:var(--faint);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--panelhair);display:none;}
+  .card.open .cd{display:block;}
+
+  /* bridge cards */
+  .bridges{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;max-width:60rem;margin:clamp(1.4rem,3vh,2.2rem) auto 0;}
+  @media(max-width:760px){ .bridges{grid-template-columns:1fr;} }
+  .bridge-card{border:1px solid var(--panelhair);border-radius:3px;padding:1.1rem 1.2rem;background:rgba(26,24,21,.012);}
+  .bridge-card .bh{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-deep);margin-bottom:.5rem;}
+  .bridge-card h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .4rem;color:var(--ink);}
+  .bridge-card p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .bridge-card .arrow{display:block;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--teal-deep);margin:.5rem 0;}
+  .bridge-card p .fb-from{color:var(--red-deep);} .bridge-card p .fb-to{color:var(--teal-deep);}
+
+  /* honest lattice ladder */
+  .ladder{max-width:54rem;margin:clamp(1.4rem,3vh,2.2rem) auto 0;display:grid;gap:.5rem;}
+  .rung{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:baseline;padding:.8rem 1.1rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .rung .rdot{width:13px;height:13px;border-radius:50%;align-self:center;}
+  .rung .rname{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);font-weight:500;}
+  .rung .rdesc{font-size:.92rem;line-height:1.5;color:var(--soft1);}
+  .rung .rct{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faintest);white-space:nowrap;}
+  @media(max-width:600px){ .rung{grid-template-columns:auto 1fr;} .rung .rct{grid-column:2;} }
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.4rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.93rem;line-height:1.6;color:var(--soft1);}
+  .callout p .mono{font-size:.84rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+
+  /* coda + footer */
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.85rem);line-height:1.35;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.85em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} .filterbar,.legend-row{cursor:auto;} }
+
+  /* ===== UPGRADE: synthesis panel ===== */
+  .synthesis{border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.014);padding:clamp(1.1rem,2.6vw,1.7rem);margin-top:1.2rem;}
+  .syn-grid{display:grid;grid-template-columns:auto 1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:2px;overflow:hidden;}
+  .syn-grid>div{background:var(--paper);padding:.6rem .85rem;font-size:.86rem;line-height:1.4;}
+  .syn-grid .sh{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);}
+  .syn-grid .gname{font-family:"Spectral",serif;font-style:italic;font-size:.95rem;}
+  .syn-grid .g1c{color:var(--red-deep);} .syn-grid .g2c{color:var(--gold-deep);} .syn-grid .g3c{color:var(--teal-deep);}
+  @media(max-width:680px){ .syn-grid{grid-template-columns:1fr;} .syn-grid .sh-col{display:none;} }
+
+  /* ===== UPGRADE: instantiation (4-tuple) ===== */
+  .inst{display:grid;grid-template-columns:auto 1fr;gap:.25rem .8rem;font-size:.82rem;line-height:1.4;margin-top:.5rem;}
+  .inst .ik{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--red-deep);text-align:right;white-space:nowrap;}
+  .inst .iv{color:var(--soft1);} .inst .iv.mono{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);}
+  .inst-out{font-size:.84rem;line-height:1.5;color:var(--ink);margin-top:.55rem;padding-top:.5rem;border-top:1px solid var(--panelhair);font-style:italic;}
+
+  /* core instantiation section */
+  .core-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(19rem,100%),1fr));gap:.8rem;max-width:72rem;margin:clamp(1.4rem,3vh,2rem) auto 0;}
+  .core-card{border:1px solid var(--panelhair);border-radius:3px;padding:1rem 1.1rem 1.1rem;background:rgba(26,24,21,.012);}
+  .core-card.wide{grid-column:1/-1;}
+  .core-card h4{font-family:"Spectral",serif;font-weight:500;font-size:1.06rem;margin:0 0 .1rem;color:var(--red-deep);}
+  .core-card .cc-cat{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;color:var(--faint);margin-bottom:.6rem;}
+  .core-tuple{display:grid;grid-template-columns:auto 1fr;gap:.22rem .7rem;font-size:.8rem;line-height:1.38;}
+  .core-tuple .k{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--red-deep);text-align:right;}
+  .core-tuple .v{color:var(--soft1);overflow-wrap:anywhere;}
+  .core-tuple .v.m{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink);overflow-wrap:anywhere;}
+  .core-out{font-size:.82rem;line-height:1.48;color:var(--ink);margin-top:.6rem;padding-top:.55rem;border-top:1px solid var(--panelhair);}
+
+  /* ===== UPGRADE: the five walls ===== */
+  .walls{max-width:64rem;margin:clamp(1.4rem,3vh,2rem) auto 0;}
+  .wall-split{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+  @media(max-width:760px){ .wall-split{grid-template-columns:1fr;} }
+  .wall-col h3{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .2rem;}
+  .wall-col .wc-sub{font-size:.86rem;color:var(--faint);font-style:italic;margin-bottom:.9rem;line-height:1.4;}
+  .wall{border:1px solid var(--panelhair);border-radius:3px;padding:.85rem 1rem;background:rgba(26,24,21,.012);margin-bottom:.7rem;}
+  .wall .wstrat{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);font-weight:600;margin-bottom:.15rem;}
+  .wall .wstrat .wd{font-weight:400;color:var(--faintest);letter-spacing:.02em;text-transform:none;margin-left:.4rem;}
+  .wall .whyp{font-size:.8rem;color:var(--red-deep);font-style:italic;margin-bottom:.5rem;}
+  .wall .witem{font-size:.84rem;line-height:1.45;color:var(--soft1);margin-top:.4rem;}
+  .wall .witem b{color:var(--ink);font-weight:500;cursor:pointer;border-bottom:1px solid var(--hair);}
+  .wall .witem b:hover{border-bottom-color:var(--faint);}
+  .wall.prevent{box-shadow:inset 3px 0 0 var(--red-line);} .wall.survive{box-shadow:inset 3px 0 0 var(--gold-line);}
+
+  /* ===== UPGRADE: relations in detail ===== */
+  .rel-block{margin-top:.85rem;padding-top:.7rem;border-top:1px solid var(--panelhair);}
+  .rel-group{margin-bottom:.55rem;}
+  .rel-group:last-child{margin-bottom:0;}
+  .rel-lab{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.2rem;}
+  .rel-links{font-size:.84rem;line-height:1.5;color:var(--soft1);}
+  .rel-links a{cursor:pointer;border-bottom:1px solid;padding-bottom:.5px;}
+  .rel-links a.k-corollary,.rel-links a.k-uses{color:var(--ink);border-color:var(--hair);}
+  .rel-links a.k-recovers{color:var(--teal-deep);border-color:var(--teal-line);}
+  .rel-links a.k-escapes{color:var(--red-deep);border-color:var(--red-line);}
+  .rel-links a.k-kin{color:var(--gold-deep);border-color:var(--gold-line);}
+  .dgenus{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.04em;color:var(--faint);margin-bottom:.6rem;}
+  .dgenus b{color:var(--soft1);}
+
+  /* ===== UPGRADE: method ===== */
+  .method{max-width:58rem;margin:clamp(1.4rem,3vh,2rem) auto 0;display:grid;gap:.8rem;}
+  .mstep{display:grid;grid-template-columns:auto 1fr;gap:1rem;border:1px solid var(--panelhair);border-radius:3px;padding:1.1rem 1.2rem;background:rgba(26,24,21,.012);}
+  .mstep .mn{font-family:"Spectral",serif;font-style:italic;font-size:1.8rem;color:var(--faintest);line-height:1;}
+  .mstep h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .35rem;color:var(--ink);}
+  .mstep p{font-size:.92rem;line-height:1.56;color:var(--soft1);}
+  .mstep p .mono{font-size:.82rem;color:var(--ink);background:rgba(26,24,21,.04);padding:.05em .3em;border-radius:2px;}
+  .mstep .mex{font-size:.82rem;color:var(--faint);margin-top:.45rem;font-style:italic;}
+
+  /* edge layer */
+  #edgeLayer line{pointer-events:none;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-project-library">Project Edition</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the atlas · second edition · companion to The Diagonal</span></div>
+    <div class="hero-head">
+      <p class="kicker">The universe of the diagonal — mapped, instantiated, and wired</p>
+      <h1 class="title">The <span class="x">Atlas</span></h1>
+      <p class="standfirst">A hundred results across a dozen fields, each placed by how much it truly <em>is</em> the diagonal — and now wired into the lattice that joins them: which result <em>follows from</em> which, which <em>recovers</em> what the diagonal forbids, which <em>escapes</em> it and by denying exactly what. The fourteen at the core are shown as the very <span class="mono">(A, B, φ, α)</span> that one construction turns into Cantor, Gödel, Turing, and the rest. The territory has a structure; this edition derives it.</p>
+      <p class="ed-mark">enlarged & made exact · instantiation schema · the five walls · the edge lattice · the method</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">⌜ the territory ⌝</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The first edition of this atlas placed a hundred results around the diagonal and graded each by kinship — identity at the core, echo at the rim. It was a good map and an honest one, but a careful reader was right to want more. A map that only measures each place's distance from one capital tells you nothing about the <i>roads</i>: which result is a corollary of which, which construction is built from which, which theorem in another genus quietly hands back a fixed point the diagonal had forbidden. And it asserted its central claims — "this <i>is</i> the same theorem" — without showing the reduction that would let you check them. This edition repairs both, and adds the thing an atlas is finally <i>for</i>: a method.</p>
+    <p>Three upgrades carry the weight. First, the <b>core is instantiated</b>: for each of the fourteen results that <i>are</i> Lawvere's construction, we exhibit the exact four-tuple — the category, the things, the answers, the self-naming, and the twist — so that "identity" becomes a claim you can verify rather than trust. Second, the <b>escapes are taxonomized</b>: the systems that evade the diagonal do so by denying one of its hypotheses, and there are exactly five ways to do it, falling into two families — those that <i>prevent</i> the fixed point and those that <i>survive</i> it. Third, and most consequential, the map is <b>wired into a lattice</b>: ninety-seven typed edges join the hundred results, and selecting any one lights the roads running into and out of it.</p>
+    <p>And the organizing thesis is sharpened from a slogan into a mechanism. Three genera of fixed-point theorem divide the labour; but <i>why</i> three, and <i>how</i> exactly does one genus recover what another forbids? The answer is a single schema and a single move, stated below — and once you have them, the atlas stops being a description and becomes an instrument. Begin, as before, with the structure.</p>
+  </div>
+
+  <!-- ===== §I THREE GENERA + SYNTHESIS ===== -->
+  <section class="sec" id="genera">
+    <div class="sec-head"><span class="num">I · the organizing thesis</span><h2>Three genera, one schema</h2><p class="sub">Every star turns on a fixed point — but there are three kinds, and the deepest insight is the single condition they share and the constructivity that separates them.</p></div>
+    <div class="stage">
+      <div class="genera">
+        <div class="genus g1">
+          <div class="gtag">genus one · self-reference</div>
+          <h3>The diagonal</h3>
+          <div class="who mono">Lawvere · Cantor · Gödel · Turing</div>
+          <div class="stmt">A point-surjective self-naming forces <i>every</i> twist to have a fixed point — and the proof <i>constructs</i> it: <span class="mono">g(x)=α(φ(x)(x))</span>.</div>
+          <div class="role"><b>Sets the limits.</b> Run the contrapositive and a fixed-point-free twist <i>forbids</i> the self-naming — Cantor, Gödel, Turing. The subject of this work.</div>
+        </div>
+        <div class="genus g2">
+          <div class="gtag">genus two · order</div>
+          <h3>Knaster–Tarski</h3>
+          <div class="who mono">monotone maps on lattices · 1928</div>
+          <div class="stmt">Every <i>monotone</i> map on a complete lattice has a whole lattice of fixed points — a least and a greatest.</div>
+          <div class="role"><b>Recovers what the diagonal forbids,</b> by moving to a domain where the twist becomes monotone. It gives recursion its meaning and tames the Liar.</div>
+        </div>
+        <div class="genus g3">
+          <div class="gtag">genus three · continuity</div>
+          <h3>Brouwer–Kakutani</h3>
+          <div class="who mono">continuous maps · Banach · 1910s</div>
+          <div class="stmt">Every <i>continuous</i> self-map of a compact convex set has a fixed point.</div>
+          <div class="role"><b>Recovers fixed points in continuous and probabilistic worlds</b> — Nash equilibria, Deutsch's time loops, reflective oracles — the discrete diagonal cannot reach.</div>
+        </div>
+      </div>
+
+      <div class="synthesis">
+        <div class="panel-cap" style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faintest);margin-bottom:.9rem;">the common schema — richness + regularity ⟹ a fixed point</div>
+        <div class="syn-grid">
+          <div class="sh sh-col"></div><div class="sh">the conditions that force a fixed point</div><div class="sh">constructive? — is a witness produced?</div>
+          <div class="gname g1c">diagonal</div><div>point-surjective self-naming <b>+</b> any twist ⟹ a fixed point — so the contrapositive forbids the naming whenever the twist has none</div><div><b>Yes.</b> The witness is the diagonal term itself: the escapee, the Gödel sentence, the contrarian program.</div>
+          <div class="gname g2c">order</div><div>complete lattice <b>+</b> a monotone map ⟹ a least and a greatest fixed point</div><div><b>Yes.</b> Kleene's ascent <span class="mono">⊔ₙ fⁿ(⊥)</span> converges to the least fixed point.</div>
+          <div class="gname g3c">topological</div><div>compact convex space <b>+</b> a continuous map ⟹ a fixed point</div><div><b>No</b> for Brouwer (it leans on compactness); <b>yes</b> for Banach's contractions, which you can iterate.</div>
+        </div>
+        <div class="reading wide" style="margin-top:1.2rem;max-width:none">
+          <p style="font-size:.97rem;line-height:1.72"><span class="lead-in">the move that unifies them&nbsp;&nbsp;</span>Read the three rows together and the relation snaps into focus. Each genus forces a fixed point from <b>a richness condition on the space</b> meeting <b>a regularity condition on the map</b>. The diagonal genus is the strange one: its richness condition is so strong — the system names <i>all</i> its own operations — that the conclusion holds for <i>any</i> map at all, which is exactly why, read backwards, it becomes a <i>limit</i> the moment a single fixed-point-free twist appears. The other two genera buy their fixed points more cheaply, by constraining the map (monotone, continuous) rather than enriching the naming. And this is precisely the lever of recovery: <b>when the diagonal forbids a two-valued fixed point of negation, you enrich the answer-space</b> <span class="mono">B</span> <b>until the very same twist becomes monotone — or continuous — and a cheaper genus hands the fixed point back.</b> The bridges below carry this out; the price, it turns out, is steep and exact.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== §II THE MAP ===== -->
+  <section class="sec" id="map">
+    <div class="sec-head"><span class="num">II · the map</span><h2>The starfield, now wired</h2><p class="sub">A hundred results, placed by field (the angle) and by how much each <i>is</i> the diagonal (the distance inward). Filter by field or connection; hover for a name; <b>select a star to light the lattice running into and out of it.</b></p></div>
+    <div class="filterbar">
+      <div class="fb-row" id="fbRegions"><span class="fb-lab">field</span></div>
+      <div class="fb-row" id="fbTypes"><span class="fb-lab">connection</span></div>
+      <div class="fb-meta"><span class="fb-count" id="fbCount"></span><button class="fb-clear" id="fbClear">reset all</button></div>
+    </div>
+    <div class="stage" style="max-width:72rem">
+      <div class="panel">
+        <div class="map-wrap">
+          <div><svg id="atlasSvg" viewBox="-62 -54 884 884" role="img" aria-label="A radial map of one hundred results connected to the diagonal: angle encodes field, distance from the centre encodes how much each result is the theorem itself, colour encodes connection-type; selecting a star reveals its typed edges to other results."></svg></div>
+          <div class="map-aside">
+            <div class="legend">
+              <div class="lh">connection — distance from centre</div>
+              <div id="legendRows"></div>
+              <div class="note" id="legendNote">Click a connection to isolate it. Select any star to draw its edges — <span class="teal">teal recovers</span>, <span class="red">red escapes</span>, grey derives, gold kin.</div>
+            </div>
+            <div class="detail" id="detailPanel"><p class="dprompt">Hover a star for its name; click it — or any catalogue card — to read how it connects to the construction, see its instantiation or its escape, and light its edges across the lattice.</p></div>
+          </div>
+        </div>
+        <figcaption><span class="mono">angle = field · radius = kinship · colour = connection · edges = the lattice — </span>the inner red core holds the fourteen results that <b>are</b> Lawvere's construction; gold marks kin, teal a fixed point of another genus, faint grey an echo, a hollow ring an escape. Select a star and its ninety-seven-edge neighbourhood lights up; the lone unconnected star, <b>Yoneda</b>, is no accident — it shares the word "diagonal" and none of the phenomenon.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== §III THE CORE, INSTANTIATED ===== -->
+  <section class="sec" id="core">
+    <div class="sec-head"><span class="num">III · the core, instantiated</span><h2>What "identity" means, checked</h2><p class="sub">To call a result <i>the same theorem</i> is to claim you can exhibit the four-tuple that turns Lawvere's construction into it. Here are all fourteen — the claim made verifiable rather than asserted.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.2rem,3vh,1.8rem)">
+      <p style="font-size:.98rem;line-height:1.72"><span class="lead-in">how to read a reduction&nbsp;&nbsp;</span>Lawvere's theorem lives in any cartesian closed category: given a point-surjective <span class="mono">φ : A → Bᴬ</span>, every <span class="mono">α : B → B</span> has a fixed point, built as <span class="mono">g(x)=α(φ(x)(x))</span>. So to instantiate a result is to name four things — the <span class="mono red">category 𝒞</span>, the <span class="mono red">things A</span>, the <span class="mono red">answers B</span>, the <span class="mono red">self-naming φ</span>, and the <span class="mono red">twist α</span> — and read off what the construction forces. Where <span class="mono">α</span> has no fixed point (negation, the swap), the contrapositive forbids the naming: a <i>limit</i>. Where <span class="mono">α</span> is arbitrary and the naming genuinely holds, the fixed point exists: <i>recursion</i>, or a self-referential sentence. The fourteen below are not analogies to one theorem. They are one theorem, fourteen times.</p>
+    </div>
+    <div class="core-grid" id="coreGrid"></div>
+  </section>
+
+  <!-- ===== §IV THE CATALOGUE ===== -->
+  <section class="sec" id="catalog-sec">
+    <div class="sec-head"><span class="num">IV · the catalogue</span><h2>The hundred, in full</h2><p class="sub">The whole territory as a reference. Each entry typed, glossed, and now wired — click any card for its connection, its genus, and the roads that run to it. The filters above govern this list too.</p></div>
+    <div class="catalog" id="catalog"></div>
+  </section>
+
+  <!-- ===== §V THE FIVE WALLS ===== -->
+  <section class="sec" id="walls-sec">
+    <div class="sec-head"><span class="num">V · the five walls</span><h2>How systems escape</h2><p class="sub">The contrapositive, in practice. A consistent system must deny a hypothesis of the diagonal — and there are exactly five ways, in two families: prevent the fixed point, or survive it.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.2rem,3vh,1.8rem)">
+      <p style="font-size:.97rem;line-height:1.72"><span class="lead-in">two families, one wall each&nbsp;&nbsp;</span>Lawvere's limit needs a point-surjective self-naming and a fixed-point-free twist; collapse follows only if both are genuine and the logic permits the inference. So a system survives by breaking one link — and the breaks sort cleanly. Three strategies <b>prevent the fixed point</b> by denying the self-naming: <b>stratify</b> it across levels, <b>restrict</b> which predicates name objects, or <b>discipline</b> self-application by type. Two strategies <b>let the fixed point exist and survive it</b>: <b>weaken</b> the logic so the fixed point cannot be exploited, or <b>tolerate</b> the contradiction and deny that it spreads. Every consistent foundation in the catalogue is one of these five moves — and each tells you exactly what it surrendered.</p>
+    </div>
+    <div class="walls"><div class="wall-split" id="wallSplit"></div></div>
+  </section>
+
+  <!-- ===== §VI RECOVERY & PRICE ===== -->
+  <section class="sec" id="bridges-sec">
+    <div class="sec-head"><span class="num">VI · recovery & its price</span><h2>How the forbidden returns</h2><p class="sub">The schema made concrete. Enrich the answer-space until the forbidding twist turns monotone or continuous, and a cheaper genus hands the fixed point back — at a cost that is exact, and that the diagonal collects one level up.</p></div>
+    <div class="bridges">
+      <div class="bridge-card">
+        <div class="bh">truth · the Liar · → order</div>
+        <h4>Kripke's least fixed point</h4>
+        <p><span class="fb-from">The diagonal forbids</span> a classical truth predicate any fixed point. <span class="fb-to">Enrich</span> <span class="mono">{T,F}</span> to <span class="mono">{T,F,⊥}</span> with <span class="mono">⊥</span> = undefined; now <span class="mono">¬</span> is monotone, and Knaster–Tarski gives a least fixed point — truth, with the Liar parked at <span class="mono">⊥</span>.</p>
+        <span class="arrow">¬ has no 2-valued fixpoint &nbsp;→&nbsp; monotone on a 3-valued lattice</span>
+      </div>
+      <div class="bridge-card">
+        <div class="bh">recursion · no reflexive object · → order</div>
+        <h4>Scott's D∞</h4>
+        <p><span class="fb-from">The diagonal forbids</span> a set isomorphic to its own function space — Cantor again. <span class="fb-to">Enrich</span> sets to <i>domains</i> with an order of approximation; the inverse limit <span class="mono">D∞</span> satisfies <span class="mono">D≅Dᴰ</span>, and recursion is the least fixed point of its unfolding.</p>
+        <span class="arrow">no D ≅ Dᴰ in Set &nbsp;→&nbsp; a domain limit</span>
+      </div>
+      <div class="bridge-card">
+        <div class="bh">self-membership · x∉x · → coalgebra</div>
+        <h4>Aczel's anti-foundation</h4>
+        <p><span class="fb-from">Foundation forbids</span> a set that contains itself. <span class="fb-to">Enrich</span> sets to a terminal coalgebra; self-membership becomes a <i>greatest</i> fixed point, consistent by corecursion rather than paradox.</p>
+        <span class="arrow">no x∈x under Foundation &nbsp;→&nbsp; terminal coalgebra</span>
+      </div>
+      <div class="bridge-card">
+        <div class="bh">agent self-trust · Löb · → topological</div>
+        <h4>Reflective oracles</h4>
+        <p><span class="fb-from">Löb forbids</span> an agent from trusting its own proofs wholesale. <span class="fb-to">Enrich</span> definite answers to probabilities on a simplex; the self-querying map is continuous, and Kakutani gives a fixed point — consistent probabilistic self-reference.</p>
+        <span class="arrow">no wholesale self-trust &nbsp;→&nbsp; a fixpoint on the simplex Δ</span>
+      </div>
+    </div>
+    <div class="callout teal" style="margin-top:1.6rem">
+      <div class="cl-lab">the mechanism, in one line — and the price</div>
+      <p>Every bridge is the same move: <b>enrich the answer-space</b> <span class="mono">B</span> <b>until the fixed-point-free twist becomes a map a cheaper genus can handle</b> — monotone for Knaster–Tarski, continuous for Brouwer. But the recovery is never free, and the price is precise: <b>you leave the crisp, two-valued, classical world the diagonal ruled.</b> Kripke's truth buys consistency with truth-value <i>gaps</i> — the Liar is now neither true nor false. The probabilistic fix buys self-reference with <i>indefiniteness</i> — a fixed point, but not a definite answer. And the deepest charge of all: <b>each recovery breeds a new diagonal one level up.</b> Kripke's gapped language cannot express its own "is undefined" predicate without a strengthened, <i>revenge</i> Liar — "this sentence is false or undefined" — reigniting the paradox at the meta-level. The limit is never escaped. It is relocated, and it always finds you on the next floor.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VII THE METHOD ===== -->
+  <section class="sec" id="method-sec">
+    <div class="sec-head"><span class="num">VII · the method</span><h2>How to use the map</h2><p class="sub">The atlas is finally an instrument. The territory yields three transferable procedures — for finding a limit, recovering a fixed point, and diagnosing a system that has escaped.</p></div>
+    <div class="method">
+      <div class="mstep">
+        <div class="mn">1</div>
+        <div>
+          <h4>To find a new limit</h4>
+          <p>Locate a system that can <span class="mono">name all its own B-valued operations on itself</span> — a point-surjective self-naming — and a twist <span class="mono">α : B → B</span> with no fixed point. The contrapositive of Lawvere hands you a limitative theorem, and the diagonal construction <i>builds the witness</i> for free.</p>
+          <p class="mex">This is how Cantor, Gödel, Turing, Rice, Chaitin, and the complexity hierarchy theorems were each found — and the template for the next one.</p>
+        </div>
+      </div>
+      <div class="mstep">
+        <div class="mn">2</div>
+        <div>
+          <h4>To recover a forbidden fixed point</h4>
+          <p>Take the answer-space <span class="mono">B</span> on which the twist has no fixed point and <span class="mono">enrich it</span> until the twist becomes monotone — then Knaster–Tarski gives a least fixed point — or continuous — then Brouwer gives one. Expect to pay in <i>definiteness</i>: gaps, probabilities, or a change in what your objects are.</p>
+          <p class="mex">Kripke's truth, denotational recursion, AFA hypersets, and reflective oracles are all this one move, in different categories.</p>
+        </div>
+      </div>
+      <div class="mstep">
+        <div class="mn">3</div>
+        <div>
+          <h4>To diagnose a safe system</h4>
+          <p>Ask which of the <span class="mono">five walls</span> it builds. If it is consistent, it has either <i>prevented</i> the fixed point — by stratifying, restricting, or disciplining the self-naming — or <i>survived</i> it, by weakening the logic or tolerating the contradiction. The wall names precisely what the system gave up: expressive reach, or classical inference.</p>
+          <p class="mex">ZFC restricts; the Tarski and type hierarchies stratify; typed λ-calculus disciplines; linear logic weakens; dialetheism tolerates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== §VIII HONEST LATTICE ===== -->
+  <section class="sec" id="honest">
+    <div class="sec-head"><span class="num">VIII · the honest lattice</span><h2>What this atlas claims</h2><p class="sub">The six connection-types, graded from identity to escape — with the entries that merely share a word, named so they cannot be mistaken for the phenomenon.</p></div>
+    <div class="ladder" id="ladder"></div>
+    <div class="callout" style="margin-top:1.8rem">
+      <div class="cl-lab">false friends — same word, different phenomenon</div>
+      <p>Rigor means naming what does <i>not</i> belong. The <span class="mono">Yoneda lemma</span> has a "diagonal" flavour but is about representability, not self-reference — which is why it sits alone on the map, joined to nothing. <span class="mono">Renormalization-group fixed points</span> and <span class="mono">strange attractors</span> are dynamical; they share only the words "fixed point." They are placed at the rim and wired only to each other, precisely so a shared vocabulary is not mistaken for a shared theorem.</p>
+    </div>
+    <div class="callout" style="margin-top:1rem">
+      <div class="cl-lab">contested echoes — included, and flagged</div>
+      <p>Some entries invoke the diagonal's spirit on disputed ground: the <span class="mono">Lucas–Penrose</span> argument that Gödel refutes mechanism (widely rejected), <span class="mono">Orchestrated objective reduction</span>, market <span class="mono">reflexivity</span>, <span class="mono">autopoiesis</span>. An honest atlas neither endorses nor hides them: it places them at the rim, tags them <i>echo</i>, wires them to their nearest real relative, and lets the reader weigh the inference. Their distance from the centre <i>is</i> the verdict.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">α(b) = b</span><span class="ln"></span></div>
+  <div class="coda"><p>The map is not the territory — except here. An atlas of self-reference is the one map compelled to contain itself: the diagonal that draws it sits on its own inner ring, and the act of mapping is one more fixed point of the thing being mapped. The territory was never separate from the drawing. <span class="mono">That is not a paradox to escape; it is the subject, at last, looking back.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the atlas · second edition</span></div>
+    <p class="colophon">A companion to <i>The Diagonal</i>, mapping the universe of results Lawvere's fixed-point theorem reaches. This edition adds the instantiation schema (the fourteen identity results as explicit four-tuples), the denial taxonomy (the five walls), the ninety-seven-edge lattice joining the hundred entries, and the recovery mechanism with its price. The organizing claim — three genera sharing one schema, the diagonal genus setting limits the order and topological genera selectively recover — follows Lawvere (1969) and the synthesis of Yanofsky (2003); the framing is the author's.</p>
+    <p class="notes"><span class="nl">on the grading & the edges.</span> &nbsp;A star's position encodes its <i>field</i> (angle) and its <i>connection-type</i> (distance, colour); edges encode typed relations among results — <i>corollary</i>, <i>uses</i>, <i>recovers</i>, <i>escapes</i>, <i>kin</i> — and are a considered reading of the dependencies, not a unique one. The four-tuples are exact for the set-level theorem and faithful schematic reductions for the rest (the diagonal lemma's point-surjectivity is "up to provable equivalence"; Girard's twist is the Hurkens encoding; reflexive objects exist in suitable categories, not in Set — which is Cantor's theorem). Recoveries are genuine mathematics (Kripke 1975, Scott 1972, Aczel 1988, reflective oracles 2015); the revenge phenomenon is standard. Analogies to mind, markets, and biology are offered as analogies.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Cantor 1891 · Russell 1902 · Burali-Forti 1897 · Tarski 1936 · Gödel 1931 · Carnap 1934 · Turing 1936 · Kleene 1938 · Curry 1942 · Löb 1955 · Lawvere 1969 · Knaster 1928 / Tarski 1955 · Brouwer 1911 · Kakutani 1941 · Scott 1972 · Solovay 1976 · Kripke 1975 · Aczel 1988 · Deutsch 1991 · Girard 1972 · Hurkens 1995 · Chaitin 1975 · Yanofsky 2003 · Fallenstein–Soares 2015.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+// THE ATLAS — universe of topics around Lawvere's fixed-point theorem.
+// region: 1 Sets&Size  2 Truth&Proof  3 Computation  4 Structure(Cat/Type)
+//         5 Language&Mind  6 Physics&Dynamics  7 Life&Society  8 AI&Frontier
+// type: id=identity(same theorem) cor=corollary kin=same-genus(self-ref fixed point)
+//       gen=other-genus(order/topological fixed point) echo=application/analogy esc=escape(denies a hypothesis)
+const TOPICS=[
+// ---- REGION 1 — SETS & SIZE ----
+{id:"cantor-thm",n:"Cantor's theorem",r:1,t:"id",y:"1891",g:"No set surjects onto its power set: |X| < |2ˣ|.",d:"The root. With answers B={0,1} and twist α=¬, Lawvere's diagonal is exactly the set {x : x∉φ(x)} that no enumeration can name."},
+{id:"cantor-diag",n:"The diagonal argument",r:1,t:"id",y:"1891",g:"The reals are uncountable — any list omits its flipped diagonal.",d:"The first appearance of the construction, and the source of the whole family's name."},
+{id:"russell",n:"Russell's paradox",r:1,t:"id",y:"1902",g:"The set of all non-self-membered sets both is and isn't its own member.",d:"Naïve comprehension makes membership point-surjective; with ¬ the forced fixed point detonates."},
+{id:"cantor-paradox",n:"Cantor's paradox",r:1,t:"cor",y:"1899",g:"No greatest cardinal, no set of all sets.",d:"Cantor's theorem applied to the universe: V would surject onto its own power set."},
+{id:"burali-forti",n:"Burali-Forti paradox",r:1,t:"kin",y:"1897",g:"The ordinals cannot form a set — it would exceed every ordinal.",d:"A limitative result of the same family; runs through well-ordering rather than the canonical diagonal."},
+{id:"continuum",n:"The continuum hypothesis",r:1,t:"echo",y:"1878",g:"Whether any infinity sits between ℕ and ℝ — independent of ZFC.",d:"The most famous question Cantor's hierarchy opened; its independence (Gödel, Cohen) is a different phenomenon — forcing."},
+{id:"foundation",n:"Axiom of Foundation",r:1,t:"esc",y:"1925",g:"No set is a member of itself; ∈ is well-founded.",d:"The structural denial that blocks Russell directly."},
+{id:"separation",n:"Separation, not Comprehension",r:1,t:"esc",y:"1908",g:"Carve subsets from existing sets — don't conjure sets from properties.",d:"Zermelo's precise denial of point-surjectivity; the move that saves set theory."},
+{id:"cumulative",n:"The cumulative hierarchy V",r:1,t:"esc",y:"1930",g:"Sets built in stages by iterated power set, Vα.",d:"Stratification in set-theoretic form; nothing is a member of itself."},
+{id:"afa",n:"Non-well-founded sets (AFA)",r:1,t:"gen",y:"1988",g:"Aczel's axiom permits x∈x by reading sets as a terminal coalgebra.",d:"Recovers the self-membership Foundation forbids, via a greatest-fixed-point (corecursive) construction — a bridge to the order genus."},
+{id:"large-cardinals",n:"Large cardinals & reflection",r:1,t:"kin",g:"Axioms of vast size; reflection mirrors the universe in its own initial segments.",d:"A controlled converse to 'you cannot see the whole from within.'"},
+// ---- REGION 2 — TRUTH & PROOF ----
+{id:"liar",n:"The Liar paradox",r:2,t:"id",g:"'This sentence is false' — true iff false.",d:"A truth predicate with the T-schema plus ¬; self-reference supplied by the diagonal lemma."},
+{id:"tarski-undef",n:"Tarski's undefinability of truth",r:2,t:"cor",y:"1936",g:"No rich language defines its own truth predicate.",d:"The Liar's fate when the system is consistent: the predicate simply cannot exist."},
+{id:"tarski-hier",n:"Tarski's hierarchy",r:2,t:"esc",y:"1936",g:"Truth for L is definable only in a richer metalanguage L′.",d:"Stratify object and metalanguage and the Liar can never be written."},
+{id:"diag-lemma",n:"The diagonal lemma",r:2,t:"id",y:"1934",g:"Arithmetic builds a sentence asserting any property ψ of its own code.",d:"The positive face: self-reference is a theorem, Lawvere with the coding's point-surjectivity. Every result downstream reuses it."},
+{id:"godel1",n:"Gödel's first theorem",r:2,t:"id",y:"1931",g:"Any consistent adequate arithmetic has a true sentence it cannot prove.",d:"The diagonal fixed point of ¬Prov; provability is expressible but weaker than truth, so the contradiction is absorbed as a gap."},
+{id:"godel2",n:"Gödel's second theorem",r:2,t:"cor",y:"1931",g:"Such a system cannot prove its own consistency.",d:"Löb's theorem at φ=⊥; a single substitution from the first."},
+{id:"rosser",n:"Rosser's trick",r:2,t:"kin",y:"1936",g:"Consistency alone suffices for incompleteness.",d:"A cleverer 'provable-before-refuted' predicate removes Gödel's ω-consistency hypothesis."},
+{id:"lob",n:"Löb's theorem",r:2,t:"kin",y:"1955",g:"A system proves '□φ→φ' only when it already proves φ.",d:"The deepest diagonal fixed point: a system cannot certify its own soundness wholesale. Second incompleteness is φ=⊥."},
+{id:"derivability",n:"The derivability conditions",r:2,t:"kin",y:"1939",g:"The Hilbert-Bernays-Löb axioms governing 'provable'.",d:"Exactly the strength short of the T-schema that turns paradox into incompleteness."},
+{id:"gl",n:"Provability logic (GL)",r:2,t:"kin",y:"1976",g:"The modal logic K + □(□p→p)→□p captures provability.",d:"Solovay proved GL derives exactly the schemata provable about provability in arithmetic — a complete, decidable algebra of incompleteness."},
+{id:"henkin",n:"Henkin sentences",r:2,t:"kin",y:"1952",g:"Sentences asserting their own provability.",d:"Löb's theorem settles Henkin's question: they are all provable."},
+{id:"kripke-truth",n:"Kripke's theory of truth",r:2,t:"gen",y:"1975",g:"Truth as a least fixed point on partial interpretations; the Liar settles into a gap.",d:"Tames the Liar with an order-theoretic (Knaster-Tarski) fixed point — a recovery move, not a paradox."},
+{id:"revision-truth",n:"Revision theory of truth",r:2,t:"kin",y:"1993",g:"Truth as the limit of transfinite revision sequences (Gupta-Belnap).",d:"Paradoxical sentences never stabilise; another fixed-point-flavoured response to the Liar."},
+{id:"yablo",n:"Yablo's paradox",r:2,t:"kin",y:"1993",g:"An infinite chain, each sentence calling the later ones false.",d:"Paradox with no overt self-reference — debated whether it is 'really' non-self-referential; a diagonal without a loop."},
+{id:"curry",n:"Curry's paradox",r:2,t:"id",y:"1942",g:"'If this is true, then ⊥' proves ⊥ — no negation required.",d:"Shows the lethal ingredient is a fixed point that cannot be absorbed (under contraction), not negation as such."},
+{id:"grelling",n:"Grelling-Nelson paradox",r:2,t:"kin",y:"1908",g:"Is 'heterological' heterological? — a Russell for predicates.",d:"Self-application at the level of adjectives."},
+{id:"berry",n:"Berry's paradox",r:2,t:"kin",y:"1906",g:"'The least number undefinable in eleven words' just defined it.",d:"Definability plus a diagonal on description length; formalised, it becomes Chaitin's theorem."},
+{id:"richard",n:"Richard's paradox",r:2,t:"kin",y:"1905",g:"Diagonalise the definable reals and you define an undefinable one.",d:"A semantic cousin of Cantor and Gödel, sharpening the use/mention line."},
+{id:"substructural",n:"Substructural logics",r:2,t:"esc",y:"1987",g:"Drop contraction (linear, relevance logic) and Curry cannot be derived.",d:"The structural rule, not negation, is the load-bearing assumption."},
+{id:"paraconsistent",n:"Paraconsistency / dialetheism",r:2,t:"esc",y:"1979",g:"Accept the fixed point as a true contradiction; reject explosion.",d:"Priest keeps the Liar and abandons ex falso — escape by acceptance."},
+{id:"reflection-proof",n:"Reflection principles",r:2,t:"kin",g:"Adding 'this theory is sound' climbs the consistency-strength ladder.",d:"The engine incompleteness sets turning — each theory points beyond itself."},
+// ---- REGION 3 — COMPUTATION ----
+{id:"halting",n:"The halting problem",r:3,t:"id",y:"1936",g:"No program decides, for all programs, whether they halt.",d:"The swap twist: the contrarian program that loops iff its input halts on itself."},
+{id:"entscheidung",n:"The Entscheidungsproblem",r:3,t:"cor",y:"1936",g:"First-order validity is undecidable.",d:"No algorithm sorts the theorems from the rest — Church and Turing, independently."},
+{id:"rice",n:"Rice's theorem",r:3,t:"cor",y:"1953",g:"Every non-trivial property of a program's behaviour is undecidable.",d:"The halting problem generalised — the reason no perfect program analyser can exist."},
+{id:"kleene-rec",n:"Kleene's recursion theorem",r:3,t:"id",y:"1938",g:"Every transformation of programs has a program behaving like its own image.",d:"The positive face in computation: code with guaranteed access to its own source."},
+{id:"smn",n:"The s-m-n theorem",r:3,t:"kin",y:"1936",g:"Partial evaluation is computable.",d:"The currying that makes the recursion theorem and self-reference go."},
+{id:"quine",n:"Quines",r:3,t:"id",g:"A program whose output is its own source.",d:"The constructive fixed point of 'print this' — the executable diagonal lemma."},
+{id:"utm",n:"The universal machine",r:3,t:"kin",y:"1936",g:"One machine runs any machine given its code.",d:"The reflexive structure — programs as data — that lets programs name programs."},
+{id:"church-turing",n:"The Church-Turing thesis",r:3,t:"echo",y:"1936",g:"Every effectively calculable function is Turing-computable.",d:"Fixes what 'computable', and so 'undecidable', means."},
+{id:"busy-beaver",n:"The busy beaver",r:3,t:"kin",y:"1962",g:"Maximum output of an n-state halting machine — uncomputable.",d:"Grows faster than any computable function; a diagonal over all small programs."},
+{id:"kolmogorov",n:"Kolmogorov complexity",r:3,t:"kin",y:"1965",g:"Length of the shortest program for a string — itself uncomputable.",d:"Uncomputable by a Berry-style diagonal; the rigorous notion of 'randomness'."},
+{id:"chaitin",n:"Chaitin's incompleteness",r:3,t:"kin",y:"1971",g:"No theory proves more than finitely many 'this string is complex' statements.",d:"Berry's paradox made a theorem; incompleteness via information."},
+{id:"omega",n:"Chaitin's Ω",r:3,t:"kin",y:"1975",g:"The halting probability — an algorithmically random real.",d:"Its bits are independent of any consistent theory; randomness as a diagonal residue."},
+{id:"von-neumann-auto",n:"Self-reproducing automata",r:3,t:"kin",y:"1948",g:"A machine that builds a copy of itself — the universal constructor.",d:"A physical Kleene fixed point; realised, it is the logic of DNA."},
+{id:"cohen-virus",n:"Undecidability of virus detection",r:3,t:"cor",y:"1987",g:"No program detects all self-replicating programs.",d:"Cohen's theorem — Rice's result in security."},
+{id:"hierarchy-thms",n:"Time & space hierarchy theorems",r:3,t:"kin",y:"1965",g:"More time decides strictly more.",d:"Genuine diagonalisation inside complexity theory."},
+{id:"relativization",n:"The relativization barrier",r:3,t:"kin",y:"1975",g:"Diagonalisation relativises, so cannot alone settle P vs NP.",d:"The diagonal technique meeting its own limit (Baker-Gill-Solovay) — proven, fittingly, by building oracles."},
+{id:"ladner",n:"Ladner's theorem",r:3,t:"kin",y:"1975",g:"If P≠NP there are problems of intermediate hardness.",d:"Constructed by delayed diagonalisation."},
+{id:"godel-numbering",n:"Gödel numbering",r:3,t:"kin",y:"1931",g:"Coding syntax as numbers.",d:"The device that lets a formal system mention its own sentences."},
+// ---- REGION 4 — STRUCTURE (CATEGORY & TYPE) ----
+{id:"ccc",n:"Cartesian closed categories",r:4,t:"kin",y:"1960s",g:"Universes with products and function-objects Bᴬ.",d:"The exact setting where Lawvere's single proof lives and unifies the instances."},
+{id:"reflexive-obj",n:"Reflexive objects",r:4,t:"kin",y:"1972",g:"An object D ≅ Dᴰ, isomorphic to its own function space.",d:"Impossible for sets, by Cantor; the home of untyped self-application and recursion."},
+{id:"scott-d",n:"Scott's D∞",r:4,t:"gen",y:"1969",g:"A reflexive object built as an inverse limit.",d:"Domain theory's answer to 'a set of its own functions' — constructed by an order-theoretic limit; a bridge between genera."},
+{id:"lambda-calc",n:"The lambda calculus",r:4,t:"id",y:"1936",g:"Pure functions where every term may be applied to any term.",d:"The canonical reflexive system; its term model is a cartesian closed category."},
+{id:"fixpoint-comb",n:"Fixed-point combinators (Y)",r:4,t:"id",y:"1930s",g:"Y g = g(Y g): recursion as a fixed point of the step to repeat.",d:"Literally Lawvere's construction with φ = identity — the same line of symbols as Cantor's diagonal."},
+{id:"lambek",n:"Lambek's lemma",r:4,t:"gen",y:"1968",g:"An initial algebra of a functor is a fixed point: A ≅ F(A).",d:"The categorical face of recursion — a fixed point in the order/categorical genus."},
+{id:"initial-algebra",n:"Initial algebras & coalgebras",r:4,t:"gen",g:"Least and greatest fixed points of a functor.",d:"The structures behind recursion and corecursion — and behind AFA hypersets and infinite streams."},
+{id:"knaster-tarski",n:"Knaster-Tarski theorem",r:4,t:"gen",y:"1928",g:"Every monotone map on a complete lattice has a lattice of fixed points.",d:"The order-theoretic genus — the machinery that gives real recursion its meaning."},
+{id:"mu-calculus",n:"Least/greatest fixed points (μ,ν)",r:4,t:"gen",g:"Iteration and recursion as extremal fixed points of monotone operators.",d:"The modal μ-calculus; verification and model-checking run on this genus."},
+{id:"denotational",n:"Least-fixed-point semantics",r:4,t:"gen",y:"1970",g:"A recursive definition means the least fixed point of its unfolding.",d:"Scott-Strachey: how the order genus supplies the recursion the diagonal genus forbids classically."},
+{id:"yoneda",n:"The Yoneda lemma",r:4,t:"echo",y:"1954",g:"An object is determined by its maps in — a 'diagonal' embedding.",d:"A false friend: about representability, not self-reference. Included to keep the phenomena distinct."},
+{id:"topos",n:"Topos theory & Ω",r:4,t:"kin",y:"1970",g:"Categories with an internal logic and a truth-object Ω.",d:"Lawvere's theorem and its instances live here natively; Ω plays the role of the answer-object 2."},
+{id:"stlc",n:"Simply-typed λ-calculus",r:4,t:"esc",y:"1940",g:"Typing forbids self-application; every term halts.",d:"x x is untypable (σ=σ→τ has no solution): no reflexive object, no Y — total, but no longer universal."},
+{id:"girard",n:"Girard's paradox",r:4,t:"id",y:"1972",g:"A universe containing itself (Type:Type) is inconsistent.",d:"The type-theoretic Russell — reflexivity in the universe hierarchy detonates."},
+{id:"curry-howard",n:"The Curry-Howard correspondence",r:4,t:"echo",y:"1969",g:"Proofs are programs; propositions are types.",d:"Why proof assistants must use normalising (total) calculi — inconsistency would be non-termination."},
+{id:"ramified-types",n:"Ramified type theory",r:4,t:"esc",y:"1908",g:"Russell and Whitehead's stratified types.",d:"The original fix: forbid a class from quantifying over a totality containing itself."},
+{id:"martin-lof",n:"Martin-Löf type theory",r:4,t:"esc",y:"1972",g:"A predicative, normalising foundation with a hierarchy of universes.",d:"Avoids Girard's paradox by construction — the basis of Coq, Agda, Lean."},
+{id:"hott",n:"Homotopy type theory",r:4,t:"echo",y:"2013",g:"Types as spaces, equality as paths, the univalence axiom.",d:"A modern foundation in the type-stratification lineage."},
+{id:"total-fp",n:"Total functional programming",r:4,t:"esc",y:"1990s",g:"Languages where every program provably halts.",d:"Turing-completeness traded for a totality guarantee — the engineering form of the escape."},
+// ---- REGION 5 — LANGUAGE & MIND ----
+{id:"self-ref-lang",n:"Self-reference in language",r:5,t:"kin",g:"'This sentence' — the informal substrate of the Liar.",d:"The diagonal lemma replaces this loose device with a mechanical construction."},
+{id:"use-mention",n:"Use & mention / quotation",r:5,t:"kin",g:"The distinction between a word and its name.",d:"The apparatus self-reference requires; abused, it breeds the Liar and Richard's paradox."},
+{id:"quine-sentence",n:"The Quine",r:5,t:"id",y:"1960",g:"'Yields falsehood when appended to its quotation' yields falsehood when appended to its quotation.",d:"Self-reference by quotation and predication — no indexical needed; the namesake of program quines."},
+{id:"indexicals",n:"Indexicals",r:5,t:"kin",g:"Demonstrative self-reference ('this').",d:"The diagonal lemma shows self-reference needs no indexical at all — it can be wholly constructed."},
+{id:"strange-loops",n:"Strange loops",r:5,t:"echo",y:"1979",g:"Tangled hierarchies that climb back to their origin (Hofstadter).",d:"The evocative popular synthesis of Gödel, Escher, Bach — suggestive rather than precise."},
+{id:"lucas-penrose",n:"The Lucas-Penrose argument",r:5,t:"echo",y:"1961",g:"The claim that Gödel shows the mind is not a machine.",d:"Widely rejected: the human 'sees' G's truth only by assuming consistency — exactly what no system, human or machine, can certify of itself."},
+{id:"orch-or",n:"Orchestrated objective reduction",r:5,t:"echo",y:"1994",g:"Penrose-Hameroff quantum consciousness, built on the Gödelian argument.",d:"Highly speculative; included for completeness, flagged as contested."},
+{id:"autopoiesis",n:"Autopoiesis",r:5,t:"echo",y:"1972",g:"Maturana and Varela's self-producing systems.",d:"Biological self-reference, loosely in the family; an analogy, not a theorem."},
+{id:"self-model",n:"Self-models & consciousness",r:5,t:"echo",g:"The self as a fixed point of a system modelling itself.",d:"Hofstadter, Metzinger — analogy, not theorem; the loop as metaphor for the 'I'."},
+// ---- REGION 6 — PHYSICS & DYNAMICS ----
+{id:"ctc",n:"Closed timelike curves",r:6,t:"kin",g:"Time loops force self-consistency constraints on history.",d:"The grandfather paradox as a fixed-point condition: only self-consistent histories occur."},
+{id:"deutsch-ctc",n:"Deutsch's CTC resolution",r:6,t:"gen",y:"1991",g:"Time-travel paradoxes dissolve into a fixed point of the density matrix.",d:"Guaranteed by a topological fixed-point theorem — the topological genus resolving a self-reference paradox."},
+{id:"rg-fixed",n:"Renormalization-group fixed points",r:6,t:"gen",y:"1971",g:"Scale-invariant theories sit at fixed points of the RG flow.",d:"A dynamical fixed point — a different genus, sharing only the word."},
+{id:"strange-attractor",n:"Strange attractors",r:6,t:"gen",g:"The invariant sets of chaotic dynamics.",d:"The analytic sense of 'fixed point', unrelated to self-reference — a false friend, kept to disambiguate."},
+{id:"wigner-friend",n:"Wigner's friend",r:6,t:"echo",y:"1961",g:"An observer observing an observer.",d:"Self-reference in the measurement chain; interpretation-dependent."},
+{id:"wheeler",n:"The participatory universe",r:6,t:"echo",y:"1983",g:"'It from bit': a self-observing cosmos (Wheeler).",d:"Self-referential cosmology — speculative."},
+{id:"maxwell-landauer",n:"Maxwell's demon & Landauer",r:6,t:"echo",y:"1961",g:"The demon's memory must be erased to pay its thermodynamic debt.",d:"A self-referential accounting of measurement and information — loosely adjacent."},
+// ---- REGION 7 — LIFE & SOCIETY ----
+{id:"self-replication",n:"Self-replication & the genetic code",r:7,t:"kin",g:"DNA describes the machine that copies the description.",d:"Von Neumann's logic, alive — a self-reproducing fixed point realised in chemistry."},
+{id:"nash",n:"Nash equilibrium",r:7,t:"gen",y:"1950",g:"Every finite game has an equilibrium.",d:"Existence proved by a topological fixed-point theorem (Kakutani/Brouwer) — the topological genus in game theory."},
+{id:"arrow",n:"Arrow's impossibility theorem",r:7,t:"echo",y:"1951",g:"No voting rule satisfies a few mild fairness axioms at once.",d:"An impossibility theorem, but combinatorial, not a diagonal — included to map the wider family of 'you can't have it all' results."},
+{id:"gibbard",n:"Gibbard-Satterthwaite theorem",r:7,t:"echo",y:"1973",g:"Every non-trivial voting rule is manipulable.",d:"Arrow's strategic cousin; impossibility, not diagonalisation."},
+{id:"ree",n:"Rational-expectations equilibria",r:7,t:"gen",y:"1961",g:"Beliefs confirmed by the economy those beliefs produce.",d:"An economic fixed point — the order/topological genus in social form."},
+{id:"soros",n:"Reflexivity in markets",r:7,t:"echo",y:"1987",g:"Prices shaped by beliefs about prices (Soros).",d:"Social self-reference, informal."},
+{id:"self-fulfilling",n:"Self-fulfilling prophecy",r:7,t:"echo",y:"1948",g:"A prediction that causes its own truth (Merton).",d:"The social shadow of a fixed point."},
+// ---- REGION 8 — AI & FRONTIER ----
+{id:"lobian-obstacle",n:"The Löbian obstacle",r:8,t:"kin",y:"2013",g:"An agent cannot trust 'if my successor proves φ, then φ'.",d:"Löb forbids wholesale self-trust — the modern frontier of the second incompleteness theorem."},
+{id:"tiling-agents",n:"Tiling agents",r:8,t:"echo",y:"2013",g:"Building agents that license successors despite Löb.",d:"MIRI's Vingean-reflection programme — partial routes around the obstacle."},
+{id:"reflective-oracles",n:"Reflective oracles",r:8,t:"gen",y:"2015",g:"A probabilistic oracle answering questions about itself consistently.",d:"Built by a topological fixed point — genus-three machinery recovering safe self-reference for agents."},
+{id:"logical-induction",n:"Logical induction",r:8,t:"echo",y:"2016",g:"Coherent, self-improving probabilities over undecidable sentences.",d:"A market-based approximation to reasoning under logical uncertainty."},
+{id:"godel-machine",n:"Gödel machines",r:8,t:"echo",y:"2003",g:"Agents that rewrite themselves once a rewrite is proven beneficial.",d:"Schmidhuber's design — bounded by what the agent can prove about itself."},
+{id:"aixi",n:"AIXI",r:8,t:"echo",y:"2000",g:"The optimal general agent — uncomputable.",d:"A halting-problem shadow falling over ideal intelligence."},
+{id:"llm-self-ref",n:"Self-reference in language models",r:8,t:"echo",g:"Models reasoning about their own outputs and weights.",d:"A contemporary, empirical echo of the loop — and of its instabilities."},
+{id:"vingean",n:"Vingean reflection",r:8,t:"echo",y:"2013",g:"Reasoning reliably about agents more capable than oneself.",d:"The self-trust problem Löb makes hard, stated for AI."}
+];
+// ---------- layout + integrity check ----------
+const REGIONS={1:"Sets & Size",2:"Truth & Proof",3:"Computation",4:"Structure",5:"Language & Mind",6:"Physics & Dynamics",7:"Life & Society",8:"AI & Frontier"};
+const TYPES={id:"identity",cor:"corollary",kin:"kin",gen:"other-genus",echo:"echo",esc:"escape"};
+// shared layout used by both the test and the page
+function computeLayout(TOPICS){
+  const CX=380,CY=380,R=336;
+  const RING={id:0.205,cor:0.375,kin:0.56,gen:0.75,esc:0.85,echo:0.935};
+  const SECTORW=33;
+  function sectorMid(r){ return -90 + (r-0.5)*45; }
+  const d2r=d=>d*Math.PI/180;
+  const groups={};
+  for(const t of TOPICS){ const k=t.r+"|"+t.t; (groups[k]=groups[k]||[]).push(t); }
+  const pos={};
+  for(const k in groups){
+    const arr=groups[k]; const parts=k.split("|"); const reg=+parts[0], ty=parts[1];
+    const mid=sectorMid(reg); const baseRad=RING[ty]*R; const n=arr.length;
+    arr.forEach((t,i)=>{
+      const frac=n===1?0.5:(i/(n-1));
+      const ang=mid+(frac-0.5)*SECTORW;
+      // radial stagger: alternate in/out, amplitude grows with crowding
+      const amp=Math.min(13, 5+n*1.1);
+      const off=(i%2===0?-1:1)*amp + (i%4>=2?amp*0.55:0);
+      const rad=baseRad+off;
+      pos[t.id]={x:CX+rad*Math.cos(d2r(ang)), y:CY+rad*Math.sin(d2r(ang)), ang:ang, rad:rad, region:reg, type:ty};
+    });
+  }
+  return {pos,CX,CY,R,RING,SECTORW};
+}
+// ENRICHMENT LAYER — instantiations, denial taxonomy, genus split, and the edge lattice.
+
+// ---- (1) INSTANTIATION SCHEMA: the 14 identity results as Lawvere 4-tuples ----
+// Each: the category C, the things A, the answers B, the self-naming phi:A->B^A, the twist a:B->B, and what follows.
+const INST={
+ "cantor-thm":{C:"Set",A:"a set X",B:"2 = {0,1}",phi:"a claimed surjection X → 2ˣ",a:"¬ (negation)",out:"¬ has no fixed point, so φ is not onto. The diagonal {x : x∉φ(x)} is unnamed. |X| < |2ˣ|."},
+ "cantor-diag":{C:"Set",A:"ℕ",B:"2 = {0,1}",phi:"a claimed list ℕ → 2^ℕ",a:"¬",out:"The flipped diagonal differs from row n at place n, so it is no row. The reals are uncountable."},
+ "russell":{C:"naïve set theory",A:"V (all sets)",B:"2 = {in, out}",phi:"membership, φ(a)=(x↦[x∈a])",a:"¬",out:"Comprehension forces φ onto, but ¬ has no fixed point — so the system is inconsistent. R = {x : x∉x}."},
+ "liar":{C:"a language L",A:"sentences",B:"2 = {T, F}",phi:"a truth predicate True(⌜·⌝), True(⌜s⌝)↔s",a:"¬",out:"¬ has no fixed point in {T,F}, so no such predicate exists (Tarski) — or the Liar λ↔¬True(⌜λ⌝) detonates."},
+ "diag-lemma":{C:"arithmetic",A:"formulas ψ(x)",B:"sentences",phi:"substitution made point-surjective by coding",a:"any ψ (arbitrary)",out:"Positive direction: every ψ has a fixed-point sentence S with S↔ψ(⌜S⌝). The engine of all that follows."},
+ "godel1":{C:"arithmetic (consistent)",A:"sentences",B:"2 = {provable, not}",phi:"provability Prov(⌜·⌝), a Σ₁ formula",a:"¬",out:"G↔¬Prov(⌜G⌝) exists by the lemma. Prov is definable but weaker than truth, so no contradiction: G is true, unprovable."},
+ "curry":{C:"naïve set theory",A:"V",B:"propositions",phi:"comprehension (point-surjective by fiat)",a:"(·→⊥)",out:"The twist is not ¬ but (p↦(p→⊥)). Its fixed point C↔(C→⊥), under contraction, proves ⊥. Paradox without negation."},
+ "halting":{C:"computable maps",A:"programs",B:"2 = {halts, loops}",phi:"a total decider HALT(p,p)",a:"swap (halts↔loops)",out:"swap has no fixed point, so no total HALT. D(D) halts ⟺ D(D) loops — the decider cannot exist."},
+ "kleene-rec":{C:"computable maps",A:"programs",B:"programs",phi:"evaluation, point-surjective by s-m-n",a:"any total f (arbitrary)",out:"Positive direction: every f has e with φₑ=φ_{f(e)} — a program with access to its own code."},
+ "quine":{C:"computable maps",A:"programs",B:"programs",phi:"evaluation",a:"'print the code of'",out:"The fixed point of 'print this' is a program whose output is its own source. The lemma, made runnable."},
+ "lambda-calc":{C:"a reflexive object D≅Dᴰ",A:"D",B:"D",phi:"the iso D ≅ Dᴰ (naming = application)",a:"any endo D→D",out:"φ is onto by construction, so every twist has a fixed point. The system where the naming is the identity."},
+ "fixpoint-comb":{C:"untyped λ-calculus",A:"terms",B:"terms",phi:"φ = id (every term is its own name)",a:"any term g",out:"g(x)=α(x x) gives g g = α(g g) = Y α. Literally Lawvere's construction at φ=id — the same line as Cantor's."},
+ "girard":{C:"type theory with Type:Type",A:"the universe U",B:"a type role of 2",phi:"U:U (a universe naming itself)",a:"a well-foundedness twist",out:"Self-containment forces point-surjectivity; a fixed-point-free twist yields a looping proof of ⊥. The typed Russell."},
+ "quine-sentence":{C:"a language with quotation",A:"sentences",B:"2 = {T, F}",phi:"quotation + predication of a self-quoting frame",a:"¬",out:"The Liar without an indexical: 'yields F when appended to its quotation', appended to its quotation."}
+};
+
+// ---- (2) DENIAL TAXONOMY: each escape mapped to the hypothesis it denies and how ----
+// strategy: STRATIFY / RESTRICT / DISCIPLINE (prevent the fixed point) | WEAKEN / TOLERATE (survive it)
+const DENIES={
+ "tarski-hier":{strategy:"STRATIFY",hyp:"point-surjectivity",how:"Truth for Lₙ lives only in Lₙ₊₁; no level names its own truth, so the Liar can never be written."},
+ "ramified-types":{strategy:"STRATIFY",hyp:"point-surjectivity",how:"A class may not quantify over a totality containing itself; the orders forbid the self-naming."},
+ "cumulative":{strategy:"STRATIFY",hyp:"point-surjectivity",how:"Sets appear in stages Vα; nothing is a member of its own stage, so V∈V is impossible."},
+ "martin-lof":{strategy:"STRATIFY",hyp:"point-surjectivity",how:"A predicative tower U₀:U₁:U₂…; no universe contains itself, so Girard's loop cannot form."},
+ "separation":{strategy:"RESTRICT",hyp:"point-surjectivity",how:"Only subsets of existing sets may be formed; the Russell predicate {x:x∉x} simply is not a set."},
+ "foundation":{strategy:"RESTRICT",hyp:"point-surjectivity",how:"∈ is well-founded by axiom; x∈x is outlawed, so the diagonal self-application never arises."},
+ "stlc":{strategy:"DISCIPLINE",hyp:"the reflexive object",how:"x x demands a type σ=σ→τ with no solution; with no D≅Dᴰ there is no Y, and every term halts."},
+ "total-fp":{strategy:"DISCIPLINE",hyp:"the reflexive object",how:"Recursion is permitted only on well-founded structure; the engineering form of forbidding self-application."},
+ "substructural":{strategy:"WEAKEN",hyp:"contraction (not surjectivity)",how:"The fixed point still exists, but without contraction the Curry inference to ⊥ is blocked. The wall is logical, not structural."},
+ "paraconsistent":{strategy:"TOLERATE",hyp:"ex falso quodlibet",how:"Keep the fixed point as a true contradiction and deny explosion; the Liar is dialetheia, not collapse."}
+};
+
+// ---- (3) GENUS split for the 'other-genus' nodes (order vs topological) ----
+const GENUS={
+ "knaster-tarski":"order","mu-calculus":"order","denotational":"order","scott-d":"order","lambek":"order","initial-algebra":"order","afa":"order","kripke-truth":"order","revision-truth":"order",
+ "nash":"topological","deutsch-ctc":"topological","reflective-oracles":"topological","ree":"topological","rg-fixed":"topological","strange-attractor":"topological"
+};
+
+// ---- (4) THE EDGE LATTICE: typed relations among nodes ----
+// kind: corollary (from follows from to) | uses (from built on to) | recovers (from recovers, in another genus, what to forbids) | escapes (from denies a hypothesis of to) | kin
+const RELATIONS=[
+ ["cantor-diag","cantor-thm","corollary"],["cantor-paradox","cantor-thm","corollary"],["burali-forti","cantor-paradox","kin"],
+ ["tarski-undef","liar","corollary"],["tarski-undef","diag-lemma","uses"],["liar","diag-lemma","uses"],
+ ["godel1","diag-lemma","uses"],["godel1","godel-numbering","uses"],["diag-lemma","godel-numbering","uses"],
+ ["godel2","lob","corollary"],["godel2","godel1","corollary"],["lob","diag-lemma","uses"],["lob","derivability","uses"],
+ ["gl","lob","uses"],["henkin","lob","corollary"],["rosser","godel1","kin"],
+ ["entscheidung","halting","corollary"],["rice","halting","corollary"],["cohen-virus","rice","corollary"],
+ ["quine","kleene-rec","uses"],["kleene-rec","smn","uses"],["utm","godel-numbering","kin"],
+ ["busy-beaver","halting","corollary"],["kolmogorov","berry","kin"],["chaitin","kolmogorov","uses"],["chaitin","berry","uses"],
+ ["omega","halting","uses"],["omega","kolmogorov","kin"],["von-neumann-auto","kleene-rec","kin"],["self-replication","von-neumann-auto","uses"],
+ ["hierarchy-thms","halting","kin"],["ladner","hierarchy-thms","uses"],["relativization","hierarchy-thms","kin"],
+ ["fixpoint-comb","lambda-calc","uses"],["fixpoint-comb","reflexive-obj","uses"],["lambda-calc","reflexive-obj","uses"],
+ ["girard","russell","kin"],["quine-sentence","liar","kin"],["richard","cantor-diag","kin"],["richard","berry","kin"],
+ ["grelling","russell","kin"],["curry","russell","kin"],["yablo","liar","kin"],
+ ["lobian-obstacle","lob","corollary"],["vingean","lobian-obstacle","uses"],["tiling-agents","lobian-obstacle","kin"],
+ ["godel-machine","godel2","kin"],["aixi","halting","kin"],["arrow","gibbard","kin"],
+ ["self-model","strange-loops","kin"],["orch-or","lucas-penrose","uses"],["large-cardinals","reflection-proof","kin"],
+ ["topos","ccc","uses"],["reflexive-obj","ccc","uses"],
+ ["kripke-truth","liar","recovers"],["kripke-truth","tarski-undef","recovers"],["kripke-truth","knaster-tarski","uses"],
+ ["revision-truth","liar","recovers"],["scott-d","reflexive-obj","recovers"],["denotational","scott-d","uses"],
+ ["denotational","knaster-tarski","uses"],["mu-calculus","knaster-tarski","uses"],["lambek","initial-algebra","uses"],
+ ["afa","russell","recovers"],["afa","foundation","recovers"],["afa","initial-algebra","uses"],
+ ["reflective-oracles","lobian-obstacle","recovers"],["deutsch-ctc","ctc","recovers"],["ree","nash","kin"],
+ ["separation","russell","escapes"],["foundation","russell","escapes"],["cumulative","russell","escapes"],["ramified-types","russell","escapes"],
+ ["tarski-hier","liar","escapes"],["tarski-hier","tarski-undef","escapes"],["stlc","fixpoint-comb","escapes"],["stlc","halting","escapes"],
+ ["total-fp","halting","escapes"],["substructural","curry","escapes"],["paraconsistent","liar","escapes"],["martin-lof","girard","escapes"],
+ ["curry-howard","stlc","uses"],["hott","martin-lof","uses"],
+ ["self-ref-lang","liar","kin"],["use-mention","liar","uses"],["indexicals","quine-sentence","kin"],
+ ["church-turing","halting","uses"],["continuum","cantor-thm","uses"],
+ ["logical-induction","lobian-obstacle","kin"],["llm-self-ref","lobian-obstacle","kin"],
+ ["soros","ree","kin"],["self-fulfilling","ree","kin"],["autopoiesis","self-replication","kin"],
+ ["wigner-friend","self-model","kin"],["wheeler","wigner-friend","kin"],["maxwell-landauer","wheeler","kin"],
+ ["rg-fixed","strange-attractor","kin"]
+];
+
+/* ===================== ATLAS UI (2nd ed.) ===================== */
+const TMETA={
+  id:{label:"identity",color:"var(--t-id)",short:"is the theorem itself",desc:"The Lawvere construction literally instantiates — the same theorem in different clothes."},
+  cor:{label:"corollary",color:"var(--t-cor)",short:"follows directly",desc:"Follows from an identity result by a short, direct argument."},
+  kin:{label:"kin",color:"var(--t-kin)",short:"the same phenomenon",desc:"The same self-referential fixed-point phenomenon — a genuine relative, not a strict instance."},
+  gen:{label:"other-genus",color:"var(--t-gen)",short:"a different fixed point",desc:"A fixed-point theorem of another kind — order-theoretic or topological. Related by structure, not self-reference."},
+  echo:{label:"echo",color:"var(--t-echo)",short:"a resonance elsewhere",desc:"An application, analogy, or resonance in another field. Real but loose; several are contested."},
+  esc:{label:"escape",color:"var(--t-esc)",short:"denies a hypothesis",desc:"A system built to deny the diagonal a foothold — by stratifying, restricting, disciplining, weakening, or tolerating."}
+};
+const TYPE_ORDER=["id","cor","kin","gen","echo","esc"];
+const SHORT={"cantor-thm":"Cantor","cantor-diag":"diagonal","russell":"Russell","liar":"Liar","diag-lemma":"diag. lemma","godel1":"Gödel","curry":"Curry","halting":"halting","kleene-rec":"Kleene","quine":"quine","lambda-calc":"λ-calc","fixpoint-comb":"Y","girard":"Girard","quine-sentence":"the Quine"};
+const CORE_ORDER=["cantor-thm","cantor-diag","russell","liar","diag-lemma","godel1","curry","halting","kleene-rec","quine","lambda-calc","fixpoint-comb","girard","quine-sentence"];
+const STRAT_INFO={
+  STRATIFY:{fam:"prevent",desc:"deny the self-naming across levels",deny:"point-surjectivity"},
+  RESTRICT:{fam:"prevent",desc:"deny that every predicate names an object",deny:"point-surjectivity"},
+  DISCIPLINE:{fam:"prevent",desc:"deny that self-application is well-formed",deny:"the reflexive object"},
+  WEAKEN:{fam:"survive",desc:"keep the fixed point; block the inference",deny:"a structural rule"},
+  TOLERATE:{fam:"survive",desc:"keep the contradiction; deny that it spreads",deny:"explosion"}
+};
+const SVGNS="http://www.w3.org/2000/svg";
+function S(n,a){const e=document.createElementNS(SVGNS,n);if(a)for(const k in a)e.setAttribute(k,a[k]);return e;}
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+function TXT(s){return document.createTextNode(s);}
+
+const TById={}; TOPICS.forEach(t=>TById[t.id]=t);
+const LAYOUT=computeLayout(TOPICS);
+const POS=LAYOUT.pos, CX=LAYOUT.CX, CY=LAYOUT.CY, R=LAYOUT.R, RING=LAYOUT.RING;
+let regionSet=new Set(), typeSet=new Set(), selectedId=null;
+
+const NEIGH={}; TOPICS.forEach(t=>NEIGH[t.id]=[]);
+RELATIONS.forEach(function(e){ const a=e[0],b=e[1],k=e[2]; NEIGH[a].push({other:b,kind:k,dir:"out"}); NEIGH[b].push({other:a,kind:k,dir:"in"}); });
+function genusOf(t){ if(GENUS[t.id]) return GENUS[t.id]; if(t.t==="echo") return "analogy"; return "diagonal"; }
+function isVisible(t){ return (regionSet.size===0||regionSet.has(t.r)) && (typeSet.size===0||typeSet.has(t.t)); }
+
+const svg=document.getElementById("atlasSvg");
+let edgeLayer; const nodeEls={}; let hoverLabelEl,hoverBgEl,pulseRing;
+
+function renderMap(){
+  const d2r=d=>d*Math.PI/180;
+  edgeLayer=S("g",{id:"edgeLayer"}); svg.appendChild(edgeLayer);
+  [RING.id,RING.cor,RING.kin,RING.gen,RING.echo].forEach(rr=>{ svg.appendChild(S("circle",{cx:CX,cy:CY,r:rr*R,fill:"none",stroke:"var(--hair)","stroke-width":1})); });
+  for(let a=0;a<8;a++){
+    const lineAng=d2r(-90+a*45-22.5);
+    svg.appendChild(S("line",{x1:CX,y1:CY,x2:CX+R*1.02*Math.cos(lineAng),y2:CY+R*1.02*Math.sin(lineAng),stroke:"var(--hair)","stroke-width":1}));
+    const reg=a+1, midAng=-90+(reg-0.5)*45, lr=R*1.055;
+    const lx=CX+lr*Math.cos(d2r(midAng)), ly=CY+lr*Math.sin(d2r(midAng));
+    const co=Math.cos(d2r(midAng)), anchor= co>0.25?"start":co<-0.25?"end":"middle";
+    const tt=S("text",{x:lx,y:ly+3,"text-anchor":anchor,"font-family":"IBM Plex Mono, monospace","font-size":"10.5","letter-spacing":".05em",fill:"var(--faint)"});
+    tt.textContent=REGIONS[reg].toUpperCase(); svg.appendChild(tt);
+  }
+  svg.appendChild(S("circle",{cx:CX,cy:CY,r:25,fill:"var(--ink)"}));
+  const ct=S("text",{x:CX,y:CY+3.5,"text-anchor":"middle","font-family":"IBM Plex Mono, monospace","font-size":"9",fill:"var(--paper)"}); ct.textContent="α(b)=b"; svg.appendChild(ct);
+  const cl=S("text",{x:CX,y:CY+44,"text-anchor":"middle","font-family":"Spectral, serif","font-style":"italic","font-size":"11",fill:"var(--faint)"}); cl.textContent="the construction"; svg.appendChild(cl);
+  const drawOrder=TOPICS.slice().sort((a,b)=>TYPE_ORDER.indexOf(b.t)-TYPE_ORDER.indexOf(a.t));
+  drawOrder.forEach(t=>{
+    const p=POS[t.id], c=TMETA[t.t].color;
+    const g=S("g",{class:"node"}); g.style.cursor="pointer";
+    const rad= t.t==="id"?5.2 : t.t==="cor"?4.5 : t.t==="echo"?3.5 : 4;
+    const circ=S("circle",{cx:p.x,cy:p.y,r:rad,fill: t.t==="esc"?"var(--paper)":c, stroke:c, "stroke-width": t.t==="esc"?1.5:0.5});
+    g.appendChild(circ);
+    g.appendChild(S("circle",{cx:p.x,cy:p.y,r:11,fill:"transparent"}));
+    g.addEventListener("mouseenter",()=>hoverNode(t.id));
+    g.addEventListener("mouseleave",unhover);
+    g.addEventListener("click",()=>showDetail(t.id));
+    svg.appendChild(g);
+    nodeEls[t.id]={g,circ,rad};
+  });
+  TOPICS.filter(t=>t.t==="id").forEach(t=>{
+    const p=POS[t.id], ang=Math.atan2(p.y-CY,p.x-CX);
+    const lx=CX+(p.rad+12)*Math.cos(ang), ly=CY+(p.rad+12)*Math.sin(ang)+3;
+    const co=Math.cos(ang), anchor= co>0.25?"start":co<-0.25?"end":"middle";
+    const lab=S("text",{x:lx,y:ly,"text-anchor":anchor,"font-family":"IBM Plex Mono, monospace","font-size":"8.5",fill:"var(--t-id)","pointer-events":"none"});
+    lab.textContent=SHORT[t.id]||t.n; svg.appendChild(lab); nodeEls[t.id].label=lab;
+  });
+  hoverBgEl=S("rect",{fill:"var(--paper)",rx:2,stroke:"var(--panelhair)","stroke-width":.5,"pointer-events":"none"}); hoverBgEl.style.opacity="0";
+  hoverLabelEl=S("text",{"text-anchor":"middle","font-family":"Spectral, serif","font-style":"italic","font-size":"13.5",fill:"var(--ink)","pointer-events":"none"}); hoverLabelEl.style.opacity="0";
+  svg.appendChild(hoverBgEl); svg.appendChild(hoverLabelEl);
+}
+function hoverNode(id){
+  const t=TById[id], p=POS[id], ne=nodeEls[id];
+  ne.circ.setAttribute("r",ne.rad+2.6); ne.circ.setAttribute("stroke","var(--ink)"); ne.circ.setAttribute("stroke-width","1.1");
+  hoverLabelEl.textContent=t.n;
+  let ly=p.y-14; if(p.y<CY-300) ly=p.y+24;
+  hoverLabelEl.setAttribute("x",p.x); hoverLabelEl.setAttribute("y",ly); hoverLabelEl.style.opacity="1";
+  try{ const bb=hoverLabelEl.getBBox(); hoverBgEl.setAttribute("x",bb.x-6); hoverBgEl.setAttribute("y",bb.y-2); hoverBgEl.setAttribute("width",bb.width+12); hoverBgEl.setAttribute("height",bb.height+4); hoverBgEl.style.opacity=".94"; }catch(e){}
+}
+function unhover(){
+  for(const id in nodeEls){ const ne=nodeEls[id], t=TById[id]; ne.circ.setAttribute("r",ne.rad); ne.circ.setAttribute("stroke",TMETA[t.t].color); ne.circ.setAttribute("stroke-width", t.t==="esc"?1.5:0.5); }
+  hoverLabelEl.style.opacity="0"; hoverBgEl.style.opacity="0";
+}
+function pulseNode(id){ const p=POS[id], ne=nodeEls[id]; if(pulseRing)pulseRing.remove(); pulseRing=S("circle",{cx:p.x,cy:p.y,r:ne.rad+4,fill:"none",stroke:"var(--ink)","stroke-width":1.5}); pulseRing.style.pointerEvents="none"; svg.appendChild(pulseRing); }
+function clearEdges(){ if(edgeLayer) while(edgeLayer.firstChild) edgeLayer.removeChild(edgeLayer.firstChild); }
+function drawEdges(id){
+  clearEdges();
+  (NEIGH[id]||[]).forEach(e=>{
+    if(!isVisible(TById[id])||!isVisible(TById[e.other])) return;
+    const p=POS[id], q=POS[e.other];
+    const col= e.kind==="recovers"?"var(--teal)": e.kind==="escapes"?"var(--red)": e.kind==="kin"?"var(--gold)":"var(--faint)";
+    const ln=S("line",{x1:p.x,y1:p.y,x2:q.x,y2:q.y,stroke:col,"stroke-width": e.kind==="kin"?0.9:1.2,"stroke-opacity":0.72});
+    if(e.kind==="escapes") ln.setAttribute("stroke-dasharray","3 3");
+    edgeLayer.appendChild(ln);
+    edgeLayer.appendChild(S("circle",{cx:q.x,cy:q.y,r:nodeEls[e.other].rad+2.6,fill:"none",stroke:col,"stroke-width":1,"stroke-opacity":0.85}));
+  });
+}
+function relGroup(label,items){
+  if(!items.length) return null;
+  const g=E("div","rel-group"); const l=E("div","rel-lab"); l.textContent=label; g.appendChild(l);
+  const wrap=E("div","rel-links");
+  items.forEach((it,i)=>{ const a=E("a","k-"+it.kind); a.textContent=TById[it.other].n; a.addEventListener("click",()=>showDetail(it.other)); wrap.appendChild(a); if(i<items.length-1) wrap.appendChild(TXT(", ")); });
+  g.appendChild(wrap); return g;
+}
+function showDetail(id){
+  const t=TById[id], m=TMETA[t.t], dp=document.getElementById("detailPanel");
+  selectedId=id; dp.innerHTML="";
+  const badge=E("span","dtype"); badge.style.background="rgba(26,24,21,.045)"; badge.style.color=m.color;
+  const bd=E("span","dot"); if(t.t==="esc"){bd.style.background="transparent";bd.style.border="1.4px solid "+m.color;}else{bd.style.background=m.color;} badge.appendChild(bd); badge.appendChild(TXT(m.label+" · "+m.short)); dp.appendChild(badge);
+  const h=E("h3"); h.textContent=t.n; dp.appendChild(h);
+  const meta=E("div","dmeta"); meta.textContent=REGIONS[t.r]+(t.y?"  ·  "+t.y:""); dp.appendChild(meta);
+  const gl=E("div","dgenus"); let inner="genus&nbsp;<b>"+genusOf(t)+"</b>"; if(DENIES[id]) inner+="&nbsp;·&nbsp;escape by <b>"+DENIES[id].strategy.toLowerCase()+"</b>"; gl.innerHTML=inner; dp.appendChild(gl);
+  const g=E("div","dgloss"); g.textContent=t.g; dp.appendChild(g);
+  const d=E("div","ddetail"); d.textContent=t.d; dp.appendChild(d);
+  if(INST[id]){ const ic=INST[id]; const box=E("div","rel-block");
+    const lab=E("div","rel-lab"); lab.textContent="the instantiation"; box.appendChild(lab);
+    const grid=E("div","inst");
+    [["𝒞",ic.C,false],["A",ic.A,false],["B",ic.B,true],["φ",ic.phi,true],["α",ic.a,true]].forEach(r=>{ const k=E("div","ik"); k.textContent=r[0]; const v=E("div","iv"+(r[2]?" mono":"")); v.textContent=r[1]; grid.appendChild(k); grid.appendChild(v); });
+    box.appendChild(grid);
+    const out=E("div","inst-out"); out.textContent=ic.out; box.appendChild(out);
+    dp.appendChild(box);
+  }
+  if(DENIES[id]){ const dn=DENIES[id]; const box=E("div","rel-block");
+    const lab=E("div","rel-lab"); lab.textContent="denies "+dn.hyp; box.appendChild(lab);
+    const p=E("div","ddetail"); p.style.marginTop=".15rem"; p.textContent=dn.how; box.appendChild(p);
+    dp.appendChild(box);
+  }
+  const out=NEIGH[id].filter(e=>e.dir==="out"), inc=NEIGH[id].filter(e=>e.dir==="in");
+  const follows=out.filter(e=>e.kind==="corollary"||e.kind==="uses");
+  const leadsTo=inc.filter(e=>e.kind==="corollary"||e.kind==="uses");
+  const recovers=out.filter(e=>e.kind==="recovers");
+  const recoveredBy=inc.filter(e=>e.kind==="recovers");
+  const escapes=out.filter(e=>e.kind==="escapes");
+  const escapedBy=inc.filter(e=>e.kind==="escapes");
+  const kin=NEIGH[id].filter(e=>e.kind==="kin");
+  const relBlock=E("div","rel-block");
+  const groups=[relGroup("follows from / built on",follows),relGroup("leads to",leadsTo),relGroup("recovers",recovers),relGroup("recovered by",recoveredBy),relGroup("escapes",escapes),relGroup("escaped by",escapedBy),relGroup("kin",kin)];
+  let any=false; groups.forEach(gr=>{ if(gr){ relBlock.appendChild(gr); any=true; } });
+  if(any) dp.appendChild(relBlock); else { const none=E("div","rel-block"); const l=E("div","rel-lab"); l.textContent="lattice"; const p=E("div","rel-links"); p.style.color="var(--faintest)"; p.style.fontStyle="italic"; p.textContent="unconnected — a false friend, sharing the word but not the phenomenon."; none.appendChild(l); none.appendChild(p); dp.appendChild(none); }
+  pulseNode(id); drawEdges(id);
+}
+function renderLegend(){
+  const host=document.getElementById("legendRows"); host.innerHTML="";
+  const counts={}; TOPICS.forEach(t=>counts[t.t]=(counts[t.t]||0)+1);
+  TYPE_ORDER.forEach(ty=>{ const m=TMETA[ty], row=E("div","legend-row"); row.setAttribute("data-type",ty);
+    const dot=E("span","dot"); if(ty==="esc"){dot.style.background="transparent";dot.style.border="1.5px solid "+m.color;}else{dot.style.background=m.color;} row.appendChild(dot);
+    const nm=E("span","nm"); nm.textContent=m.label; row.appendChild(nm); row.appendChild(TXT("\u00a0— "+m.short));
+    const ct=E("span","ct"); ct.textContent=counts[ty]||0; row.appendChild(ct);
+    row.addEventListener("click",()=>toggleType(ty)); host.appendChild(row); });
+}
+function renderChips(){
+  const rh=document.getElementById("fbRegions");
+  for(let r=1;r<=8;r++){ const c=E("button","chip"); c.setAttribute("data-region",r); c.textContent=REGIONS[r]; c.addEventListener("click",()=>toggleRegion(r)); rh.appendChild(c); }
+  const th=document.getElementById("fbTypes");
+  TYPE_ORDER.forEach(ty=>{ const m=TMETA[ty]; const c=E("button","chip"); c.setAttribute("data-type",ty);
+    const dot=E("span","cdot"); if(ty==="esc"){dot.style.background="transparent";dot.style.border="1.4px solid "+m.color;}else{dot.style.background=m.color;}
+    c.appendChild(dot); c.appendChild(TXT(m.label)); c.addEventListener("click",()=>toggleType(ty)); th.appendChild(c); });
+}
+function toggleRegion(r){ regionSet.has(r)?regionSet.delete(r):regionSet.add(r); applyFilters(); }
+function toggleType(ty){ typeSet.has(ty)?typeSet.delete(ty):typeSet.add(ty); applyFilters(); }
+function clearFilters(){ regionSet.clear(); typeSet.clear(); applyFilters(); }
+function applyFilters(){
+  let n=0;
+  TOPICS.forEach(t=>{ const ok=isVisible(t); if(ok)n++;
+    const ne=nodeEls[t.id]; if(ne){ ne.g.style.opacity= ok?1:0.10; if(ne.label) ne.label.style.opacity= ok?1:0.08; }
+    const card=document.querySelector('.card[data-id="'+t.id+'"]'); if(card) card.classList.toggle("hidden",!ok); });
+  for(let r=1;r<=8;r++){ const sec=document.querySelector('.cat-region[data-region="'+r+'"]'); if(!sec)continue;
+    const vis=TOPICS.filter(t=>t.r===r&&isVisible(t)).length; sec.style.display= vis>0?"":"none";
+    const cc=sec.querySelector('.rc-vis'); if(cc) cc.textContent=vis; }
+  const fc=document.getElementById("fbCount"); const active=regionSet.size>0||typeSet.size>0;
+  fc.innerHTML= active? ("showing <b>"+n+"</b> of 100") : ("<b>100</b> results · 97 edges · graded identity → echo");
+  document.querySelectorAll('.chip[data-region]').forEach(c=>c.classList.toggle("on",regionSet.has(+c.getAttribute("data-region"))));
+  document.querySelectorAll('.chip[data-type]').forEach(c=>c.classList.toggle("on",typeSet.has(c.getAttribute("data-type"))));
+  document.querySelectorAll('.legend-row').forEach(row=>{ const ty=row.getAttribute("data-type"); row.classList.toggle("off", typeSet.size>0 && !typeSet.has(ty)); });
+  if(selectedId) drawEdges(selectedId);
+}
+function renderCatalog(){
+  const host=document.getElementById("catalog"); host.innerHTML="";
+  for(let r=1;r<=8;r++){
+    const topics=TOPICS.filter(t=>t.r===r); if(!topics.length)continue;
+    topics.sort((a,b)=>TYPE_ORDER.indexOf(a.t)-TYPE_ORDER.indexOf(b.t));
+    const sec=E("div","cat-region"); sec.setAttribute("data-region",r);
+    const head=E("div","cat-region-head"); const h=E("h3"); h.textContent=REGIONS[r]; head.appendChild(h);
+    const rc=E("span","rc"); rc.innerHTML='<span class="rc-vis">'+topics.length+'</span> / '+topics.length+' entries'; head.appendChild(rc); sec.appendChild(head);
+    const grid=E("div","cat-grid");
+    topics.forEach(t=>{ const m=TMETA[t.t]; const card=E("div","card"); card.setAttribute("data-id",t.id); card.setAttribute("data-region",r); card.setAttribute("data-type",t.t);
+      const tag=E("div","ctag"); const dot=E("span","dot"); if(t.t==="esc"){dot.style.background="transparent";dot.style.border="1.3px solid "+m.color;}else{dot.style.background=m.color;} tag.appendChild(dot); tag.appendChild(TXT(m.label)); card.appendChild(tag);
+      const h4=E("h4"); h4.textContent=t.n; if(t.y){const yr=E("span","yr"); yr.textContent=t.y; h4.appendChild(yr);} card.appendChild(h4);
+      const cg=E("div","cg"); cg.textContent=t.g; card.appendChild(cg);
+      const cd=E("div","cd"); cd.textContent=t.d; card.appendChild(cd);
+      card.addEventListener("click",()=>{ card.classList.toggle("open"); showDetail(t.id); }); grid.appendChild(card); });
+    sec.appendChild(grid); host.appendChild(sec);
+  }
+}
+function renderCore(){
+  const host=document.getElementById("coreGrid"); host.innerHTML="";
+  CORE_ORDER.forEach(id=>{ const t=TById[id], ic=INST[id]; const card=E("div","core-card");
+    const h=E("h4"); h.textContent=t.n; card.appendChild(h);
+    const cat=E("div","cc-cat"); cat.textContent="in  "+ic.C; card.appendChild(cat);
+    const grid=E("div","core-tuple");
+    [["A",ic.A,false],["B",ic.B,true],["φ",ic.phi,true],["α",ic.a,true]].forEach(r=>{ const k=E("div","k"); k.textContent=r[0]; const v=E("div","v"+(r[2]?" m":"")); v.textContent=r[1]; grid.appendChild(k); grid.appendChild(v); });
+    card.appendChild(grid);
+    const out=E("div","core-out"); out.textContent=ic.out; card.appendChild(out);
+    card.style.cursor="pointer"; card.addEventListener("click",()=>{ showDetail(id); document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"}); });
+    host.appendChild(card); });
+}
+function renderWalls(){
+  const host=document.getElementById("wallSplit"); host.innerHTML="";
+  function col(title,sub,strats,fam){
+    const c=E("div","wall-col"); const h=E("h3"); h.textContent=title; c.appendChild(h); const s=E("div","wc-sub"); s.textContent=sub; c.appendChild(s);
+    strats.forEach(st=>{ const info=STRAT_INFO[st]; const items=TOPICS.filter(t=>DENIES[t.id]&&DENIES[t.id].strategy===st);
+      if(!items.length)return; const w=E("div","wall "+fam);
+      const ws=E("div","wstrat"); ws.appendChild(TXT(st)); const wd=E("span","wd"); wd.textContent="— "+info.desc; ws.appendChild(wd); w.appendChild(ws);
+      const wh=E("div","whyp"); wh.textContent="denies: "+info.deny; w.appendChild(wh);
+      items.forEach(t=>{ const it=E("div","witem"); const b=E("b"); b.textContent=t.n; b.addEventListener("click",()=>{ showDetail(t.id); document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"}); }); it.appendChild(b); it.appendChild(TXT(" — "+DENIES[t.id].how)); w.appendChild(it); });
+      c.appendChild(w); });
+    return c;
+  }
+  host.appendChild(col("Prevent the fixed point","Deny the self-naming, so the construction never produces its fixed point.",["STRATIFY","RESTRICT","DISCIPLINE"],"prevent"));
+  host.appendChild(col("Survive the fixed point","Let the fixed point exist, but deny it the power to spread into collapse.",["WEAKEN","TOLERATE"],"survive"));
+}
+function renderLadder(){
+  const host=document.getElementById("ladder"); host.innerHTML="";
+  const counts={}; TOPICS.forEach(t=>counts[t.t]=(counts[t.t]||0)+1);
+  TYPE_ORDER.forEach(ty=>{ const m=TMETA[ty]; const rung=E("div","rung");
+    const dot=E("span","rdot"); if(ty==="esc"){dot.style.background="transparent";dot.style.border="1.6px solid "+m.color;}else{dot.style.background=m.color;} rung.appendChild(dot);
+    const wrap=E("div"); const nm=E("div","rname"); nm.textContent=m.label; wrap.appendChild(nm); const ds=E("div","rdesc"); ds.textContent=m.desc; wrap.appendChild(ds); rung.appendChild(wrap);
+    const ct=E("span","rct"); ct.textContent=(counts[ty]||0)+" entries"; rung.appendChild(ct); host.appendChild(rung); });
+}
+function init(){
+  try{renderMap();}catch(e){console.error("map",e);}
+  try{renderLegend();}catch(e){console.error("legend",e);}
+  try{renderChips();}catch(e){console.error("chips",e);}
+  try{renderCatalog();}catch(e){console.error("catalog",e);}
+  try{renderCore();}catch(e){console.error("core",e);}
+  try{renderWalls();}catch(e){console.error("walls",e);}
+  try{renderLadder();}catch(e){console.error("ladder",e);}
+  try{applyFilters();}catch(e){console.error("filter",e);}
+  const cb=document.getElementById("fbClear"); if(cb) cb.addEventListener("click",clearFilters);
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-diagonal.html">← Previous study</a><a rel="next" href="quodlibet-the-engine.html">Next study →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Latitude — the second root of mathematical limitation</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup,sub{font-size:.7em;line-height:0;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(2.9rem,10vw,7.2rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.24rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:46rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:42rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:44rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem / derivation */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:44rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.02rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.9rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+  .pf{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.8;color:var(--soft1);margin-top:.7rem;}
+  .pf .hot{color:var(--red-deep);} .pf b{color:var(--ink);font-weight:600;} .pf .q{color:var(--faintest);}
+
+  .bigeq{text-align:center;font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.7rem,3vw,2.3rem);margin:1.4rem 0;letter-spacing:.01em;}
+  .bigeq .v{font-style:italic;} .bigeq .r{color:var(--red);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:44rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+  .callout.ink{border-left-color:var(--ink);background:var(--panel);} .callout.ink .cl-lab{color:var(--ink);}
+
+  /* the three mechanism cards */
+  .mechs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:780px){ .mechs{grid-template-columns:1fr;} }
+  .mech{background:var(--paper);padding:1.2rem 1.25rem;}
+  .mech .m-tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;display:inline-block;padding:.2rem .5rem;border-radius:2px;margin-bottom:.7rem;}
+  .mech.m1 .m-tag{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .mech.m2 .m-tag{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .mech.m3 .m-tag{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .mech h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .35rem;letter-spacing:-.01em;}
+  .mech .m-eq{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);margin:.3rem 0 .55rem;padding:.4rem .55rem;background:var(--panel);border-radius:2px;border:1px solid var(--hair);}
+  .mech p{font-size:.88rem;line-height:1.52;color:var(--soft1);}
+  .mech .m-mem{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.55;color:var(--faint);margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--hair);}
+  .mech .m-mem b{color:var(--ink);font-weight:500;}
+
+  /* a worked-reduction spec (5-tuple + discharge) */
+  .spec{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:46rem;background:var(--paper);}
+  .spec .sp-h{display:flex;justify-content:space-between;align-items:baseline;gap:.8rem;padding:.85rem 1.15rem;border-bottom:1px solid var(--hair);flex-wrap:wrap;}
+  .spec .sp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;letter-spacing:-.01em;}
+  .spec .sp-name b{color:var(--red-deep);}
+  .spec .sp-mech{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:2px;white-space:nowrap;}
+  .spec .sp-mech.m1{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .spec .sp-mech.m2{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .spec .sp-mech.m3{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .spec .sp-grid{display:grid;grid-template-columns:auto 1fr;gap:.1rem .9rem;padding:.85rem 1.15rem;font-size:.9rem;line-height:1.5;}
+  .spec .sp-grid dt{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--faintest);padding-top:.32rem;}
+  .spec .sp-grid dd{margin:0;padding:.18rem 0;}
+  .spec .sp-grid dd .mono{font-size:.84rem;}
+  .spec .sp-grid dd .h{color:var(--red-deep);font-weight:500;}
+  .spec .sp-disc{padding:.8rem 1.15rem;border-top:1px solid var(--hair);background:var(--panel);font-size:.86rem;line-height:1.55;color:var(--soft1);}
+  .spec .sp-disc .dl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.3rem;}
+  .spec .sp-disc b{color:var(--ink);font-weight:600;}
+  @media(max-width:540px){ .spec .sp-grid{grid-template-columns:1fr;gap:.05rem;} .spec .sp-grid dt{padding-top:.45rem;} }
+
+  /* the cost ledger */
+  .cost{width:100%;border-collapse:collapse;font-size:.88rem;}
+  .cost th{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:500;text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--rule);vertical-align:bottom;}
+  .cost td{padding:.6rem .7rem;border-bottom:1px solid var(--hair);vertical-align:top;line-height:1.45;}
+  .cost td.c-name{font-family:"Spectral",serif;font-style:italic;color:var(--ink);white-space:nowrap;}
+  .cost td.c-cost{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .cost td.c-str{font-family:"IBM Plex Mono",monospace;font-size:.74rem;}
+  .cost .s-none{color:var(--teal-deep);} .cost .s-mid{color:var(--gold-deep);} .cost .s-hi{color:var(--red-deep);}
+  .cost tr:last-child td{border-bottom:none;}
+  @media(max-width:680px){
+    .cost thead{display:none;} .cost,.cost tbody,.cost tr,.cost td{display:block;width:100%;}
+    .cost tr{border:1px solid var(--hair);border-radius:3px;margin-bottom:.55rem;padding:.5rem .7rem;}
+    .cost td{border:none;padding:.16rem 0;}
+    .cost td.c-cost::before{content:"pays — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+    .cost td.c-str::before{content:"strength — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+  }
+
+  /* definition box */
+  .defn{border:1px solid var(--ink);border-radius:3px;padding:1.1rem 1.3rem;margin:1.5rem auto;max-width:44rem;background:var(--panel);}
+  .defn .d-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin-bottom:.6rem;}
+  .defn p{font-size:.96rem;line-height:1.62;margin:0 0 .55rem;}
+  .defn p:last-child{margin-bottom:0;}
+  .defn .term{font-weight:600;font-style:italic;}
+  .defn .mono{font-size:.85rem;color:var(--red-deep);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* derivation chain (modal proofs) */
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;margin:1.1rem auto;max-width:44rem;border-left:2px solid var(--gold-line);padding:.3rem 0 .3rem 0;}
+  .chain .cstep{display:grid;grid-template-columns:1.7rem 1fr;gap:.2rem .7rem;padding:.32rem 1rem .32rem 1.1rem;}
+  .chain .cstep:not(:last-child){border-bottom:1px solid var(--hair);}
+  .chain .cn{color:var(--gold-deep);font-weight:500;}
+  .chain .cf{color:var(--ink);} .chain .cf .hot{color:var(--red-deep);} .chain .cf b{font-weight:600;}
+  .chain .cj{color:var(--faintest);font-size:.72rem;grid-column:2;margin-top:-.1rem;}
+  .chain .qed{color:var(--red-deep);}
+  /* fixed-point ladder (operator -> unique fixed point) */
+  .fp{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.2rem auto;max-width:46rem;}
+  @media(max-width:640px){ .fp{grid-template-columns:1fr;} }
+  .fp .fpc{background:var(--paper);padding:1.05rem 1.2rem;}
+  .fp .fpc .op{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--faint);text-transform:uppercase;margin-bottom:.5rem;}
+  .fp .fpc .opf{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);margin-bottom:.55rem;}
+  .fp .fpc .opf .b{color:var(--red-deep);}
+  .fp .fpc .fpr{font-family:"Spectral",serif;font-size:1.16rem;font-weight:500;letter-spacing:-.01em;margin:.2rem 0 .35rem;}
+  .fp .fpc .fpr .eq{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);font-weight:400;}
+  .fp .fpc p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .fp .fpc p b{color:var(--ink);font-weight:500;}
+
+  /* inverse-limit ladder (SVG host) */
+  .ladder{margin:1.3rem auto;max-width:46rem;}
+  .ladder svg{width:100%;height:auto;display:block;}
+  /* the switch: two regimes compared */
+  .switch{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin:1.4rem auto;max-width:48rem;border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .switch{grid-template-columns:1fr;} }
+  .switch .sw{padding:1.1rem 1.25rem;background:var(--paper);}
+  .switch .sw.left{border-right:1px solid var(--panelhair);}
+  @media(max-width:680px){ .switch .sw.left{border-right:none;border-bottom:1px solid var(--panelhair);} }
+  .switch .sw .sw-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.55rem;}
+  .switch .sw.left .sw-h{color:var(--red-deep);} .switch .sw.right .sw-h{color:var(--teal-deep);}
+  .switch .sw h4{font-family:"Spectral",serif;font-weight:500;font-size:1.08rem;margin:0 0 .4rem;letter-spacing:-.01em;}
+  .switch .sw p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .switch .sw p .mono{font-size:.8rem;}
+  .switch .sw .res{font-family:"IBM Plex Mono",monospace;font-size:.74rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--hair);color:var(--faint);}
+  .switch .sw.left .res b{color:var(--red-deep);} .switch .sw.right .res b{color:var(--teal-deep);}
+  .switch .pivot{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem;background:var(--panel);border-left:1px solid var(--panelhair);border-right:1px solid var(--panelhair);min-width:6.5rem;}
+  @media(max-width:680px){ .switch .pivot{border:none;border-top:1px solid var(--panelhair);border-bottom:1px solid var(--panelhair);flex-direction:row;gap:.6rem;} }
+  .switch .pivot .pq{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faintest);text-align:center;line-height:1.4;}
+  .switch .pivot .pg{font-family:"Spectral",serif;font-style:italic;font-size:1.4rem;color:var(--ink);margin:.3rem 0;}
+
+  /* source-signature row under each source */
+  .sig{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--faint);margin-top:.7rem;padding-top:.55rem;border-top:1px solid var(--hair);}
+  .sig b{color:var(--ink);font-weight:500;}
+  .sig .needs{color:var(--red-deep);} .sig .yields{color:var(--teal-deep);}
+
+  /* the staircase host */
+  .stair{margin:1.4rem auto;max-width:46rem;}
+  .stair svg{width:100%;height:auto;display:block;}
+  /* reach grid */
+  .reach{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.2rem auto;max-width:46rem;}
+  @media(max-width:600px){ .reach{grid-template-columns:1fr;} }
+  .reach .rc{background:var(--paper);padding:.85rem 1.1rem;display:flex;gap:.7rem;align-items:baseline;}
+  .reach .rc .rn{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);letter-spacing:.04em;white-space:nowrap;padding-top:.1rem;min-width:5.2rem;flex-shrink:0;}
+  .reach .rc .rt{font-size:.9rem;line-height:1.45;color:var(--soft1);}
+  .reach .rc .rt b{color:var(--ink);font-weight:500;font-family:"Spectral",serif;font-style:italic;}
+  .reach .rc .rt .mono{font-size:.8rem;}
+
+  /* fan-of-models host */
+  .fan{margin:1.4rem auto;max-width:46rem;}
+  .fan svg{width:100%;height:auto;display:block;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-collected">Collected Studies</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+            <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deepening · the second root</span></div>
+    <div class="hero-head">
+      <p class="kicker">The limits of description</p>
+      <h1 class="title">The <span class="x">Latitude</span></h1>
+      <p class="standfirst">The collection's wager is that one construction underlies the limits of formal reasoning. It is time to test the wager at its edge, and the test is unkind: there are two roots of limitation in mathematics, and the diagonal is only one of them. The diagonal bounds what can be <em>proved</em> — a system reasoning about itself runs into Gödel's wall. But there is a second, dual bound, on what can be <em>described</em>: first-order logic cannot pin down a structure, leaving a <em>latitude</em> in which models proliferate, the natural numbers refuse to be unique, and the size of the continuum floats free. This second root — Löwenheim–Skolem opening the slack, forcing exploiting it — is <em>not</em> a diagonal phenomenon. The diagonal appears on its territory only as a borrowed tool, never as the source. Self-reference is one of two pillars of mathematical limitation, and the collection, honestly placed, is the theory of one.</p>
+      <p class="ed-mark">the other limit · the slack · the unfixable ℕ · the second independence · two roots · where the corpus stands</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">one theory  ⤳  many worlds</span><span class="ln"></span></div>
+
+  <section class="sec" id="where" style="margin-top:clamp(2.5rem,6vh,4rem)">
+    <div class="lede read">
+      <p><i>The Staircase</i> climbed the diagonal's <i>syntactic</i> face — incompleteness as it lives in proofs and provable strength, an ordinal tower with no top. This descent turns to the face the collection has least examined, the <i>semantic</i> one: not what a theory can prove, but what it can <i>describe</i> — which structures its axioms succeed in pinning down. The two faces are joined, by Gödel's completeness theorem, at the hinge where provability meets truth-in-all-models. But they come apart in a way that matters to the collection's central claim, because the semantic face has a source of limitation the diagonal does not reach. Where self-reference makes a system blind to its own consistency, the looseness of first-order description makes a theory blind to <i>which world it is talking about</i> — and that blindness, traced to its root, turns out to be a different thing entirely. The honest task of this last descent is to find the edge of the diagonal's dominion, and to name what lies past it.</p>
+    </div>
+  </section>
+
+  <!-- ===== I · THE OTHER LIMIT ===== -->
+  <section class="sec" id="other">
+    <div class="sec-head"><span class="num">I · the other limit</span><h2>A theory cannot name its world</h2><p class="sub">Beside the limit on proof sits a limit on description — older, and stranger. No first-order theory with an infinite model succeeds in picking out a single structure. There is always more than one world the axioms cannot tell apart.</p></div>
+    <div class="reading">
+      <p>The diagonal's limit is a limit on <i>proof</i>: a theory rich enough to describe its own provability cannot prove everything true of its intended subject. Set that aside and ask a different question — not what a theory can prove, but what it can <i>specify</i>. You write down axioms hoping to capture a structure: Peano's axioms to capture the natural numbers, the axioms of ZFC to capture the universe of sets. Do the axioms succeed in pinning the structure down — is there exactly one model, up to isomorphism?</p>
+    </div>
+    <div class="thm read">
+      <div class="tl">non-categoricity</div>
+      <div class="ts">No first-order theory with an infinite model is <b>categorical</b>: it always has non-isomorphic models. The axioms cannot single out one structure. What they describe is never a world but a <i>class</i> of worlds, and they are powerless to tell the members apart.</div>
+    </div>
+    <div class="reading">
+      <p>This is a limit of a wholly different character from the diagonal's. The diagonal leaves a true sentence <i>unproved</i>; non-categoricity leaves the very <i>subject</i> of the theory underdetermined — the axioms are faithful to many structures at once and cannot prefer any. It is not that something true escapes proof; it is that there is no single "the natural numbers," no single "the universe of sets," that the first-order axioms manage to name. The theory speaks, and a whole class of worlds answers to the name. The question this descent must settle is where that looseness comes from — whether it is, at bottom, the diagonal wearing a semantic disguise, or a second root of limitation standing on its own. To decide it, look at how wide the looseness runs, and what produces it.</p>
+    </div>
+  </section>
+  <!-- ===== II · THE SLACK ===== -->
+  <section class="sec" id="slack">
+    <div class="sec-head"><span class="num">II · the slack</span><h2>First-order logic cannot fix size</h2><p class="sub">The looseness has a precise and astonishing measure. A first-order theory cannot even pin down <span class="mono">how many</span> things it is about — and the proof of this owes nothing to self-reference.</p></div>
+    <div class="reading">
+      <p>The width of the looseness is given by the Löwenheim–Skolem theorems, the founding results of model theory and the purest statement of the semantic slack.</p>
+    </div>
+    <div class="thm read">
+      <div class="tl">Löwenheim–Skolem</div>
+      <div class="ts"><b>Downward:</b> a consistent first-order theory in a countable language has a <i>countable</i> model. <b>Upward:</b> a theory with an infinite model has models of <i>every</i> infinite cardinality. So a first-order theory can never fix the cardinality of its models: if it has one infinite model, it has them in all sizes.</div>
+    </div>
+    <div class="reading">
+      <p>The consequence at the foundations is the famous vertigo of <i>Skolem's paradox</i>. The axioms of <span class="mono">ZFC</span> prove the existence of uncountable sets — that is their whole point; <span class="mono">P(ℕ)</span> is uncountable, by Cantor's diagonal. Yet by downward Löwenheim–Skolem, if <span class="mono">ZFC</span> is consistent it has a <i>countable</i> model <span class="mono">M</span>. Inside <span class="mono">M</span>, the set playing the role of <span class="mono">P(ℕ)</span> is uncountable — there is no bijection with <span class="mono">ℕ</span> <i>that belongs to <span class="mono">M</span></i>. Seen from outside, the whole of <span class="mono">M</span> is countable, so such a bijection exists in the wider world. The contradiction dissolves into a relativity:</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout">
+        <div class="cl-lab">Skolem's paradox, resolved</div>
+        <p>"Uncountable" is not absolute; it is <i>relative to a model</i>. <span class="mono">M</span> believes its <span class="mono">P(ℕ)</span> is uncountable because the bijection that would refute it lives <i>outside</i> <span class="mono">M</span>. The model is genuinely countable and genuinely "thinks" it contains uncountable sets, both at once, because countability is a fact about <i>which functions exist</i>, and that depends on where you stand. The axioms cannot reach out and fix the answer.</p>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Now mark the source, because it is the crux of the whole descent. Nothing here is a diagonal. The slack is a consequence of <i>compactness</i> and the Löwenheim–Skolem construction — features of how first-order satisfaction works, of the logic's finitary, term-built character. No sentence refers to itself; no fixed-point-free map is twisted; there is no naming fed to itself. The diagonal does make a guest appearance — it is Cantor's diagonal that tells <span class="mono">M</span> its <span class="mono">P(ℕ)</span> is uncountable in the first place — but the diagonal here states the <i>problem</i> (there are more subsets than elements) and contributes nothing to the <i>slack</i> (that the problem's answer is model-relative). The looseness is born elsewhere: in the inability of a finitary logic to constrain the size of its models. A first limit, already, that the diagonal does not author.</p>
+    </div>
+  </section>
+  <!-- ===== III · THE UNFIXABLE N ===== -->
+  <section class="sec" id="unfixable">
+    <div class="sec-head"><span class="num">III · the unfixable ℕ</span><h2>The numbers refuse to be unique</h2><p class="sub">The slack reaches the natural numbers themselves: Peano's axioms describe not one ℕ but a whole zoo of others. And here, in the sharpest theorem about that zoo, the diagonal at last appears — entering, tellingly, as hired help.</p></div>
+    <div class="reading">
+      <p>Apply the slack to arithmetic. Take <span class="mono">PA</span> and add a new constant <span class="mono">c</span> with the axioms <span class="mono">c &gt; 0, c &gt; 1, c &gt; 2, …</span> By compactness — every finite subset is satisfied by the standard <span class="mono">ℕ</span>, choosing <span class="mono">c</span> large enough — the whole infinite theory is consistent, so it has a model. In that model there is an element <span class="mono">c</span> greater than every numeral: a <i>nonstandard</i> number, with a whole tail of others above the standard ones. First-order <span class="mono">PA</span> cannot pin down <span class="mono">ℕ</span>; in fact it has <span class="mono">2^{ℵ₀}</span> countable models pairwise non-isomorphic, only one of which is the genuine <span class="mono">ℕ</span>.</p>
+      <p>How wild are the impostors? It is tempting to imagine a nonstandard model as <span class="mono">ℕ</span> with a few extra numbers tacked on — something you could in principle write down. Tennenbaum's theorem destroys that hope, and draws the sharpest possible line between the true <span class="mono">ℕ</span> and every counterfeit.</p>
+    </div>
+    <div class="thm read">
+      <div class="tl">Tennenbaum, 1959</div>
+      <div class="ts">No countable nonstandard model of <span class="mono">PA</span> is <b>recursive</b>: in any such model, neither <span class="mono">+</span> nor <span class="mono">×</span> can be a computable operation. The standard <span class="mono">ℕ</span> is the <i>unique</i> computable model of <span class="mono">PA</span>. Every other model is, in an exact sense, uncomputable — you can prove it exists but you can never exhibit it.</div>
+    </div>
+    <div class="reading">
+      <p>Now watch how the theorem is proved, because the lesson of the whole descent is written in its machinery. The proof <i>fuses</i> two ingredients of opposite character. From the diagonal's side it takes a pair of <b>recursively inseparable</b> sets — two disjoint computably-enumerable sets with no computable set separating them, an object that exists precisely because of the Gödel–Rosser construction, the diagonal in its sharpest recursion-theoretic form. From model theory's side it takes <b>overspill</b> — the fact that a property holding of every standard number must, in a nonstandard model, hold of some nonstandard element too. Combine them: overspill produces a nonstandard element coding a set that separates the inseparable pair, hence a non-computable set living in the model; and if <span class="mono">+</span> or <span class="mono">×</span> were computable, that set would be computable after all — contradiction.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout">
+        <div class="cl-lab">the diagonal enters as a tool</div>
+        <p>Here, for the first time on the semantic side, the diagonal is genuinely present — recursive inseparability is pure Gödel–Rosser, pure diagonal. But notice its <i>role</i>. It does not produce the nonstandard models; <i>compactness</i> does that, with no self-reference anywhere. The diagonal is brought in only to <i>measure</i> the models once they exist — to prove they are wild. It is the instrument that detects the slack, not the cause of it. The semantic limitation was already there; the diagonal merely takes its sharpest reading.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ===== IV · THE SECOND INDEPENDENCE ===== -->
+  <section class="sec" id="second">
+    <div class="sec-head"><span class="num">IV · the second independence</span><h2>The continuum floats free</h2><p class="sub">There are two great independence phenomena in mathematics, and they have two different sources. Gödel's is the diagonal's. Cohen's is the slack's — and the size of the continuum is its monument.</p></div>
+    <div class="reading">
+      <p>Cantor's diagonal opens a gap: <span class="mono">|ℕ| &lt; |P(ℕ)|</span>, the reals outnumber the integers. It then asks the obvious question — is there a set of intermediate size? — the <i>continuum hypothesis</i>, <span class="mono">CH</span>: that <span class="mono">2^{ℵ₀} = ℵ₁</span>, no cardinality strictly between. The diagonal poses the question and falls silent. Its answer came in two halves, twenty-five years apart, and the answer is that there is no answer.</p>
+    </div>
+    <div class="fan">
+      <svg viewBox="0 0 680 196" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" aria-label="the theory ZFC fanning out to models with different sizes of the continuum">
+        <defs><marker id="arf" markerWidth="7" markerHeight="7" refX="5.6" refY="2.3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L5,2.3 L0,4.6" fill="none" stroke="#b7b0a1" stroke-width="1.1"/></marker></defs>
+        <rect x="40" y="84" width="74" height="28" rx="3" fill="none" stroke="#565147" stroke-width="1.3"/>
+        <text x="77" y="102" font-size="13" fill="#1a1815" text-anchor="middle" font-family="Spectral, serif" font-style="italic">ZFC</text>
+        <g stroke="#b7b0a1" stroke-width="1" fill="none">
+          <path d="M116,94 C300,40 360,30 470,28" marker-end="url(#arf)"/>
+          <path d="M116,98 C300,72 360,66 470,64" marker-end="url(#arf)"/>
+          <path d="M116,100 C290,100 360,100 470,100" marker-end="url(#arf)"/>
+          <path d="M116,104 C300,128 360,134 470,136" marker-end="url(#arf)"/>
+          <path d="M116,108 C300,156 360,168 470,172" marker-end="url(#arf)"/>
+        </g>
+        <g font-size="11">
+          <text x="480" y="32" fill="#2c6e6a"><tspan font-family="Spectral, serif" font-style="italic">M₁</tspan> ⊨  2^ℵ₀ = ℵ₁   (CH)</text>
+          <text x="480" y="68" fill="#7c766a"><tspan font-family="Spectral, serif" font-style="italic">M₂</tspan> ⊨  2^ℵ₀ = ℵ₂</text>
+          <text x="480" y="104" fill="#7c766a"><tspan font-family="Spectral, serif" font-style="italic">M₃</tspan> ⊨  2^ℵ₀ = ℵ₃</text>
+          <text x="480" y="140" fill="#7c766a"><tspan font-family="Spectral, serif" font-style="italic">M₄</tspan> ⊨  2^ℵ₀ = ℵ₁₇</text>
+          <text x="480" y="176" fill="#7c766a"><tspan font-family="Spectral, serif" font-style="italic">M₅</tspan> ⊨  2^ℵ₀ = ℵ_{ω+1}</text>
+        </g>
+        <text x="293" y="190" font-size="10" fill="#a8a193" text-anchor="middle" font-style="italic" font-family="Spectral, serif">one theory · many worlds · the continuum a free parameter</text>
+      </svg>
+    </div>
+    <div class="reading">
+      <p>Gödel showed in 1938 that if <span class="mono">ZFC</span> is consistent, so is <span class="mono">ZFC + CH</span> — he built the constructible universe <span class="mono">L</span>, a model where <span class="mono">CH</span> holds. Cohen showed in 1963 that if <span class="mono">ZFC</span> is consistent, so is <span class="mono">ZFC + ¬CH</span> — and for that he invented <i>forcing</i>. Start with a countable model <span class="mono">M</span> of set theory and adjoin a <i>generic</i> object <span class="mono">G</span>, built to meet every dense condition in <span class="mono">M</span>; the extension <span class="mono">M[G]</span> is again a model of <span class="mono">ZFC</span>, but now with so many new subsets of <span class="mono">ℕ</span> that <span class="mono">2^{ℵ₀}</span> overflows <span class="mono">ℵ₁</span>. Between them, <span class="mono">CH</span> is <i>independent</i>: true in some models, false in others, settled by none.</p>
+      <p>And the kind of independence is not Gödel's. This is the distinction the whole descent has been driving at, and it is sharp. Gödel's unprovable sentence <span class="mono">Con(T)</span> is <i>true</i> — true in the standard model — and merely escapes proof; the limit falls on <i>proving</i> a determinate fact. <span class="mono">CH</span> has no such determinate fact behind it: it is a <i>switch</i>, forced true or false at will, with no preferred value that the slack permits us to call correct. One is a truth that outruns proof; the other is a question with no model-independent answer at all. The literature names the difference without ceremony: the independence of the continuum hypothesis is <i>not self-referential</i> the way Gödel's is.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout">
+        <div class="cl-lab">genericity is the tool; the slack is the source</div>
+        <p>Forcing does use a diagonal-flavored move — the generic <span class="mono">G</span> exists only because <span class="mono">M</span> is countable, so its dense sets can be enumerated and dodged one by one, a genericity construction in the diagonal's family. But again the diagonal is the <i>instrument</i>, not the cause. What makes <span class="mono">CH</span> independent is not that construction; it is the <i>freedom to build the model either way</i> — the same semantic latitude that let <span class="mono">ℕ</span> have impostors now lets the continuum take any size. Genericity dodges the dense sets; the slack is what leaves room to dodge.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ===== V · TWO ROOTS ===== -->
+  <section class="sec" id="roots">
+    <div class="sec-head"><span class="num">V · two roots</span><h2>Proof and description</h2><p class="sub">The descent's findings assemble into a single picture. Mathematical limitation has two roots, dual to each other — and the diagonal is the whole of one and a mere visitor to the other.</p></div>
+    <div class="reading">
+      <p>Set the two limitative phenomena side by side and their independence becomes unmistakable. They differ in what they bound, in the character of what they leave open, and — decisively — in where they come from.</p>
+    </div>
+    <div class="stage">
+      <div class="switch">
+        <div class="sw left">
+          <div class="sw-h">root one — self-reference</div>
+          <h4>The limits of proof</h4>
+          <p>A system reasoning about itself cannot prove all it should. The unprovable statement is <i>true</i> and merely escapes derivation. Source: the diagonal, which needs nothing of the answer-space — pure syntax. Cantor, Gödel, Tarski, Turing, the whole catalogue of <span class="mono">no</span>.</p>
+          <div class="res">truth outruns proof · <b>the diagonal's own</b></div>
+        </div>
+        <div class="pivot">
+          <div class="pq">what is<br>bounded?</div>
+          <div class="pg">⊢ | ⊨</div>
+          <div class="pq">proving, or<br>describing</div>
+        </div>
+        <div class="sw right">
+          <div class="sw-h">root two — the slack</div>
+          <h4>The limits of description</h4>
+          <p>A first-order theory cannot pin down its world. The open statement has <i>no model-independent answer</i> — a switch, true here, false there. Source: compactness and Löwenheim–Skolem — pure semantics. Non-categoricity, nonstandard <span class="mono">ℕ</span>, the floating continuum.</p>
+          <div class="res">description underdetermines · <b>not the diagonal's</b></div>
+        </div>
+      </div>
+      <figcaption>Two roots, dual and distinct. The left bounds <i>proof</i> and leaves truths unproved; the right bounds <i>description</i> and leaves questions unsettled across models. They are <b>joined</b>, by Gödel's completeness theorem, at the hinge where provability equals truth-in-all-models — so incompleteness and the existence of varying models are two views of one fact at that hinge. But their <b>sources part</b>: self-reference on one side, the finitary looseness of first-order semantics on the other. And where the diagonal appears on the right — Tennenbaum's coding, forcing's genericity — it appears as a borrowed tool, never as the cause.</figcaption>
+    </div>
+    <div class="reading">
+      <p>The duality runs deep enough to be worth stating as the descent's thesis. The diagonal's limit is <i>internal</i> — a system turned on itself, the loop of self-reference closing into a wall. The slack's limit is <i>relational</i> — the gap between a theory and the structures it hopes to name, the looseness of a finitary language stretched over infinite worlds. One is a fact about a system's relation to <i>itself</i>; the other a fact about a theory's relation to its <i>models</i>. No amount of self-reference produces the second, and no amount of semantic looseness produces the first. They meet, by the completeness theorem, on a single bridge — but they are raised from opposite banks, and the collection has built its whole edifice on one of them.</p>
+    </div>
+  </section>
+  <!-- ===== VI · WHERE THE CORPUS STANDS ===== -->
+  <section class="sec" id="stands">
+    <div class="sec-head"><span class="num">VI · where the corpus stands</span><h2>The theory of one shore</h2><p class="sub">The descent ends at the edge of the collection's dominion, and marks it honestly. The diagonal is the root of one of the two great limitations — and the deeper, more portable of them — but a complete account of what mathematics cannot do needs the other root too, and the collection does not contain it.</p></div>
+    <div class="lede read">
+      <p>Here is the boundary, stated plainly, in the collection's own discipline of separating what is proved from what is hoped. The wager has been that one construction underlies the limits of formal reasoning. The descent shows the wager is true of <i>half</i> the limits and false of the other half. The diagonal is the root of the limits of <i>proof</i> — incompleteness, undecidability, paradox, the entire syntactic catalogue of <span class="mono">no</span> — and that root the collection has traced to its bottom, six times over, in every disguise. But the limits of <i>description</i> — that no theory names its world, that <span class="mono">ℕ</span> has uncomputable impostors, that the continuum floats free — spring from a different root, the semantic slack of first-order logic, and on that ground the diagonal works only as hired help, sharpening readings of a looseness it did not cause.</p>
+      <p>This is the deflation of <i>The Provenance</i>, carried one storey higher. There, the diagonal was right-sized from "the master fixed-point theorem" to "the fixed-point theorem of <i>logic</i>" — one source of fixed points among three. Here it is right-sized again, from "the root of mathematical limitation" to "the root of the <i>syntactic</i> limitation" — one pillar of two. Each deflation costs the collection a claim of universal reach and pays it back in honesty and precision, which is the trade the whole project is built to make. The diagonal does less than the grandest reading wants. What it does, it does exactly, and the boundary of what it does is now drawn.</p>
+      <p>Two cautions keep the boundary from being read as a demotion. First, the second root is no removable defect. By Lindström's theorem, first-order logic is the <i>maximal</i> logic possessing both compactness and the Löwenheim–Skolem property — so the slack is not a flaw a cleverer logic would repair but the standing price of any logic with a workable proof theory; flee it into second-order logic and you regain categoricity only by surrendering completeness and effective proof altogether. The slack is as deep as the diagonal, and as permanent. Second, the two roots are not equals in <i>portability</i>. The slack is the signature of a particular kind of <i>formalism</i> — logics with good model theory. The diagonal is not tied to any formalism: it surfaces in set theory and arithmetic and computation and the λ-calculus and the category of any cartesian closed world, wherever a thing can be made to refer to itself. So of the two roots, the collection has built upon the one that travels — the limitation that is not about logic but about self-reference, and so appears everywhere self-reference does. That is the more fundamental root in the only sense that matters: it is the one that is everywhere.</p>
+      <p>So the collection stands, at the last, exactly placed. It is the complete and rigorous theory of self-reference — the internal limit, the loop closing into a wall, the construction that draws every boundary of proof and, climbed, builds the whole staircase of strength. It is <i>not</i> the theory of all mathematical limitation, because mathematical limitation has a second root, relational rather than internal, the gap between a theory and its worlds, and that root is a different subject with a different source. The diagonal bounds what a system can prove of itself; the slack bounds what a theory can say of its world. Two limits, two banks, one bridge of completeness between them — and <i>Quodlibet</i>, honestly, is the map of one shore, drawn to its every edge, with the far bank in view across the water.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">two banks · one bridge</span><span class="ln"></span></div>
+  <div class="coda"><p>The diagonal bounds what a system can prove of itself; the slack bounds what a theory can say of its world. Two limits, raised from opposite banks, joined by a single bridge. <span class="mono">The collection is the map of one shore — and now it knows which.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deepening · the latitude</span></div>
+    <p class="colophon"><i>The Latitude</i> tests the collection's thesis at its edge and finds the edge. It distinguishes two roots of mathematical limitation: the diagonal, which bounds <i>proof</i> (true-but-unprovable), and the semantic slack of first-order logic, which bounds <i>description</i> (indeterminate-across-models). It traces the slack through non-categoricity, the Löwenheim–Skolem theorems and Skolem's paradox (cardinality is model-relative), the nonstandard models of arithmetic and Tennenbaum's theorem (the standard <span class="mono">ℕ</span> is the unique computable model), and the independence of the continuum hypothesis by Gödel's <span class="mono">L</span> and Cohen's forcing (the continuum a free parameter) — showing at each turn that the diagonal, where it appears, is a borrowed tool and never the source. Its finding — that mathematical limitation has two roots, dual and distinct, joined by the completeness theorem but raised from opposite banks, of which the collection is the theory of one (the deeper and more portable, but one of two) — is offered as a reading, argued from the model theory and set theory. <a href="quodlibet.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">↩&nbsp;return to the collection's front door</a>, or to its syntactic counterpart, <a href="the-staircase.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Staircase</a>, and the locating descent <a href="the-provenance.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Provenance</a>.</p>
+    <p class="notes"><span class="nl">on method.</span> &nbsp;The slack is non-categoricity plus the Löwenheim–Skolem theorems (downward: a countable model; upward: models of every infinite cardinality), with Skolem's paradox resolved as model-relativity of "uncountable." Nonstandard models of <span class="mono">PA</span> come from compactness; Tennenbaum (1959) shows none is recursive, its proof fusing recursively inseparable sets (Gödel–Rosser — the diagonal) with overspill (model theory). <span class="mono">CH</span> is independent by Gödel 1938 (<span class="mono">L</span>) and Cohen 1963 (forcing over a countable model, the generic meeting every dense set), and is a "switch" rather than a true-but-unprovable sentence. The two-roots thesis, the completeness-theorem bridge, and the Lindström-grounded permanence and the portability asymmetry of the slack are this page's synthesis. A philosophical caveat is acknowledged: whether <span class="mono">CH</span> has a determinate truth value is contested (universe versus multiverse views); the "switch" reading is the forcing-theoretic one.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Löwenheim 1915 &amp; Skolem 1920/1922 · Tennenbaum 1959 (Kaye 1991 for the proof) · Gödel 1938 (the constructible universe) · Cohen 1963 (forcing) · Lindström 1969 (the maximality of first-order logic) · with Cantor's diagonal posing the continuum question and the Gödel–Rosser construction supplying recursive inseparability.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">disposition.</span> &nbsp;Two roots of limitation, dual and distinct; the collection is the theory of the one that travels. <span class="mono">one theory ⤳ many worlds.</span></p>
+  </footer>
+
+</div>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="the-knot.html">← The Knot</a><a rel="next" href="the-mirror.html">The Mirror →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

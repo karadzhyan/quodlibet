@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scholia — the formal apparatus of the corpus</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== a fifth, cool accent for technique-transfer ===== */
+  :root{ --steel:#3d5a6b; --steel-deep:#2e4654; --steel-soft:rgba(61,90,107,.09); --steel-line:rgba(61,90,107,.32); }
+
+  /* ===== formal definitions (numbered) ===== */
+  .defn{border:1px solid var(--panelhair);border-left:2px solid var(--faintest);border-radius:0 3px 3px 0;padding:.95rem 1.15rem;margin:1.1rem 0;background:rgba(26,24,21,.012);}
+  .defn .dl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .defn .ds{font-size:1rem;line-height:1.6;color:var(--ink);}
+  .defn .ds b{font-weight:600;} .defn .ds .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+
+  /* ===== the bridge-assumption inspector ===== */
+  .br-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .br-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.42rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .br-opt:hover{background:rgba(26,24,21,.05);}
+  .br-opt .bd{width:8px;height:8px;border-radius:50%;flex:none;}
+  .br-opt.t-iso .bd{background:var(--teal);} .br-opt.t-tech .bd{background:var(--steel);} .br-opt.t-eng .bd{background:var(--gold);} .br-opt.t-sug .bd{background:var(--red);border-radius:50%;}
+  .br-opt.t-sug .bd{background:transparent;border:1.4px solid var(--red);}
+  .br-opt.on{color:var(--paper);border-color:var(--ink);} .br-opt.on.t-iso{background:var(--teal-deep);border-color:var(--teal-deep);} .br-opt.on.t-tech{background:var(--steel-deep);border-color:var(--steel-deep);} .br-opt.on.t-eng{background:var(--gold-deep);border-color:var(--gold-deep);} .br-opt.on.t-sug{background:var(--red-deep);border-color:var(--red-deep);}
+  .br-opt.on .bd{background:var(--paper)!important;border-color:var(--paper)!important;}
+  .br-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;}
+  .br-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);}
+  .br-head.t-iso{background:var(--teal-soft);} .br-head.t-tech{background:var(--steel-soft);} .br-head.t-eng{background:var(--gold-soft,rgba(147,114,52,.08));} .br-head.t-sug{background:var(--red-soft);}
+  .br-type{display:inline-flex;align-items:center;gap:.45rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .br-type.t-iso{color:var(--teal-deep);} .br-type.t-tech{color:var(--steel-deep);} .br-type.t-eng{color:var(--gold-deep);} .br-type.t-sug{color:var(--red-deep);}
+  .br-name{font-family:"Spectral",serif;font-weight:500;font-size:1.4rem;letter-spacing:-.01em;margin:0 0 .15rem;}
+  .br-claim{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .br-body{padding:1.1rem 1.2rem;}
+  .br-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.6rem;}
+  .br-assum{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;padding:.5rem 0;border-bottom:1px dashed var(--hair);}
+  .br-assum:last-of-type{border-bottom:none;}
+  .br-assum .ba-tag{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);font-weight:500;white-space:nowrap;}
+  .br-assum .ba-txt{font-size:.92rem;line-height:1.5;color:var(--soft1);}
+  .br-assum .ba-txt .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;}
+  .br-assum .ba-st{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .45rem;border-radius:3px;white-space:nowrap;}
+  .ba-st.holds{background:var(--teal-soft);color:var(--teal-deep);} .ba-st.theorem{background:rgba(147,114,52,.1);color:var(--gold-deep);} .ba-st.none{background:var(--red-soft);color:var(--red-deep);}
+  .br-none{font-size:.94rem;line-height:1.55;color:var(--faint);font-style:italic;padding:.3rem 0;}
+  .br-verdict{margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--hair);font-size:.98rem;line-height:1.6;color:var(--ink);}
+  .br-verdict b{font-weight:600;}
+
+  /* ===== boundary legend ===== */
+  .bd-legend{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .bd-legend{grid-template-columns:1fr;} }
+  .bd-cell{background:var(--paper);padding:1rem 1.15rem;}
+  .bd-cell .bc-h{display:flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:.35rem;}
+  .bd-cell .bc-dot{width:9px;height:9px;border-radius:50%;}
+  .bd-cell.t-iso .bc-h{color:var(--teal-deep);} .bd-cell.t-iso .bc-dot{background:var(--teal);}
+  .bd-cell.t-tech .bc-h{color:var(--steel-deep);} .bd-cell.t-tech .bc-dot{background:var(--steel);}
+  .bd-cell.t-eng .bc-h{color:var(--gold-deep);} .bd-cell.t-eng .bc-dot{background:var(--gold);}
+  .bd-cell.t-sug .bc-h{color:var(--red-deep);} .bd-cell.t-sug .bc-dot{background:transparent;border:1.4px solid var(--red);}
+  .bd-cell p{font-size:.88rem;line-height:1.5;color:var(--soft1);margin:0;}
+  .bd-cell p .ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);}
+
+  /* ===== supplement: the four fates (instance schema) ===== */
+  :root{ --fate-absent:#7c766a; --fate-benign:#2c6e6a; --fate-explosive:#b23a2e; --fate-undecided:#937234; }
+  .ins-dict{display:grid;grid-template-columns:auto 1fr;gap:.35rem .9rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;margin:.2rem 0 0;}
+  .ins-dict b{color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .ins-dict span{color:var(--soft1);}
+  .ins-step{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;background:rgba(26,24,21,.025);border:1px solid var(--panelhair);border-radius:3px;padding:.8rem 1rem;margin:.2rem 0;}
+  .ins-step .bad{color:var(--red-deep);} .ins-step .good{color:var(--teal-deep);}
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+  .fate-badge .fdot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .fate-absent{color:var(--fate-absent);} .fate-absent .fdot{background:transparent;border:1.5px solid var(--fate-absent);}
+  .fate-benign{color:var(--fate-benign);} .fate-benign .fdot{background:var(--fate-benign);}
+  .fate-explosive{color:var(--fate-explosive);} .fate-explosive .fdot{background:var(--fate-explosive);}
+  .fate-undecided{color:var(--fate-undecided);} .fate-undecided .fdot{background:var(--fate-undecided);}
+  .ins-outcome{padding:1rem 1.15rem;border-radius:3px;margin-top:.2rem;}
+  .ins-outcome.f-absent{background:rgba(124,118,106,.07);border:1px solid rgba(124,118,106,.3);}
+  .ins-outcome.f-benign{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .ins-outcome.f-explosive{background:var(--red-soft);border:1px solid var(--red-line);}
+  .ins-outcome.f-undecided{background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .ins-outcome .io-fate{font-family:"Spectral",serif;font-weight:600;font-size:1.32rem;margin:.45rem 0 .3rem;}
+  .ins-outcome.f-absent .io-fate{color:var(--fate-absent);} .ins-outcome.f-benign .io-fate{color:var(--fate-benign);}
+  .ins-outcome.f-explosive .io-fate{color:var(--fate-explosive);} .ins-outcome.f-undecided .io-fate{color:var(--fate-undecided);}
+  .ins-outcome .io-gloss{font-size:.92rem;line-height:1.52;color:var(--soft1);}
+  .ins-outcome .io-verdict{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.65rem;letter-spacing:.01em;}
+  .dial-opt.rec.on{background:var(--teal-deep);border-color:var(--teal-deep);}
+
+  /* ===== supplement: rank badge (boundary + grid) ===== */
+  .rank-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.16rem .5rem;border-radius:3px;}
+  .rank-badge .rdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .rank-iso{color:var(--teal-deep);background:var(--teal-soft);} .rank-iso .rdot{background:var(--teal);}
+  .rank-tech{color:var(--steel-deep);background:var(--steel-soft);} .rank-tech .rdot{background:var(--steel);}
+  .rank-eng{color:var(--gold-deep);background:var(--gold-soft);} .rank-eng .rdot{background:var(--gold);}
+  .rank-sug{color:var(--red-deep);background:var(--red-soft);} .rank-sug .rdot{background:transparent;border:1.4px solid var(--red);}
+  .rank-root{color:var(--ink);background:rgba(26,24,21,.06);} .rank-root .rdot{background:var(--ink);}
+  .vol-card .vc-rank{margin-top:.55rem;}
+  .vol-card .vol-num{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;color:var(--faintest);float:right;}
+
+  /* ===== supplement: proof warrant column + toggle ===== */
+  .pf-toggle{display:flex;gap:.4rem;justify-content:center;margin-bottom:1rem;}
+  .pstep .pbody .pw{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);margin-top:.35rem;}
+  .pstep.qed .pbody .pw{color:var(--teal-deep);}
+
+  /* ===== supplement: two-axes hinge labels reuse, plus a small note ===== */
+  .axis-note{font-size:.9rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;text-align:center;max-width:42rem;margin-left:auto;margin-right:auto;}
+  .axis-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== supplement II: provability-core fixed points (§IV) ===== */
+  .gl-ax{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin:.3rem 0 .2rem;}
+  .gl-chip{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.3rem .65rem;}
+  .gl-chip.key{background:var(--gold-soft);color:var(--gold-deep);border-color:var(--gold-line);font-weight:500;}
+  .gl-chip.rule{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .fp-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:var(--teal-soft);}
+  .fp-head .fp-kind{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-deep);font-weight:600;margin-bottom:.4rem;}
+  .fp-head .fp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.32rem;letter-spacing:-.01em;margin:0 0 .35rem;}
+  .fp-head .fp-schema{font-family:"IBM Plex Mono",monospace;font-size:.96rem;color:var(--ink);}
+  .fp-head .fp-schema .hot{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.1rem 1.2rem;}
+  .fp-fp{display:flex;align-items:baseline;gap:.6rem .8rem;flex-wrap:wrap;padding:.75rem .95rem;background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;margin-bottom:.95rem;}
+  .fp-fp .fpl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-deep);}
+  .fp-fp .fpv{font-family:"IBM Plex Mono",monospace;font-size:1.1rem;font-weight:600;color:var(--teal-deep);}
+  .fp-fp .fpn{font-size:.9rem;color:var(--soft1);font-style:italic;}
+  .fp-vlab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin:.2rem 0 .55rem;}
+  .fp-verify{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.95rem;}
+  .fp-vstep{display:grid;grid-template-columns:2.4rem 1fr;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;padding:.4rem .65rem;border-left:2px solid var(--hair);background:rgba(26,24,21,.012);}
+  .fp-vstep .vk{color:var(--faintest);white-space:nowrap;font-size:.74rem;}
+  .fp-vstep .vv{color:var(--ink);} .fp-vstep .vv .hot{color:var(--red-deep);}
+  .fp-vstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);} .fp-vstep.qed .vv{color:var(--teal-deep);font-weight:500;} .fp-vstep.qed .vk{color:var(--teal-deep);}
+  .fp-read{font-size:.94rem;line-height:1.6;color:var(--soft1);padding-top:.75rem;border-top:1px solid var(--hair);}
+  .fp-read b{color:var(--ink);font-weight:600;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-scholia">Scholia</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">the apparatus · proofs, definitions &amp; the named assumptions</span></div>
+    <div class="hero-head">
+      <p class="kicker">The formal back matter</p>
+      <h1 class="title"><span class="x">Scholia</span></h1>
+      <p class="standfirst">The volumes were written to be read; this is written to be <em>checked</em>. Here is the rigorous skeleton beneath them — the categorical setting in precise definitions, Lawvere's theorem proved in full and, in its arithmetic core, sharpened to the <em>unique</em> fixed point it forces, and, at the center, the one thing a unification of this scope owes its reader: for each claim that Cantor, Gödel, Turing, and the rest are "one construction," the exact <em>bridge-assumptions</em> it requires, named as propositions, with an honest verdict on how far the likeness reaches — genuine instance, transferred technique, shared engine, or mere suggestion. This is where the corpus states its own limits.</p>
+      <p class="ed-mark">the setting · the theorem · the instances · the refinement · the bridge-assumptions · the boundary</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">σχόλια</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>A primary text is read for its argument; its <i>scholia</i> — in the old scholarly sense, the technical annotations set in the margin — are there to be checked. These notes add nothing to the six volumes. They do something the volumes, written for the eye, could not afford to do at length: they state the definitions exactly, give the proof in full, and draw the precise line past which the corpus's central claim — that the famous limitative results are <i>one construction</i> — stops being a theorem and becomes, in descending order of strength, a transferred technique, a shared schema, and finally a mere family resemblance.</p>
+    <p>Why this matters is the corpus's own standard. A unification is worth exactly what it costs to state, and the cost is the bridge-assumptions: the propositions one must assume to carry a result out of its native setting and into the cartesian closed category where Lawvere's theorem speaks. Name them, and "Gödel is the diagonal" becomes a checkable reduction. Leave them unnamed, and it becomes the kind of slogan the diagonal itself warns against — a likeness mistaken for an identity. The inspector below names them, one claim at a time.</p>
+  </div>
+
+  <!-- ===== §I THE SETTING ===== -->
+  <section class="sec" id="setting">
+    <div class="sec-head"><span class="num">I · the setting</span><h2>The minimum apparatus</h2><p class="sub">A cartesian closed category, stated precisely, together with the three further terms the corollaries rest on. The reach of the theorem is exactly the reach of these definitions — no more.</p></div>
+    <div class="defn">
+      <div class="dl">Definition 1 — cartesian closed category</div>
+      <div class="ds">A category <span class="m">𝒞</span> is <b>cartesian closed</b> when it has (i) a <b>terminal object</b> <span class="m">1</span> — a point <span class="m">a : 1 → A</span> picks out a global element of <span class="m">A</span>; (ii) binary <b>products</b> <span class="m">A × B</span> with projections; and (iii) for each pair an <b>exponential</b> <span class="m">Bᴬ</span> with evaluation <span class="m">ev : Bᴬ × A → B</span>, such that <b>currying</b> <span class="m">Λ : Hom(X×A, B) ≅ Hom(X, Bᴬ)</span> is a natural bijection. Sets, computable maps, the typed and untyped λ-calculi, and every topos are cartesian closed.</div>
+    </div>
+    <div class="defn">
+      <div class="dl">Definition 2 — the diagonal</div>
+      <div class="ds">The <b>diagonal</b> <span class="m">Δ_A : A → A × A</span> is the unique map with <span class="m">π₁∘Δ = π₂∘Δ = id</span>. It duplicates: <span class="m">a ↦ (a, a)</span>. The entire construction is this duplication followed by "apply a map to its own argument" — which is why the results it yields are called <i>diagonal</i> arguments.</div>
+    </div>
+    <div class="defn">
+      <div class="dl">Definition 3 — point-surjective</div>
+      <div class="ds">A map <span class="m">φ : A → Bᴬ</span> is <b>point-surjective</b> when every point <span class="m">q : 1 → Bᴬ</span> equals <span class="m">φ∘a</span> for some point <span class="m">a : 1 → A</span> — every map <span class="m">A → B</span> is named by some element of <span class="m">A</span>. The weaker notion the theorem actually consumes is <b>weak point-surjectivity</b>: for every <span class="m">h : A → B</span> there is a point <span class="m">a</span> such that <span class="m">ev∘⟨φ∘a, x⟩ = h∘x</span> for all points <span class="m">x</span> — the named map need agree with <span class="m">h</span> only <i>on points</i>, not as a morphism. In a well-pointed category the two coincide; only the second is used below.</div>
+    </div>
+    <div class="defn">
+      <div class="dl">Definition 4 — fixed point, and fixed-point-free</div>
+      <div class="ds">A point <span class="m">s : 1 → B</span> is a <b>fixed point</b> of <span class="m">α : B → B</span> when <span class="m">α∘s = s</span>. The endomorphism <span class="m">α</span> is <b>fixed-point-free</b> when it has none: no point <span class="m">s</span> satisfies <span class="m">α∘s = s</span>. The canonical witness is <span class="m">B = 2</span>, <span class="m">α = ¬</span>, where <span class="m">¬⊤ = ⊥ ≠ ⊤</span> and <span class="m">¬⊥ = ⊤ ≠ ⊥</span>. Whether the chosen <span class="m">α</span> is fixed-point-free is the <i>single bit</i> that turns the theorem from a generator into a prohibition.</div>
+    </div>
+    <div class="defn">
+      <div class="dl">Definition 5 — reflexive object</div>
+      <div class="ds">An object <span class="m">D</span> is <b>reflexive</b> when it retracts onto its own function space — there are maps <span class="m">D ⇄ Dᴰ</span> whose composite <span class="m">Dᴰ → D → Dᴰ</span> is the identity, so that the identity <span class="m">Dᴰ-component</span> makes self-application <span class="m">D × D → D</span> total. The pure case is an isomorphism <span class="m">D ≅ Dᴰ</span>, as in Scott's <span class="m">D∞</span> and the untyped λ-calculus. A reflexive object <i>is</i> a point-surjective self-naming made structural; §II shows that no well-pointed topos contains one with more than a single point.</div>
+    </div>
+    <div class="reading wide">
+      <p><span class="lead-in">the landscape&nbsp;&nbsp;</span>One terminal clarification before the theorem, because the corpus's reach turns on it. A fixed point can be <i>forced</i> in three structurally unrelated ways. The whole apparatus formalizes exactly the first; the other two it can only gesture toward — and §VI proves that this is not a failure of effort but a fact about the mathematics.</p>
+    </div>
+    <div class="trilemma">
+      <div class="tri-cell">
+        <div class="tc-n">genus I — self-reference</div>
+        <h4>Lawvere</h4>
+        <p>A point-surjective self-naming <span class="mono">φ : A → Bᴬ</span> forces a fixed point of every <span class="mono">α</span>. The engine is <i>diagonalization</i>: an object rich enough to name all maps out of itself. This is the construction these pages dissect.</p>
+      </div>
+      <div class="tri-cell">
+        <div class="tc-n">genus II — order</div>
+        <h4>Knaster–Tarski</h4>
+        <p>A <i>monotone</i> map on a complete lattice forces a fixed point — indeed a least and a greatest. The engine is <i>order-completeness</i>: every set of approximants has a supremum to converge to. No naming, no diagonal.</p>
+      </div>
+      <div class="tri-cell">
+        <div class="tc-n">genus III — topology / metric</div>
+        <h4>Brouwer · Banach</h4>
+        <p>A <i>continuous</i> self-map of a compact convex body, or a <i>contraction</i> on a complete metric space, forces a fixed point. The engine is <i>geometry</i> — connectedness, or shrinking distance. Again no naming, no diagonal.</p>
+      </div>
+    </div>
+    <div class="tri-note">The three engines are <b>independent</b>: each forces fixed points under hypotheses the other two need not meet (§VI, with witnesses). The corpus's thesis, stated exactly, is that <b>genus I is internally one theorem</b> — Lawvere's — while its relation to genera II and III is family resemblance, no more. Everything that follows is the precise development of that single sentence.</div>
+  </section>
+
+  <!-- ===== §II THE THEOREM ===== -->
+  <section class="sec" id="theorem">
+    <div class="sec-head"><span class="num">II · the theorem</span><h2>Lawvere, in full</h2><p class="sub">The statement, the proof with the diagonal made explicit, the two corollaries the corpus runs on — and the one proposition that keeps power and limit in separate worlds.</p></div>
+    <div class="thm">
+      <div class="tl">Lawvere, 1969</div>
+      <div class="ts"><b>The fixed-point theorem.</b> In a cartesian closed category, if there exists a point-surjective map <span class="mono">φ : A → Bᴬ</span>, then every endomorphism <span class="mono">α : B → B</span> has a fixed point — a point <span class="mono">s : 1 → B</span> with <span class="mono">α∘s = s</span>.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blocklab" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem">the construction, as a commutative diagram</div>
+        <svg viewBox="0 0 660 250" role="img" aria-label="The construction as a commutative diagram: A duplicates via the diagonal to A×A, maps by φ×id to Bᴬ×A, evaluates to B, and is twisted by α; the composite g, named by a point a, fixes α." style="display:block;width:100%;height:auto;overflow:visible">
+          <defs><marker id="sa" markerWidth="10" markerHeight="10" refX="8" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#565147"/></marker>
+            <marker id="sar" markerWidth="10" markerHeight="10" refX="8" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#8f2d23"/></marker></defs>
+          <!-- nodes -->
+          <text x="34" y="96" font-family="Spectral, serif" font-style="italic" font-size="25" fill="#1a1815">A</text>
+          <text x="150" y="96" font-family="Spectral, serif" font-style="italic" font-size="22" fill="#1a1815">A&#8202;×&#8202;A</text>
+          <text x="320" y="96" font-family="Spectral, serif" font-style="italic" font-size="22" fill="#1a1815">B<tspan font-size="14" dy="-10">A</tspan><tspan dy="10">&#8202;×&#8202;A</tspan></text>
+          <text x="546" y="96" font-family="Spectral, serif" font-style="italic" font-size="25" fill="#1a1815">B</text>
+          <!-- arrows -->
+          <line x1="56" y1="88" x2="142" y2="88" stroke="#565147" stroke-width="1.4" marker-end="url(#sa)"/>
+          <text x="98" y="76" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="16" fill="#565147">Δ</text>
+          <line x1="208" y1="88" x2="312" y2="88" stroke="#565147" stroke-width="1.4" marker-end="url(#sa)"/>
+          <text x="258" y="76" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#565147">φ × id</text>
+          <line x1="430" y1="88" x2="538" y2="88" stroke="#565147" stroke-width="1.4" marker-end="url(#sa)"/>
+          <text x="484" y="76" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#565147">ev</text>
+          <!-- alpha loop -->
+          <path d="M562,80 C 596,54 618,82 598,96 C 590,102 578,100 570,94" fill="none" stroke="#8f2d23" stroke-width="1.4" marker-end="url(#sa)"/>
+          <text x="602" y="62" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="19" fill="#8f2d23">α</text>
+          <!-- g composite -->
+          <path d="M46,108 C 170,200 410,200 540,108" fill="none" stroke="#8f2d23" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#sar)"/>
+          <text x="296" y="192" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="20" fill="#8f2d23">g = α ∘ ev ∘ (φ×id) ∘ Δ</text>
+          <!-- point a -->
+          <text x="32" y="238" font-family="Spectral, serif" font-size="22" fill="#1a1815">1</text>
+          <line x1="40" y1="222" x2="40" y2="104" stroke="#565147" stroke-width="1.4" marker-end="url(#sa)"/>
+          <text x="22" y="168" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="17" fill="#565147">a</text>
+        </svg>
+        <div class="proof" style="margin-top:1.1rem">
+          <div class="blocklab" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem">proof</div>
+          <ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.45rem">
+            <li style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.5;color:var(--ink)"><b style="color:var(--red-deep)">1.</b>&nbsp; Given <span style="color:var(--red-deep)">α</span>, set <span style="color:var(--red-deep)">g</span> = α ∘ ev ∘ (φ×id) ∘ Δ : A → B. In points, <span style="color:var(--red-deep)">g</span>(a) = α(φ(a)(a)).</li>
+            <li style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.5;color:var(--ink)"><b style="color:var(--red-deep)">2.</b>&nbsp; Curry <span style="color:var(--red-deep)">g</span> to a point ⌜g⌝ : 1 → Bᴬ.</li>
+            <li style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.5;color:var(--ink)"><b style="color:var(--red-deep)">3.</b>&nbsp; By point-surjectivity, some a : 1 → A has φ(a) = <span style="color:var(--red-deep)">g</span>.</li>
+            <li style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;line-height:1.5;color:var(--teal-deep);font-weight:500"><b>4.</b>&nbsp; Then s := φ(a)(a) = g(a) = α(φ(a)(a)) = α(s). So α∘s = s. ∎</li>
+          </ol>
+        </div>
+        <figcaption>The diagonal <span class="mono">Δ</span> is the duplication; everything else is "apply, then twist." The proof uses products, evaluation, currying, and one named map — no negation, no numbers, no infinity. Its reach is exactly the definitions of §I.</figcaption>
+      </div>
+    </div>
+    <div class="thm">
+      <div class="tl">Proposition 2 — the diagonal is the sole source of self-reference</div>
+      <div class="ts"><b>Every morphism in the construction is structural, hypothesised, or the diagonal — and only the diagonal is neither.</b> Sort the maps composing <span class="mono">g = α ∘ ev ∘ (φ × 1) ∘ Δ</span>:
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.84rem;line-height:1.7;margin:.7rem 0 .55rem;padding:.7rem .9rem;border:1px dashed var(--panelhair);border-radius:3px;text-align:center">g = <span style="color:var(--gold-deep);font-weight:600">α</span> ∘ <span style="color:var(--steel-deep)">ev</span> ∘ ( <span style="color:var(--gold-deep);font-weight:600">φ</span> × <span style="color:var(--steel-deep)">1</span> ) ∘ <span style="color:var(--red-deep);font-weight:600">Δ</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.7rem">
+        <span style="color:var(--steel-deep)">▪ structural — forced by closure&nbsp;(ev, projections, id, ∘)</span>
+        <span style="color:var(--gold-deep)">▪ hypothesis — the two given maps&nbsp;(φ, α)</span>
+        <span style="color:var(--red-deep)">▪ the diagonal — Δ alone</span>
+      </div>
+      The evaluation <span class="mono">ev</span>, the projections inside <span class="mono">φ×1</span>, the identities and the composition are <i>structural</i>: a cartesian closed category supplies them and could not omit them. The maps <span class="mono">φ</span> and <span class="mono">α</span> are the <i>hypotheses</i> — what an instance gets to choose. The diagonal <span class="mono">Δ : A → A×A</span> is the unique remaining morphism, and it is what makes the difference. Strip it — feed <span class="mono">ev∘(φ×1)</span> two <i>independent</i> arguments <span class="mono">x, y</span> — and the construction computes <span class="mono">α(φ(x)(y))</span>: ordinary application, no paradox, no fixed point forced. <b>Self-reference is therefore not a property of the objects, nor of the naming <span class="mono">φ</span>; it is the single act of duplication <span class="mono">a ↦ (a,a)</span> placed before evaluation.</b> A thing applied to itself, a sentence about its own provability, a program run on its own code — in the categorical account these are one morphism wearing different costumes, and every diagonal argument in mathematics is a choice of <span class="mono">(A,B,φ,α)</span> wrapped around it.</div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">corollary 1 — the contrapositive (the limit direction)</div>
+      <p>If <span class="mono">B</span> carries a <i>fixed-point-free</i> endomorphism <span class="mono">α</span>, then no point-surjective <span class="mono">φ : A → Bᴬ</span> exists. <i>Proof:</i> such a <span class="mono">φ</span> would, by the theorem, force a fixed point of <span class="mono">α</span> — contradiction. With <span class="mono">B = 2</span>, <span class="mono">α = ¬</span>, the constructed <span class="mono">g(a) = ¬φ(a)(a)</span> is the characteristic map of <span class="mono">{a : a ∉ φ(a)}</span> — the classical Cantor diagonal, demonstrably unequal to every <span class="mono">φ(a)</span>. Every limitative result in the corpus is this corollary, with <span class="mono">α</span> and the setting chosen.</p>
+    </div>
+    <div class="callout gold">
+      <div class="cl-lab">corollary 2 — the dual (the power direction)</div>
+      <p>If <span class="mono">φ</span> <i>is</i> point-surjective — as the identity on a <b>reflexive object</b> <span class="mono">D ≅ Dᴰ</span> — then every <span class="mono">α : D → D</span> has a fixed point, produced uniformly by the construction itself: the fixed-point combinator <span class="mono">Y</span>, with <span class="mono">Y α = (λx.&#8202;α(x&#8202;x))(λx.&#8202;α(x&#8202;x))</span>. This is recursion. <b>But</b> — by Proposition 1 — no well-pointed topos, Set included, contains a reflexive object with more than one point. The power direction therefore requires a universe the limit direction does not.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">Proposition 1 — the reflexive obstruction</div>
+      <div class="ts"><b>In a well-pointed topos, every reflexive object is trivial.</b> If an object <span class="mono">D</span> admits a point-surjection onto <span class="mono">Dᴰ</span> (in particular if <span class="mono">D ≅ Dᴰ</span>), then <span class="mono">D</span> has at most one global point. <i>Proof.</i> Suppose <span class="mono">D</span> had two distinct points; fix points <span class="mono">a ≠ b</span> and define <span class="mono">α : D → D</span> by <span class="mono">α(b) = a</span> and <span class="mono">α(x) = b</span> for <span class="mono">x ≠ b</span>. Then <span class="mono">α</span> has no fixed point: <span class="mono">α(b) = a ≠ b</span>, and for <span class="mono">x ≠ b</span>, <span class="mono">α(x) = b ≠ x</span>. By Corollary 1 no point-surjection <span class="mono">D → Dᴰ</span> can then exist — contradicting reflexivity. So <span class="mono">D</span> has ≤ 1 point. ∎ This <i>is</i> Cantor's theorem internalized, and it is the deepest reason power and limit, though one construction, never share a category: the limit lives wherever there are two truth-values to swap; the power lives only where self-application is total, and totality forbids the second point.</div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">remark A — the theorem runs one way only</div>
+      <p>The converse of Lawvere is <i>false</i>: an object can have the fixed-point property for reasons that have nothing to do with self-naming. Brouwer's interval <span class="mono">[0,1]</span> is the witness — every continuous self-map has a fixed point, by compactness, yet nothing point-surjects onto its function space; <span class="mono">[0,1]</span> is not reflexive. So "<span class="mono">α</span> always has a fixed point" does not yield a mirror. The failure of the converse is exactly the existence of the <i>other two genera</i> of fixed-point theorem (§VI): order and topology buy fixed points by constraining the map, not by enriching the naming — which is why the unification's reach stops where it does.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">remark B — only one map need be named</div>
+      <p>The proof names a single morphism — the constructed <span class="mono">g</span> — and no other. Hence <i>weak</i> point-surjectivity (Definition 3) suffices: <span class="mono">φ</span> need only reflect <span class="mono">g</span>, and only up to agreement on points. This is why the hypothesis is so cheap to meet in arithmetic and computation, where the diagonal lemma and the s-m-n theorem each manufacture exactly one self-naming map on demand — and why the theorem reaches so much further than its austere statement suggests.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">the theorem as a biconditional — one schema, two faces</div>
+      <div class="ts"><b>Lawvere's theorem and Cantor's are a single implication read in two directions.</b> Fix a cartesian closed category and objects <span class="mono">A, B</span>. By contraposition the following are <i>the same fact</i>:
+      <div style="margin:.65rem 0;padding-left:1rem;border-left:2px solid var(--hair)"><span style="color:var(--teal-deep);font-weight:600">power.&nbsp;</span><span class="mono" style="font-size:.92rem">φ point-surjective&nbsp; ⟹ &nbsp;every α has a fixed point.</span><br><span style="color:var(--red-deep);font-weight:600">limit.&nbsp;</span><span class="mono" style="font-size:.92rem">some α fixed-point-free&nbsp; ⟹ &nbsp;no φ is point-surjective.</span></div>
+      There is no second theorem here, only a second reading. What is <i>not</i> symmetric is the availability of the two hypotheses, and that asymmetry is the whole of the corpus's shape. A fixed-point-free <span class="mono">α</span> is <b>generic</b>: any codomain with two distinguishable points carries the swap. A point-surjective <span class="mono">φ</span> is <b>rare</b>: by Proposition 1 it demands a reflexive object, which no well-pointed topos holds. So the biconditional is symmetric and the world is not — limitation appears wherever there are two values to exchange, power only where self-application is total. The corpus's "dial" is exactly the question of <i>which</i> of these two hypotheses a given four-tuple actually meets.</div>
+    </div>
+    <div class="stage narrow">
+      <div class="faces">
+        <div class="face std">
+          <div class="f-h">forwards — the power face</div>
+          <h4>Recursion</h4>
+          <div class="frow"><span class="fl">hypothesis</span><span class="fv t">φ point-surjective</span></div>
+          <div class="frow"><span class="fl">what is forced</span><span class="fv t">Y α = α(Y α)</span></div>
+          <div class="frow"><span class="fl">the twist α</span><span class="fv">arbitrary</span></div>
+          <div class="frow"><span class="fl">lives in</span><span class="fv">reflexive objects only</span></div>
+          <div class="frow"><span class="fl">instances</span><span class="fv">Y · Kleene · quines</span></div>
+          <p>Rare but real. Where an object names every map out of itself, the construction hands you a fixed point at no cost — the engine of computation.</p>
+        </div>
+        <div class="face non">
+          <div class="f-h">contrapositive — the limit face</div>
+          <h4>Diagonalization</h4>
+          <div class="frow"><span class="fl">hypothesis</span><span class="fv f">α fixed-point-free</span></div>
+          <div class="frow"><span class="fl">what is forced</span><span class="fv f">no such φ exists</span></div>
+          <div class="frow"><span class="fl">the twist α</span><span class="fv">= ¬, no fixed point</span></div>
+          <div class="frow"><span class="fl">lives in</span><span class="fv">anywhere with two values</span></div>
+          <div class="frow"><span class="fl">instances</span><span class="fv">Cantor · Gödel · halting</span></div>
+          <p>Generic and ubiquitous. Wherever a twist refuses a fixed point, no object can name all maps into that codomain — the engine of every limitative theorem.</p>
+        </div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blocklab" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem">the proof, audited — each inference against the law that licenses it</div>
+        <div class="pf-toggle" id="pfToggle"></div>
+        <div class="proof-controls">
+          <button class="pf-btn" id="pfNext">reveal the next line →</button>
+          <button class="pf-btn ghost" id="pfReset">reset</button>
+          <span class="pf-readout" id="pfReadout"></span>
+        </div>
+        <div class="proof-steps" id="pfSteps"></div>
+        <div class="pf-coda" id="pfCoda"></div>
+        <figcaption>The same five lines, read two ways. Forwards, <span class="mono">α</span> is arbitrary and the construction <i>delivers</i> a fixed point — this is recursion, the power face. Read as the contrapositive, a fixed-point-free <span class="mono">α</span> makes the named map impossible — this is limitation. One proof; the dial of §VI is which reading you are entitled to.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== §III THE INSTANCES ===== -->
+  <section class="sec" id="instances">
+    <div class="sec-head"><span class="num">III · the instances</span><h2>The reduction, shown</h2><p class="sub">"Gödel <i>is</i> the construction" is not a slogan but a substitution. Hold the one line fixed; change only the four-tuple <span class="mono">(A, B, φ, α)</span>; read off which famous result falls out — and which of four fates the forced fixed point meets.</p></div>
+    <div class="reading">
+      <p>§II proved the theorem; §IV will price each claim in named assumptions. Between them sits the thing the corpus most wants checked: the <i>literal</i> identity. The construction <span class="mono">g(x) = α(φ(x)(x))</span> never changes. What changes from Cantor to Gödel to the Y-combinator is only the reading of its four parts — the objects <span class="mono">A</span>, the answers <span class="mono">B</span>, the self-naming <span class="mono">φ</span>, and the twist <span class="mono">α</span>. Select a result and watch the same line become it. The verdict at the bottom is not a new theorem; it is where the forced fixed point is permitted to land.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="dial-construction">
+          <span class="lab">the construction — fixed for every instance</span>
+          g(x) = <span class="av">α</span>(&#8202;φ(x)(x)&#8202;)&nbsp;&nbsp;⟶&nbsp;&nbsp;φ(a) = g&nbsp;&nbsp;⟹&nbsp;&nbsp;s = φ(a)(a) = <span class="av">α</span>(s)
+        </div>
+        <div class="dial-pick" id="insPick"></div>
+        <div id="insDetail"></div>
+        <figcaption>One construction, six substitutions. The <b>fate</b> of the forced fixed point — <span class="fate-absent">absent</span> where no answer can host it, <span class="fate-benign">benign</span> where it is a harmless divergence, <span class="fate-explosive">explosive</span> where it is driven into the truth-values, <span class="fate-undecided">undecided</span> where the system can neither affirm nor deny it — is the whole difference between a hierarchy, a paradox, an incompleteness, and the engine of recursion.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The same fixed point, four destinies. When the answer-object is too rigid to contain it, the construction becomes a <i>witness of non-surjectivity</i> — Cantor's uncountability, Turing's undecidability: nothing was named that should have been. When the naming is total and the value may diverge, it is recursion — Kleene's theorem, the quine, the positive twin whose unique fixed point §IV pins down. When it is forced into two truth-values as a proof of its own negation, the host collapses — Russell, the Liar, Curry. And when the predicate is provability rather than truth — strictly weaker than truth, by the very gap the diagonal opens — the fixed point is a sentence the theory can neither prove nor refute: Gödel. Four fates; one line; and the dividing question, in every case, is the single bit of §II — does the twist have a fixed point of its own, and may it land?</p>
+    </div>
+    <div class="thm">
+      <div class="tl">the four fates as a decision procedure</div>
+      <div class="ts"><b>The fate of the forced point is not a matter of taste; it is computed from three yes/no questions about the four-tuple.</b> Given <span class="mono">(A, B, φ, α)</span> the construction forces <span class="mono">s = α(s)</span>; what becomes of that equation is fixed by where, if anywhere, the contradiction can be discharged. The tree below is exhaustive — every instance in the corpus, and every diagonal argument in the literature, terminates at one of its four leaves.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blocklab" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.9rem">the fate function — three questions, four outcomes</div>
+        <svg viewBox="0 0 640 416" role="img" aria-label="A decision tree computing the fate of the forced fixed point from three questions. Q1: does alpha have a fixed point? Yes leads to Benign (recursion). No leads to Q2: is the contradiction real, or only because provability is weaker than truth? Only-provability leads to Undecided (Goedel). Real contradiction leads to Q3: is phi point-surjective by axiom or only assumed? Assumed leads to Absent (Cantor, Turing). By axiom leads to Explosive (Russell, Curry)." style="display:block;width:100%;height:auto;overflow:visible;font-family:'IBM Plex Mono',monospace">
+          <defs><marker id="da" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto"><path d="M0,0 L7.5,3 L0,6 Z" fill="#7c766a"/></marker></defs>
+          <!-- Q1 -->
+          <rect x="38" y="20" width="286" height="54" rx="5" fill="#f4f1e8" stroke="#1a1815" stroke-width="1.3"/>
+          <text x="181" y="42" text-anchor="middle" font-size="12.5" fill="#1a1815">Q1 · does the twist α have a</text>
+          <text x="181" y="60" text-anchor="middle" font-size="12.5" fill="#1a1815">fixed point of its own, in B?</text>
+          <!-- Q1 -> benign (right) -->
+          <line x1="324" y1="47" x2="406" y2="47" stroke="#7c766a" stroke-width="1.3" marker-end="url(#da)"/>
+          <text x="365" y="38" text-anchor="middle" font-size="10.5" fill="#225552">yes</text>
+          <rect x="408" y="20" width="208" height="54" rx="5" fill="rgba(44,110,106,.10)" stroke="rgba(44,110,106,.42)" stroke-width="1.3"/>
+          <text x="512" y="40" text-anchor="middle" font-size="9.5" letter-spacing="1.2" fill="#225552">BENIGN</text>
+          <text x="512" y="60" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="14" fill="#225552">recursion — delivered</text>
+          <!-- Q1 -> Q2 (down) -->
+          <line x1="181" y1="74" x2="181" y2="126" stroke="#7c766a" stroke-width="1.3" marker-end="url(#da)"/>
+          <text x="190" y="102" font-size="10.5" fill="#8f2d23">no — α is fixed-point-free</text>
+          <!-- Q2 -->
+          <rect x="38" y="128" width="286" height="60" rx="5" fill="#f4f1e8" stroke="#1a1815" stroke-width="1.3"/>
+          <text x="181" y="150" text-anchor="middle" font-size="12.5" fill="#1a1815">Q2 · is s = α(s) a real contradiction —</text>
+          <text x="181" y="167" text-anchor="middle" font-size="12.5" fill="#1a1815">is B the true values, not a</text>
+          <text x="181" y="181" text-anchor="middle" font-size="12.5" fill="#1a1815">provability proxy?</text>
+          <!-- Q2 -> undecided (right) -->
+          <line x1="324" y1="158" x2="406" y2="158" stroke="#7c766a" stroke-width="1.3" marker-end="url(#da)"/>
+          <text x="365" y="149" text-anchor="middle" font-size="10.5" fill="#6f5626">no</text>
+          <rect x="408" y="131" width="208" height="54" rx="5" fill="rgba(147,114,52,.12)" stroke="rgba(147,114,52,.44)" stroke-width="1.3"/>
+          <text x="512" y="151" text-anchor="middle" font-size="9.5" letter-spacing="1.2" fill="#6f5626">UNDECIDED</text>
+          <text x="512" y="171" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="13.5" fill="#6f5626">Gödel — Prov ⊊ True</text>
+          <!-- Q2 -> Q3 (down) -->
+          <line x1="181" y1="188" x2="181" y2="238" stroke="#7c766a" stroke-width="1.3" marker-end="url(#da)"/>
+          <text x="190" y="215" font-size="10.5" fill="#8f2d23">yes — genuine contradiction</text>
+          <!-- Q3 -->
+          <rect x="38" y="240" width="286" height="60" rx="5" fill="#f4f1e8" stroke="#1a1815" stroke-width="1.3"/>
+          <text x="181" y="262" text-anchor="middle" font-size="12.5" fill="#1a1815">Q3 · is φ point-surjective by the</text>
+          <text x="181" y="279" text-anchor="middle" font-size="12.5" fill="#1a1815">ambient axioms, or only assumed</text>
+          <text x="181" y="293" text-anchor="middle" font-size="12.5" fill="#1a1815">for the sake of contradiction?</text>
+          <!-- Q3 -> absent (right) -->
+          <line x1="324" y1="270" x2="406" y2="270" stroke="#7c766a" stroke-width="1.3" marker-end="url(#da)"/>
+          <text x="365" y="261" text-anchor="middle" font-size="10.5" fill="#6b655b">assumed</text>
+          <rect x="408" y="243" width="208" height="54" rx="5" fill="rgba(124,118,106,.09)" stroke="rgba(124,118,106,.42)" stroke-width="1.3"/>
+          <text x="512" y="263" text-anchor="middle" font-size="9.5" letter-spacing="1.2" fill="#6b655b">ABSENT</text>
+          <text x="512" y="283" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="13.5" fill="#6b655b">Cantor, Turing — no host</text>
+          <!-- Q3 -> explosive (down) -->
+          <line x1="181" y1="300" x2="181" y2="348" stroke="#7c766a" stroke-width="1.3" marker-end="url(#da)"/>
+          <text x="190" y="327" font-size="10.5" fill="#8f2d23">by axiom — φ cannot be rejected</text>
+          <rect x="38" y="350" width="286" height="54" rx="5" fill="rgba(178,58,46,.09)" stroke="rgba(178,58,46,.42)" stroke-width="1.3"/>
+          <text x="181" y="370" text-anchor="middle" font-size="9.5" letter-spacing="1.2" fill="#8f2d23">EXPLOSIVE</text>
+          <text x="181" y="390" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="14" fill="#8f2d23">Russell, Curry — inconsistency</text>
+        </svg>
+        <figcaption>One equation, <span class="mono">s = α(s)</span>; four ways to discharge it. The benign and undecided leaves are where the corpus's <i>positive</i> content lives — recursion and the bounded reach of provability; the absent and explosive leaves are its <i>negative</i> content — non-existence and collapse. The split between <b>absent</b> and <b>explosive</b> is not mathematical but <i>axiomatic</i>: it depends only on whether the theory was committed to <span class="mono">φ</span>'s surjectivity in advance.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== §IV THE REFINEMENT (UNIQUENESS) ===== -->
+  <section class="sec" id="refinement">
+    <div class="sec-head"><span class="num">IV · the refinement</span><h2>Beyond existence — when the fixed point is unique</h2><p class="sub">Lawvere's theorem asserts that a fixed point <i>exists</i>. In the part of the corpus where the answer-object is provability, that bare existence sharpens into something far stronger: the fixed point is <b>unique</b>, it is <b>computable</b>, and it has a <b>name</b> — and the name turns Gödel's sentence into the consistency statement.</p></div>
+    <div class="reading">
+      <p>This is the one place the apparatus must go past Lawvere, because the corpus's positive claims depend on it and §II does not reach it. The fixed-point theorem is an <i>existence</i> result: it manufactures some <span class="mono">s</span> with <span class="mono">α(s) = s</span> and says nothing about how many there are or whether one can write it down. For most of the genera that is the end of the story. But when the twist is the provability predicate — when <span class="mono">α</span> is built from <span class="mono">□</span> — the diagonal's fixed points are governed by a logic of their own, and in that logic existence is upgraded to <i>uniqueness with a formula</i>. The Gödel sentence is not merely <i>a</i> sentence equivalent to its own unprovability; it is, up to provable equivalence, the <i>only</i> one — and it is provably equivalent to <span class="mono">Con</span>. The corpus leans on this every time it treats "the" Gödel sentence as a determinate object.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">the setting — provability logic GL</div>
+      <div class="ts"><b>GL is the modal logic of the provability predicate.</b> Read <span class="mono">□A</span> as "<span class="mono">A</span> is provable in <span class="mono">T</span>." The derivability conditions that <span class="mono">Prov</span> satisfies (§V, the Gödel II entry) are exactly the axioms and rules below; Löb's condition <span class="mono">□(□A→A)→□A</span> is the modal heart, the internalized form of Löb's theorem.
+      <div class="gl-ax">
+        <span class="gl-chip">⊢ every tautology</span>
+        <span class="gl-chip">K&nbsp;:&nbsp;□(A→B) → (□A→□B)</span>
+        <span class="gl-chip key">Löb&nbsp;:&nbsp;□(□A→A) → □A</span>
+        <span class="gl-chip rule">modus ponens</span>
+        <span class="gl-chip rule">necessitation&nbsp;:&nbsp;⊢A ⟹ ⊢□A</span>
+      </div>
+      A small elegance worth noting: transitivity <span class="mono">□A → □□A</span> — the fourth modal axiom — is <i>not</i> assumed. It is a <b>theorem</b> of GL, derivable from Löb alone. The logic that knows its own incompleteness already knows that provability is provably closed.</div>
+    </div>
+    <div class="thm teal">
+      <div class="tl">Solovay, 1976 — arithmetic completeness</div>
+      <div class="ts"><b>GL proves exactly the schemata that PA proves under every reading.</b> For each map <span class="mono">∗</span> sending <span class="mono">□</span> to the formalized provability predicate of PA and the atoms to arithmetic sentences, <span class="mono">GL ⊢ A</span> if and only if <span class="mono">PA ⊢ A∗</span> for all such <span class="mono">∗</span>. The toy calculus of boxes is therefore not an analogy for provability — it is provability's <i>complete</i> propositional theory. Anything one derives about <span class="mono">□</span> in GL holds, verbatim, of <span class="mono">Prov</span> in arithmetic.</div>
+    </div>
+    <div class="thm gold">
+      <div class="tl">de Jongh &amp; Sambin, c. 1975 — the fixed-point theorem of GL</div>
+      <div class="ts"><b>Self-reference through provability has a unique, computable solution.</b> Let <span class="mono">A(p)</span> be a formula in which every occurrence of <span class="mono">p</span> lies within the scope of a <span class="mono">□</span> — <span class="mono">p</span> is <i>modalized</i>. Then there is a formula <span class="mono">F</span>, containing only the variables of <span class="mono">A</span> other than <span class="mono">p</span>, such that
+      <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:.95rem;color:var(--gold-deep);margin:.6rem 0;">GL ⊢ F ↔ A(F)</div>
+      and <span class="mono">F</span> is <b>unique up to provable equivalence</b> — any other solution is GL-equivalent to it — and <b>effectively computable</b> from <span class="mono">A</span> by Sambin's algorithm. The diagonal lemma gives the corpus a fixed point; GL's fixed-point theorem tells it <i>which</i> one, and that there is only ever one. <b>Both halves are proved below</b> — uniqueness outright, existence by an explicit iteration — after which the calculator runs the construction on the three schemata that matter.</div>
+    </div>
+    <div class="thm">
+      <div class="tl">the engine of both halves — substitution under the box</div>
+      <div class="ts"><b>A single lemma drives uniqueness and the construction alike.</b> If every occurrence of <span class="mono">p</span> in <span class="mono">A</span> is modalized, then
+      <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:.95rem;color:var(--ink);margin:.55rem 0;">GL ⊢ □(p ↔ q) → ( A(p) ↔ A(q) )</div>
+      provable equivalence of the arguments, <i>asserted under a box</i>, transfers to the whole formula. The atomic and Boolean cases are routine; the one with content is <span class="mono">A = □D(p)</span>, where the <span class="mono">p</span> still free inside <span class="mono">D</span> is reached only through transitivity:
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;line-height:1.75;color:var(--soft1);margin:.55rem 0 .25rem;padding:.6rem .9rem;border-left:2px solid var(--hair)">
+        <span style="color:var(--faintest)">IH</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;□(p↔q) → □( D(p) ↔ D(q) )<br>
+        <span style="color:var(--faintest)">nec, K</span>&nbsp;&nbsp;□□( D(p)↔D(q) ) → □( □D(p) ↔ □D(q) )<br>
+        <span style="color:var(--gold-deep)">4 · GL-thm</span>&nbsp;&nbsp;□( D(p)↔D(q) ) → □□( D(p)↔D(q) )&nbsp;&nbsp;<span style="color:var(--faintest)">bridges the two</span>
+      </div>
+      That transitivity <span class="mono">□X → □□X</span> is itself a theorem of GL is exactly what lets the lemma — and so the whole fixed-point theorem — close. The Boolean parts of any modalized <span class="mono">A</span> then assemble by congruence.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blocklab" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.8rem">uniqueness, proved — at most one fixed point, and Löb is the reason</div>
+        <div style="font-size:1rem;line-height:1.6;color:var(--ink);margin-bottom:.3rem">Suppose <span class="mono" style="font-size:.9rem">A</span> is modalized and both <span class="mono" style="font-size:.9rem">q</span> and <span class="mono" style="font-size:.9rem">r</span> solve it — <span class="mono" style="font-size:.9rem">⊢ q ↔ A(q)</span> and <span class="mono" style="font-size:.9rem">⊢ r ↔ A(r)</span>. Then <span class="mono" style="font-size:.9rem">⊢ q ↔ r</span>.</div>
+        <ol style="list-style:none;margin:.85rem 0 0;padding:0;display:flex;flex-direction:column;gap:.5rem">
+          <li style="font-family:'IBM Plex Mono',monospace;font-size:.83rem;line-height:1.5;color:var(--ink)"><b style="color:var(--red-deep)">1.</b>&nbsp; By the lemma at this <span style="color:var(--red-deep)">A</span>:&nbsp;&nbsp; □(q↔r) → ( A(q) ↔ A(r) ).</li>
+          <li style="font-family:'IBM Plex Mono',monospace;font-size:.83rem;line-height:1.5;color:var(--ink)"><b style="color:var(--red-deep)">2.</b>&nbsp; The hypotheses give A(q)↔q and A(r)↔r; substitute:&nbsp;&nbsp; □(q↔r) → ( q ↔ r ).</li>
+          <li style="font-family:'IBM Plex Mono',monospace;font-size:.83rem;line-height:1.5;color:var(--ink)"><b style="color:var(--red-deep)">3.</b>&nbsp; Write <span style="color:var(--red-deep)">X</span> = (q↔r). From □X→X, necessitate:&nbsp;&nbsp; □( □X → X ).</li>
+          <li style="font-family:'IBM Plex Mono',monospace;font-size:.83rem;line-height:1.5;color:var(--teal-deep);font-weight:500"><b>4.</b>&nbsp; Löb at <span style="font-weight:600">X</span>:&nbsp; □X.&nbsp; With □X→X from (3):&nbsp; X.&nbsp; So GL ⊢ q ↔ r.&nbsp; ∎</li>
+        </ol>
+        <div class="callout teal" style="margin:1.25rem auto 0">
+          <div class="cl-lab">what line 4 is</div>
+          <p>Step 4 is Löb's theorem applied to the sentence <span class="mono">(q ↔ r)</span> — the very inference that, applied to <span class="mono">⊥</span>, <i>is</i> Gödel's second theorem. <b>The fixed point is unique for precisely the reason a theory cannot prove its own consistency.</b> Existence is Lawvere; uniqueness is Löb; the corpus's two great limitative theorems are the two faces of one modal law.</p>
+        </div>
+      </div>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the construction, made explicit — Sambin's iteration on ⊤</div>
+      <div class="ts"><b>The fixed point is not merely shown to exist; it is computed.</b> Put <span class="mono">H₀ = ⊤</span> and <span class="mono">Hₖ₊₁ = A(Hₖ)</span> — feed each stage back into the schema. The same lemma now reads
+      <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:.92rem;color:var(--gold-deep);margin:.55rem 0;">GL ⊢ □( Hₖ₊₁ ↔ Hₖ ) → ( Hₖ₊₂ ↔ Hₖ₊₁ )</div>
+      so once two consecutive stages agree, all later ones do — "fixedness" propagates forward under the box. And because each pass buries the moving part one <span class="mono">□</span> deeper, Löb's finiteness — the same collapse that sends <span class="mono">□(□⊥→⊥)</span> to <span class="mono">□⊥</span> — forces the sequence to halt. The instant <span class="mono">⊢ Hₙ₊₁ ↔ Hₙ</span>, the stage <span class="mono">Hₙ</span> equals <span class="mono">A(Hₙ)</span> and so is a fixed point; by the uniqueness just proved it is <i>the</i> fixed point, whatever seed one began from. Termination in general is Sambin's theorem; the calculator runs the iteration, and in each case it settles within two steps.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blocklab" style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem">the fixed-point calculator — choose what the sentence says of itself</div>
+        <div class="dial-pick" id="fpPick"></div>
+        <div class="fp-detail" id="fpDetail"></div>
+        <figcaption>Three sentences, each speaking only about its own provability. For each, the panel runs <b>Sambin's iteration</b> from <span class="mono">⊤</span> until two stages agree, then checks the resulting <span class="mono">F</span> against the schema directly. The fixed points <span class="mono">Con</span> and <span class="mono">¬Con</span> for "<span class="mono">I am unprovable</span>" and "<span class="mono">I am refutable</span>" are exact duals, settling through the one shared identity <span class="mono">□⊥ ↔ □¬□⊥</span> — itself nothing but Löb's theorem at <span class="mono">⊥</span>.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>What this buys the corpus is precision about its own central objects. Three consequences fall out of the calculator at once. First, <b>Gödel II is Löb at falsity</b>: the fixed point of "<span class="mono">I am unprovable</span>" is <span class="mono">Con = ¬□⊥</span>, and Löb's theorem applied to <span class="mono">⊥</span> says <span class="mono">T ⊬ Con</span> unless <span class="mono">T</span> is inconsistent — the second incompleteness theorem, read straight off the fixed point. Second, <b>Henkin's question is settled by the same engine</b>: a sentence asserting its own provability is not undecidable but simply <i>provable</i> (its fixed point is <span class="mono">⊤</span>), the exact opposite of the Gödel sentence's fate, and for the exact same reason — Löb. Third, and most important for the unification: where Lawvere stops at "<span class="mono">a fixed point exists</span>," the provability core delivers determinacy — the recursion is not just present but <i>pinned down</i>. The Engine and the Ascent (§VI) rest on this stronger fact, not on bare existence.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">why uniqueness is the deeper unification</div>
+      <p>It is tempting to read the corpus as the claim that one <i>construction</i> recurs. The sharper claim, visible only here, is that in its arithmetic heart the construction has one <i>solution</i>. Existence makes the diagonal a method; uniqueness makes it a <i>function</i> — a determinate map from self-referential schema to the sentence that satisfies it. That is why "<span class="mono">the</span> Gödel sentence," "<span class="mono">the</span> consistency statement," and "<span class="mono">the</span> Henkin sentence" are well-defined at all, and it is the strongest positive statement the apparatus is entitled to make.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V THE BRIDGE-ASSUMPTIONS ===== -->
+  <section class="sec" id="bridge">
+    <div class="sec-head"><span class="num">V · the bridge-assumptions</span><h2>How far the likeness reaches</h2><p class="sub">§III showed the substitution; here is its price. For each claim that a famous result <i>is</i> the construction, the exact assumptions it requires — named as propositions, each flagged definitional, theorem, or insufficient — and an honest verdict.</p></div>
+    <div class="reading">
+      <p>The corpus says, again and again, that the famous results are one construction. Made precise, that claim has a cost, and the cost is nameable. To carry a result into the cartesian closed category where Lawvere's theorem applies, one must assume certain propositions — the <i>bridge-assumptions</i>. Some are definitional and free; some are deep theorems in their own right; and where none suffice, the claim of identity simply fails, and a weaker, honest relation takes its place. Select a result to read its bill.</p>
+    </div>
+    <div class="defn">
+      <div class="dl">what a reduction is — the relation the whole apparatus turns on</div>
+      <div class="ds">A result <span class="m">R</span> <b>reduces</b> to the construction when there is a <i>dictionary</i> — an assignment of <span class="m">R</span>'s data to a four-tuple <span class="m">(A, B, φ, α)</span> in some cartesian closed category — under which <span class="m">R</span>'s assertion becomes, <i>verbatim</i>, an instance of Lawvere's theorem or its contrapositive. The reduction is <b>faithful</b> when every bridge-assumption the dictionary invokes is already a theorem of <span class="m">R</span>'s native setting — arithmetization, representability, the diagonal lemma, the s-m-n theorem — so that nothing is assumed which <span class="m">R</span> does not itself prove. It is <b>merely structural</b> when the dictionary matches the <i>shape</i> of the construction but needs a premise <span class="m">R</span> cannot supply. The difference between "Gödel <i>is</i> Lawvere" and "Gödel <i>resembles</i> Lawvere" is exactly the difference between a faithful and a merely structural dictionary — and that is what the inspector certifies, claim by claim.</div>
+    </div>
+    <div class="thm">
+      <div class="tl">three facts that discipline the relation</div>
+      <div class="ts"><b>Reduction is a directed, composable preorder, and faithfulness is what the four ranks measure.</b>
+      <div style="display:flex;flex-direction:column;gap:.5rem;margin:.6rem 0 .2rem">
+        <div style="padding-left:.9rem;border-left:2px solid var(--hair)"><b>Direction.</b>&nbsp; <span class="mono" style="font-size:.9rem">R ↝ construction</span> is not symmetric. Cantor reduces to Lawvere; Lawvere is not a corollary of Cantor. An instance inherits the theorem's force, not the reverse.</div>
+        <div style="padding-left:.9rem;border-left:2px solid var(--hair)"><b>Composition.</b>&nbsp; Reductions chain. Rice <span class="mono">↝</span> halting <span class="mono">↝</span> construction, so Rice <span class="mono">↝</span> construction. The corpus's instances are routinely two-step, and the chain is as faithful as its weakest link.</div>
+        <div style="padding-left:.9rem;border-left:2px solid var(--hair)"><b>Faithfulness is the grade.</b>&nbsp; The four ranks measure how much of a faithful reduction survives: <span style="color:var(--teal-deep)">isomorphism</span> — a faithful dictionary exists; <span style="color:var(--steel-deep)">technique</span> — the dictionary carries the diagonal move but yields no fixed-point instance; <span style="color:var(--gold-deep)">engine</span> — no dictionary, yet the same schema is independently instantiated; <span style="color:var(--red-deep)">suggestion</span> — not even a schema, only a theme.</div>
+      </div>
+      So the grading is not a set of impressionistic labels; it is the answer, for each result, to a single sharp question: <i>how far does a faithful dictionary reach before it breaks?</i></div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="br-pick" id="brPick"></div>
+        <div class="br-detail" id="brDetail"></div>
+        <figcaption><span class="mono">named bridge-assumptions, with status — </span><span style="color:var(--teal-deep)">holds</span> (definitional) · <span style="color:var(--gold-deep)">theorem</span> (proven, not free) · <span style="color:var(--red-deep)">none suffice</span> (no reduction exists). The verdict grades the connection, from genuine instance to mere resemblance.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>What the inspector shows is a <i>graded</i> honesty, and it now runs the length of the whole corpus. The limits of logic and computation — Cantor, Russell, Gödel I, Tarski, halting, Rice, the second incompleteness theorem and Löb — are genuine instances: each becomes the construction once a handful of proven bridge-assumptions (arithmetization, representability, the diagonal lemma, the s-m-n theorem, the derivability conditions) are named. The positive twin, recursion, is an instance in two homes at once — the untyped λ-calculus and the category of computable maps — and Curry's paradox is the hinge where that twin, given one structural rule too many, collapses into the first. Past that perimeter the likeness thins: the hierarchy theorems keep the technique and lose the theorem; the order and topological genera keep a schema and lose the reduction; and the Descent's receding model — Löwenheim–Skolem — keeps only a metaphor. The corpus's integrity lies in marking exactly where each falls.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VI THE BOUNDARY ===== -->
+  <section class="sec" id="boundary">
+    <div class="sec-head"><span class="num">VI · the boundary</span><h2>Where the unification stops</h2><p class="sub">A theorem across logic and computation; a technique just beyond; a shared schema among the genera; a suggestion in the human sciences. The four ranks are the corpus's last and most binding result.</p></div>
+    <div class="reading">
+      <p>The inspector sorts the corpus's claims into four ranks, and the ranks are the whole point. Across logic and computation, the unification is a <i>theorem</i>: each result becomes the construction once finitely many proven bridge-assumptions are named. One step out, at the complexity hierarchy theorems, only the <i>technique</i> survives — the diagonal as a method of separation, with no fixed-point theorem anywhere in it. Among the other genera, the order-theoretic and topological fixed-point theorems, there is a real <i>family resemblance</i> under a single schema — richness plus regularity yields a fixed point — but no reduction in either direction; the kinship is conceptual, not deductive. And in the human sciences the connection is a <i>suggestion</i>, sometimes productive and sometimes, as in the Lucas–Penrose argument, a fallacy wearing the costume of a proof.</p>
+    </div>
+    <div class="stage">
+      <div class="bd-legend">
+        <div class="bd-cell t-iso"><div class="bc-h"><span class="bc-dot"></span>proven-isomorphism</div><p>A genuine instance of the construction, once finitely many proven bridge-assumptions are named. The result <i>is</i> Lawvere's, in another costume. <span class="ex">Cantor · Russell · Gödel I &amp; II · Löb · Tarski · Halting · Rice · Curry · Y · Kleene</span></p></div>
+        <div class="bd-cell t-tech"><div class="bc-h"><span class="bc-dot"></span>technique-transfer</div><p>The diagonal method travels, but the fixed-point theorem does not. Same move — yet no <span class="mono">α</span>, no <span class="mono">φ</span>, no fixed point. It separates; it does not fix. <span class="ex">the complexity hierarchy theorems</span></p></div>
+        <div class="bd-cell t-eng"><div class="bc-h"><span class="bc-dot"></span>shared-engine</div><p>A real family resemblance under one schema — richness + regularity ⟹ a fixed point — but no reduction either way. Conceptual kinship, not deduction. <span class="ex">Knaster–Tarski · Brouwer · Banach</span></p></div>
+        <div class="bd-cell t-sug"><div class="bc-h"><span class="bc-dot"></span>merely-suggestive</div><p>Genuine thematic resonance; no formalization makes them instances, and some are contested. A likeness to think with, never to claim. <span class="ex">Löwenheim–Skolem (the receding model) · reflexive markets · Lucas–Penrose (rejected)</span></p></div>
+      </div>
+    </div>
+    <div class="thm">
+      <div class="tl">Proposition 3 — the three genera are independent</div>
+      <div class="ts"><b>No one of the three classical sufficient conditions for a fixed point implies another.</b> Lawvere's <i>point-surjectivity</i>, Knaster–Tarski's <i>monotonicity on a complete lattice</i>, and Brouwer–Banach's <i>continuity on a compact convex body</i> are pairwise incomparable hypotheses: for each, there is an <span class="mono">(object, map)</span> pair that satisfies it while the other two say nothing. This is the formal content of the "shared-engine" rank — the genera force fixed points for reasons that do not entail one another. The witnesses, with each theorem's verdict:</div>
+    </div>
+    <div class="trilemma">
+      <div class="di-cell">
+        <div class="di-n">witness — isolates order</div>
+        <h4>℘(ℕ), a monotone but non-continuous operator</h4>
+        <div class="dirow"><span class="dk">Lawvere <span style="color:var(--faintest);font-size:.9em">· not reflexive,&nbsp;|℘ᵖ|&gt;|℘|</span></span><span class="dv no">silent</span></div>
+        <div class="dirow"><span class="dk">Knaster–Tarski <span style="color:var(--faintest);font-size:.9em">· complete + monotone</span></span><span class="dv yes">applies</span></div>
+        <div class="dirow"><span class="dk">Brouwer–Banach <span style="color:var(--faintest);font-size:.9em">· not continuous</span></span><span class="dv no">silent</span></div>
+      </div>
+      <div class="di-cell">
+        <div class="di-n">witness — isolates geometry</div>
+        <h4>the disk D², a rotation about its centre</h4>
+        <div class="dirow"><span class="dk">Lawvere <span style="color:var(--faintest);font-size:.9em">· not reflexive</span></span><span class="dv no">silent</span></div>
+        <div class="dirow"><span class="dk">Knaster–Tarski <span style="color:var(--faintest);font-size:.9em">· rotation not monotone</span></span><span class="dv no">silent</span></div>
+        <div class="dirow"><span class="dk">Brouwer–Banach <span style="color:var(--faintest);font-size:.9em">· compact, convex, continuous</span></span><span class="dv yes">applies</span></div>
+      </div>
+      <div class="di-cell">
+        <div class="di-n">witness — isolates self-reference</div>
+        <h4>a reflexive object D ≅ Dᴰ, any endomorphism</h4>
+        <div class="dirow"><span class="dk">Lawvere <span style="color:var(--faintest);font-size:.9em">· id is point-surjective</span></span><span class="dv yes">applies</span></div>
+        <div class="dirow"><span class="dk">Knaster–Tarski <span style="color:var(--faintest);font-size:.9em">· no order assumed</span></span><span class="dv no">silent</span></div>
+        <div class="dirow"><span class="dk">Brouwer–Banach <span style="color:var(--faintest);font-size:.9em">· no metric assumed</span></span><span class="dv no">silent</span></div>
+      </div>
+    </div>
+    <div class="tri-note">Independence is not disjointness. A Scott domain is at once a reflexive object <i>and</i> a directed-complete order, so genera I and II both apply to it — and there they <b>agree</b>: for a continuous map, Lawvere's <span class="mono">Y</span> delivers exactly Knaster–Tarski's <i>least</i> fixed point. The genera can coincide on a value while staying incomparable in their hypotheses. That gap — same conclusion, unrelated reasons — is precisely why the corpus grades the order and topological theorems <b>shared-engine</b> and not <b>proven-isomorphism</b>: there is a common schema, and no faithful dictionary either way.</div>
+    <div class="reading wide">
+      <p><span class="lead-in">two axes of honesty&nbsp;&nbsp;</span>The corpus carries two instruments of self-assessment, and they are easy to confuse. The collection's front matter ranks every load-bearing claim by its <i>epistemic status</i> — theorem, reduction, framing, or analogy. This apparatus ranks something else: the <i>reach of one specific claim</i>, that the diagonal is a single construction, into each result it touches. The two grids cross.</p>
+    </div>
+    <div class="stage">
+      <div class="hinge">
+        <div class="hinge-side left">
+          <div class="hs-lab">the lattice — front matter</div>
+          <h4>What status does the claim have?</h4>
+          <p>Grades each of the corpus's eighteen claims on the ladder <span class="mono">theorem → reduction → framing → analogy</span>. A claim is asked: are you proven, are you a verified reduction, are you the author's organizing reading, or are you a flagged resemblance? It keeps <i>established</i> apart from <i>proposed</i>.</p>
+        </div>
+        <div class="hinge-side right">
+          <div class="hs-lab">the four ranks — this apparatus</div>
+          <h4>How far does the unification reach?</h4>
+          <p>Grades each result by its relation to <i>one</i> construction: <span class="mono">isomorphism → technique → engine → suggestion</span>. A result is asked: are you the diagonal in disguise, do you merely borrow its method, do you share its schema, or do you only rhyme with it? It keeps <i>identity</i> apart from <i>likeness</i>.</p>
+        </div>
+      </div>
+      <p class="axis-note">The same result occupies a cell in each. Gödel I is a <b>theorem</b> on the first axis and a <b>proven-isomorphism</b> on the second. Knaster–Tarski is a <b>theorem</b> too, but only a <b>shared-engine</b>. The Lucas–Penrose inference is, on the first axis, an <b>analogy</b>; on the second, a <b>merely-suggestive</b> connection widely judged invalid. Honesty is holding both coordinates at once.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">what "one construction" means, exactly — after Yanofsky, 2003</div>
+      <div class="ts">The precise claim is not that all fixed-point theorems are one theorem. It is this: <b>there is a single categorical schema — Lawvere's — of which Cantor, Russell, Gödel, Tarski, the halting problem, Rice, Löb, and the recursion theorem are <i>verified instantiations</i>,</b> each obtained by naming finitely many proven bridge-assumptions and reading off the four-tuple <span class="mono">(A, B, φ, α)</span>. That is a <i>reduction</i>, checkable instance by instance, and it is what §III and §V exhibit. Everything past the diagonal genus — the order and topological theorems gathered under "richness + regularity" — relates to Lawvere's by <i>framing</i>, not reduction: Proposition 3 proves the three mechanisms independent, so their kinship is real and illuminating but is a kinship of <i>distinct</i> engines, never a single cited theorem. The corpus is a theorem where it reduces and an interpretation where it reads, and the line between them is drawn, in full, right here.</div>
+    </div>
+    <div class="reading wide">
+      <p><span class="lead-in">the corpus, graded&nbsp;&nbsp;</span>The four ranks are not only for foreign theorems; they apply, first, to the corpus's own six volumes. Turned inward, the discipline is unforgiving — and clarifying. Three volumes reduce to the construction; one keeps only a schema; one keeps only a resonance; and one <i>is</i> the construction, the root from which the others are measured. The grading below is the apparatus auditing the books it serves.</p>
+    </div>
+    <div class="corpus-grid">
+      <div class="vol-card">
+        <span class="vol-num">VOL. I</span>
+        <div class="vc-face">the construction is one</div>
+        <h4><span class="vol-the">The</span> Diagonal</h4>
+        <div class="vc-thesis">One line, <span class="mono">g(x) = α(φ(x)(x))</span>, and the single bit of its twist, generate Cantor, Russell, the Liar, Gödel, the halting problem, and recursion — differing only in the four-tuple and in which of four fates the forced fixed point meets.</div>
+        <div class="vc-rank"><span class="rank-badge rank-iso"><span class="rdot"></span>proven-isomorphism</span></div>
+        <div class="vc-result"><b>The construction, exhibited.</b> Each classical result is the same object read at a new <span class="mono">(A, B, φ, α)</span>. §III of this apparatus is its proof in miniature.</div>
+      </div>
+      <div class="vol-card">
+        <span class="vol-num">VOL. II</span>
+        <div class="vc-face">three genera, one horizon</div>
+        <h4><span class="vol-the">The</span> Atlas</h4>
+        <div class="vc-thesis">A survey of some hundred fixed-point and limitative results, sorted into three genera — diagonal, order-theoretic, topological — under the schema <i>sufficient richness plus regularity forces a fixed point</i>.</div>
+        <div class="vc-rank"><span class="rank-badge rank-eng"><span class="rdot"></span>shared-engine · spans all ranks</span></div>
+        <div class="vc-result"><b>A schema, not a metatheorem.</b> Within the diagonal genus the kinship is isomorphism; across genera it is family resemblance. The volume spans every rank — and says so.</div>
+      </div>
+      <div class="vol-card">
+        <span class="vol-num">VOL. III</span>
+        <div class="vc-face">the fixed point, delivered</div>
+        <h4><span class="vol-the">The</span> Engine</h4>
+        <div class="vc-thesis">Lawvere's theorem read forwards: where self-application is total, every map has a fixed point. Power, the Y-combinator, Kleene's recursion theorem, the quine — the construction's positive face.</div>
+        <div class="vc-rank"><span class="rank-badge rank-iso"><span class="rdot"></span>proven-isomorphism</span></div>
+        <div class="vc-result"><b>Recursion is the diagonal, granted its hypothesis.</b> Over a reflexive object <span class="mono">D ≅ Dᴰ</span>, or an admissible numbering, <span class="mono">φ</span> is honestly point-surjective and <span class="mono">Y F = F(Y F)</span> follows.</div>
+      </div>
+      <div class="vol-card">
+        <span class="vol-num">VOL. IV</span>
+        <div class="vc-face">no roof</div>
+        <h4><span class="vol-the">The</span> Ascent</h4>
+        <div class="vc-thesis">The climb of consistency strength has no top: each theory's reflection <span class="mono">R(T) = T + Con(T)</span> outruns it, by a fixed-point-free operator. Gödel II, Löb, the ordinals <span class="mono">ε₀</span> and <span class="mono">Γ₀</span> as rungs without a ceiling.</div>
+        <div class="vc-rank"><span class="rank-badge rank-iso"><span class="rdot"></span>proven-isomorphism · reading is framing</span></div>
+        <div class="vc-result"><b>The result reduces; the reading frames.</b> <span class="mono">R(T) = T + Rfn(T)</span> fixed-point-free <i>is</i> the construction (Löb's theorem); "the ladder has no roof" is its organizing interpretation.</div>
+      </div>
+      <div class="vol-card">
+        <span class="vol-num">VOL. V</span>
+        <div class="vc-face">no floor</div>
+        <h4><span class="vol-the">The</span> Descent</h4>
+        <div class="vc-thesis">Symmetrically, no base is firm: a first-order theory cannot pin down the size or standardness of its models. The downward Löwenheim–Skolem theorem, the receding ground, Skolem's "paradox."</div>
+        <div class="vc-rank"><span class="rank-badge rank-sug"><span class="rdot"></span>merely-suggestive</span></div>
+        <div class="vc-result"><b>Evocative, not reducible.</b> The receding model rhymes with provable-versus-true, but its proof carries no diagonal. The corpus's most suggestive volume is its weakest link — by design.</div>
+      </div>
+      <div class="vol-card">
+        <span class="vol-num">VOL. VI</span>
+        <div class="vc-face">the keystone</div>
+        <h4><span class="vol-the">The</span> Mirror</h4>
+        <div class="vc-thesis">Lawvere's 1969 theorem itself, proved in full: in a cartesian closed category, a point-surjective <span class="mono">φ : A → Bᴬ</span> forces every <span class="mono">α : B → B</span> to have a fixed point. The dial of twists; the four faces of the forced point.</div>
+        <div class="vc-rank"><span class="rank-badge rank-root"><span class="rdot"></span>the theorem itself · the root</span></div>
+        <div class="vc-result"><b>The root, of which the rest are readings.</b> Every grade above is measured from here: identity <i>to</i> it, technique <i>from</i> it, engine <i>beside</i> it, or suggestion <i>after</i> it.</div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Read down the ranks and the corpus's real shape appears. Its spine — the Diagonal, the Engine, the Ascent — is proven isomorphism to one theorem. Its breadth — the Atlas — is an honest schema that the author declines to overstate. Its most poetic reach — the Descent — is marked, in the corpus's own hand, as suggestion. And its center — the Mirror — is the theorem from which all of this is measured. A research program that grades itself this strictly has earned the one claim it does make.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">what would refute the thesis — the claim is falsifiable</div>
+      <div class="ts"><b>"One construction underlies the diagonal genus" is not a mood but a testable claim, and these are its three failure conditions.</b> An apparatus written to be checked owes its reader the conditions under which it would be wrong:
+      <div style="display:flex;flex-direction:column;gap:.5rem;margin:.65rem 0 .2rem">
+        <div style="padding-left:.9rem;border-left:2px solid var(--red-line)"><b>A limitative result with no faithful dictionary.</b>&nbsp; A Cantor-style theorem of the diagonal genus whose proof provably cannot be cast as a fixed-point obstruction — no <span class="mono">(A, B, φ, α)</span> recovering it. <span style="color:var(--faint)">None is known; every instance in §V reduces.</span></div>
+        <div style="padding-left:.9rem;border-left:2px solid var(--red-line)"><b>A bridge-assumption that is not a theorem.</b>&nbsp; If representability, the diagonal lemma, or a derivability condition failed for some instance, that instance would fall from <i>isomorphism</i> to <i>technique</i> — the reduction would be merely structural after all. <span style="color:var(--faint)">Each has been checked against its host theory.</span></div>
+        <div style="padding-left:.9rem;border-left:2px solid var(--red-line)"><b>A reduction across the genus boundary.</b>&nbsp; A faithful derivation of Lawvere's theorem from Knaster–Tarski or Brouwer, or the reverse — which would collapse "shared engine" into "isomorphism." <span style="color:var(--faint)">Proposition 3 constructs the witnesses that block it.</span></div>
+      </div>
+      The thesis holds exactly as long as these three searches keep returning empty, and not one moment longer. This apparatus is the standing record of that search — which is the only sense in which a unification of this kind can be said to be <i>true</i>.</div>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">the honest conclusion</div>
+      <p><i>The Atlas</i>'s "three genera as one" is, stated exactly, a <b>heuristic, not a metatheorem</b>. The claim the corpus can honestly make is precise: one construction underlies the diagonal genus — the limits of logic and computation, and their positive twin, recursion — and a family resemblance, no stronger, links it to the order-theoretic and topological theorems. To assert more would be to commit, at the scale of a research program, the very error the diagonal warns against: mistaking a likeness for an identity. The discipline of the four ranks is the corpus's last result, and the one it is most bound to keep.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">g = α ∘ ev ∘ (φ×id) ∘ Δ</span><span class="ln"></span></div>
+  <div class="coda"><p>A primary text is read; its scholia are checked. These notes do not extend the argument — they fix its edges, naming what each claim rests on and where the likeness gives out. The construction is one across logic and computation, a technique just beyond, a schema among the genera, a suggestion in the world. That graded honesty is not a weakness of the unification; it is the whole of its strength. <span class="mono">One construction — and the exact account of how far it reaches.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">the apparatus · the formal back matter</span></div>
+    <p class="colophon"><i>Scholia</i> (Greek, <i>σχόλια</i>): the technical annotations a scholar sets in the margin of a primary text. This is the formal apparatus of the collection — the precise categorical setting, Lawvere's theorem proved and <i>audited</i> line against licensing law, the substitution table that turns the one construction into each named result, the four fates of the forced fixed point computed as a decision procedure, the provability core where bare existence sharpens into the <i>unique</i> fixed point that Gödel–Löb logic forces, and the status-marked bridge-assumptions — defined through an explicit notion of faithful reduction — that price how far the unification reaches. The framework follows Yanofsky's program (2003), which exhibits Cantor, Gödel, Turing and others as instances of Lawvere's theorem; the four-fate taxonomy, the four-rank edge-typology, the per-line warrants, and the explicit bridge-assumptions are the collection's own discipline, drawn to keep theorem apart from technique, schema, and suggestion. Written to be checked.</p>
+    <p class="notes"><span class="nl">on the verdicts.</span> &nbsp;<b>Proven-isomorphism</b> means the named bridge-assumptions are themselves theorems and, granted them, the result reduces to the construction — Cantor, Russell, Gödel I and (via Löb) II, Tarski, halting, Rice, Rosser, Curry, and, over a reflexive object or an admissible numbering, the recursion theorem. <b>Technique-transfer</b> means the diagonal argument is reused as a method without yielding a fixed-point theorem (the time/space hierarchy theorems separate classes; they do not fix a map). <b>Shared-engine</b> means a genuine schema is common but no reduction exists (Knaster–Tarski is order-theoretic; Brouwer and Banach are topological and metric — proven by wholly different means). <b>Merely-suggestive</b> means a real but informal resonance, sometimes contested: the Descent's Löwenheim–Skolem is the corpus's own example, evocative of provable-versus-true yet carrying no diagonal; the Lucas–Penrose inference from Gödel to the non-computability of mind is the standard cautionary case, widely held to be invalid. The four <i>fates</i> grade something narrower still — where the forced fixed point is permitted to land: <b>absent</b> (no host, as in Cantor and halting), <b>benign</b> (a harmless divergence, as in recursion), <b>explosive</b> (driven into the truth-values, as in Russell, the Liar, Curry), or <b>undecided</b> (absorbed as independence, as in Gödel).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Lawvere 1969 · Yanofsky 2003 · Cantor 1891 · Russell 1902 · Gödel 1931 · Tarski 1936 · Church / Turing / Kleene 1936 · Rosser 1936 · Hilbert–Bernays 1939 · Curry 1942 · Henkin 1952 · Rice 1953 · Löb 1955 · de Jongh / Sambin <span class="mono">c.</span>1975 · Solovay 1976 · Boolos 1993 (<span class="mono">GL</span>) · Scott 1972 (<span class="mono">D∞</span>) · Knaster–Tarski 1928 · Brouwer 1911 / Banach 1922 · Löwenheim 1915 / Skolem 1920 · Hartmanis–Stearns 1965 · Lucas 1961 / Penrose 1989.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+const TYPE_LABEL={iso:"proven-isomorphism",tech:"technique-transfer",eng:"shared-engine",sug:"merely-suggestive"};
+const ST_LABEL={holds:"holds",theorem:"theorem",none:"none suffice"};
+const CLAIMS=[
+ {id:"cantor",name:"Cantor",type:"iso",claim:"No surjection A ↠ ℘(A).",
+  assum:[{tag:"B1",txt:"In Set, the exponential 2ᴬ equals ℘(A) via characteristic functions.",st:"holds"},
+         {tag:"B2",txt:"2 = {⊤, ⊥} carries the fixed-point-free endomorphism ¬.",st:"holds"}],
+  verdict:"Exactly Lawvere's contrapositive at α = ¬. The unnamed element is the diagonal {a : a ∉ φ(a)}. A genuine isomorphism of statements."},
+ {id:"russell",name:"Russell",type:"iso",claim:"No set of all non-self-membered sets.",
+  assum:[{tag:"B1",txt:"Unrestricted comprehension would make membership a point-surjection V → 2ⱽ.",st:"holds"},
+         {tag:"B2",txt:"¬ is fixed-point-free on 2.",st:"holds"}],
+  verdict:"The Russell set IS the missed diagonal element. The paradox is the contrapositive driven to inconsistency — the same construction, one ambient theory too strong."},
+ {id:"godel",name:"Gödel I",type:"iso",claim:"Provability ⊊ truth; T is incomplete.",
+  assum:[{tag:"B1",txt:"Arithmetization: an effective Gödel numbering ⌜·⌝ of formulas and proofs.",st:"theorem"},
+         {tag:"B2",txt:"Representability: the proof relation is representable in T (for T ⊇ Q).",st:"theorem"},
+         {tag:"B3",txt:"The diagonal lemma: for every ψ, a sentence G with T ⊢ G ↔ ψ(⌜G⌝).",st:"theorem"}],
+  verdict:"Granted B1–B3 — each a theorem, not a free assumption — incompleteness is the construction at α = ¬Prov: the sentence G ↔ ¬Prov(⌜G⌝) cannot be decided. A genuine instance, whose bridge is built of real theorems."},
+ {id:"rosser",name:"Rosser",type:"iso",claim:"Incompleteness from bare consistency — no appeal to ω-consistency.",
+  assum:[{tag:"B1",txt:"The diagonal lemma — a fixed point for every formula.",st:"theorem"},
+         {tag:"B2",txt:"A re-engineered twist: Rosser's predicate Provᴿ(x) = ∃p[ Prf(p,x) ∧ ∀q≤p ¬Prf(q, ¬x) ], built so that the forced fixed point is undecided under consistency alone.",st:"theorem"}],
+  verdict:"The construction with a hand-tuned twist. Gödel's α = ¬Prov needs ω-consistency to bite; Rosser swaps in a twist that races each proof against the shortest refutation, making the fixed point undecided on bare consistency. The line is unchanged — the artistry is entirely in choosing a fixed-point-free α for a weaker hypothesis. The clearest evidence that the twist is a design parameter, not a fixed feature."},
+ {id:"tarski",name:"Tarski",type:"iso",claim:"Arithmetic truth is not arithmetically definable.",
+  assum:[{tag:"B2",txt:"Representability of syntax in T.",st:"theorem"},
+         {tag:"B3",txt:"The diagonal lemma.",st:"theorem"}],
+  verdict:"A predicate True(x) with True(⌜S⌝) ↔ S would yield, by the diagonal at α = ¬, a liar L ↔ ¬True(⌜L⌝). Since ¬ has no fixed point, no such predicate exists. The construction, exactly."},
+ {id:"halting",name:"Halting",type:"iso",claim:"No total decider for whether a program halts.",
+  assum:[{tag:"B1",txt:"An effective enumeration φₑ of programs with a universal machine.",st:"holds"},
+         {tag:"B2",txt:"The s-m-n theorem (effective currying).",st:"theorem"}],
+  verdict:"A decider would let programs point-surject onto {halt, loop}; α = swap has no fixed point, so the decider cannot exist. Lawvere's contrapositive in the computable universe."},
+ {id:"rice",name:"Rice",type:"iso",claim:"Every non-trivial semantic property of programs is undecidable.",
+  assum:[{tag:"B1",txt:"Kleene's recursion theorem — hence the effective reflexive structure of an admissible numbering.",st:"theorem"},
+         {tag:"B2",txt:"Non-triviality: the property holds of some index and fails of another.",st:"holds"}],
+  verdict:"The power face doing limitative work. Were a non-trivial property P decidable, fix witnesses a ∈ P, b ∉ P; the recursion theorem builds a program that consults the decider on its own index, then mimics b if it judges itself in P and a otherwise — a fixed point with no consistent verdict. So no non-trivial P is decidable. Here recursion (forwards) and undecidability (contrapositive) are literally the same theorem — the corpus's thesis in one line."},
+ {id:"godel2",name:"Gödel II / Löb",type:"iso",claim:"T ⊬ Con(T); and T ⊢ Prov(⌜σ⌝)→σ only when T ⊢ σ (Löb).",
+  assum:[{tag:"B1",txt:"The diagonal lemma.",st:"theorem"},
+         {tag:"B2",txt:"The Hilbert–Bernays–Löb derivability conditions D1–D3 on Prov: necessitation, distribution over →, and provable necessitation □σ → □□σ.",st:"theorem"}],
+  verdict:"The construction at the modal fixed point. Löb's theorem is the diagonal applied to ψ(x) = (Prov(x) → σ); at σ = ⊥ it is exactly the second incompleteness theorem — a consistent T cannot prove its own consistency. The same line, the predicate now reflexively reasoning about its own provability, paid for entirely in the three derivability conditions."},
+ {id:"yrec",name:"Y / recursion",type:"iso",claim:"Every map has a fixed point; recursion exists.",
+  assum:[{tag:"B1",txt:"A reflexive object D ≅ Dᴰ (e.g. the untyped λ-calculus), so φ = id is point-surjective.",st:"theorem"}],
+  verdict:"Lawvere's dual: φ point-surjective ⟹ every F has Y F = F(Y F). A genuine instance — but B1 fails in Set and every well-pointed topos (no D ≅ Dᴰ with |D| > 1). The power direction lives only where self-application is total."},
+ {id:"kleene",name:"Kleene recursion",type:"iso",claim:"Every total computable f has a program fixed point: ∃ e with φₑ ≃ φ_{f(e)}.",
+  assum:[{tag:"B1",txt:"An admissible numbering of the partial computable functions, with a universal function and the s-m-n theorem.",st:"theorem"},
+         {tag:"B2",txt:"Self-application is total on indices: e ↦ φₑ(e) is computable, supplying an effective reflexive structure where Set has none.",st:"theorem"}],
+  verdict:"Lawvere's forward direction, made effective — and the resolution of the caveat on the Y entry. Where the abstract Y-combinator needs a reflexive object D ≅ Dᴰ absent from Set, an admissible numbering manufactures point-surjectivity on ℕ by Gödel-coding. This is the honest, concrete home of recursion in the computable universe: the power face does live somewhere."},
+ {id:"curry",name:"Curry",type:"iso",claim:"With unrestricted comprehension and contraction, every sentence is provable.",
+  assum:[{tag:"B1",txt:"A self-referential fixed point: a sentence C with C ↔ (C → ψ), via comprehension or the diagonal lemma.",st:"theorem"},
+         {tag:"B2",txt:"The structural rule of contraction: from C → (C → ψ) infer C → ψ.",st:"holds"}],
+  verdict:"The hinge between the power face and the explosion. Curry's C ↔ (C → ψ) is a diagonal fixed point with twist α = (· → ψ); contraction then collapses it to a proof of ψ — for any ψ. This is Russell's explosive fate reached without negation, and it isolates the exact structural rule that turns total self-application into triviality. Drop contraction, as substructural and linear logics do, and the fixed point survives harmlessly — the same boundary, drawn in proof theory, between recursion and collapse."},
+ {id:"hierarchy",name:"Hierarchy theorems",type:"tech",claim:"DTIME(n²) ⊊ DTIME(n³), and the like.",
+  assum:[{tag:"—",txt:"No α and no φ render this a fixed-point theorem. The diagonal is used only to build a separating language by defeating an enumeration of small-class machines.",st:"none"}],
+  verdict:"The diagonal TECHNIQUE transfers — diagonalize against an enumeration — but the fixed-point THEOREM is absent. It separates classes; it does not fix a map. A method shared, not a theorem instantiated."},
+ {id:"knaster",name:"Knaster–Tarski",type:"eng",claim:"A monotone map on a complete lattice has a least fixed point.",
+  assum:[{tag:"—",txt:"No bridge-assumptions yield a reduction in either direction. The engine is order-completeness plus monotonicity — not point-surjectivity, not the diagonal.",st:"none"}],
+  verdict:"A real family resemblance under the schema “richness + regularity ⟹ a fixed point,” but Knaster–Tarski is a structurally different theorem. Shared engine, not shared proof."},
+ {id:"brouwer",name:"Brouwer / Banach",type:"eng",claim:"A continuous self-map of a ball, or a contraction, has a fixed point.",
+  assum:[{tag:"—",txt:"Proven by homology (Brouwer) and metric completeness (Banach) — machinery with no diagonal in it. No reduction to Lawvere exists.",st:"none"}],
+  verdict:"The topological and metric genera share the schema and nothing more. Their fixed points are real; their kinship to the diagonal is conceptual, not deductive."},
+ {id:"skolem",name:"Löwenheim–Skolem",type:"sug",claim:"A countable first-order theory with an infinite model has a countable model — Skolem's “paradox.”",
+  assum:[{tag:"—",txt:"No twist α, no point-surjection φ, no cartesian closed category carries this. It is proven by the downward Löwenheim–Skolem construction — Skolem hulls and compactness — in which no diagonal appears.",st:"none"}],
+  verdict:"The Descent's receding model is not an instance. There is real thematic kinship — a structure failing to fix its own size, an internal/external gap reminiscent of provable-versus-true — but the proof has no diagonal in it, and no reduction to Lawvere exists. The corpus files it as merely-suggestive, and this is the apparatus's sharpest act of self-discipline: the volume whose result most evokes the others is precisely the one whose connection is weakest."},
+ {id:"echoes",name:"Echoes",type:"sug",claim:"Reflexive markets · self-fulfilling prophecy · the Löbian obstacle · self-modeling.",
+  assum:[{tag:"—",txt:"No formalization carries these into a cartesian closed category. The resonance is thematic; several instances (notably Lucas–Penrose) are widely held to be fallacious.",st:"none"}],
+  verdict:"A likeness to think with, never to claim. Genuine resonance in the human sciences, but mere suggestion — and the standing warning against dressing suggestion as proof."}
+];
+const CById={}; CLAIMS.forEach(c=>CById[c.id]=c);
+let brSel=null;
+function renderPick(){
+  const host=document.getElementById("brPick"); host.innerHTML="";
+  CLAIMS.forEach(c=>{ const b=E("button","br-opt t-"+c.type); b.dataset.id=c.id;
+    const d=E("span","bd"); b.appendChild(d); b.appendChild(document.createTextNode(c.name));
+    b.addEventListener("click",()=>selectBridge(c.id)); host.appendChild(b);
+  });
+}
+function selectBridge(id){
+  brSel=id; const c=CById[id];
+  document.querySelectorAll("#brPick .br-opt").forEach(b=>b.classList.toggle("on",b.dataset.id===id));
+  const host=document.getElementById("brDetail"); host.innerHTML="";
+  const head=E("div","br-head t-"+c.type);
+  const ty=E("div","br-type t-"+c.type); const dot=E("span"); dot.style.cssText="width:9px;height:9px;border-radius:50%;"+(c.type==="sug"?"border:1.4px solid var(--red);":"background:currentColor;"); ty.appendChild(dot); ty.appendChild(document.createTextNode(TYPE_LABEL[c.type])); head.appendChild(ty);
+  const nm=E("div","br-name"); nm.textContent=c.name; head.appendChild(nm);
+  const cl=E("div","br-claim"); cl.textContent=c.claim; head.appendChild(cl);
+  host.appendChild(head);
+  const body=E("div","br-body");
+  const lab=E("div","br-lab"); lab.textContent = c.assum.length===1 && c.assum[0].tag==="—" ? "the bridge — and why none suffices" : "the bridge-assumptions"; body.appendChild(lab);
+  c.assum.forEach(a=>{ const row=E("div","br-assum");
+    const tg=E("div","ba-tag"); tg.textContent=a.tag; row.appendChild(tg);
+    const tx=E("div","ba-txt"); tx.textContent=a.txt; row.appendChild(tx);
+    const stt=E("div","ba-st "+a.st); stt.textContent=ST_LABEL[a.st]; row.appendChild(stt);
+    body.appendChild(row);
+  });
+  const v=E("div","br-verdict"); v.innerHTML="<b>Verdict.</b> "+c.verdict; body.appendChild(v);
+  host.appendChild(body);
+}
+/* ============================ §III · THE INSTANCES ============================ */
+const FATE={
+  absent:   {cls:"f-absent",   badge:"fate-absent"},
+  benign:   {cls:"f-benign",   badge:"fate-benign"},
+  explosive:{cls:"f-explosive",badge:"fate-explosive"},
+  undecided:{cls:"f-undecided",badge:"fate-undecided"}
+};
+const INSTANCE=[
+ {id:"cantor",name:"Cantor",year:"1891",rec:false,fate:"absent",
+  tup:[["A","ℕ"],["B","{ 0, 1 }"],["φ","n ↦ the n-th listed subset, as a characteristic function"],["α","¬   (swap 0 ↔ 1)"]],
+  step:'g(n) = ¬\u200aφ(n)(n)\nif φ(a) = g  then  s = φ(a)(a) = g(a) = ¬s\n⟹  <span class="bad">s = ¬s</span>  —  impossible in { 0, 1 }, so φ is not onto',
+  head:"Absent — no host for the point",
+  gloss:"The two-element answer-object rigidly refuses any fixed point of ¬, so the forced equation s = ¬s has no solution. The contradiction lands not on the values but on the premise: the enumeration φ cannot be onto. The construction g is precisely the missing subset { n : n ∉ φ(n) }.",
+  verdict:"φ : ℕ → 2ᴺ not surjective · |℘(ℕ)| > |ℕ|"},
+ {id:"russell",name:"Russell",year:"1902",rec:false,fate:"explosive",
+  tup:[["A","all sets"],["B","{ in, out }"],["φ","a ↦ ( x ↦ [ x ∈ a ] )"],["α","¬"]],
+  step:'g(x) = ¬[ x ∈ x ],   the Russell set  R = { x : x ∉ x }\nunrestricted comprehension yields a set a = R with φ(a) = g\n⟹  s = [ R ∈ R ] = ¬[ R ∈ R ] = <span class="bad">¬s</span>  —  the theory proves both',
+  head:"Explosive — driven into the truth-values",
+  gloss:"Unrestricted comprehension insists every predicate names a set, so φ is point-surjective by fiat. The escape Cantor took — “then φ simply isn't onto” — is barred. The forced s = ¬s now detonates the truth-values themselves, and the ambient theory proves both s and ¬s. The same construction, one axiom too strong.",
+  verdict:"comprehension forces φ onto · s = ¬s detonates the theory"},
+ {id:"liar",name:"Liar / Tarski",year:"1936",rec:false,fate:"explosive",
+  tup:[["A","sentences"],["B","{ T, F }"],["φ","names the predicate True(·)"],["α","¬"]],
+  step:'g = ¬True(·),   the Liar  L ↔ ¬True(⌜L⌝)\na definable True(·) makes φ point-surject onto the truth-values\n⟹  s = [ True(⌜L⌝) ] = <span class="bad">¬s</span>  —  so True(·) cannot exist',
+  head:"Explosive — the predicate cannot exist",
+  gloss:"A definable truth-predicate would make sentences point-surject onto their own truth-values; the diagonal then manufactures a Liar with s = ¬s. To refuse the explosion, the only move left is to deny the predicate — arithmetic truth is not arithmetically definable. The fixed point is explosive, so its host must not exist.",
+  verdict:"True(·) undefinable in its own language · the mirror is forbidden"},
+ {id:"godel",name:"Gödel",year:"1931",rec:false,fate:"undecided",
+  tup:[["A","sentences"],["B","{ provable, not }"],["φ","Prov,  a Σ₁ predicate"],["α","¬"]],
+  step:'g = ¬Prov(·),   the sentence  G ↔ ¬Prov(⌜G⌝)\nthe diagonal lemma gives G — but provability is weaker than truth\n⟹  G is <span class="good">neither provable nor refutable</span>  —  undecided, not absurd',
+  head:"Undecided — absorbed as independence",
+  gloss:"Provability is strictly weaker than truth — and it is precisely the diagonal that opens the gap. So the forced fixed point G ↔ ¬Prov(⌜G⌝) does not detonate; the theory simply cannot place it. Proving G would prove a falsehood; refuting it would too. The fixed point survives as an undecided sentence — incompleteness, not inconsistency.",
+  verdict:"G independent of T · Prov ⊊ True is the room for it"},
+ {id:"turing",name:"Turing",year:"1936",rec:false,fate:"absent",
+  tup:[["A","programs"],["B","{ halts, loops }"],["φ","p ↦ ( x ↦ run p on x )"],["α","swap"]],
+  step:'g(p) = swap( H(p,p) ),   d = the diagonal program\na total decider H would make φ point-surject onto { halts, loops }\n⟹  s = [ H(d,d) ] = <span class="bad">swap(s)</span>  —  impossible, so H is not a program',
+  head:"Absent — the decider cannot exist",
+  gloss:"A total halting-decider would let programs point-surject onto { halts, loops }; the diagonal program must then do the opposite of its own verdict, demanding s = swap(s) in a two-valued world. No such s exists, so the contradiction lands on the premise. Undecidability is Cantor's fate in the computable universe.",
+  verdict:"no total H : programs → { halt, loop } · the halting set is undecidable"},
+ {id:"recursion",name:"Recursion / Y",year:"1936",rec:true,fate:"benign",
+  tup:[["A","untyped λ-terms"],["B","λ-terms"],["φ","id   (self-application is total)"],["α","f,  arbitrary"]],
+  step:'g = λx.\u200af(x x),   self-application total  because  D ≅ Dᴰ\nφ = id is genuinely point-surjective; α = f is unconstrained\n⟹  <span class="good">Y f = g g = f(g g) = f(Y f)</span>  —  the fixed point is delivered',
+  head:"Benign — the fixed point is delivered",
+  gloss:"Here self-application is total — the untyped λ-calculus is a reflexive object D ≅ Dᴰ, so φ = id really is point-surjective. Lawvere's theorem now runs forwards: with the hypothesis satisfied, every f has a fixed point Y f = f(Y f). No twist is fixed-point-free here; the construction simply hands you recursion. The same line that forbids a decider builds the engine.",
+  verdict:"Y f = f(Y f) for every f · the power face, φ honestly onto"}
+];
+const IById={}; INSTANCE.forEach(x=>IById[x.id]=x);
+let insSel=null;
+function renderInsPick(){
+  const host=document.getElementById("insPick"); if(!host) return; host.innerHTML="";
+  INSTANCE.forEach(x=>{ const b=E("button","dial-opt"+(x.rec?" rec":"")); b.dataset.id=x.id;
+    b.appendChild(document.createTextNode(x.name));
+    const s=E("span","dsub"); s.textContent=x.year; b.appendChild(s);
+    b.addEventListener("click",()=>selectInstance(x.id)); host.appendChild(b);
+  });
+}
+function selectInstance(id){
+  insSel=id; const x=IById[id]; const f=FATE[x.fate];
+  document.querySelectorAll("#insPick .dial-opt").forEach(b=>b.classList.toggle("on",b.dataset.id===id));
+  const host=document.getElementById("insDetail"); if(!host) return; host.innerHTML="";
+  const dict=E("div","ins-dict");
+  x.tup.forEach(p=>{ const b=E("b"); b.textContent=p[0]; const s=E("span"); s.textContent=p[1]; dict.appendChild(b); dict.appendChild(s); });
+  host.appendChild(dict);
+  const st=E("div","ins-step"); st.innerHTML=x.step; host.appendChild(st);
+  const out=E("div","ins-outcome "+f.cls);
+  const badge=E("div","fate-badge "+f.badge); const dot=E("span","fdot"); badge.appendChild(dot); badge.appendChild(document.createTextNode("the fate of the forced point")); out.appendChild(badge);
+  const h=E("div","io-fate"); h.textContent=x.head; out.appendChild(h);
+  const g=E("div","io-gloss"); g.textContent=x.gloss; out.appendChild(g);
+  const v=E("div","io-verdict"); v.textContent=x.verdict; out.appendChild(v);
+  host.appendChild(out);
+}
+
+/* ============================ §II · THE PROOF, AUDITED ============================ */
+const PROOF={
+  goalFwd:{pn:"goal",pf:'<span class="hot">Claim.</span>  In a cartesian closed category, if some φ : A → Bᴬ is point-surjective, then every α : B → B has a fixed point  b = α(b).',
+    pg:"The power reading: a surjective self-naming forces fixed points. Granted the hypothesis, recursion is a gift.",pw:"what the forward theorem asserts"},
+  goalCon:{pn:"goal",pf:'<span class="hot">Claim (contrapositive).</span>  If some α : B → B is fixed-point-free — α(b) ≠ b for all b — then no φ : A → Bᴬ is point-surjective: A cannot name every map A → B.',
+    pg:"The limitative reading: one fixed-point-free twist forbids self-naming. This is the diagonal argument itself.",pw:"what the contrapositive asserts"},
+  lines:[
+    {pn:"(1)",pf:'Define  g : A → B  by   g = <span class="hot">α</span> ∘ ev ∘ ⟨φ, 1ₐ⟩ ∘ Δₐ ,    i.e.   g(x) = <span class="hot">α</span>( φ(x)(x) ).',
+      pg:"Feed each x its own name φ(x), evaluate that name at x, then twist by α. The diagonal Δ is the only self-reference used.",
+      pw:"cartesian closure: diagonal Δₐ, evaluation ev (counit of −×A ⊣ (−)ᴬ), composition"},
+    {pn:"(2)",pf:'g is a morphism A → B, so by point-surjectivity of φ there is a point  <span class="hot">a</span> : 1 → A  with  φ(a) = g  on points.',
+      pg:"This is the entire use of the hypothesis. Weak surjectivity — agreement on global elements — is all that is needed.",
+      pw:"hypothesis: φ point-surjective (the weak form suffices — Remark B)"},
+    {pn:"(3)",pf:'Set   <span class="hot">s</span> = φ(a)(a) = ev ∘ ⟨ φ(a), a ⟩ : 1 → B,   a global element of B.',
+      pg:"Evaluate the self-name at its own index. s is the value on which the whole construction turns.",
+      pw:"evaluation at the global element a"},
+    {pn:"(4)",pf:'Substitute  φ(a) = g  from (2):    <span class="hot">s</span> = g(a) = α( φ(a)(a) ) = <span class="hot">α(s)</span>.',
+      pg:"The definition of g (line 1) closes the loop that surjectivity opened (line 2). No further hypotheses enter.",
+      pw:"substitution of (2) into (1); functoriality of composition"},
+    {variant:true,
+      fwd:{pn:"(5)",pf:'Therefore  <span class="hot">s = α(s)</span> :  the chosen α has a fixed point.   ∎',
+        pg:"Recursion. With φ = id on a reflexive object, this is exactly Y F = F(Y F) — the engine of computation.",
+        pw:"transitivity of equality of global elements ∎"},
+      con:{pn:"(5)",pf:'But α is fixed-point-free, so  <span class="hot">s = α(s)</span>  is impossible. Hence the point a cannot exist, and φ is not point-surjective.   ∎',
+        pg:"Diagonalization. At α = ¬ the unnameable g is the set { x : x ∉ φ(x) } — Cantor, Russell, Gödel, Tarski, halting.",
+        pw:"reductio: the derived s = α(s) contradicts fixed-point-freeness ∎"}}
+  ],
+  codaFwd:"<b>Forwards</b>, the hypothesis is granted — φ genuinely names every map — and a fixed point falls out for free. This is the power face: the recursion theorem, the Y-combinator, the quine. The very same five lines, read with the arrow reversed, become every limitative theorem in the corpus.",
+  codaCon:"<b>As the contrapositive</b>, a single fixed-point-free twist makes self-naming impossible. Set α = ¬ and the unnameable diagonal g is Cantor's missing subset, Russell's set, Gödel's sentence, the halting decider. The very same five lines, read forwards, become recursion. One proof; two faces; and §VI's dial is the question of which reading a given object earns."
+};
+let pfMode="con", pfShown=0; const pfRows=[];
+function pfTabs(){
+  const host=document.getElementById("pfToggle"); if(!host) return; host.innerHTML="";
+  [["con","contrapositive — the diagonal"],["fwd","forwards — the power face"]].forEach(m=>{
+    const b=E("button","rev-tab"+(m[0]===pfMode?" on":"")); b.dataset.mode=m[0];
+    b.appendChild(document.createTextNode(m[1]));
+    b.addEventListener("click",()=>{ if(pfMode===m[0])return; pfMode=m[0]; pfTabs(); pfBuild(); pfShown=1; pfUpdate(); });
+    host.appendChild(b);
+  });
+}
+function pfBuild(){
+  const host=document.getElementById("pfSteps"); if(!host) return; host.innerHTML=""; pfRows.length=0;
+  const seq=[ pfMode==="fwd"?PROOF.goalFwd:PROOF.goalCon ].concat(PROOF.lines.map(l=> l.variant?(pfMode==="fwd"?l.fwd:l.con):l));
+  seq.forEach((l,i)=>{ const row=E("div","pstep"+(i===seq.length-1?" qed":""));
+    const pn=E("div","pn"); pn.textContent=l.pn; row.appendChild(pn);
+    const bd=E("div","pbody");
+    const pf=E("div","pf"); pf.innerHTML=l.pf; bd.appendChild(pf);
+    if(l.pg){ const pg=E("div","pg"); pg.textContent=l.pg; bd.appendChild(pg); }
+    if(l.pw){ const pw=E("div","pw"); pw.textContent=l.pw; bd.appendChild(pw); }
+    row.appendChild(bd); host.appendChild(row); pfRows.push(row);
+  });
+}
+function pfUpdate(){
+  pfRows.forEach((r,i)=>r.classList.toggle("show",i<pfShown));
+  const total=pfRows.length, steps=total-1, revealed=Math.max(0,pfShown-1);
+  const ro=document.getElementById("pfReadout");
+  if(ro) ro.textContent = pfShown<=1 ? "the claim — now reveal its proof" : (pfShown>=total ? "proof complete — "+steps+" lines, each licensed" : revealed+" of "+steps+" lines");
+  const nb=document.getElementById("pfNext"); if(nb){ nb.disabled=pfShown>=total; nb.style.opacity=pfShown>=total?".4":"1"; }
+  const coda=document.getElementById("pfCoda");
+  if(coda){ if(pfShown>=total){ coda.innerHTML = pfMode==="fwd"?PROOF.codaFwd:PROOF.codaCon; coda.classList.add("show"); } else { coda.classList.remove("show"); coda.innerHTML=""; } }
+}
+function initProof(){
+  pfTabs(); pfBuild(); pfShown=1; pfUpdate();
+  const nb=document.getElementById("pfNext"); if(nb) nb.addEventListener("click",()=>{ pfShown=Math.min(pfRows.length,pfShown+1); pfUpdate(); });
+  const rb=document.getElementById("pfReset"); if(rb) rb.addEventListener("click",()=>{ pfShown=1; pfUpdate(); });
+}
+
+/* ============================ §IV · THE FIXED-POINT CALCULATOR (GL) ============================ */
+const CALC=[
+ {id:"godel",tab:"Gödel",tabsub:"¬□p",
+  kind:"the sentence asserts its own UNPROVABILITY",
+  name:"The Gödel sentence",
+  schema:'p &#8596; <span class="hot">¬□p</span>',
+  fp:"¬□⊥",
+  fpname:"= Con,  the theory's own consistency",
+  iter:[
+    {k:"H₀",v:'⊤'},
+    {k:"H₁",v:'A(⊤) = ¬□⊤&nbsp; ↔&nbsp; ⊥'},
+    {k:"H₂",v:'A(⊥) = ¬□⊥&nbsp; =&nbsp; <b>Con</b>'},
+    {k:"↻",v:'A(Con) = ¬□Con&nbsp; ↔&nbsp; Con&nbsp; = H₂&nbsp;&nbsp;<span style="color:var(--faintest)">(since □Con ↔ □⊥)</span>',stable:true}],
+  verify:[
+    {k:"want",v:'F &#8596; ¬□F,&nbsp; i.e.&nbsp; □⊥ &#8596; □¬□⊥'},
+    {k:"→",v:'⊥ → ¬□⊥ is a tautology; necessitate &amp; apply K&nbsp; ⟹&nbsp; □⊥ → □¬□⊥'},
+    {k:"←",v:'Löb at <span class="hot">⊥</span>:&nbsp; □(□⊥→⊥) → □⊥,&nbsp; and&nbsp; (□⊥→⊥) ≡ ¬□⊥&nbsp; ⟹&nbsp; □¬□⊥ → □⊥'},
+    {k:"∴",v:'□⊥ &#8596; □¬□⊥,&nbsp; hence&nbsp; F &#8596; ¬□F.&nbsp; ∎',qed:true}],
+  read:'A sentence saying &ldquo;I am unprovable&rdquo; is, up to provable equivalence, the <b>consistency statement</b> ¬□⊥ — there is no other. Apply Löb to ⊥ and it follows that T ⊬ Con unless T is inconsistent: <b>Gödel&rsquo;s second theorem, read straight off the fixed point.</b>'},
+ {id:"henkin",tab:"Henkin",tabsub:"□p",
+  kind:"the sentence asserts its own PROVABILITY",
+  name:"The Henkin sentence",
+  schema:'p &#8596; <span class="hot">□p</span>',
+  fp:"⊤",
+  fpname:"= true,  the sentence is simply provable",
+  iter:[
+    {k:"H₀",v:'⊤'},
+    {k:"↻",v:'A(⊤) = □⊤&nbsp; ↔&nbsp; <b>⊤</b>&nbsp; = H₀&nbsp;&nbsp;<span style="color:var(--faintest)">(stable at once)</span>',stable:true}],
+  verify:[
+    {k:"want",v:'F &#8596; □F,&nbsp; i.e.&nbsp; ⊤ &#8596; □⊤'},
+    {k:"→",v:'⊤ holds trivially'},
+    {k:"←",v:'necessitation of ⊢⊤&nbsp; ⟹&nbsp; ⊢□⊤'},
+    {k:"∴",v:'⊤ &#8596; □⊤,&nbsp; hence&nbsp; F &#8596; □F.&nbsp; ∎',qed:true}],
+  read:'Henkin&rsquo;s 1952 question — is a sentence asserting its own provability true? — is settled by Löb&rsquo;s theorem: it is not undecidable but <b>provable</b>. Its fixed point is ⊤, the exact mirror-image of the Gödel sentence&rsquo;s fate, and forced by the very same law.'},
+ {id:"refute",tab:"Refutability",tabsub:"□¬p",
+  kind:"the sentence asserts its own REFUTABILITY",
+  name:"The refutability sentence",
+  schema:'p &#8596; <span class="hot">□¬p</span>',
+  fp:"□⊥",
+  fpname:"= ¬Con,  the theory's own inconsistency",
+  iter:[
+    {k:"H₀",v:'⊤'},
+    {k:"H₁",v:'A(⊤) = □¬⊤&nbsp; =&nbsp; □⊥'},
+    {k:"↻",v:'A(□⊥) = □¬□⊥&nbsp; ↔&nbsp; <b>□⊥</b>&nbsp; = H₁&nbsp;&nbsp;<span style="color:var(--faintest)">(the shared identity)</span>',stable:true}],
+  verify:[
+    {k:"want",v:'F &#8596; □¬F,&nbsp; i.e.&nbsp; □⊥ &#8596; □¬□⊥'},
+    {k:"→",v:'⊥ → ¬□⊥ is a tautology; necessitate &amp; apply K&nbsp; ⟹&nbsp; □⊥ → □¬□⊥'},
+    {k:"←",v:'Löb at <span class="hot">⊥</span>:&nbsp; □¬□⊥ → □⊥'},
+    {k:"∴",v:'□⊥ &#8596; □¬□⊥,&nbsp; hence&nbsp; F &#8596; □¬F.&nbsp; ∎',qed:true}],
+  read:'The exact dual of Gödel: &ldquo;I am refutable&rdquo; resolves to <b>¬Con</b>, the theory&rsquo;s inconsistency. It shares the Gödel sentence&rsquo;s defining identity □⊥ &#8596; □¬□⊥ — the two are opposites computed from a single application of Löb at ⊥.'}
+];
+const FPById={}; CALC.forEach(x=>FPById[x.id]=x);
+let calcSel=null;
+function renderCalcPick(){
+  const host=document.getElementById("fpPick"); if(!host) return; host.innerHTML="";
+  CALC.forEach(x=>{ const b=E("button","dial-opt"); b.dataset.id=x.id;
+    b.appendChild(document.createTextNode(x.tab));
+    const s=E("span","dsub"); s.textContent=x.tabsub; b.appendChild(s);
+    b.addEventListener("click",()=>selectCalc(x.id)); host.appendChild(b);
+  });
+}
+function selectCalc(id){
+  calcSel=id; const x=FPById[id]; if(!x) return;
+  document.querySelectorAll("#fpPick .dial-opt").forEach(b=>b.classList.toggle("on",b.dataset.id===id));
+  const host=document.getElementById("fpDetail"); if(!host) return; host.innerHTML="";
+  const head=E("div","fp-head");
+  const k=E("div","fp-kind"); k.textContent=x.kind; head.appendChild(k);
+  const nm=E("div","fp-name"); nm.textContent=x.name; head.appendChild(nm);
+  const sc=E("div","fp-schema"); sc.innerHTML=x.schema; head.appendChild(sc);
+  host.appendChild(head);
+  const body=E("div","fp-body");
+  const fp=E("div","fp-fp");
+  const l=E("span","fpl"); l.textContent="unique fixed point"; fp.appendChild(l);
+  const fv=E("span","fpv"); fv.textContent=x.fp; fp.appendChild(fv);
+  const fn=E("span","fpn"); fn.textContent=x.fpname; fp.appendChild(fn);
+  body.appendChild(fp);
+  if(x.iter){
+    const il=E("div","fp-vlab"); il.innerHTML="Sambin&rsquo;s iteration on ⊤&nbsp; — &nbsp;H<sub>k+1</sub> = A(H<sub>k</sub>)"; body.appendChild(il);
+    const iv=E("div","fp-verify");
+    x.iter.forEach(stp=>{ const r=E("div","fp-vstep"+(stp.stable?" qed":""));
+      const kk=E("div","vk"); kk.textContent=stp.k; r.appendChild(kk);
+      const xx=E("div","vv"); xx.innerHTML=stp.v; r.appendChild(xx); iv.appendChild(r); });
+    body.appendChild(iv);
+  }
+  const vl=E("div","fp-vlab"); vl.textContent="the fixed-point identity, checked directly  —  F ↔ A(F)"; body.appendChild(vl);
+  const vv=E("div","fp-verify");
+  x.verify.forEach(stp=>{ const r=E("div","fp-vstep"+(stp.qed?" qed":""));
+    const kk=E("div","vk"); kk.textContent=stp.k; r.appendChild(kk);
+    const xx=E("div","vv"); xx.innerHTML=stp.v; r.appendChild(xx); vv.appendChild(r); });
+  body.appendChild(vv);
+  const rd=E("div","fp-read"); rd.innerHTML=x.read; body.appendChild(rd);
+  host.appendChild(body);
+}
+
+function init(){
+  try{ renderPick(); selectBridge("cantor"); }catch(e){ console.error("bridge",e); }
+  try{ renderInsPick(); selectInstance("godel"); }catch(e){ console.error("instances",e); }
+  try{ renderCalcPick(); selectCalc("godel"); }catch(e){ console.error("calc",e); }
+  try{ initProof(); }catch(e){ console.error("proof",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><span></span><a rel="next" href="keystone.html">The Keystone →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

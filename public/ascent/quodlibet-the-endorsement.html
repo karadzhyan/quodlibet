@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Endorsement — truth, the Liar, and the soundness a system cannot give itself</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout p + p{margin-top:.7rem;}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== goodstein engine ===== */
+  .good-controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .good-seed{display:flex;gap:.35rem;}
+  .good-sbtn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.35rem .7rem;cursor:pointer;transition:all .15s;}
+  .good-sbtn:hover{background:rgba(26,24,21,.05);}
+  .good-sbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .good-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.5rem .9rem;cursor:pointer;transition:opacity .15s;}
+  .good-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .good-btn:hover{opacity:.85;} .good-btn:disabled{opacity:.45;cursor:default;}
+  .good-read{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .good-read b{color:var(--ink);}
+  .good-tracks{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:560px){ .good-tracks{grid-template-columns:1fr;} }
+  .good-col{background:var(--paper);padding:.9rem 1rem 1.1rem;min-height:8rem;}
+  .good-col .gc-h{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+  .good-col.val .gc-h{color:var(--red-deep);} .good-col.ord .gc-h{color:var(--teal-deep);}
+  .good-col .gc-arrow{font-size:.95rem;}
+  .good-rows{display:flex;flex-direction:column;gap:.2rem;}
+  .good-row{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;animation:rise .3s ease;}
+  .good-row .gr-n{font-size:.58rem;color:var(--faintest);}
+  .good-col.val .good-row .gr-v{color:var(--ink);}
+  .good-col.ord .good-row .gr-v{color:var(--teal-deep);}
+  .good-row.zero .gr-v{font-weight:600;}
+  .good-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.03em;padding:.6rem;border-radius:3px;margin-top:.9rem;}
+  .good-banner.done{color:var(--teal-deep);border:1px dashed var(--teal-line);background:var(--teal-soft);}
+  .good-banner.cap{color:var(--gold-deep);border:1px dashed var(--gold-line);background:var(--gold-soft);}
+
+  /* ===== modal engine — Löb box, fixed-point ledger, GLP tower ===== */
+  .loeb{border:1px dashed var(--ink);border-radius:3px;padding:1.1rem 1.1rem;margin:1.5rem auto;max-width:42rem;text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .loeb .ll{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem;}
+  .loeb .lr{font-size:1.02rem;color:var(--ink);line-height:2;}
+  .loeb .lr .hot{color:var(--red-deep);}
+  .loeb .lr .gr{color:var(--faintest);}
+  .loeb .sub{font-family:"Spectral",serif;font-style:italic;font-size:.94rem;color:var(--soft1);margin-top:.8rem;line-height:1.5;}
+
+  .glp{display:flex;flex-direction:column-reverse;gap:.3rem;margin:.2rem auto 0;max-width:27rem;}
+  .glp-row{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.42rem .75rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .glp-row .gm{color:var(--teal-deep);} .glp-row .gt{color:var(--ink);} .glp-row .go{color:var(--gold-deep);white-space:nowrap;}
+  .glp-row.cap{border-style:dashed;border-color:var(--gold-line);}
+
+  /* ===== bridge-assumptions (Scholia idiom) ===== */
+  .bridge{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.1rem;}
+  .bridge-row{background:var(--paper);padding:.82rem 1rem;display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:start;}
+  .bridge-row .br-main{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .bridge-row .br-main b{color:var(--ink);font-weight:600;}
+  .bridge-row .br-main .mono{font-size:.82rem;color:var(--red-deep);}
+  .bridge-pill{font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;padding:.24em .55em;border-radius:10px;white-space:nowrap;align-self:start;}
+  .bridge-pill.hold{background:var(--teal-soft);color:var(--teal-deep);}
+  .bridge-pill.thm{background:var(--gold-soft);color:var(--gold-deep);}
+  .bridge-verdict{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .bridge-verdict b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side.left.tealhead .hs-lab{color:var(--teal-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .hinge-side p + p{margin-top:.55rem;}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);} .chain .tl{color:var(--teal-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+  .granted{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--teal-deep);margin:.6rem 0;text-align:left;padding:.7rem .8rem;border:1px dashed var(--teal-line);border-radius:3px;line-height:1.85;}
+  .granted .ok{color:var(--teal-deep);font-weight:600;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-cell .tc-tax{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);margin-top:.5rem;display:block;}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== repair stepper / truth-reflection ladder (deep-dive additions) ===== */
+  .rec-sel{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.1rem;}
+  .rec-panel{border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:1.1rem 1.2rem;}
+  .rec-top{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;margin-bottom:.85rem;border-bottom:1px solid var(--hair);padding-bottom:.7rem;}
+  .rec-title{font-family:"Spectral",serif;font-weight:500;font-size:1.18rem;color:var(--ink);line-height:1.2;}
+  .rec-badge{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.26em .6em;border-radius:10px;white-space:nowrap;align-self:center;}
+  .rec-badge.thm{background:var(--teal-soft);color:var(--teal-deep);}
+  .rec-badge.syn{background:var(--gold-soft);color:var(--gold-deep);}
+  .rec-badge.forb{background:var(--red-soft);color:var(--red-deep);}
+  .rec-row{display:grid;grid-template-columns:6.6rem 1fr;gap:.8rem;align-items:baseline;padding:.42rem 0;border-top:1px solid var(--hair);}
+  .rec-row:first-of-type{border-top:none;}
+  .rec-lab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faintest);padding-top:.2rem;}
+  .rec-txt{font-size:.92rem;line-height:1.55;color:var(--soft1);text-wrap:pretty;}
+  .rec-txt .mono{font-size:.82rem;color:var(--ink);}
+  .rec-formula{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--ink);text-align:center;padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;background:var(--paper);margin:.1rem 0 .2rem;line-height:1.7;}
+  /* conservation chips */
+  .cd-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin:.1rem 0 .9rem;}
+  .cd-chip{font-family:"IBM Plex Mono",monospace;font-size:.66rem;padding:.4em .85em;border-radius:3px;border:1px solid;letter-spacing:.04em;}
+  .cd-chip.kept{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);}
+  .cd-chip.lost{background:var(--red-soft);border-color:var(--red-line);color:var(--red-deep);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--red-line);}
+  /* truth / reflection strength ladder */
+  .tr-key{display:flex;gap:1.1rem;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:var(--faintest);margin-bottom:.9rem;flex-wrap:wrap;letter-spacing:.03em;}
+  .tr-key span{display:inline-flex;align-items:center;gap:.34rem;}
+  .tr-key i{width:.5rem;height:.5rem;border-radius:50%;display:inline-block;}
+  .tr-ladder{display:flex;flex-direction:column;gap:.34rem;margin-bottom:1.1rem;}
+  .tr-rung{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.5rem .72rem;border:1px solid var(--panelhair);border-radius:3px;background:transparent;cursor:pointer;transition:all .15s;color:var(--soft1);}
+  .tr-rung:hover{background:rgba(26,24,21,.04);}
+  .tr-rung.on{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);}
+  .tr-dot{width:.5rem;height:.5rem;border-radius:50%;flex-shrink:0;}
+  .tr-dot.cons{background:var(--teal);} .tr-dot.strong{background:var(--gold);} .tr-dot.high{background:var(--red);} .tr-dot.base{background:var(--soft1);}
+  .tr-nm{font-weight:500;} .tr-br{color:var(--faintest);font-size:.64rem;margin-left:auto;text-align:right;}
+  .tr-line{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);padding:.25rem 0;border-top:1px dashed var(--gold-line);border-bottom:1px dashed var(--gold-line);margin:.1rem 0;}
+</style>
+
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-ascent">The Ascent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">A deep study · The Ascent · §I</span></div>
+    <div class="hero-head">
+      <p class="kicker">The paradox you cannot silence — and the soundness you cannot speak</p>
+      <h1 class="title">The <span class="x">Endorsement</span></h1>
+      <p class="standfirst">A theory would like to endorse itself — to assert, in one stroke, <em>everything I prove is true</em>. That single sentence needs a word for its own truth, and the Liar shows the word cannot be had. This study traces the wish to its refusal: the diagonal in its barest semantic form, Tarski's proof that truth is undefinable, the conservation of deficit that makes every repair of the Liar breed a stronger one, and the exact theorem by which a truth predicate — and only one that enters the rules of proof — finally supplies the soundness a system lacks. The climb of the whole work begins here, at the endorsement no single level can give.</p>
+      <p class="ed-mark">the wish · undefinability · conservation of deficit · revenge · truth's office · the first rung</p>
+    </div>
+  </header>
+
+  <div class="lede">
+    <p>Across the later movements a theory keeps reaching for the rung above it, and the reaching always has the same motive: it wants to say of itself that it is <i>sound</i> — that what it proves is true. The whole ascent is that wish, repeated at ever larger scales. This first movement asks where the wish comes from and why it can never be satisfied in place, and the answer is older and barer than any of the arithmetic that follows. It lives in a single sentence that talks about its own truth.</p>
+    <p>This is the opening movement of <em>The Ascent</em>, drawn down to its root. We begin with the endorsement a theory would like to give itself and the truth predicate it would need. We prove, by the same diagonal that drives every limitative result, that the predicate cannot exist — Tarski's undefinability of truth, the Liar made exact. We state the invariant the rest of the corpus tracks: that closure, consistency, and effectiveness are three properties no theory of its own semantics can hold at once, and that this joint impossibility simply <i>is</i> Tarski's theorem and Gödel's together. We watch each classical repair of the Liar quiet it in the vocabulary it had and be undone by a stronger Liar in the vocabulary it was forced to add. And we reach the hinge that opens onto the climb: a compositional truth predicate, and only one allowed to enter the rules of proof, proves exactly the consistency and reflection its base theory could not — so that the theory of truth and the theory of reflection turn out to be one ladder, climbed in the movements to come. The endorsement begins as a wish and ends as a measured cost.</p>
+  </div>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(3rem,7vh,5rem)"><span class="ln"></span><span class="g mono">everything I prove is true</span><span class="ln"></span></div>
+
+  <!-- ===== §I THE WISH ===== -->
+  <section class="sec" id="wish">
+    <div class="sec-head"><span class="num">I · the wish</span><h2>The endorsement, and the word it needs</h2><p class="sub">A consistent theory believes its own theorems. It would like to say so — to assert, once and for all, that everything it proves is true. The trouble is hidden in the word <i>true</i>: to endorse itself in a single sentence, a theory needs a predicate for its own truth, and that predicate has a sentence waiting for it.</p></div>
+    <div class="reading">
+      <p>Imagine a theory <span class="mono">T</span> — arithmetic, say — trying to vouch for itself. Not for this theorem or that one, but for all of them at once: <i>whatever I prove is true</i>. To write that down as a sentence of its own language, <span class="mono">T</span> needs a one-place predicate <span class="mono">True(x)</span> that applies to (codes of) sentences, so that it can say <span class="mono">∀φ\u2009(Prov_T(⌜φ⌝) → True(φ))</span>. The endorsement is exactly this: a single closed sentence asserting the soundness of the whole theory.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the disquotational schema · Convention T</div>
+      <p>Whatever else a truth predicate does, it must <i>disquote</i>: for every sentence <span class="mono">φ</span>, <div class="rec-formula" style="margin:.6rem auto"><span class="mono">True(⌜φ⌝)  ↔  φ</span></div> <span class="mono">True(⌜snow is white⌝)</span> holds exactly when snow is white. Tarski took this schema — every instance of it — as the minimal adequacy condition on any definition of truth. A predicate that fails it is not a truth predicate at all. The endorsement leans on the schema entirely: it is what lets &ldquo;<span class="mono">True(φ)</span>&rdquo; mean what <span class="mono">φ</span> says.</p>
+    </div>
+    <div class="reading">
+      <p>And here the oldest paradox in logic steps forward. Consider the sentence that says of itself that it is <i>not</i> true — <i>this sentence is false</i>. It is the diagonal in its barest semantic form: the truth predicate supplies the self-naming, negation supplies the twist, and the sentence is the fixed point the construction forces and forbids in one breath. The endorsement wants a truth predicate; the Liar shows what any such predicate must contain. The next section makes the collision exact.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">L ↔ ¬True(⌜L⌝)</span><span class="ln"></span></div>
+
+  <!-- ===== §II UNDEFINABILITY ===== -->
+  <section class="sec" id="undefinable">
+    <div class="sec-head"><span class="num">II · undefinability</span><h2>Truth is not definable</h2><p class="sub">The collision is a theorem, and its proof is three lines. The same diagonal lemma that powers every limitative result, aimed at the negation of a truth predicate, produces the Liar as a fixed point — and the disquotational schema turns that fixed point into the contradiction <span class="mono">L ↔ ¬L</span>. No consistent theory can define its own truth.</p></div>
+    <div class="reading">
+      <p>The engine first — the construction underneath Gödel, Tarski, and the rest.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the diagonal lemma</div>
+      <div class="ts">For any formula <span class="mono">ψ(x)</span> with one free variable, in any theory <span class="mono">T</span> extending a weak base arithmetic <span class="mono">Q</span>, there is a sentence <span class="mono">φ</span> with <div class="rec-formula" style="margin:.55rem auto"><span class="mono">T ⊢ φ ↔ ψ(⌜φ⌝)</span></div> The sentence <span class="mono">φ</span> &ldquo;says&rdquo; that <span class="mono">ψ</span> holds of its own code. The self-reference is constructed, not assumed — coding plus substitution, nothing more.</div>
+    </div>
+    <div class="reading">
+      <p>Now suppose, for contradiction, that <span class="mono">T</span> did possess a truth predicate <span class="mono">True(x)</span> satisfying every instance of the schema. Apply the diagonal lemma to <span class="mono">¬True(x)</span>. It hands back a sentence <span class="mono">L</span> — the Liar — with <span class="mono">T ⊢ L ↔ ¬True(⌜L⌝)</span>. But the schema, at <span class="mono">φ = L</span>, gives <span class="mono">T ⊢ True(⌜L⌝) ↔ L</span>. Chain the two equivalences and <span class="mono">True(⌜L⌝)</span> cancels:</p>
+    </div>
+    <div class="thm red">
+      <div class="tl">Tarski's undefinability of truth (1936)</div>
+      <div class="ts">No formula <span class="mono">True(x)</span> in the language of <span class="mono">T</span> satisfies <span class="mono">T ⊢ True(⌜φ⌝) ↔ φ</span> for all <span class="mono">φ</span>, on pain of <span class="mono">T ⊢ L ↔ ¬L</span> and inconsistency. A consistent theory <b>cannot define its own truth</b>. In its semantic form: the set of true sentences of arithmetic, <span class="mono">{⌜φ⌝ : ℕ ⊨ φ}</span>, is <b>not arithmetical</b> — no formula in the language of <span class="mono">(ℕ, +, ×)</span> picks it out.</div>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">the wish refused</div>
+      <p>The endorsement asked for a predicate that disquotes every sentence. That is precisely the predicate Tarski's theorem forbids. The single sentence by which a theory would vouch for all its truths cannot even be <i>written</i> in the theory's own language — not because it would be false, but because the word it needs does not exist there. The soundness a theory most wants to state is the one statement it is structurally barred from making.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the positive shadow — partial truth <em>is</em> definable</div>
+      <div class="ts">What fails is the <i>union</i>, not the levels. For each <span class="mono">n</span> there is an arithmetical formula <span class="mono">Tr_n(x)</span>, itself of complexity <span class="mono">Σ_n</span>, such that <span class="mono">PA</span> proves <span class="mono">Tr_n(⌜φ⌝) ↔ φ</span> for every <span class="mono">Σ_n</span> sentence <span class="mono">φ</span>. <b>Truth restricted to any fixed complexity is definable</b> — the truth of <span class="mono">Σ_n</span> sentences is itself a <span class="mono">Σ_n</span> predicate. Only the single predicate that would cover <i>all</i> levels at once escapes. Tarski's undefinability is, exactly, an undefinability of the union.</div>
+    </div>
+    <div class="reading">
+      <p>This is the precise shape of &ldquo;truth is always one level up.&rdquo; Each level's truth is in hand; what no level holds is the truth of the whole language including itself. The refusal sits not at any rung but at the limit — which is the structure the next sections exploit, and the one the reflection ladder will later climb.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">closure · consistency · effectiveness — pick two</span><span class="ln"></span></div>
+
+  <!-- ===== §III CONSERVATION OF DEFICIT ===== -->
+  <section class="sec" id="conservation">
+    <div class="sec-head"><span class="num">III · conservation of deficit</span><h2>Three properties, never all three</h2><p class="sub">Tarski's theorem is not an isolated curiosity. Together with Gödel's it states a single conservation law: no theory of its own semantics can be at once <i>closed</i>, <i>consistent</i>, and <i>effective</i>. The three are jointly unsatisfiable. Every repair of the Liar buys two of them by surrendering the third — and the deficit itself is what survives the repair.</p></div>
+    <div class="reading">
+      <p>Name the three demands. A theory is <b>closed</b> if it defines and decides its own truth — contains a predicate that disquotes every sentence and settles each one. It is <b>consistent</b> if it proves no contradiction. It is <b>effective</b> if its axioms are recursively enumerable — a machine can list them. Each pair is attainable; the three together are not, and the obstruction is exactly the two theorems we have been circling.</p>
+    </div>
+    <div class="trilemma">
+      <div class="tri-cell"><div class="tc-n">surrender closure</div><h4>consistent + effective</h4><p><span class="mono">PA</span>, <span class="mono">ZFC</span>. A recursively axiomatized consistent theory cannot define or decide its own truth (Tarski, Gödel). It proves true things; it cannot say, inside itself, that they are true.</p><span class="tc-tax">the working foundations</span></div>
+      <div class="tri-cell"><div class="tc-n">surrender effectiveness</div><h4>closed + consistent</h4><p>True arithmetic <span class="mono">Th(ℕ)</span>. The set of arithmetic truths is consistent and semantically complete — but not recursively axiomatized, not even arithmetical. No machine generates it.</p><span class="tc-tax">truth itself, ineffable</span></div>
+      <div class="tri-cell"><div class="tc-n">surrender consistency</div><h4>closed + effective</h4><p>The naïve truth theory: <span class="mono">PA</span> plus the full disquotational schema. It defines and decides its own truth and is recursively axiomatized — and it is inconsistent, proving <span class="mono">L ↔ ¬L</span>.</p><span class="tc-tax">the paradox, embraced</span></div>
+    </div>
+    <div class="tri-note"><b>The joint unsatisfiability of the three <i>is</i> Tarski's theorem and Gödel's, read as one law.</b> What is conserved across every repair is not a quantity — a stronger theory genuinely proves more — but the obstruction itself: the property <i>is&nbsp;deficient</i> is a fixed point of repair, even though no theory is. Repair moves the theory and leaves the diagnosis exactly where it stood.</div>
+    <div class="reading">
+      <p><span class="lead-in">the semantic root of incompleteness&nbsp;&nbsp;</span>And the two theorems are not merely siblings; one yields the other. Provability in a recursively axiomatized theory is <span class="mono">Σ⁰₁</span> — definable, listable by a machine. Truth, by Tarski, is not even arithmetical. Suppose a sound, recursively axiomatized theory were also <i>complete</i>, deciding every sentence. Then for each <span class="mono">φ</span>, soundness makes <span class="mono">T ⊢ φ</span> hold exactly when <span class="mono">φ</span> is true, so <span class="mono">Th(ℕ)</span> would coincide with the provable sentences — and would therefore be <span class="mono">Σ⁰₁</span>, definable, contradicting Tarski. <b>No sound, effective theory is complete.</b> That is Gödel's first theorem, falling straight out of the undefinability of truth. Provability is a definable approximation to a target that is provably beyond definition, and the gap between them is forced — the Gödel sentence its first witness.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the Liar relocates — it is never removed</span><span class="ln"></span></div>
+
+  <!-- ===== §IV REVENGE ===== -->
+  <section class="sec" id="revenge">
+    <div class="sec-head"><span class="num">IV · revenge</span><h2>Each repair breeds a stronger Liar</h2><p class="sub">The temptation is to think one of the classical treatments <i>solves</i> the Liar. Watch instead what each actually buys, and — more tellingly — what it can no longer say. The pattern is exact: a repair silences the Liar in the vocabulary it had, and the strengthened Liar is written in the vocabulary the repair was forced to add. The paradox is relocated, never removed.</p></div>
+    <div class="reading">
+      <p>Each repair is a choice of which two of the three demands to keep. Select one and watch the third give way — and watch where the next Liar appears.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="rec-sel" id="repSel">
+          <button class="fgh-pill on" data-rep="gaps">truth-value gaps</button>
+          <button class="fgh-pill" data-rep="hierarchy">Tarskian hierarchy</button>
+          <button class="fgh-pill" data-rep="determinacy">a &ldquo;determinately&rdquo; operator</button>
+          <button class="fgh-pill" data-rep="paraconsistent">paraconsistency</button>
+        </div>
+        <div class="rec-panel" id="repPanel"></div>
+        <figcaption>Each repair keeps two of <span style="color:var(--teal-deep)">closure</span>, <span style="color:var(--teal-deep)">consistency</span>, <span style="color:var(--teal-deep)">effectiveness</span> and <span style="color:var(--red-deep)">surrenders</span> the third. The surrendered property is exactly the expressive gap the strengthened Liar slips through. The paradox is conserved; only its address changes.</figcaption>
+      </div>
+    </div>
+
+    <div class="reading">
+      <p><span class="lead-in">the most instructive escape&nbsp;&nbsp;</span>Kripke's is worth seeing in full, because it comes closest. Start with the truth predicate <i>undefined</i> everywhere, then apply a rule: declare <span class="mono">True(⌜φ⌝)</span> true once <span class="mono">φ</span> has been made true, false once <span class="mono">φ</span> has been made false, and leave it undefined otherwise. Iterate the rule, transfinitely, and it climbs to a <b>least fixed point</b> at which <span class="mono">True(⌜φ⌝)</span> and <span class="mono">φ</span> always share their status. There the <i>grounded</i> sentences — those that bottom out in non-semantic fact — receive classical values, and the <i>ungrounded</i> ones, the Liar foremost, fall into a truth-value <b>gap</b>: neither true nor false. The Liar is defused, not as a contradiction but as a sentence with no value. A single self-applicable truth predicate survives — at the price of bivalence.</p>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">where the gap leaks</div>
+      <p>But now the strengthened Liar: <i>this sentence is not true</i>. In the gapped language, &ldquo;not true&rdquo; can only mean &ldquo;false-or-gapped,&rdquo; and the predicate that expresses <i>that</i> — the predicate &ldquo;is gappy&rdquo; — is not in the object language; it lives in the classical metalanguage that surveys the fixed point. The moment one can say &ldquo;<span class="mono">L</span> is not true,&rdquo; the paradox is back, one level up, in exactly the vocabulary the repair had to step outside itself to use. Tarski's hierarchy reappears at the level of the gap. The determinacy operator that tries to internalize &ldquo;is gappy&rdquo; only breeds its own Liar and must be iterated through the ordinals to chase it — which is the reflection ladder of the next movements, breaking surface inside the theory of truth itself.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">disquotation buys nothing — induction buys Con(PA)</span><span class="ln"></span></div>
+
+  <!-- ===== §V TRUTH'S OFFICE ===== -->
+  <section class="sec" id="office">
+    <div class="sec-head"><span class="num">V · truth's office</span><h2>The endorsement, recovered at a price</h2><p class="sub">Tarski forbids a theory its own truth predicate. He does not forbid a <i>fresh</i> one, added carefully and typed to the language below. The remarkable fact — the hinge onto the entire ascent — is exactly how much such a predicate buys, and that the answer turns on one thing: whether truth is allowed to enter the rules of proof.</p></div>
+    <div class="reading">
+      <p>Step outside the object language, as Tarski's hierarchy requires, and add a new predicate <span class="mono">T(x)</span> meant to apply to the sentences of the base theory <span class="mono">PA</span> — and to those only, never to sentences containing <span class="mono">T</span> itself. This typing sidesteps the Liar: there is no sentence of the right kind to diagonalize. The question is what the addition is worth, and the answer is a clean dichotomy that the strength ladder below lays out.</p>
+    </div>
+    <div class="reading">
+      <p>Give <span class="mono">T</span> the full <i>compositional</i> theory — Tarski's clauses, <span class="mono">T</span> commuting with negation, conjunction, the quantifiers — but keep induction restricted to formulas not mentioning <span class="mono">T</span>. The resulting theory <span class="mono">CT⁻</span> is <b>conservative</b> over <span class="mono">PA</span>: it proves not one new arithmetical theorem (Kotlarski–Krajewski–Lachlan, 1981). A complete inductive account of truth, and arithmetically <i>inert</i>. Now lift the one restriction — allow induction over formulas that mention <span class="mono">T</span> — and the theory <span class="mono">CT</span> proves the global reflection principle <i>every theorem of <span class="mono">PA</span> is true</i>, and with it <span class="mono">Con(PA)</span>. The soundness the base theory could not state, it now possesses.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="tr-key">
+          <span><i style="background:var(--teal)"></i> conservative over PA</span>
+          <span><i style="background:var(--gold)"></i> proves Con(PA)</span>
+          <span><i style="background:var(--red)"></i> climbs the ordinals</span>
+        </div>
+        <div class="tr-ladder" id="trLadder">
+          <button class="tr-rung" data-tr="iterated"><span class="tr-dot high"></span><span class="tr-nm">iterated reflection</span><span class="tr-br">→ ε₀ = |PA|</span></button>
+          <button class="tr-rung on" data-tr="ct"><span class="tr-dot strong"></span><span class="tr-nm">CT  (T-induction)  ≈  Rfn(PA)</span><span class="tr-br">⊢ Con(PA)</span></button>
+          <div class="tr-line">— extend induction over T : truth enters the rules of proof —</div>
+          <button class="tr-rung" data-tr="ctminus"><span class="tr-dot cons"></span><span class="tr-nm">CT⁻  (compositional)</span><span class="tr-br">conservative</span></button>
+          <button class="tr-rung" data-tr="tb"><span class="tr-dot cons"></span><span class="tr-nm">TB⁻  (disquotational)</span><span class="tr-br">conservative</span></button>
+          <button class="tr-rung" data-tr="pa"><span class="tr-dot base"></span><span class="tr-nm">PA</span><span class="tr-br">the base — lacks Con(PA)</span></button>
+        </div>
+        <div class="rec-panel" id="trDetail"></div>
+        <figcaption>Read bottom to top. Below the dashed line — disquotation, even full compositional truth — the endorsement buys nothing arithmetical. Above it, where truth is admitted into induction, it buys exactly the soundness and reflection the base theory lacked, and iterating that purchase climbs the ordinals. The theory of truth and the theory of reflection are one ladder.</figcaption>
+      </div>
+    </div>
+
+    <div class="callout teal">
+      <div class="cl-lab">truth's whole office</div>
+      <p>The dichotomy is the lesson. A truth predicate that merely disquotes is a convenience; a truth predicate that participates in proof is <i>strength</i> — and it is precisely the strength the base theory was missing, its own reflected soundness. This is why the next movements can be conducted in the language of reflection alone, with no mention of truth, and lose nothing: <b>truth's whole office, on the arithmetical side, is to supply the soundness the system lacked</b> (Tarski; Feferman's reflective closure). The endorsement is available after all — not for free, and not from inside, but as a measured ascent whose cost the rest of the corpus reads off to the ordinal.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">truth is always one level up</span><span class="ln"></span></div>
+
+  <!-- ===== §VI THE FIRST RUNG ===== -->
+  <section class="sec" id="firstrung">
+    <div class="sec-head"><span class="num">VI · the first rung</span><h2>Where the climb begins</h2><p class="sub">Everything that follows is the recovery, level by level and never all at once, of the endorsement this movement showed to be impossible in place. The semantic refusal and the syntactic one are a single theorem; the ladder the corpus climbs is the staircase that refusal forces.</p></div>
+    <div class="reading">
+      <p>Set the two faces of the obstruction side by side. Tarski: a consistent theory cannot define its own truth. Gödel: a consistent effective theory cannot prove its own consistency. They are the same diagonal, run on the same fixed-point lemma, refusing the same thing — a system's complete grip on its own soundness. One refusal is semantic, about <i>truth</i>; the other syntactic, about <i>proof</i>; and §III showed that the first delivers the second. A theory cannot hold its own endorsement, in either currency.</p>
+    </div>
+    <div class="hinge">
+      <div class="hinge-side left tealhead">
+        <div class="hs-lab">in meaning</div>
+        <h4>No self-defined truth</h4>
+        <p>A consistent theory cannot contain a predicate that disquotes all its sentences. Truth for level <span class="mono">n</span> is definable only at level <span class="mono">n+1</span>.</p>
+        <div class="granted"><span class="ok">True_n</span> &nbsp;lives one level up — Tarski</div>
+      </div>
+      <div class="hinge-side right">
+        <div class="hs-lab">in proof</div>
+        <h4>No self-proved soundness</h4>
+        <p>A consistent effective theory cannot prove its own consistency. Soundness for theory <span class="mono">T</span> is provable only in a strictly stronger theory.</p>
+        <div class="forbidden"><span class="x">✕</span> &nbsp;<span class="mono">Con(T)</span> in <span class="mono">T</span> — Gödel-2</div>
+      </div>
+    </div>
+    <div class="bridge-verdict" style="margin-top:1.4rem"><b>Truth is always one level up — and so is soundness.</b> The reflection ladder the later movements climb is the proof-theoretic shadow of Tarski's semantic hierarchy: each rung supplies the endorsement the rung below could not give itself, in the one currency a theory can spend. The climb has no top because the endorsement is never complete; it begins here, at a single self-referring sentence, and runs all the way to the universe of sets. The diagonal's first and deepest reading is this one: truth outruns every definition as it outruns every proof, and for the very same reason.</div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the endorsement no level can give</span><span class="ln"></span></div>
+  <div class="coda"><p>We began with a wish — that a theory might say, in one breath, that all it proves is true — and found the breath unsayable: the word <i>true</i> carries a sentence that turns the saying into a contradiction. That is Tarski's theorem, and it is Gödel's, and it is the conservation of a single deficit that no repair removes but only relocates, always to the vocabulary the repair was forced to add. Yet the endorsement is not simply lost. Stepped outside the theory and admitted into its proofs, a truth predicate supplies exactly the soundness the theory lacked — and the price of that supply, measured to the ordinal, is the ladder the rest of this work climbs. The first rung is the oldest sentence in logic, the one that speaks of its own truth. From it the whole ascent unfolds: not a tower built on a foundation, but a staircase forced by the one endorsement no single step can give itself.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">A deep study · The Endorsement</span></div>
+    <p class="colophon">The opening component study of <i>The Ascent</i>, drawing out its first movement: the truth a theory cannot define for itself, and the soundness it cannot prove. The load-bearing results are theorems — the diagonal (fixed-point) lemma; Tarski's undefinability of truth and the non-arithmeticity of <span class="mono">Th(ℕ)</span>; the joint unsatisfiability of closure, consistency, and effectiveness as the shared content of Tarski's and Gödel's theorems; the derivation of Gödel's first incompleteness theorem from undefinability; Kripke's least-fixed-point construction and the gappedness of the ungrounded; and the conservativity dichotomy for axiomatic truth — <span class="mono">TB⁻</span> and <span class="mono">CT⁻</span> conservative over <span class="mono">PA</span>, <span class="mono">CT</span> with extended induction proving the global reflection principle and <span class="mono">Con(PA)</span>. The framing — that the endorsement (global soundness) is the wish driving the whole ascent; that the Liar's revenge is the conservation of one obstruction changing address; and that the theory of truth and the theory of reflection are a single ladder, so the later movements may speak of reflection alone — is the corpus's synthesis, marked as such and faithful to the theorems beneath it.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;The diagonal lemma and Tarski's theorem require a base theory with enough coding — Robinson's <span class="mono">Q</span> suffices for the syntactic forms; representability of the relevant functions is what is actually used. Tarski's undefinability has a syntactic form (no formula satisfies the <span class="mono">T</span>-schema in a consistent <span class="mono">T ⊇ Q</span>) and a semantic form (<span class="mono">Th(ℕ)</span> is not arithmetical); the proof exhibited gives both. The derivation of incompleteness from undefinability assumes <i>soundness</i> (theorems true in <span class="mono">ℕ</span>); the purely syntactic Gödel–Rosser theorem weakens this to consistency at the cost of a Rosser sentence, and is not what is shown here. &ldquo;Closure&rdquo; in the conservation law means a theory defining and deciding its own truth predicate; the three-way framing follows the corpus's <i>Atlas</i> and is a reading of the two theorems, not a third theorem. Kripke's construction (1975) is presented in the Strong Kleene scheme; the minimal fixed point makes the Liar gappy, and the &ldquo;revenge&rdquo; via &ldquo;is not true / is gappy&rdquo; is the standard observation that the metalinguistic exclusion-negation is not internally expressible — supervaluational and other schemes shift but do not remove it. The conservativity of <span class="mono">CT⁻</span> over <span class="mono">PA</span> is Kotlarski–Krajewski–Lachlan (1981) via satisfaction classes (also Enayat–Visser, Leigh, by model- and proof-theoretic means); <span class="mono">CT</span> with induction extended to <span class="mono">T</span>-formulas proves global reflection and <span class="mono">Con(PA)</span> and is non-conservative — the finer calibration of intermediate induction (e.g. <span class="mono">CT₀</span>) is due to Łełyk, Wcisło, and Cieśliński. The disquotational <span class="mono">TB⁻</span> is likewise conservative. The reflective-closure reading is Feferman (1991). <i>The Measure</i> carries the ordinal <span class="mono">ε₀</span> these reflections climb to; <i>The Law</i> carries the provability logic of the reflection principles; <i>The Recurrence</i> and <i>The Gap</i> carry the no-fixed-point and the model-theoretic mirror this movement opens; the <i>Atlas</i> and <i>Scholia</i> carry the wider taxonomy of repairs.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Tarski 1933/1936 (<i>The Concept of Truth in Formalized Languages</i>; Convention T) · Gödel 1931 · Carnap / Gödel (the diagonal lemma) · Kripke 1975 (<i>Outline of a Theory of Truth</i>) · Kotlarski–Krajewski–Lachlan 1981 · Feferman 1991 (<i>Reflecting on incompleteness</i>) · Halbach (<i>Axiomatic Theories of Truth</i>) · Cieśliński (<i>The Epistemic Lightness of Truth</i>) · Łełyk–Wcisło · Gupta–Belnap (the revision theory) · Priest (the paraconsistent treatment).</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function row(lab, html){ return "<div class='rec-row'><div class='rec-lab'>" + lab + "</div><div class='rec-txt'>" + html + "</div></div>"; }
+  function panel(title, badgeCls, badgeTxt, body){
+    var badge = badgeTxt ? "<span class='rec-badge " + badgeCls + "'>" + badgeTxt + "</span>" : "";
+    return "<div class='rec-top'><span class='rec-title'>" + title + "</span>" + badge + "</div>" + body;
+  }
+  function chips(cl, co, ef){
+    function c(lab, kept){ return "<span class='cd-chip " + (kept ? "kept" : "lost") + "'>" + lab + "</span>"; }
+    return "<div class='cd-chips'>" + c("closure", cl) + c("consistency", co) + c("effectiveness", ef) + "</div>";
+  }
+  function repP(title, keep, ch, buys, cant, revenge){
+    return "<div class='rec-top'><span class='rec-title'>" + title + "</span><span class='rec-badge syn'>" + keep + "</span></div>" +
+      ch + row("it buys", buys) + row("it cannot say", cant) + row("the revenge", revenge);
+  }
+
+  /* ============ REPAIR STEPPER ============ */
+  var REP = {
+    gaps: repP("Truth-value gaps  (Kripke)", "keeps consistency + effectiveness", chips(false, true, true),
+      "A single self-applicable truth predicate \u2014 Kripke's least fixed point. Grounded sentences keep classical values; the Liar falls into a gap, neither true nor false.",
+      "Its own \u2018is not true\u2019. In the gapped language negation reaches only \u2018false\u2019, not \u2018gapped\u2019; the predicate \u2018is gappy\u2019 lives in the classical metalanguage.",
+      "\u2018This sentence is not true\u2019, read through the gap, is a fresh Liar \u2014 in exactly the metalinguistic vocabulary the repair had to step outside itself to use."),
+    hierarchy: repP("The Tarskian hierarchy", "keeps closure + consistency", chips(true, true, false),
+      "Truth defined level by level: True\u2080 for the base language in the metalanguage, True\u2081 above that, upward without end. Each level is consistent and defines the truth of the one below.",
+      "\u2018True\u2019 simpliciter. There is no single standpoint \u2014 truth is irreducibly indexed, and no one effective predicate covers every level.",
+      "A Liar built from True_n is harmless at level n and reappears, verbatim, at level n+1. The paradox climbs the hierarchy forever."),
+    determinacy: repP("A \u2018determinately\u2019 operator", "keeps consistency + effectiveness", chips(false, true, true),
+      "An operator D added to the gapped theory to say what the gap could not \u2014 that the Liar is defective: \u00acD(L). The most sophisticated of the repairs.",
+      "Its own \u2018not determinately true\u2019. The operator that diagnoses the gap has a gap of its own.",
+      "\u2018This sentence is not determinately true\u2019 is a new Liar in the operator's vocabulary. Chasing it forces D to be iterated through the ordinals \u2014 the reflection ladder surfacing inside the theory of truth."),
+    paraconsistent: repP("Paraconsistency  (dialetheism)", "keeps closure + effectiveness", chips(true, false, true),
+      "A single self-applicable truth predicate with the full disquotational schema (Priest). The Liar is accepted as both true and false; a paraconsistent logic refuses to let the contradiction explode.",
+      "A clean \u2018only false\u2019. Bivalence and non-contradiction are surrendered; classical reductio is no longer available.",
+      "\u2018This sentence is only false, and not also true\u2019 \u2014 exclusion negation \u2014 revives an explosive Liar, and the dialetheist must argue the very notion is illegitimate.")
+  };
+  var repKey = "gaps";
+  function repRender(){ document.getElementById("repPanel").innerHTML = REP[repKey]; }
+
+  /* ============ TRUTH / REFLECTION STRENGTH LADDER ============ */
+  var TR = {
+    pa: panel("PA", "", "the base",
+      row("status", "Peano arithmetic, with induction for its own truth-free formulas.") +
+      row("the lack", "It proves a great deal and cannot prove Con(PA) (G\u00f6del-2). The endorsement is exactly what it is missing.")),
+    tb: panel("TB\u207b \u2014 disquotational truth", "thm", "conservative",
+      row("status", "A fresh predicate T and every instance T(\u231cφ\u231d) \u2194 φ for φ in the base language (typed).") +
+      row("strength", "Conservative over PA \u2014 not one new arithmetical theorem.") +
+      row("reading", "It can call each φ true; it buys no power. Disquotation alone is inert.")),
+    ctminus: panel("CT\u207b \u2014 compositional truth", "thm", "conservative",
+      row("status", "Tarski's compositional clauses: T commutes with \u00ac, \u2227, \u2200 over the base language. Induction still only for T-free formulas.") +
+      row("strength", "Still conservative over PA (Kotlarski\u2013Krajewski\u2013Lachlan, 1981, via satisfaction classes).") +
+      row("reading", "A complete inductive truth predicate \u2014 and arithmetically inert. Composition is not yet strength.")),
+    ct: panel("CT \u2014 with truth-induction  \u2248  Rfn(PA)", "syn", "proves Con(PA)",
+      row("the lift", "Extend induction to formulas mentioning T \u2014 let truth enter the rules of proof.") +
+      row("strength", "Proves the global reflection principle \u2018every theorem of PA is true\u2019, and hence Con(PA). Non-conservative.") +
+      row("the point", "The soundness is bought precisely here. Truth's whole office is to supply the reflection the base could not \u2014 Tarski; Feferman's reflective closure.")),
+    iterated: panel("iterated reflection / ramified truth", "forb", "climbs to \u03b5\u2080",
+      row("status", "Iterate the endorsement: reflect, then reflect on the result, transfinitely \u2014 Turing\u2013Feferman progressions, or ramified truth Tr_\u03b1 up the ordinals.") +
+      row("strength", "Climbs the proof-theoretic ladder; the reflective closure of PA reaches \u03b5\u2080 = |PA| (The Measure).") +
+      row("the point", "The endorsement, repeated. Truth and reflection are one ladder, and this is its height."))
+  };
+  var trKey = "ct";
+  function trRender(){ document.getElementById("trDetail").innerHTML = TR[trKey]; }
+
+  function init(){
+    document.querySelectorAll("#repSel .fgh-pill").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll("#repSel .fgh-pill").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on"); repKey = btn.getAttribute("data-rep"); repRender();
+      });
+    });
+    document.querySelectorAll("#trLadder .tr-rung").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll("#trLadder .tr-rung").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on"); trKey = btn.getAttribute("data-tr"); trRender();
+      });
+    });
+    repRender(); trRender();
+  }
+  if(document.readyState === "loading"){ document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-gap.html">← The Gap</a><a rel="next" href="quodlibet-the-jump.html">The Jump →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

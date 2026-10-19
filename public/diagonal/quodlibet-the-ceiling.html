@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ceiling — the limit that has no top</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.10); --red-line:rgba(178,58,46,.40);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.11); --teal-line:rgba(44,110,106,.40);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.42);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup.fn{font-size:.62em;line-height:0;vertical-align:super;color:var(--red-deep);font-family:"IBM Plex Mono",monospace;padding-left:.1em;}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;
+    border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1.2rem,3vh,2rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.6rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.2rem,11vw,8.4rem);line-height:.94;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.08rem,1.45vw,1.28rem);line-height:1.56;color:var(--soft1);margin:clamp(1.5rem,3vh,2.2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.6rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2.2rem,5vh,3.4rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  /* ---------- prose ---------- */
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.06rem;line-height:1.78;margin:0 0 1.15rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.4rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.6rem auto 0;}
+  .reading p{font-size:1.02rem;line-height:1.76;margin:0 0 1.02rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.35rem;}
+  .reading.wide{max-width:42rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+  .drop em{font-style:italic;color:var(--ink);}
+
+  /* ---------- section heads ---------- */
+  .sec{margin-top:clamp(4.2rem,9vh,7rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.5rem,3vh,2.2rem);max-width:47rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.85rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1.01rem;color:var(--soft1);max-width:39rem;margin:1rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  /* ---------- panels / figures ---------- */
+  .stage{max-width:62rem;margin:clamp(1.8rem,4vh,2.8rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;
+    padding:clamp(1.2rem,3vw,2.2rem);box-shadow:0 1px 0 rgba(255,255,255,.4) inset;}
+  .panel-cap{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin:0 0 1rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.4rem auto 0;max-width:40rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+  figcaption .mono{font-size:.82rem;}
+
+  /* ---------- argument map ---------- */
+  #argmap{display:block;width:100%;height:auto;max-width:60rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- formal theorem block ---------- */
+  .theorem{border:1px solid var(--ink);border-radius:3px;background:rgba(26,24,21,.018);padding:clamp(1.1rem,2.6vw,1.8rem) clamp(1.2rem,3vw,2rem);position:relative;}
+  .theorem .thlab{position:absolute;top:-.72rem;left:1.2rem;background:var(--paper);padding:0 .6rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);}
+  .theorem .stmt{font-size:1.04rem;line-height:1.66;color:var(--ink);}
+  .theorem .stmt b{font-weight:600;}
+  .theorem .stmt .mono{font-size:.92rem;}
+  .theorem .proof{margin-top:1.1rem;padding-top:.95rem;border-top:1px solid var(--panelhair);font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .theorem .proof .plab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-right:.5rem;}
+  .theorem .qed{float:right;color:var(--ink);}
+  .formula{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);text-align:center;margin:.9rem auto;line-height:1.9;letter-spacing:.01em;}
+  .formula .em{color:var(--red-deep);font-weight:500;}
+  .formula.teal .em{color:var(--teal-deep);}
+  .corner{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  .corner > div{background:var(--paper);padding:.85rem 1rem;}
+  .corner .h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.3rem;}
+  .corner .v{font-size:.92rem;line-height:1.45;color:var(--soft1);}
+  @media(max-width:560px){ .corner{grid-template-columns:1fr;} }
+
+  /* ---------- callout / aside ---------- */
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.4rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.84rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);}
+  .callout.teal .cl-lab{color:var(--teal-deep);}
+  .callout.teal p .mono{color:var(--teal-deep);}
+
+  /* ---------- Cantor grid ---------- */
+  .cantor-wrap{display:flex;flex-direction:column;align-items:center;gap:1.1rem;}
+  .cgrid{display:grid;gap:3px;}
+  .crow{display:grid;gap:3px;grid-auto-flow:column;align-items:center;}
+  .clabel{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);width:3.4ch;text-align:right;padding-right:.5rem;}
+  .cell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px solid var(--panelhair);border-radius:2px;
+    background:rgba(26,24,21,.012);cursor:pointer;user-select:none;transition:background .12s,color .12s,border-color .12s;color:var(--soft1);}
+  .cell:hover{background:rgba(26,24,21,.05);}
+  .cell.diag{border-color:var(--red-line);background:var(--red-soft);color:var(--red-deep);font-weight:500;box-shadow:0 0 0 1px var(--red-line) inset;}
+  .escape-row{display:grid;gap:3px;grid-auto-flow:column;align-items:center;margin-top:.5rem;}
+  .escape-row .clabel{color:var(--red-deep);font-weight:500;}
+  .ecell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px dashed var(--red-line);border-radius:2px;color:var(--red-deep);font-weight:500;background:var(--red-soft);}
+  .cantor-note{font-size:.9rem;color:var(--soft1);text-align:center;max-width:34rem;line-height:1.55;}
+  .cantor-note .mono{color:var(--red-deep);}
+
+  /* ---------- buttons ---------- */
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+    background:rgba(26,24,21,.022);border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .95rem;cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .btn:hover{background:rgba(26,24,21,.06);}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .btn.red{color:#fff;background:var(--red);border-color:var(--red-deep);} .btn.red:hover{background:var(--red-deep);}
+  .btn.teal{color:#fff;background:var(--teal);border-color:var(--teal-deep);} .btn.teal:hover{background:var(--teal-deep);}
+  .controls{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;align-items:center;}
+
+  /* ---------- The Machine ---------- */
+  .machine{display:grid;gap:1.2rem;}
+  .selector{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .seltab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--faint);
+    background:transparent;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .8rem;cursor:pointer;
+    transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.12rem;min-width:5.4rem;}
+  .seltab .yr{font-size:.6rem;color:var(--faintest);letter-spacing:.06em;}
+  .seltab:hover{background:rgba(26,24,21,.04);}
+  .seltab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .seltab.on .yr{color:rgba(244,241,232,.6);}
+  .seltab.on.rec{background:var(--teal-deep);border-color:var(--teal-deep);}
+  .seltab.on.rec .yr{color:rgba(244,241,232,.6);}
+  .mach-grid{display:grid;grid-template-columns:1fr 1.28fr;gap:clamp(1rem,2.4vw,1.7rem);align-items:start;}
+  @media(max-width:780px){ .mach-grid{grid-template-columns:1fr;} }
+  .skeleton{border:1px solid var(--panelhair);border-radius:3px;padding:1.1rem 1.1rem 1.3rem;background:rgba(26,24,21,.015);}
+  .skeleton .lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.85rem;}
+  .sk-line{font-family:"IBM Plex Mono",monospace;font-size:.9rem;line-height:1.9;color:var(--soft1);}
+  .sk-line .sub{color:var(--red-deep);font-weight:500;}
+  .sk-line.rec .sub{color:var(--teal-deep);}
+  .sk-defn{display:grid;grid-template-columns:auto 1fr;gap:.28rem .8rem;margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--panelhair);
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.5;color:var(--faint);}
+  .sk-defn b{color:var(--red-deep);font-weight:500;}
+  .sk-defn.rec b{color:var(--teal-deep);}
+  .derivation{display:grid;gap:.5rem;}
+  .deriv-title{font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);margin-bottom:.05rem;}
+  .deriv-body{font-size:.96rem;line-height:1.6;color:var(--soft1);}
+  .deriv-body .mono{font-size:.84rem;color:var(--ink);background:rgba(26,24,21,.04);padding:.05em .3em;border-radius:2px;}
+  .deriv-step{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.68;color:var(--ink);
+    background:rgba(26,24,21,.025);border-left:2px solid var(--red-line);padding:.65rem .85rem;border-radius:0 2px 2px 0;margin:.25rem 0;white-space:pre-wrap;}
+  .deriv-step.rec{border-left-color:var(--teal-line);}
+  .fate-row{display:grid;grid-template-columns:auto 1fr;gap:.3rem .7rem;font-size:.88rem;line-height:1.5;margin-top:.2rem;}
+  .fate-row .fk{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .fate-row .fv{color:var(--soft1);}
+  .fate-row .fv b{color:var(--ink);font-weight:500;}
+  .verdict{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;padding:.85rem 1.05rem;border-radius:3px;background:var(--red-soft);border:1px solid var(--red-line);}
+  .verdict.rec{background:var(--teal-soft);border-color:var(--teal-line);}
+  .verdict .tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .verdict.rec .tag{color:var(--teal-deep);}
+  .verdict .txt{font-size:.94rem;color:var(--soft1);font-style:italic;}
+
+  /* ---------- code runner (quine / Y) ---------- */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner-bar{display:flex;justify-content:space-between;align-items:center;padding:.5rem .8rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner-bar .ttl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner pre{margin:0;padding:.95rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;word-break:break-word;overflow-x:auto;}
+  .runner .rout{border-top:1px dashed var(--panelhair);padding:.8rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.6;color:var(--soft1);white-space:pre-wrap;word-break:break-word;min-height:1.5rem;}
+  .runner .rout .ok{color:var(--teal-deep);font-weight:500;}
+  .runner .rout .lbl{color:var(--faintest);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:.25rem;}
+
+  /* ---------- hinge ---------- */
+  .hinge-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2.4vw,1.7rem);}
+  @media(max-width:700px){ .hinge-grid{grid-template-columns:1fr;} }
+  .hinge-card{border:1px solid var(--panelhair);border-radius:3px;padding:1.15rem;text-align:center;background:rgba(26,24,21,.012);}
+  .hinge-card svg{display:block;width:100%;height:auto;max-width:240px;margin:.3rem auto .7rem;overflow:visible;}
+  .hinge-card h4{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin:0 0 .2rem;}
+  .hinge-card .verdict-line{font-size:.9rem;font-style:italic;line-height:1.5;margin-top:.5rem;}
+  .hinge-card.lim h4{color:var(--red-deep);} .hinge-card.lim .verdict-line{color:var(--red-deep);}
+  .hinge-card.rec h4{color:var(--teal-deep);} .hinge-card.rec .verdict-line{color:var(--teal-deep);}
+
+  /* ---------- four fates strip ---------- */
+  .fates{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:820px){ .fates{grid-template-columns:1fr 1fr;} }
+  @media(max-width:460px){ .fates{grid-template-columns:1fr;} }
+  .fate{background:var(--paper);padding:1rem 1rem 1.1rem;}
+  .fate .fn{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .fate .fh{font-family:"Spectral",serif;font-style:italic;font-size:1.06rem;color:var(--ink);margin-bottom:.35rem;line-height:1.2;}
+  .fate .fb{font-size:.86rem;line-height:1.48;color:var(--soft1);}
+  .fate .fr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.5;}
+  .fate.f-red{box-shadow:inset 3px 0 0 var(--red-line);} .fate.f-red .fh{color:var(--red-deep);}
+  .fate.f-teal{box-shadow:inset 3px 0 0 var(--teal-line);} .fate.f-teal .fh{color:var(--teal-deep);}
+  .fate.f-gold{box-shadow:inset 3px 0 0 var(--gold-line);} .fate.f-gold .fh{color:var(--gold-deep);}
+
+  /* ---------- Löb derivation chain ---------- */
+  .lobchain{display:grid;gap:.4rem;max-width:46rem;margin:1.4rem auto 0;}
+  .lobstep{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);}
+  .lobstep .ln{color:var(--faintest);font-size:.7rem;}
+  .lobstep .ex{color:var(--ink);}
+  .lobstep .ex .em{color:var(--red-deep);}
+  .lobstep .why{color:var(--faint);font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;text-align:right;}
+  .lobstep.key{border-color:var(--red-line);background:var(--red-soft);}
+
+  /* ---------- bridge table ---------- */
+  .bridge{max-width:55rem;margin:clamp(1.5rem,3vh,2.2rem) auto 0;}
+  .bridge-row{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .bridge-row+.bridge-row{margin-top:1px;}
+  .bcell{background:var(--paper);padding:.9rem 1.05rem;}
+  .bcell .h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .bcell .v{font-size:.93rem;line-height:1.45;color:var(--soft1);}
+  .bcell .v b{font-weight:500;color:var(--ink);}
+  .bridge-head .bcell{background:rgba(26,24,21,.025);}
+  .bridge-head .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:1rem;}
+  @media(max-width:660px){ .bridge-row{grid-template-columns:1fr;} }
+
+  /* ---------- trilemma ---------- */
+  .trilemma{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;}
+  @media(max-width:780px){ .trilemma{grid-template-columns:1fr;} }
+  #triSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .tri-readout{min-height:9rem;}
+  .tri-readout .tr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.5rem;}
+  .tri-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.3rem;margin:0 0 .5rem;color:var(--ink);}
+  .tri-readout p{font-size:.95rem;line-height:1.58;color:var(--soft1);}
+  .tri-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faint);margin-top:.6rem;display:block;line-height:1.6;}
+  .tri-readout .mech{font-size:.86rem;color:var(--faint);margin-top:.55rem;line-height:1.5;font-style:italic;}
+
+  /* ---------- coda + footer ---------- */
+  .coda{max-width:46rem;margin:clamp(4.5rem,10vh,7rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.4rem,2.5vw,1.95rem);line-height:1.34;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.88em;}
+  .coda .mono.t{color:var(--teal-deep);}
+  footer{margin-top:clamp(4.5rem,10vh,7rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:66ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:66ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+  .refs{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.95;color:var(--faintest);margin-top:1.2rem;max-width:70ch;}
+  .refs b{color:var(--faint);font-weight:500;}
+
+  /* ---------- Kleene ascent (§VII) ---------- */
+  .asc-wrap{display:grid;gap:4px;max-width:31rem;margin:.4rem auto 0;}
+  .asc-row{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .85rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);
+    transition:background .14s,border-color .14s;}
+  .asc-row .asc-lab{color:var(--faint);white-space:nowrap;}
+  .asc-row .asc-map{color:var(--soft1);word-break:break-word;}
+  .asc-row.cur{border-color:var(--teal-line);background:var(--teal-soft);}
+  .asc-row.cur .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-row.lim{border-style:dashed;border-color:var(--teal-line);}
+  .asc-row.lim .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:35rem;margin:.95rem auto 0;font-style:italic;}
+  .asc-note .mono{font-style:normal;color:var(--teal-deep);font-size:.82rem;}
+
+  /* ---------- value-lattice dial ---------- */
+  .dial{display:grid;gap:1.1rem;}
+  .dial-sel{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .dial-stage{display:flex;justify-content:center;padding:.3rem 0;}
+  #dialViz{display:block;width:100%;height:auto;max-width:30rem;overflow:visible;}
+  .dial-readout{min-height:7rem;max-width:42rem;margin:0 auto;text-align:center;}
+  .dial-readout .dr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.45rem;color:var(--faint);}
+  .dial-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.26rem;margin:0 0 .45rem;color:var(--ink);}
+  .dial-readout p{font-size:.94rem;line-height:1.56;color:var(--soft1);}
+  .dial-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.62;}
+  .dial-readout.red .dr-pair{color:var(--red-deep);}
+  .dial-readout.teal .dr-pair{color:var(--teal-deep);}
+  .dial-readout.gold .dr-pair{color:var(--gold-deep);}
+
+  /* ---------- de Jongh–Sambin fixed-point grid ---------- */
+  .fpgrid{max-width:56rem;margin:1.3rem auto 0;}
+  .fprow{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .fprow+.fprow{margin-top:1px;}
+  .fpcell{background:var(--paper);padding:.85rem 1.05rem;}
+  .fpcell .h{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.38rem;}
+  .fpcell .v{font-family:"IBM Plex Mono",monospace;font-size:.85rem;line-height:1.55;color:var(--soft1);}
+  .fpcell .v .em{color:var(--gold-deep);font-weight:500;}
+  .fpcell .vn{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .fpcell .vn b{color:var(--ink);font-weight:500;}
+  .fphead .fpcell{background:rgba(26,24,21,.025);}
+  .fphead .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:.98rem;}
+  @media(max-width:660px){ .fprow{grid-template-columns:1fr;} }
+
+  /* ---------- twist classifier (§III) ---------- */
+  .tclass{max-width:43rem;margin:.4rem auto 0;display:grid;gap:1.05rem;}
+  .tclass-q{display:grid;gap:.5rem;}
+  .tclass-q .ql{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);}
+  .tclass-q .qt{font-size:.95rem;line-height:1.5;color:var(--soft1);}
+  .tclass-q .qt b{color:var(--ink);font-weight:600;}
+  .tclass-opts{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .topt{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.01em;color:var(--faint);
+    border:1px solid var(--panelhair);border-radius:2px;padding:.36rem .82rem;background:var(--paper);cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .topt:hover{background:rgba(26,24,21,.04);}
+  .topt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .topt.dis{opacity:.32;pointer-events:none;}
+  .tclass-out{border-top:1px solid var(--panelhair);padding-top:1.1rem;text-align:center;min-height:7rem;}
+  .tclass-out .to-pair{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.42rem;color:var(--faint);}
+  .tclass-out h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.24rem;margin:0 0 .42rem;color:var(--ink);}
+  .tclass-out p{font-size:.93rem;line-height:1.56;color:var(--soft1);max-width:40rem;margin:0 auto;}
+  .tclass-out .to-ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.6;}
+  .tclass-out.red .to-pair{color:var(--red-deep);}
+  .tclass-out.teal .to-pair{color:var(--teal-deep);}
+  .tclass-out.gold .to-pair{color:var(--gold-deep);}
+
+  /* ---------- GL Kripke frame ---------- */
+  #glFrame{display:block;width:100%;height:auto;max-width:34rem;margin:0 auto;overflow:visible;}
+  .glframe-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .glframe-note .mono{font-style:normal;color:var(--gold-deep);font-size:.82rem;}
+
+  /* ---------- the Kernel: comparison axes + diagrams ---------- */
+  .cmp-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .cmp-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .cmp-axes .av{color:var(--soft1);line-height:1.42;}
+  .cmp-axes .av b{color:var(--ink);font-weight:600;}
+  #kccc,#kproof{display:block;width:100%;height:auto;max-width:35rem;margin:0 auto;overflow:visible;}
+  .kdiag-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .kdiag-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  /* ---------- the Mechanism: diagrams ---------- */
+  #secEval,#dgtrace{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- the Ceiling: jump ladder + diagrams ---------- */
+  #witness,#rice,#spectrum{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+  .ladder{display:flex;flex-direction:column-reverse;gap:3px;max-width:31rem;margin:.4rem auto .2rem;}
+  .lrung{display:flex;align-items:center;gap:.7rem;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .85rem;background:var(--paper);cursor:pointer;transition:background .14s,border-color .14s;text-align:left;}
+  .lrung:hover{background:rgba(26,24,21,.035);}
+  .lrung.on{border-color:var(--red-deep);background:rgba(176,58,46,.055);}
+  .lrung .deg{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:600;color:var(--ink);min-width:3.4rem;}
+  .lrung.on .deg{color:var(--red-deep);}
+  .lrung .lvl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);min-width:4.2rem;}
+  .lrung .lgloss{font-size:.82rem;color:var(--soft1);margin-left:auto;font-style:italic;text-align:right;}
+  .jr-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .jr-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .jr-axes .av{color:var(--soft1);line-height:1.42;}
+  .jr-axes .av b{color:var(--ink);font-weight:600;}
+
+  @media (max-width:600px){ body{font-size:18px;} .mach-grid{grid-template-columns:1fr;} .f-bar{flex-direction:column;gap:.6rem;} .lrung .lgloss{display:none;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{
+    body{background:#f4f1e8 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5pt;}
+    body::before{display:none !important;}
+    .btn,.controls,.selector,.runner-bar .btn{display:none !important;}
+    .sec,.panel,.stage,figcaption,.reading,.coda,.theorem,.fates,.runner{break-inside:avoid;}
+    .sec-head{break-after:avoid;}
+  }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-diagonal">The Diagonal</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the ceiling · third deepening</span></div>
+    <div class="hero-head">
+      <p class="kicker">Where the forced fixed point has no host</p>
+      <h1>The Ceiling</h1>
+      <p class="standfirst">When the codomain cannot hold the twist's fixed point, the diagonal stops building and starts forbidding: no surjection onto the power set, no definition of truth, no decider for halting, no test for any behaviour a program computes. These are the limitative theorems — and read together they reveal something the textbooks rarely say plainly. Limitation is not a wall but a <i>staircase</i>. Every ceiling is surpassable, but only from above; and the construction that forbids the fixed point at one level is the very thing that builds the next. The limit has no top.</p>
+      <p class="ed-mark">component III of the diagonal · the negative face, isolated and deepened — Cantor and the hierarchy of sizes, Tarski's undefinability of truth, Turing's halting problem and the texture of semi&#8209;decidability, Rice's theorem by way of the recursion theorem, and the unification the others only gesture at: the Turing jump, the arithmetical hierarchy, and limitation as endless stratification</p>
+    </div>
+  </header>
+
+  <!-- ============ §I THE NEGATIVE FACE ============ -->
+  <section class="sec" id="negative">
+    <div class="sec-head"><span class="num">I · the negative face</span><h2>The diagonal as a witness of impossibility</h2><p class="sub">One conditional, run backwards, generates every limit on these pages. When a single twist cannot rest, the naming it would require simply cannot exist — and the diagonal is the explicit proof that it does not.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the contrapositive is the engine&nbsp;&nbsp;</span>Lawvere's theorem says that a point&#8209;surjective naming <span class="mono">A → B<sup class="fn" style="vertical-align:super">A</sup></span> forces every twist <span class="mono red">α : B → B</span> to have a fixed point. Negate the conclusion and the hypothesis falls with it: <b>if even one <span class="mono">α</span> has no fixed point, no such naming can exist — for any <span class="mono">A</span></b>. This is the whole of the negative face. A single obstruction in the codomain — a swap with nothing to fix, a negation with no resting value — propagates outward and outlaws reflexivity everywhere it would have appeared. The four great limitative theorems are four readings of this one inference, distinguished only by which fixed&#8209;point&#8209;free twist supplies the obstruction.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the witness is always the same shape&nbsp;&nbsp;</span>The proof of impossibility is never a mere non&#8209;existence claim; it is constructive in the negative. Given any candidate naming <span class="mono">φ</span>, the diagonal <i>exhibits</i> an object the naming misses — the anti&#8209;diagonal <span class="mono">d</span>, built to differ from <span class="mono">φ(a)</span> precisely at the index <span class="mono">a</span>, for every <span class="mono">a</span> at once. Because <span class="mono">d</span> disagrees with each <span class="mono">φ(a)</span> at <span class="mono">a</span>, it equals none of them; the naming was not onto. Cantor's escaping subset, Turing's contrarian program, the Liar sentence — each is this one <span class="mono">d</span>, wearing the costume of its setting. The witness is universal; only the alphabet changes.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">the universal anti-diagonal — one witness, four costumes</p>
+        <div><svg id="witness" role="img" aria-label="A grid of named operations with the diagonal highlighted, and the anti-diagonal below differing from each row at its own index — the witness that no naming is onto."></svg></div>
+        <p class="kdiag-note" id="witnessNote"></p>
+      </div>
+      <figcaption>Rows are the named operations <span class="mono">φ(a)</span>; the shaded cells are the diagonal <span class="mono">φ(a)(a)</span>; the bottom row is the twist applied to that diagonal, <span class="mono">d(a) = α(φ(a)(a))</span>. Since <span class="mono">d</span> differs from row <span class="mono">a</span> exactly at column <span class="mono">a</span>, no row equals <span class="mono">d</span> — the naming cannot be complete.</figcaption>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">verdict, not paradox — the shape of a "no host"</div>
+      <p>It is worth marking precisely how the negative face differs from the explosive one to come. Here the fixed&#8209;point&#8209;free twist does not detonate the system; it simply <b>cannot be hosted</b>, and so the structure that would have hosted it — the surjection, the truth predicate, the total decider — is shown not to exist. No contradiction is derived; a verdict is delivered. The diagonal does not break the world but <i>bounds</i> it: it draws the edge past which a certain completeness is impossible. That edge is the ceiling. What the rest of this volume shows is that the ceiling is never the last one — that each verdict of impossibility, examined closely, opens onto a strictly higher level at which the forbidden object reappears as a legitimate one. Limitation conserves; it relocates the fixed point upward rather than abolishing it, exactly as the law of the wider fascicle requires.</p>
+    </div>
+  </section>
+
+  <!-- ============ §II CANTOR ============ -->
+  <section class="sec" id="cantor">
+    <div class="sec-head"><span class="num">II · Cantor</span><h2>The hierarchy of sizes</h2><p class="sub">The oldest diagonal forbids the simplest naming — a set cannot enumerate its own subsets — and in forbidding it opens an endless ascent of magnitudes. The first ceiling, and the first proof that ceilings recede.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">no set numbers its own subsets&nbsp;&nbsp;</span>The twist is the swap on <span class="mono">{0,1}</span>, which fixes nothing, so by the contrapositive no map <span class="mono">A → 𝒫(A)</span> is point&#8209;surjective: <b>no set surjects onto its power set</b>. The anti&#8209;diagonal is explicit — the set <span class="mono">D = {a ∈ A : a ∉ φ(a)}</span> differs from each <span class="mono">φ(a)</span> on the question of whether <span class="mono">a</span> belongs, so it is named by no <span class="mono">a</span>. Since the singleton map <span class="mono">a ↦ {a}</span> injects <span class="mono">A</span> into <span class="mono">𝒫(A)</span>, the verdict sharpens to a strict inequality of magnitudes, <span class="mono">|A| &lt; |𝒫(A)|</span> — with no appeal to Cantor–Schröder–Bernstein, because the diagonal is intrinsically about the impossibility of <i>covering</i>.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the ceiling recedes — the cumulative hierarchy&nbsp;&nbsp;</span>One application of the diagonal is one step; iterated, it builds the universe of sets itself. Let <span class="mono">V₀ = ∅</span>, <span class="mono">V<sub style="font-size:.72em">α+1</sub> = 𝒫(V<sub style="font-size:.72em">α</sub>)</span>, and <span class="mono">V<sub style="font-size:.72em">λ</sub> = ⋃<sub style="font-size:.72em">α&lt;λ</sub> V<sub style="font-size:.72em">α</sub></span> at limits. Each level is strictly larger than the last — that is Cantor's theorem at every step — and the whole, <span class="mono">V = ⋃<sub style="font-size:.72em">α</sub> V<sub style="font-size:.72em">α</sub></span>, is <i>not a set</i>: a universal set would surject onto its own power set, which the diagonal forbids. The same is true of the cardinals. The <b>beth</b> numbers <span class="mono">ℶ₀ = ℵ₀</span>, <span class="mono">ℶ<sub style="font-size:.72em">α+1</sub> = 2<sup class="fn" style="vertical-align:super">ℶα</sup></span> climb without bound, each strictly above the last by the theorem. There is no largest set, no largest cardinal, no top. The very first limitative result already exhibits the pattern the whole volume is about: <b>the ceiling is real at every level and final at none.</b></p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the gaps the axioms cannot close — the continuum and beyond</div>
+      <p>The hierarchy is endless but not <i>determined</i>, and that under&#8209;determination is itself a limitative phenomenon. Cantor asked where the size of the continuum <span class="mono">2<sup class="fn" style="vertical-align:super">ℵ₀</sup></span> falls among the <span class="mono">ℵ</span>'s — is it <span class="mono">ℵ₁</span>, the next cardinal above the countable? The <b>continuum hypothesis</b> says yes; Gödel (1940) and Cohen (1963) together showed the standard axioms <span class="mono">ZFC</span> can neither prove nor refute it. The staircase has rungs the axioms leave unplaced. Higher still, the <b>large cardinals</b> — inaccessible, measurable, and beyond — are sizes so vast that the hierarchy below one of them already models all of set theory: an inaccessible <span class="mono">κ</span> gives <span class="mono">V<sub style="font-size:.72em">κ</sub> ⊨ ZFC</span>, a self&#8209;contained universe. Their existence cannot be proved from <span class="mono">ZFC</span> — for to prove it would be to prove <span class="mono">ZFC</span> consistent, which the second incompleteness theorem forbids. These cardinals are, in effect, demands for <i>more reflexivity</i> than the axioms can certify, and they line up by exactly the consistency strength that incompleteness measures. The hierarchy of sizes and the hierarchy of provability turn out to be the same ladder, seen from two ends.</p>
+    </div>
+  </section>
+
+  <!-- ============ §III TARSKI ============ -->
+  <section class="sec" id="tarski">
+    <div class="sec-head"><span class="num">III · Tarski</span><h2>Truth is not in the language</h2><p class="sub">A language rich enough to talk about its own sentences cannot define its own truth — and the proof is the Liar, read not as a paradox to be solved but as a fixed&#8209;point&#8209;free twist that forces a predicate out of existence.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the undefinability theorem&nbsp;&nbsp;</span>Suppose arithmetic could define its own truth — a formula <span class="mono">True(x)</span> with <span class="mono">True(⌜φ⌝) ↔ φ</span> for every sentence <span class="mono">φ</span>, the <b>T&#8209;schema</b>. Coding makes the system reflexive, so the diagonal lemma applies to the predicate <span class="mono">¬True(x)</span> and produces a sentence <span class="mono">L ↔ ¬True(⌜L⌝)</span> — the Liar. Combine the two equivalences: <span class="mono">True(⌜L⌝) ↔ L ↔ ¬True(⌜L⌝)</span>, an outright contradiction. The only premise to reject is the one that was optional: <b>no such <span class="mono">True</span> exists</b>. Truth is not arithmetically definable. This is Lawvere with <span class="mono">B</span> the truth&#8209;values, <span class="mono">α</span> negation — fixed&#8209;point&#8209;free — and the codomain the genuine article: because <span class="mono">True</span> would obey the T&#8209;schema, its fixed point could not be quietly absorbed, so the predicate itself is forbidden.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">truth, too, is a staircase&nbsp;&nbsp;</span>Tarski's resolution was not to abandon truth but to <i>stratify</i> it. The truth of sentences in a language <span class="mono">L</span> is undefinable <i>within</i> <span class="mono">L</span>, but perfectly definable in a richer <b>metalanguage</b> <span class="mono">L′</span> that contains <span class="mono">L</span> and can quantify over its sentences. Truth for <span class="mono">L′</span> then needs a higher <span class="mono">L″</span>, and so on up an endless hierarchy of languages, each defining the truth of those below and never its own. The Liar cannot be written because "true" always means "true&#8209;in&#8209;the&#8209;language&#8209;below," and the sentence that would refer to its own level has no level to refer to. Here is the same recession as Cantor's: a thing forbidden at every level is available at the next, and the forbidding is what generates the next. Truth has no top.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the seam — why proof escapes the verdict that truth cannot</div>
+      <p>This is the precise hinge between limitation and incompleteness, and it deserves to be stated sharply. Truth is undefinable; <b>provability is definable</b>. The provability predicate <span class="mono">Prov(x)</span> — "<span class="mono">x</span> codes a theorem" — is a perfectly good <span class="mono">Σ₁</span> formula of arithmetic, and the diagonal applies to <span class="mono">¬Prov</span> exactly as it does to <span class="mono">¬True</span>. Why does one detonate and the other survive? Because <span class="mono">Prov</span> does <i>not</i> satisfy the T&#8209;schema. It obeys only the weaker <b>derivability conditions</b> — provable sentences are provably provable, and provability respects implication — but not <span class="mono">Prov(⌜φ⌝) → φ</span>, internal soundness. The Liar over truth gives a contradiction; the "Liar" over provability gives <i>Gödel's sentence</i>, which lands not as a contradiction but as a sentence that is true and unprovable. The fixed&#8209;point&#8209;free twist is the same; the codomain's strength is different, and that difference is the entire distance between "truth cannot be named" (this volume) and "proof cannot be completed" (the volume on incompleteness). The two are one diagonal divided by one schema.</p>
+    </div>
+  </section>
+
+  <!-- ============ §IV TURING ============ -->
+  <section class="sec" id="turing">
+    <div class="sec-head"><span class="num">IV · Turing</span><h2>Halting, and the texture of the undecidable</h2><p class="sub">No program decides which programs halt — the same diagonal, now over the truth&#8209;values of termination. But the impossibility is not flat: halting is <i>verifiable</i> though not decidable, and that asymmetry is the first grain of a much finer structure.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the halting problem&nbsp;&nbsp;</span>Suppose a total computable <span class="mono">H(e, x)</span> decided whether program <span class="mono">e</span> halts on input <span class="mono">x</span>. Build the contrarian <span class="mono">D</span>: on input <span class="mono">e</span>, run <span class="mono">H(e, e)</span> and do the opposite — loop if it says "halts," halt if it says "loops." Then <span class="mono">D(⌜D⌝)</span> halts exactly when <span class="mono">H</span> says it does not. The contradiction kills <span class="mono">H</span>. This is Lawvere once more: the codomain is <span class="mono">{halts, loops}</span>, the twist is the swap — fixed&#8209;point&#8209;free — and the reflexivity is the stored&#8209;program principle, since <span class="mono">D</span> must be handed its own code. A total halting decider is a naming the swap forbids.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">verifiable, not decidable — the Σ₁/Δ₁ gap&nbsp;&nbsp;</span>What kind of impossibility is this? Not the flat kind. The halting set <span class="mono">K = {e : φ<sub style="font-size:.72em">e</sub>(e)↓}</span> is <b>semi&#8209;decidable</b>: to confirm that a program halts, run it and wait — if it halts, you will see it. What you cannot do is confirm non&#8209;halting, for no finite observation rules out a later stop. In the language of the hierarchy, <span class="mono">K</span> is <span class="mono">Σ₁</span> — definable as "<span class="mono">∃ a halting computation</span>" — but not <span class="mono">Π₁</span>, so not <b>decidable</b> (<span class="mono">Δ₁ = Σ₁ ∩ Π₁</span>). Its complement, non&#8209;halting, is <span class="mono">Π₁</span> and not <span class="mono">Σ₁</span>. The undecidable is textured: a problem can be confirmable&#8209;but&#8209;not&#8209;refutable, refutable&#8209;but&#8209;not&#8209;confirmable, or neither — and exactly which determines how far above the decidable it sits.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">the first floor of the hierarchy — verifiable, refutable, decidable</p>
+        <div><svg id="spectrum" role="img" aria-label="Two overlapping regions, the semi-decidable and co-semi-decidable, meeting in the decidable; with the halting problem in the verifiable-only region and totality beyond both."></svg></div>
+        <p class="kdiag-note" id="spectrumNote"></p>
+      </div>
+      <figcaption><span class="mono">Σ₁</span> is what you can <i>confirm</i> (halting); <span class="mono">Π₁</span> is what you can <i>refute</i> (non&#8209;halting); their overlap <span class="mono">Δ₁</span> is what you can <i>decide</i> (primality, equality). Halting sits in <span class="mono">Σ₁ ∖ Δ₁</span> — confirmable but not decidable — and "computes a total function" lies above both, where neither confirmation nor refutation is finite.</figcaption>
+    </div>
+  </section>
+
+  <!-- ============ §V RICE ============ -->
+  <section class="sec" id="rice">
+    <div class="sec-head"><span class="num">V · Rice</span><h2>Nothing a program does can be tested</h2><p class="sub">Halting is not one pathological question among many. By Rice's theorem, <i>every</i> non&#8209;trivial property of the function a program computes is undecidable — and the proof routes the diagonal through the recursion theorem of the previous volume.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the theorem&nbsp;&nbsp;</span>Distinguish a program's <i>syntax</i> — how it is written — from its <i>semantics</i> — the partial function <span class="mono">φ<sub style="font-size:.72em">e</sub></span> it computes. A property is <b>semantic</b>, or extensional, if it depends only on <span class="mono">φ<sub style="font-size:.72em">e</sub></span>: any two programs computing the same function have it or lack it together. Rice's theorem (1953) is absolute: <b>every semantic property that is neither always true nor always false is undecidable.</b> Whether a program halts on all inputs, ever outputs <span class="mono">0</span>, computes a total function, computes the constant <span class="mono">0</span>, matches a given specification — none can be decided. The only testable semantic properties are the two trivial ones, true of every program or of none.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Rice 1953 · via the recursion theorem</span>
+        <div class="stmt">Let <span class="mono">𝒮</span> be a class of partial computable functions with <span class="mono">∅ ≠ 𝒮 ≠ all</span>. Then the index set <span class="mono">A = {e : φ<sub style="font-size:.72em">e</sub> ∈ 𝒮}</span> is undecidable.</div>
+        <div class="proof"><span class="plab">proof</span> Suppose a total computable <span class="mono">χ</span> decided <span class="mono">A</span>. By non&#8209;triviality fix programs <span class="mono">a, b</span> with <span class="mono">φ<sub style="font-size:.72em">a</sub> ∈ 𝒮</span> and <span class="mono">φ<sub style="font-size:.72em">b</sub> ∉ 𝒮</span>. Using <span class="mono">χ</span> and the s&#8209;m&#8209;n theorem, define a total computable transformation <span class="mono">f</span>: program <span class="mono">f(x)</span> computes <span class="mono">φ<sub style="font-size:.72em">b</sub></span> if <span class="mono">χ(x)=1</span>, and <span class="mono">φ<sub style="font-size:.72em">a</sub></span> if <span class="mono">χ(x)=0</span>. By the <b>recursion theorem</b> there is <span class="mono">e</span> with <span class="mono">φ<sub style="font-size:.72em">e</sub> = φ<sub style="font-size:.72em">f(e)</sub></span>. Now read the trap: if <span class="mono">e ∈ A</span> then <span class="mono">χ(e)=1</span>, so <span class="mono">φ<sub style="font-size:.72em">e</sub> = φ<sub style="font-size:.72em">b</sub> ∉ 𝒮</span>, so <span class="mono">e ∉ A</span>; if <span class="mono">e ∉ A</span> then <span class="mono">χ(e)=0</span>, so <span class="mono">φ<sub style="font-size:.72em">e</sub> = φ<sub style="font-size:.72em">a</sub> ∈ 𝒮</span>, so <span class="mono">e ∈ A</span>. Either way a contradiction; <span class="mono">χ</span> cannot exist. <span class="qed">∎</span></div>
+      </div>
+      <figcaption>The recursion theorem builds a program that reads the verdict <span class="mono">χ</span> would pass on it and then computes a function of the <i>opposite</i> class — the halting&#8209;decider's contrarian, lifted from termination to <i>every</i> behaviour. Fate&nbsp;1 is the weather over the whole space of programs, not a single storm.</figcaption>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the line Rice draws — and Rice–Shapiro, which sharpens it</div>
+      <p>Rice's theorem partitions properties cleanly. <b>Syntactic</b> properties — "has fewer than a hundred symbols," "contains a loop," "halts within a thousand steps" — are about the program <span class="mono">e</span> as a string and are routinely decidable. <b>Semantic</b> properties — about the function <span class="mono">φ<sub style="font-size:.72em">e</sub></span> — are, if non&#8209;trivial, never decidable. But the undecidable semantic properties are themselves stratified, and the <b>Rice–Shapiro theorem</b> draws the next line: a semantic property is even <i>semi&#8209;decidable</i> (<span class="mono">Σ₁</span>, recognisable in the limit) exactly when it is determined by finite sub&#8209;functions — when <span class="mono">φ<sub style="font-size:.72em">e</sub></span> has it iff some finite part of <span class="mono">φ<sub style="font-size:.72em">e</sub></span> already does. "<span class="mono">φ<sub style="font-size:.72em">e</sub>(5)↓</span>" passes this test and is <span class="mono">Σ₁</span>; "<span class="mono">φ<sub style="font-size:.72em">e</sub> is total</span>" fails it and is not even semi&#8209;decidable — it is <span class="mono">Π₂</span>, two full quantifier alternations above the decidable. Which is the cue for the structure the next section makes explicit: the undecidable is not a region but a <i>ladder</i>.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VI THE JUMP ============ -->
+  <section class="sec" id="jump">
+    <div class="sec-head"><span class="num">VI · the jump</span><h2>The diagonal becomes an operator</h2><p class="sub">Here the volume turns. The halting problem is not a single barrier but the first step of an operation that repeats without end — and that operation, the Turing jump, is the diagonal lifted from a one&#8209;off construction to a machine that builds the whole hierarchy of the unsolvable.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">relativise, and iterate&nbsp;&nbsp;</span>Give a machine an <b>oracle</b> — free answers to membership in a fixed set <span class="mono">A</span> — and ask the halting question of these stronger machines. The set of oracle programs that halt on their own code, <span class="mono">A′ = {e : Φ<sub style="font-size:.72em">e</sub><sup class="fn" style="vertical-align:super">A</sup>(e)↓}</span>, is the <b>Turing jump</b> of <span class="mono">A</span>. The same diagonal that defeated the unrelativised decider defeats the relativised one: <span class="mono">A</span> can confirm halting in its own oracle but cannot decide it, so <span class="mono">A &lt;<sub style="font-size:.72em">T</sub> A′</span> strictly. The jump is exactly the diagonal made into an <i>operator on degrees of difficulty</i> — and operators can be iterated.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">The jump hierarchy = the arithmetical hierarchy · Post</span>
+        <div class="formula">∅ &nbsp;&lt;<sub style="font-size:.7em">T</sub>&nbsp; ∅′ &nbsp;&lt;<sub style="font-size:.7em">T</sub>&nbsp; ∅″ &nbsp;&lt;<sub style="font-size:.7em">T</sub>&nbsp; ∅‴ &nbsp;&lt;<sub style="font-size:.7em">T</sub>&nbsp; ⋯ &nbsp;&lt;<sub style="font-size:.7em">T</sub>&nbsp; ∅<sup class="fn" style="vertical-align:super">(ω)</sup> &nbsp;&lt;<sub style="font-size:.7em">T</sub>&nbsp; ⋯</div>
+        <div class="stmt" style="font-size:.96rem">Post's theorem ties difficulty to definability exactly: a set is <span class="mono">Σ<sub style="font-size:.72em">n+1</sub></span> iff it is recognisable with oracle <span class="mono">∅<sup class="fn" style="vertical-align:super">(n)</sup></span>; decidable with that oracle (<span class="mono">≤<sub style="font-size:.72em">T</sub> ∅<sup class="fn" style="vertical-align:super">(n)</sup></span>) iff it is <span class="mono">Δ<sub style="font-size:.72em">n+1</sub></span>; and the <span class="mono">n</span>&#8209;th jump <span class="mono">∅<sup class="fn" style="vertical-align:super">(n)</sup></span> is the canonical <span class="mono">Σ<sub style="font-size:.72em">n</sub></span>&#8209;complete set.</div>
+        <div class="proof"><span class="plab">what it says</span> Levels of <i>logical complexity</i> — how many alternations of <span class="mono">∃</span> and <span class="mono">∀</span> a definition needs — coincide with levels of <i>computational difficulty</i> — how many times the halting problem must be iterated. Each extra quantifier alternation is exactly one more jump. The arithmetical hierarchy and the tower of unsolvability are one structure, climbed by one diagonal step at a time. <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">the jump ladder — click a rung</p>
+        <div class="ladder" id="jumpLadder"></div>
+        <div class="dial-readout" id="jumpReadout"></div>
+        <figcaption><b>Each rung decides everything below it and cannot decide its own jump.</b> The ceiling at level <span class="mono">n</span> is real — <span class="mono">∅<sup class="fn" style="vertical-align:super">(n)</sup></span> cannot solve <span class="mono">∅<sup class="fn" style="vertical-align:super">(n+1)</sup></span> — and final at none, for the next rung solves it at once. The forbidden decider of one level is the legitimate oracle of the next.</figcaption>
+      </div>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.6rem,3vh,2.2rem)">
+      <p><span class="lead-in">the climb has no last rung&nbsp;&nbsp;</span>Above the finite jumps stands <span class="mono">∅<sup class="fn" style="vertical-align:super">(ω)</sup></span>, the effective join of them all — strong enough to settle every arithmetical question, and Turing&#8209;equivalent to <b>true arithmetic</b>, the set of all true sentences of <span class="mono">ℕ</span>. Yet even it has a jump, <span class="mono">∅<sup class="fn" style="vertical-align:super">(ω+1)</sup></span>, strictly harder; and the tower continues up the <i>computable ordinals</i>, then past them, the diagonal forging a strictly higher degree at every successor and a join at every limit, without end. Beyond the arithmetical lies the <b>analytical</b> hierarchy, where the quantifiers range over functions and sets rather than numbers — <span class="mono">Σ<sup class="fn" style="vertical-align:super">1</sup><sub style="font-size:.72em">n</sub></span> — and beyond that the structure of the Turing degrees in its full, intricate vastness. There is no greatest degree, no hardest problem, no final ceiling. The diagonal that forbids one completeness is the engine that manufactures the next, forever.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VII LIMITATION IS STRATIFICATION ============ -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">VII · stratification</span><h2>Four hierarchies, one diagonal</h2><p class="sub">Read together, the limitative theorems are not four walls but four staircases — and they are the same staircase. The construction that forbids a fixed point at each level is precisely what builds the level above, where the forbidden object returns legitimised.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the common form&nbsp;&nbsp;</span>Cantor's sizes, Tarski's languages, the arithmetical definability classes, the tower of Turing jumps — four times now the same shape has appeared. At each level a diagonal forbids a certain completeness: a set cannot enumerate its subsets, a language cannot define its truth, a level cannot decide its own halting. And each time the forbidding is <i>generative</i>: the power set is the next cardinal, the metalanguage is the next truth, the jump is the next degree. The object impossible at level <span class="mono">n</span> is the ordinary furniture of level <span class="mono">n+1</span>. Limitation, examined closely, is never a single edge. It is an endless ascent in which every step is both a ceiling and a floor.</p>
+    </div>
+    <div class="fpgrid">
+      <div class="fprow fphead">
+        <div class="fpcell"><div class="v">the hierarchy</div></div>
+        <div class="fpcell"><div class="v">forbidden at each level by the diagonal</div></div>
+        <div class="fpcell"><div class="v">hosted, legitimately, at the level above</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">Cantor · sizes</div><div class="v"><span class="mono">V<sub style="font-size:.72em">α</sub>, ℶ<sub style="font-size:.72em">α</sub></span></div></div>
+        <div class="fpcell"><div class="vn">No set enumerates its own subsets — <span class="mono">A ↠ 𝒫(A)</span> impossible.</div></div>
+        <div class="fpcell"><div class="vn">The power set <span class="mono">𝒫(A)</span> is the next, strictly larger magnitude.</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">Tarski · truth</div><div class="v"><span class="mono">L, L′, L″, …</span></div></div>
+        <div class="fpcell"><div class="vn">No language defines its own truth — <span class="mono">True<sub style="font-size:.72em">L</sub></span> not in <span class="mono">L</span>.</div></div>
+        <div class="fpcell"><div class="vn">The metalanguage <span class="mono">L′</span> defines truth for <span class="mono">L</span>.</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">arithmetic · definability</div><div class="v"><span class="mono">Σ<sub style="font-size:.72em">n</sub>, Π<sub style="font-size:.72em">n</sub></span></div></div>
+        <div class="fpcell"><div class="vn">No <span class="mono">Σ<sub style="font-size:.72em">n</sub></span> formula defines <span class="mono">Σ<sub style="font-size:.72em">n</sub></span>&#8209;truth — a fixed level cannot capture its own.</div></div>
+        <div class="fpcell"><div class="vn">A <span class="mono">Σ<sub style="font-size:.72em">n+1</sub></span> formula — one more alternation — defines it.</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">computation · the jump</div><div class="v"><span class="mono">∅, ∅′, ∅″, …</span></div></div>
+        <div class="fpcell"><div class="vn">No level decides its own halting — <span class="mono">∅<sup class="fn" style="vertical-align:super">(n)</sup></span> cannot solve <span class="mono">∅<sup class="fn" style="vertical-align:super">(n+1)</sup></span>.</div></div>
+        <div class="fpcell"><div class="vn">The jump <span class="mono">∅<sup class="fn" style="vertical-align:super">(n+1)</sup></span> — that level as an oracle — solves it.</div></div>
+      </div>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.8rem,3.4vh,2.6rem)">
+      <p><span class="lead-in">conservation, in the negative&nbsp;&nbsp;</span>This is the law of the wider fascicle, read on its limitative face. The diagonal never <i>abolishes</i> the forced fixed point; it relocates it. In the positive settings the relocation is sideways — into a divergent computation, an undecided sentence, a half&#8209;truth. In the limitative settings it is <b>upward</b>: the fixed point forbidden at one level — the surjection, the truth predicate, the decider — is exactly what the next level supplies. So the impossibility is conserved as an <i>ascent</i>. The cardinal you cannot reach, the truth you cannot define, the problem you cannot decide: each exists, one storey up, and the proof that it cannot exist <i>here</i> is the same construction that places it <i>there</i>. The ceiling is not a denial of the fixed point. It is the fixed point, receding — and because the diagonal can always be applied once more, it recedes without limit. There is no top, only the next floor, and the staircase the diagonal climbs is the true shape of every limit on these pages.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">d ≠ φ(a) at every a</span><span class="ln"></span></div>
+  <div class="coda"><p>One inference underlies every limit: a twist that cannot rest forbids the naming that would have hosted it. From it follow the strict hierarchy of sizes, the undefinability of truth, the unsolvability of halting, and the untestability of everything a program does — four verdicts of impossibility, each the same diagonal over a different codomain. And read together they say more than any one of them alone: the verdict is never final. Iterate the diagonal and it becomes the jump, the operator that turns each impossibility into the floor of the next, climbing the cardinals, the languages, the definability classes, and the degrees in a single endless ascent. The forbidden object is never destroyed; it is lifted one level beyond reach, where it waits as the ordinary furniture of a larger world. <span class="mono t">d ≠ φ(a) at every a</span> is the witness that the ceiling is real — and the proof, applied once more, that it has no top.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the ceiling · component III</span></div>
+    <p class="colophon">The third of the diagonal's constituent components: the negative face, where the forced fixed point has no host and the diagonal becomes a proof of impossibility. The four classical limitative theorems — Cantor's, Tarski's, Turing's, and Rice's — are developed as one contrapositive over four codomains, and then unified by the structure the textbooks usually leave implicit: the Turing jump, the arithmetical hierarchy, and Post's theorem binding logical complexity to computational difficulty. The reading throughout is that limitation conserves rather than destroys — it relocates the fixed point upward, so that every ceiling is also a floor. The results follow Cantor (1891), Tarski (1936), Turing (1936), Post (1944), Kleene (1943), and Rice (1953); the unifying frame is Lawvere (1969) and Yanofsky (2003). The companion volumes take up the positive fate of recursion, the explosive fate of paradox, the absorbed fate of incompleteness, and the law that governs all four.</p>
+    <p class="notes"><span class="nl">technical qualifications.</span> &nbsp;Cantor's theorem is exact in any topos (no object point&#8209;surjects onto its power object); the cumulative hierarchy and the strictness of the <span class="mono">ℶ</span>&#8209;sequence are theorems of <span class="mono">ZF</span>. The independence of the continuum hypothesis from <span class="mono">ZFC</span> is Gödel's (consistency, 1940) and Cohen's (independence, 1963); large&#8209;cardinal existence exceeds <span class="mono">ZFC</span> by exactly its consistency strength, since an inaccessible <span class="mono">κ</span> yields <span class="mono">V<sub style="font-size:.72em">κ</sub> ⊨ ZFC</span>. Tarski's undefinability is stated for a consistent theory interpreting enough arithmetic; the contrast with provability turns on the T&#8209;schema versus the derivability conditions. The halting set <span class="mono">K</span> is <span class="mono">Σ₁</span>&#8209;complete, not <span class="mono">Δ₁</span>; "decidable" is <span class="mono">Δ₁</span>. Rice's theorem concerns <i>index sets</i> of partial computable functions and non&#8209;trivial extensional classes; the s&#8209;m&#8209;n and recursion theorems are used in the proof. Rice–Shapiro characterises the <span class="mono">Σ₁</span> extensional classes as those determined by finite sub&#8209;functions. The jump satisfies <span class="mono">A &lt;<sub style="font-size:.72em">T</sub> A′</span>, with <span class="mono">A′</span> r.e. in <span class="mono">A</span>; Post's theorem gives <span class="mono">Σ<sub style="font-size:.72em">n+1</sub></span> = r.e. in <span class="mono">∅<sup class="fn" style="vertical-align:super">(n)</sup></span> and <span class="mono">Δ<sub style="font-size:.72em">n+1</sub></span> = recursive in <span class="mono">∅<sup class="fn" style="vertical-align:super">(n)</sup></span>, with <span class="mono">∅<sup class="fn" style="vertical-align:super">(n)</sup></span> being <span class="mono">Σ<sub style="font-size:.72em">n</sub></span>&#8209;complete. <span class="mono">∅<sup class="fn" style="vertical-align:super">(ω)</sup></span> is Turing&#8209;equivalent to true first&#8209;order arithmetic. The structure of the intermediate degrees (Friedberg–Muchnik) and the analytical hierarchy are gestured at, not developed.</p>
+    <p class="refs"><b>Sources.</b> &nbsp;Cantor, <i>Über eine elementare Frage der Mannigfaltigkeitslehre</i> (1891) · Russell, letter to Frege (1902) · Tarski, <i>Der Wahrheitsbegriff</i> (1936) · Turing, <i>On Computable Numbers</i> (1936) · Gödel, consistency of CH (1940) · Kleene, arithmetical hierarchy (1943) · Post, recursively enumerable sets and degrees (1944) · Kleene–Post, degrees of unsolvability (1954) · Rice, classes of r.e. sets (1953) · Friedberg &amp; Muchnik, intermediate degrees (1956–57) · Cohen, independence of CH (1963) · Lawvere, <i>Diagonal Arguments and Cartesian Closed Categories</i> (1969) · Soare, <i>Recursively Enumerable Sets and Degrees</i> (1987) · Yanofsky (2003).</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function E(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
+  function S(name,attrs){var e=document.createElementNS(SVGNS,name);if(attrs)for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+  function T(t){return document.createTextNode(t);}
+  function svgText(parent,x,y,str,o){o=o||{};var t=S("text",{x:x,y:y,"text-anchor":o.anchor||"middle","font-family":o.mono?"IBM Plex Mono, monospace":"Spectral, serif","font-size":o.size||"13",fill:o.fill||"var(--ink)"});if(o.style)t.setAttribute("font-style",o.style);if(o.weight)t.setAttribute("font-weight",o.weight);if(o.spacing)t.setAttribute("letter-spacing",o.spacing);t.appendChild(T(str));parent.appendChild(t);return t;}
+
+  /* ============ §I — the universal anti-diagonal ============ */
+  function witnessRender(){
+    var svg=document.getElementById("witness"); if(!svg)return;
+    svg.setAttribute("viewBox","0 0 480 312"); svg.innerHTML="";
+    var rows=[[1,0,1,0],[1,1,0,0],[0,1,0,1],[1,0,1,1]];
+    var diag=[rows[0][0],rows[1][1],rows[2][2],rows[3][3]];
+    var d=diag.map(function(b){return 1-b;});
+    var x0=158,y0=58,cs=42;
+    // column headers
+    for(var j=0;j<4;j++) svgText(svg,x0+j*cs+cs/2,y0-12,"a"+(j+1),{mono:true,size:"11",style:"italic",fill:"var(--faint)"});
+    svgText(svg,x0-12,y0-12,"at →",{size:"10",style:"italic",fill:"var(--faintest)",anchor:"end"});
+    // rows
+    for(var i=0;i<4;i++){
+      svgText(svg,x0-12,y0+i*cs+cs/2+4,"φ(a"+(i+1)+")",{mono:true,size:"11.5",fill:"var(--ink)",anchor:"end"});
+      for(var jj=0;jj<4;jj++){
+        var dgc=(i===jj);
+        svg.appendChild(S("rect",{x:x0+jj*cs,y:y0+i*cs,width:cs-2,height:cs-2,rx:2,fill:dgc?"var(--gold-soft)":"var(--paper)",stroke:dgc?"var(--gold-line)":"var(--panelhair)","stroke-width":dgc?"1.4":"1"}));
+        svgText(svg,x0+jj*cs+cs/2,y0+i*cs+cs/2+4,String(rows[i][jj]),{mono:true,size:"13",weight:dgc?"600":"400",fill:dgc?"var(--gold-deep)":"var(--soft1)"});
+      }
+    }
+    // the anti-diagonal row
+    var dy=y0+4*cs+16;
+    svgText(svg,x0-12,dy+cs/2+4,"d = α(diag)",{mono:true,size:"11.5",weight:"600",fill:"var(--red-deep)",anchor:"end"});
+    for(var k=0;k<4;k++){
+      svg.appendChild(S("rect",{x:x0+k*cs,y:dy,width:cs-2,height:cs-2,rx:2,fill:"var(--red-soft)",stroke:"var(--red-line)","stroke-width":"1.4"}));
+      svgText(svg,x0+k*cs+cs/2,dy+cs/2+4,String(d[k]),{mono:true,size:"13",weight:"600",fill:"var(--red-deep)"});
+    }
+    svgText(svg,240,dy+cs+22,"d differs from φ(aᵢ) at column aᵢ — so d equals no row",{size:"11.5",style:"italic",fill:"var(--ink)"});
+    var note=document.getElementById("witnessNote");
+    if(note)note.innerHTML="The shaded diagonal is <span class='mono'>φ(aᵢ)(aᵢ)</span>; the red row is the twist applied to it. <b>Cantor</b>: <span class='mono'>d(a)=¬[a∈φ(a)]</span>. <b>Turing</b>: <span class='mono'>d</span> = the contrarian program. <b>Tarski</b>: <span class='mono'>d</span> = the Liar. One escapee, four readings.";
+  }
+
+  /* ============ §IV — the decidability spectrum ============ */
+  function spectrumRender(){
+    var svg=document.getElementById("spectrum"); if(!svg)return;
+    svg.setAttribute("viewBox","0 0 480 300"); svg.innerHTML="";
+    // two overlapping ellipses
+    svg.appendChild(S("ellipse",{cx:185,cy:150,rx:135,ry:92,fill:"rgba(166,124,0,0.07)",stroke:"var(--gold-line)","stroke-width":"1.3"}));
+    svg.appendChild(S("ellipse",{cx:295,cy:150,rx:135,ry:92,fill:"rgba(166,124,0,0.07)",stroke:"var(--gold-line)","stroke-width":"1.3"}));
+    svgText(svg,118,70,"Σ₁",{mono:true,size:"15",weight:"600",fill:"var(--gold-deep)"});
+    svgText(svg,118,86,"verifiable",{size:"10",style:"italic",fill:"var(--faint)"});
+    svgText(svg,362,70,"Π₁",{mono:true,size:"15",weight:"600",fill:"var(--gold-deep)"});
+    svgText(svg,362,86,"refutable",{size:"10",style:"italic",fill:"var(--faint)"});
+    svgText(svg,240,138,"Δ₁",{mono:true,size:"14",weight:"600",fill:"var(--teal-deep)"});
+    svgText(svg,240,153,"decidable",{size:"9.5",style:"italic",fill:"var(--teal-deep)"});
+    // placements
+    svgText(svg,240,176,"‘x is prime’",{mono:true,size:"10.5",fill:"var(--soft1)"});
+    svgText(svg,142,150,"halting",{mono:true,size:"11",fill:"var(--ink)"});
+    svgText(svg,142,164,"K  (Σ₁∖Δ₁)",{mono:true,size:"9",fill:"var(--faint)"});
+    svgText(svg,338,150,"non-halting",{mono:true,size:"11",fill:"var(--ink)"});
+    svgText(svg,338,164,"K̄  (Π₁∖Δ₁)",{mono:true,size:"9",fill:"var(--faint)"});
+    // beyond
+    svgText(svg,240,272,"‘φₑ is total’  —  Π₂, above both: neither finitely verifiable nor refutable",{size:"11",style:"italic",fill:"var(--red-deep)"});
+    var note=document.getElementById("spectrumNote");
+    if(note)note.innerHTML="To <span class='mono'>decide</span> is to both confirm and refute — the overlap <span class='mono'>Δ₁</span>. Halting can be confirmed but not refuted (<span class='mono'>Σ₁</span> only); its complement, refuted but not confirmed (<span class='mono'>Π₁</span>). Totality escapes both — the first hint of the ladder above.";
+  }
+
+  /* ============ §VI — the jump ladder ============ */
+  var JUMP={
+    j0:{ deg:"∅", lvl:"Δ₁", gloss:"the decidable", tag:"∅ · the computable degree",
+      title:"What a machine settles on its own",
+      level:"<b>Δ₁</b> — decidable, both verifiable and refutable",
+      decides:"primality, equality, every total computable test — nothing above",
+      cannot:"the halting problem <span class='mono'>∅′</span> — whether an arbitrary program stops",
+      cplt:"‘x is prime’ · ‘x = y’",
+      prose:"The ground floor: everything here halts and answers. The diagonal's very first step — the halting problem — already lies strictly above it.",
+      ex:"Δ₁ = Σ₁ ∩ Π₁" },
+    j1:{ deg:"∅′", lvl:"Σ₁-cplt", gloss:"halting", tag:"∅′ · the halting degree",
+      title:"Verifiable, but not decidable",
+      level:"<b>Σ₁-complete</b> — recognisable in the limit, not refutable",
+      decides:"all of ordinary computation (<span class='mono'>∅</span>)",
+      cannot:"halting <i>with</i> a halting oracle — its own jump <span class='mono'>∅″</span>",
+      cplt:"‘program e halts on input x’",
+      prose:"The first jump. A halting oracle decides every ordinary program, yet cannot decide the halting problem of machines that themselves consult a halting oracle.",
+      ex:"∅′ = { e : φₑ(e)↓ }" },
+    j2:{ deg:"∅″", lvl:"Σ₂-cplt", gloss:"totality", tag:"∅″ · the second jump",
+      title:"Two alternations up",
+      level:"<b>Σ₂-complete</b> — a ∃∀ definition",
+      decides:"halting (<span class='mono'>∅′</span>) and every Σ₁ or Π₁ question",
+      cannot:"its own jump <span class='mono'>∅‴</span>",
+      cplt:"‘φₑ is total — halts on all inputs’ (Π₂) · ‘dom(φₑ) infinite’ (Σ₂)",
+      prose:"Totality lives exactly here: ‘halts on every input’ needs a ∀∃ definition — two quantifier blocks, hence two jumps above the decidable. Post's theorem makes the count exact.",
+      ex:"Σ₂ : ∃x ∀y R(x,y,·)" },
+    j3:{ deg:"∅‴", lvl:"Σ₃-cplt", gloss:"cofiniteness", tag:"∅‴ · the third jump",
+      title:"Three alternations up",
+      level:"<b>Σ₃-complete</b>",
+      decides:"totality (<span class='mono'>∅″</span>) and all below",
+      cannot:"its own jump <span class='mono'>∅⁗</span>",
+      cplt:"‘φₑ halts on all but finitely many inputs’ — cofinite domain (Σ₃)",
+      prose:"Each added quantifier alternation is precisely one more jump, and the correspondence never lapses. Cofiniteness of the halting set sits at this rung and no lower.",
+      ex:"Σ₃ : ∃x ∀y ∃z R" },
+    jw:{ deg:"∅⁽ω⁾", lvl:"beyond all finite", gloss:"true arithmetic", tag:"∅⁽ω⁾ · beyond every finite jump",
+      title:"The join of the whole tower",
+      level:"above every <span class='mono'>Σₙ</span> — Turing-equivalent to true arithmetic",
+      decides:"every arithmetical set — every finite jump <span class='mono'>∅⁽ⁿ⁾</span> at once",
+      cannot:"its own jump <span class='mono'>∅⁽ω⁺¹⁾</span> — the climb runs on up the computable ordinals and past them",
+      cplt:"true first-order arithmetic — the set of all truths of <span class='mono'>ℕ</span>",
+      prose:"Strong enough to settle every arithmetical question, and still not the top: it has a jump, and the analytical hierarchy lies beyond it. There is no last rung — only the next floor.",
+      ex:"∅⁽ω⁾ = ⊕ₙ ∅⁽ⁿ⁾ ≡_T Th(ℕ)" }
+  };
+  var jumpOrder=["j0","j1","j2","j3","jw"];
+  var jumpSel="j1";
+  function jumpRender(){
+    var lad=document.getElementById("jumpLadder");
+    if(lad){
+      if(!lad.hasChildNodes()){
+        for(var i=0;i<jumpOrder.length;i++){ (function(key){
+          var x=JUMP[key];
+          var r=E("button","lrung"); r.setAttribute("data-key",key);
+          var dg=E("span","deg"); dg.appendChild(T(x.deg)); r.appendChild(dg);
+          var lv=E("span","lvl"); lv.appendChild(T(x.lvl)); r.appendChild(lv);
+          var gl=E("span","lgloss"); gl.appendChild(T(x.gloss)); r.appendChild(gl);
+          r.addEventListener("click",function(){jumpSel=key;jumpRender();});
+          lad.appendChild(r);
+        })(jumpOrder[i]); }
+      }
+      var kids=lad.children;
+      for(var c=0;c<kids.length;c++){ var k=kids[c].getAttribute("data-key"); kids[c].className="lrung"+(k===jumpSel?" on":""); }
+    }
+    var d=JUMP[jumpSel], ro=document.getElementById("jumpReadout");
+    if(ro){
+      ro.className="dial-readout";
+      ro.innerHTML="<div class='dr-pair'>"+d.tag+"</div><h4>"+d.title+"</h4>"+
+        "<div class='jr-axes'>"+
+        "<div class='ax'>level</div><div class='av'>"+d.level+"</div>"+
+        "<div class='ax'>decides</div><div class='av'>"+d.decides+"</div>"+
+        "<div class='ax'>cannot decide</div><div class='av'>"+d.cannot+"</div>"+
+        "<div class='ax'>complete problem</div><div class='av'>"+d.cplt+"</div>"+
+        "</div><p>"+d.prose+"</p><span class='ex'>"+d.ex+"</span>";
+    }
+  }
+
+  /* ============ INIT ============ */
+  function init(){
+    try{ witnessRender(); }catch(e){}
+    try{ spectrumRender(); }catch(e){}
+    try{ jumpRender(); }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-mechanism.html">← The Mechanism</a><a rel="next" href="quodlibet-the-floor.html">The Floor →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

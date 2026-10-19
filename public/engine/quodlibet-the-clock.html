@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Clock — the tempo that tells the combinators apart</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== code runner ===== */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner .rn-head{display:flex;justify-content:space-between;align-items:center;padding:.5rem .85rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner .rn-title{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner .rn-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--paper);background:var(--teal-deep);border:none;border-radius:3px;padding:.35rem .85rem;cursor:pointer;transition:opacity .15s;}
+  .runner .rn-btn:hover{opacity:.85;}
+  .runner pre{margin:0;padding:.85rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.62;color:var(--ink);overflow-x:auto;white-space:pre;tab-size:2;}
+  .runner .rn-out{border-top:1px dashed var(--panelhair);padding:.7rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.6;color:var(--teal-deep);min-height:1.4rem;white-space:pre-wrap;}
+  .runner .rn-out .ol{color:var(--faintest);}
+  .runner .rn-out.match{background:var(--teal-soft);}
+
+  /* ===== denotational iteration ===== */
+  .denot-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .dn-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .dn-btn:hover{opacity:.85;} .dn-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .dn-func{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;}
+  .dn-func .hl{color:var(--red-deep);}
+  .dn-chain{display:flex;flex-direction:column;gap:.4rem;}
+  .dn-row{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:baseline;padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .dn-row .dn-lab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--gold-deep);white-space:nowrap;}
+  .dn-row .dn-map{display:flex;flex-wrap:wrap;gap:.3rem;}
+  .dn-pair{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.12rem .4rem;border-radius:2px;background:rgba(26,24,21,.05);color:var(--ink);}
+  .dn-pair.fresh{background:var(--teal-soft);color:var(--teal-deep);font-weight:500;}
+  .dn-pair.undef{background:transparent;color:var(--faintest);}
+  .dn-converge{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);padding:.7rem;border:1px solid var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.4rem;}
+  .dn-miss{text-align:center;font-size:.84rem;color:var(--faint);font-style:italic;margin-top:.3rem;}
+
+  /* ===== von Neumann schematic ===== */
+  .vn{display:grid;grid-template-columns:1fr;gap:1.1rem;margin-top:.3rem;}
+  #vnSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .vn-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:640px){ .vn-legend{grid-template-columns:1fr;} }
+  .vn-cell{background:var(--paper);padding:.85rem 1rem;}
+  .vn-cell .vc-k{font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;margin-bottom:.25rem;}
+  .vn-cell.u .vc-k{color:var(--teal-deep);} .vn-cell.c .vc-k{color:var(--gold-deep);} .vn-cell.d .vc-k{color:var(--red-deep);}
+  .vn-cell p{font-size:.84rem;line-height:1.5;color:var(--soft1);margin:0;}
+
+  /* ===== β-reduction tracer ===== */
+  .beta{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.012);}
+  .beta-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.5rem .85rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);flex-wrap:wrap;}
+  .beta-head .bh-t{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .beta-where{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faintest);}
+  .beta-body{padding:.4rem .4rem .8rem;}
+  .beta-line{display:grid;grid-template-columns:auto 1fr;gap:.7rem;align-items:baseline;padding:.5rem .8rem;border-radius:3px;animation:rise .3s ease;}
+  .beta-line + .beta-line{margin-top:.18rem;}
+  .beta-line .bl-rule{font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:var(--faintest);white-space:nowrap;padding-top:.15rem;}
+  .beta-line .bl-term{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.5;color:var(--ink);overflow-x:auto;}
+  .beta-line.knot{background:var(--teal-soft);}
+  .beta-line .knot-w{color:var(--teal-deep);font-weight:500;}
+  .beta-redex{background:rgba(178,58,46,.13);border-radius:2px;padding:0 .12em;}
+  .beta-new{color:var(--teal-deep);font-weight:500;}
+  .beta-gr{color:var(--faintest);}
+  .beta-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;padding:.8rem;border-top:1px dashed var(--panelhair);}
+  .beta-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);text-align:center;}
+  .beta-readout b{color:var(--ink);}
+
+  /* ===== corecursion / greatest-fixed-point stream ===== */
+  .stream-head{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;}
+  .stream-head .hl{color:var(--teal-deep);}
+  .stream-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin-bottom:.9rem;}
+  .stream-pick{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;}
+  .strm-opt{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.32rem .7rem;cursor:pointer;transition:all .15s;}
+  .strm-opt:hover{background:rgba(26,24,21,.05);}
+  .strm-opt.on{background:var(--teal-deep);color:var(--paper);border-color:var(--teal-deep);}
+  .stream-belt{display:flex;align-items:stretch;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:3.2rem;padding:.3rem 0;}
+  .strm-cell{font-family:"IBM Plex Mono",monospace;font-size:.8rem;min-width:2.4rem;text-align:center;padding:.5rem .55rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);display:flex;flex-direction:column;gap:.15rem;animation:rise .3s ease;}
+  .strm-cell .si{font-size:.56rem;color:var(--faintest);}
+  .strm-cell.fresh{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);font-weight:500;}
+  .strm-cell.tail{border-style:dashed;color:var(--faintest);background:transparent;justify-content:center;}
+  .strm-readout{text-align:center;font-size:.84rem;color:var(--faint);font-style:italic;margin-top:.7rem;}
+  .strm-readout b{font-style:normal;color:var(--teal-deep);font-weight:600;}
+
+  /* ===== Banach cobweb ===== */
+  .cob-head{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--soft1);margin-bottom:.9rem;}
+  .cob-maps{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.9rem;}
+  .cob-map{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.32rem .72rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.4rem;}
+  .cob-map:hover{background:rgba(26,24,21,.05);}
+  .cob-map.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .cob-map .cm-dot{width:7px;height:7px;border-radius:50%;}
+  .cob-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(1rem,2.5vw,1.8rem);align-items:start;}
+  @media(max-width:720px){ .cob-grid{grid-template-columns:1fr;} }
+  #cobSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cob-side{display:flex;flex-direction:column;gap:.9rem;}
+  .cob-controls{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;}
+  .cob-readout{font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.7;color:var(--ink);border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:.7rem .85rem;}
+  .cob-readout .ck{color:var(--faint);}
+  .cob-readout .cv{color:var(--teal-deep);font-weight:500;}
+  .cob-readout .cv.warn{color:var(--red-deep);}
+  .cob-verdict{font-size:.88rem;line-height:1.5;padding:.8rem 1rem;border-radius:3px;}
+  .cob-verdict.ok{background:var(--teal-soft);color:var(--teal-deep);}
+  .cob-verdict.no{background:var(--red-soft);color:var(--red-deep);}
+  .cob-verdict b{font-weight:600;}
+
+  /* ===== the power face — spectrum of givenness ===== */
+  .spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:880px){ .spectrum{grid-template-columns:1fr 1fr;} }
+  @media(max-width:520px){ .spectrum{grid-template-columns:1fr;} }
+  .sp-cell{background:var(--paper);padding:1.05rem 1.1rem;display:flex;flex-direction:column;gap:.45rem;}
+  .sp-cell .sp-tag{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);}
+  .sp-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.06rem;margin:0;color:var(--ink);}
+  .sp-cell .sp-form{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);}
+  .sp-cell .sp-how{font-size:.84rem;line-height:1.45;color:var(--soft1);}
+  .sp-cell .sp-grade{margin-top:auto;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;padding-top:.5rem;border-top:1px solid var(--hair);}
+  .sp-cell.g-imm{box-shadow:inset 4px 0 0 var(--teal-line);} .sp-cell.g-imm h4,.sp-cell.g-imm .sp-grade{color:var(--teal-deep);}
+  .sp-cell.g-asc{box-shadow:inset 4px 0 0 var(--gold-line);} .sp-cell.g-asc h4,.sp-cell.g-asc .sp-grade{color:var(--gold-deep);}
+  .sp-cell.g-met{box-shadow:inset 4px 0 0 var(--teal-line);} .sp-cell.g-met h4,.sp-cell.g-met .sp-grade{color:var(--teal-deep);}
+  .sp-cell.g-non{box-shadow:inset 4px 0 0 var(--red-line);} .sp-cell.g-non h4,.sp-cell.g-non .sp-grade{color:var(--red-deep);}
+  .sp-arrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.05em;color:var(--faint);text-align:center;margin-top:.9rem;}
+  .sp-arrow .gd{color:var(--teal-deep);} .sp-arrow .rd{color:var(--red-deep);}
+
+  /* quiet cross-volume tie */
+  .tieback{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.05em;color:var(--faintest);text-align:center;max-width:40rem;margin:1.2rem auto 0;line-height:1.7;}
+  .tieback b{color:var(--faint);font-weight:500;}
+
+  /* intra-page contents / wayfinding */
+  .contents{max-width:var(--read);margin:clamp(2.6rem,6vh,4.2rem) auto 0;padding:1.5rem 1.7rem 1.6rem;border:1px solid var(--rule);border-radius:3px;}
+  .contents .ct-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:0 0 1.2rem;}
+  .contents ol{list-style:none;margin:0;padding:0;}
+  .contents li{margin:0 0 .85rem;padding-left:2.7rem;position:relative;}
+  .contents li:last-child{margin-bottom:0;}
+  .contents .ct-n{position:absolute;left:0;top:.08rem;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faintest);letter-spacing:.05em;}
+  .contents a.ct-t{color:var(--ink);text-decoration:none;font-weight:500;font-size:1.02rem;border-bottom:1px solid transparent;transition:border-color .15s;}
+  .contents a.ct-t:hover{border-bottom-color:var(--ink);}
+  .contents .ct-d{display:block;font-size:.83rem;line-height:1.5;color:var(--faint);margin-top:.2rem;font-style:italic;}
+  .contents .ct-dives{margin-top:1.35rem;padding-top:1.15rem;border-top:1px solid var(--rule);font-size:.82rem;line-height:1.75;color:var(--faint);}
+  .contents .ct-dives .ct-lab{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faintest);display:block;margin-bottom:.55rem;}
+  .contents .ct-dives a{color:var(--soft1);text-decoration:none;border-bottom:1px solid var(--rule);transition:border-color .15s;}
+  .contents .ct-dives a:hover{border-bottom-color:var(--soft1);}
+  .reading[id],.thm[id],.spectrum[id]{scroll-margin-top:2rem;}
+</style>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-engine">The Engine</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deep-dive companion · drawn from The Combinators, §III</span></div>
+    <div class="hero-head">
+      <p class="kicker">The same song, sung at different speeds</p>
+      <h1 class="title">The <span class="x">Clock</span></h1>
+      <p class="standfirst">There is not one fixed-point combinator but an endless population of them, bred by a single operator. The deep fact about that population is that its members are indistinguishable to every ordinary instrument: each has the <em>same</em> Böhm tree, the same denotation, the same infinite unfolding. What tells two combinators apart is not <em>what</em> they compute but <em>how fast</em> — the tempo of their reduction, recorded by a clock. This companion catalogues the family, proves why it looks uniform, and follows the one invariant fine enough to see the differences, out to the questions that are still open and the boundary where no algorithm can follow.</p>
+      <p class="ed-mark">the aviary · the same tree · the clock · the open frontier · the undecidable family</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">δ = S&#8202;I</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p><i>The Combinators</i> established that the term we casually call <span class="mono">Y</span> is one of infinitely many, all of them fixed points of a single generator <span class="mono">δ</span>. That was a headcount. This companion is the natural history: how the family is bred, how its members are named, and — the question that turns out to run deepest — how, or whether, they can be told apart. For the family hides a genuine surprise, and the surprise is what makes it worth a volume.</p>
+    <p>The surprise is that the combinators all look <i>identical</i>. Every fixed-point combinator satisfies <span class="mono">Y&#8202;f =β f(Y&#8202;f)</span>, and that single equation forces head reduction to drive each of them into the same infinite unfolding <span class="mono">f(f(f(&#8230;)))</span>. They share one <i>Böhm tree</i> — the standard semantic fingerprint of a <span class="mono">λ</span>-term — and so they are equal in the models the Böhm tree induces, equal to every instrument that reads only the eventual shape of a computation. The whole apparatus of separation that distinguishes ordinary terms falls silent here. And yet the combinators are <i>not</i> the same term: Curry's and Turing's are not interconvertible, and the tower <span class="mono">Y, Yδ, Yδ², …</span> is a genuine tower. Something distinguishes them that no Böhm tree can see.</p>
+    <p>That something is <i>tempo</i>. Two combinators with one Böhm tree differ in the <i>speed</i> at which they produce it — how many reduction steps fall between one <span class="mono">f</span> and the next — and that speed, annotated onto the tree, is the <b>clock</b>. The clock is the finest instrument the subject has, and it is the through-line of this volume. Five movements: the <b>aviary</b>, Smullyan's enchanted forest of birds, where the generator turns out to be an Owl and the fixed-point combinator a Sage bird assembled from three others; the <b>same tree</b>, where Böhm trees are built and the uniformity proven; the <b>clock</b>, where the tempo is defined, computed, and shown to slow by a fixed amount at each turn of the generator; the <b>open frontier</b>, where some of the most elementary questions about the family remain unanswered; and the <b>undecidable family</b>, where we find that no procedure can so much as recognise a combinator. A population that all sings one song, at speeds no algorithm can sort.</p>
+  </div>
+
+  <nav class="contents" aria-label="Contents">
+    <p class="ct-h">the population of fixed-point combinators · five movements</p>
+    <ol>
+      <li><span class="ct-n">I</span><a class="ct-t" href="#aviary">The aviary</a><span class="ct-d">Smullyan's birds — the Mockingbird, the Lark, the Owl <span class="mono">= δ = SI</span>, and the Sage bird <span class="mono">= B&#8202;M&#8202;L</span>; the generator that breeds the family</span></li>
+      <li><span class="ct-n">II</span><a class="ct-t" href="#sametree">The same tree</a><span class="ct-d">Böhm trees built from head normal forms, and the proof that every fixed-point combinator has the identical one, <span class="mono">λf.f<sup>ω</sup></span></span></li>
+      <li><span class="ct-n">III</span><a class="ct-t" href="#clock">The clock</a><span class="ct-d">clocked Böhm trees: the tempo of reduction, the invariant fine enough to discriminate, and the exact amount by which <span class="mono">δ</span> slows it</span></li>
+      <li><span class="ct-n">IV</span><a class="ct-t" href="#frontier">The open frontier</a><span class="ct-d">the fixed-point property, the double combinator, and the schemes that breed new combinators faster than they can be told apart</span></li>
+      <li><span class="ct-n">V</span><a class="ct-t" href="#undecidable">The undecidable family</a><span class="ct-d">Scott and Curry: the combinators form a class no algorithm can recognise — infinite, generated, rigid, and unsurveyable</span></li>
+    </ol>
+    <div class="ct-dives"><span class="ct-lab">live excursions within</span>The <a href="#brood">generator at work</a>, breeding the Böhm sequence (I); the <a href="#spine">shared spine</a> that gives every combinator one Böhm tree (II); and the centrepiece — the <a href="#clockwork">clock itself</a>, computing the tempo of each combinator and watching <span class="mono">δ</span> slow it by two at every turn (III).</div>
+  </nav>
+
+  <!-- ===== §I THE AVIARY ===== -->
+  <section class="sec" id="aviary">
+    <div class="sec-head"><span class="num">I · the aviary</span><h2>An enchanted forest of birds</h2><p class="sub">Smullyan recast combinatory logic as ornithology: every combinator is a bird, application is one bird calling the name of another, and the fixed-point theorem becomes the claim that every bird is fond of some bird. The generator of our family turns out to be an Owl, and the fixed-point combinator a Sage bird built from three others.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">birds, and the fondness relation&nbsp;&nbsp;</span>In Raymond Smullyan's <i>To Mock a Mockingbird</i> the combinators live as birds in a forest. To call <span class="mono">A</span> to <span class="mono">B</span> — to apply one to the other — is to call out the name <span class="mono">B</span> to the bird <span class="mono">A</span>, which answers with the name of some bird <span class="mono">AB</span>. A bird <span class="mono">A</span> is said to be <i>fond</i> of a bird <span class="mono">x</span> when calling <span class="mono">x</span> to it returns <span class="mono">x</span> itself: <span class="mono">A&#8202;x = x</span>. In this dialect the Fixed-Point Theorem reads as a fact of natural history — <i>every bird is fond of at least one bird</i> — and a fixed-point combinator is a <b>Sage bird</b> (Smullyan writes <span class="mono">Θ</span>): a single bird that, called to any bird <span class="mono">x</span>, names a bird that <span class="mono">x</span> is fond of, since <span class="mono">x(Θ&#8202;x) = Θ&#8202;x</span>. The forest has a small founding population. The <b>Mockingbird</b> <span class="mono">M</span> repeats what it hears, <span class="mono">M&#8202;x = x&#8202;x</span>; the <b>Lark</b> <span class="mono">L</span> obeys <span class="mono">L&#8202;x&#8202;y = x(y&#8202;y)</span>; the <b>Bluebird</b> <span class="mono">B</span> composes, <span class="mono">B&#8202;x&#8202;y&#8202;z = x(y&#8202;z)</span>; the <b>Kestrel</b> <span class="mono">K&#8202;x&#8202;y = x</span> and the <b>Starling</b> <span class="mono">S&#8202;x&#8202;y&#8202;z = x&#8202;z(y&#8202;z)</span> are the two from which, with the Identity bird <span class="mono">I</span>, every other bird can be derived.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the Sage bird is three birds in a row — <span class="mono">Θ = B&#8202;M&#8202;L</span></div>
+      <div class="ts">The fixed-point combinator is not a primitive of the forest; it is assembled. Compose the Bluebird, the Mockingbird and the Lark: <span class="mono">B&#8202;M&#8202;L&#8202;f = M(L&#8202;f) = (L&#8202;f)(L&#8202;f) = f((L&#8202;f)(L&#8202;f))</span> — so <span class="mono">B&#8202;M&#8202;L&#8202;f</span> reduces to <span class="mono">(L&#8202;f)(L&#8202;f)</span>, a fixed point of <span class="mono">f</span>, making <span class="mono">Θ = B&#8202;M&#8202;L</span> a fixed-point combinator. And it is exactly Curry's: since the Lark gives <span class="mono">L&#8202;f = λy.f(y&#8202;y)</span>, the term <span class="mono">(L&#8202;f)(L&#8202;f)</span> is <span class="mono">(λx.f(x&#8202;x))(λx.f(x&#8202;x))</span>, the body of <span class="mono">Y&#8202;f</span>. Curry's combinator is the Mockingbird's self-application wrapped around the Lark — the knot tied by three birds calling each other's names.</div>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the generator is an Owl — <span class="mono">δ = S&#8202;I = O</span></div>
+      <div class="ts">The operator whose fixed points <i>are</i> the fixed-point combinators has a name in the aviary too. The <b>Owl</b> obeys <span class="mono">O&#8202;x&#8202;y = y(x&#8202;y)</span>, and a single derivation identifies it: <span class="mono">S&#8202;I&#8202;x&#8202;y = I&#8202;y(x&#8202;y) = y(x&#8202;y)</span>, so <span class="mono">O = S&#8202;I</span>; and <span class="mono">O</span> is precisely the generator <span class="mono">δ = λy.λf.f(y&#8202;f)</span>. So <span class="mono">Y</span> is a fixed-point combinator exactly when it is a fixed point of the Owl, <span class="mono">Y =βη O&#8202;Y</span>; and Böhm's observation that <span class="mono">Y&#8202;δ</span> is again a combinator becomes the rule that <i>postfixing the Owl</i> breeds new ones. The whole infinite family <span class="mono">Y, Y&#8202;O, Y&#8202;O&#8202;O, …</span> — the <i>Böhm sequence</i> — is one combinator with the Owl's name called after it, again and again.</div>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="brood">
+        <div class="dn-func">the Böhm sequence — postfix the Owl <span class="hl">δ = S&#8202;I</span> to breed the next combinator<br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">each is a distinct fixed-point combinator · checked by running its call-by-value image on the factorial functional</span></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="genNext">postfix the Owl — breed the next</button>
+          <button class="dn-btn ghost" id="genReset">reset to Y</button>
+        </div>
+        <div class="dn-chain" id="genList"></div>
+        <div class="dn-miss" id="genReadout"></div>
+        <figcaption><span class="mono">each row is a genuinely new combinator — </span>and each still computes the factorial, because each is still a fixed-point combinator. The terms lengthen without bound; the recursion they perform never changes. The next movement asks the question this raises: if they all do the same thing, in what sense are they different birds?</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== §II THE SAME TREE ===== -->
+  <section class="sec" id="sametree">
+    <div class="sec-head"><span class="num">II · the same tree</span><h2>Every combinator, one Böhm tree</h2><p class="sub">The Böhm tree is the standard fingerprint of a <span class="mono">λ</span>-term — the infinite record of its head normal forms. Read it off any fixed-point combinator and you get the same answer, the unbroken spine <span class="mono">λf.f<sup>ω</sup></span>. This is why the family looks uniform, and why the usual means of telling terms apart cannot touch it.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">head normal form, and the tree of them&nbsp;&nbsp;</span>A <span class="mono">λ</span>-term is <i>solvable</i> when it has a <i>head normal form</i> — when it reduces to <span class="mono">λx₁&#8230;xₙ.&#8202;y&#8202;M₁&#8230;Mₖ</span>, an abstraction over a variable <span class="mono">y</span> (the <i>head</i>) applied to arguments. The head is the one stable thing a computation commits to first; everything else can still change. The <b>Böhm tree</b> <span class="mono">BT(M)</span> records exactly this, recursively: head-reduce <span class="mono">M</span> to its head normal form, write down the head, and hang beneath it the Böhm trees of the arguments <span class="mono">M₁, …, Mₖ</span> — descending forever if the term never stops producing heads. A term with no head normal form at all (an <i>unsolvable</i> term, like <span class="mono">Ω</span>) contributes nothing, a bare <span class="mono">⊥</span>. The Böhm tree is the term's eventual skeleton, the part of its behaviour that survives all further reduction.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the spine is forced — <span class="mono">BT(Y) = λf.f<sup>ω</sup></span> for every fixed-point combinator</div>
+      <div class="ts">Compute the tree of any fixed-point combinator and the answer is fixed in advance. Because <span class="mono">Y&#8202;f =β f(Y&#8202;f)</span>, the term <span class="mono">Y&#8202;f</span> head-reduces to a head normal form whose head is <span class="mono">f</span>, with a single argument that is again (convertible to) <span class="mono">Y&#8202;f</span>; so its tree is <span class="mono">f</span> over <span class="mono">f</span> over <span class="mono">f</span>, without end, and <span class="mono">BT(Y) = λf.f(f(f(&#8230;)))</span>, written <span class="mono">λf.f<sup>ω</sup></span>. <i>Every</i> combinator in the family yields this one tree — Curry's, Turing's, every rung of the Böhm sequence — because the defining equation alone determines it. They are therefore equal in the model that Böhm trees induce, equal to any observer who reads only the eventual shape of the unfolding. On this evidence the family is a single point.</div>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="spine">
+        <div class="dn-func">head-reduce <span class="mono">Y&#8202;f</span> and watch the spine appear — one <span class="mono">f</span> at a time<br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">switch combinators: the spine is the same for every one of them</span></div>
+        <div class="beta-head" style="border:none;background:none;padding:.3rem 0 0">
+          <span class="beta-where" id="spWhere"></span>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <button class="dn-btn ghost" id="spY">Y</button>
+            <button class="dn-btn ghost" id="spT">Θ</button>
+            <button class="dn-btn ghost" id="spYd">Yδ</button>
+          </div>
+        </div>
+        <div class="dn-chain" id="spList" style="font-size:1.05rem"></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="spNext">expose the next f ↓</button>
+          <button class="dn-btn ghost" id="spReset">reset</button>
+        </div>
+        <div class="dn-miss" id="spReadout"></div>
+        <figcaption><span class="mono">the head structure is identical for all three — </span>only the <i>inner</i> term differs (<span class="mono">Y</span> hides <span class="mono">(λx.f(xx))(λx.f(xx))</span> where <span class="mono">Θ</span> hides <span class="mono">Θ&#8202;f</span>), and the Böhm tree forgets exactly that difference. Same tree, different terms.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">why this silences the usual instrument&nbsp;&nbsp;</span>The reason the shared tree matters is that the Böhm tree is normally <i>decisive</i>. Böhm's separation theorem (1968) says that two terms with <i>different</i> Böhm trees can always be pulled apart by some context — fed to a surrounding term that sends one to <span class="mono">true</span> and the other to <span class="mono">false</span> — and this &ldquo;Böhm-out&rdquo; technique is the engine behind the standard models, where two terms are equal precisely when their Böhm trees agree (up to the infinite <span class="mono">η</span>-expansions that <span class="mono">D<sub>∞</sub></span> also identifies). For ordinary terms, the tree is the verdict. But separation only separates trees that <i>differ</i>, and the combinators' trees do not differ. The single most powerful instrument for distinguishing <span class="mono">λ</span>-terms returns, for this family, no reading at all. If the combinators are genuinely distinct — and they are — the difference must live in something the tree throws away.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III THE CLOCK ===== -->
+  <section class="sec" id="clock">
+    <div class="sec-head"><span class="num">III · the clock</span><h2>The tempo that tells them apart</h2><p class="sub">If the combinators are distinct yet share a tree, the difference must be in something the tree discards — and what it discards is timing. Annotate each node of the Böhm tree with how long it took to produce, and the family separates: the combinators sing one song at audibly different speeds, and the generator slows the song by a fixed amount each time it is applied.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">putting a clock on the tree&nbsp;&nbsp;</span>The Böhm tree records <i>which</i> heads appear and forgets <i>when</i>. Restore the timing and you have the instrument the modern theory turns on: the <b>clocked Böhm tree</b> of Endrullis, Hendriks and Klop, in which every node carries the number of head-reduction steps it cost to expose. The bare tree of a fixed-point combinator is the featureless spine <span class="mono">f, f, f, …</span>; its clock is the sequence of waits between one <span class="mono">f</span> and the next. That sequence is not featureless at all. It is a genuine invariant of the term — coarse enough to ignore the cosmetic choices of bound-variable names, fine enough to register a real difference in the <i>rhythm</i> of computation — and on this family it speaks where the tree was silent.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the clocks, computed — and the Owl slows them by two</div>
+      <div class="ts">Read the head-step count to each successive <span class="mono">f</span> and the four most familiar combinators come apart cleanly:<br><span class="mono" style="display:inline-block;margin:.4rem 0 .3rem;line-height:1.7">Curry&nbsp;&nbsp;Y&nbsp;:&nbsp;&nbsp;2&nbsp;1&nbsp;1&nbsp;1&nbsp;1&nbsp;1&nbsp;…<br>Turing&nbsp;Θ&nbsp;:&nbsp;&nbsp;2&nbsp;2&nbsp;2&nbsp;2&nbsp;2&nbsp;2&nbsp;…<br>Y&#8202;δ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;4&nbsp;3&nbsp;3&nbsp;3&nbsp;3&nbsp;3&nbsp;…<br>Y&#8202;δ&#8202;δ&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;6&nbsp;5&nbsp;5&nbsp;5&nbsp;5&nbsp;5&nbsp;…</span><br>Curry's settles to one step per <span class="mono">f</span>, Turing's to two; and each postfixing of the Owl <span class="mono">δ = S&#8202;I</span> raises the steady tempo by <i>exactly two</i> — from 1 to 3 to 5. This is what &ldquo;<span class="mono">δ</span> slows the clock&rdquo; means, made quantitative: the generator does not change the song, only its speed, and it always slows it by the same amount. Distinct clocks force <span class="mono">β</span>-inconvertibility, so this single table proves all four combinators pairwise non-convertible — a fact, recall, that no Böhm tree could establish.</div>
+    </div>
+    <div class="stage">
+      <div class="panel" id="clockwork">
+        <div class="dn-func">the clock, computed live — bar height is the head-step wait before each <span class="mono">f</span><br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">identical Böhm tree, four different tempos · the Owl lifts every bar by two</span></div>
+        <div id="clkBars" style="padding:.7rem .2rem .3rem"></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="clkMore">show more ticks →</button>
+          <button class="dn-btn ghost" id="clkReset">reset</button>
+        </div>
+        <div class="dn-miss" id="clkReadout"></div>
+        <figcaption><span class="mono">every bar marks one wait; taller means slower — </span>the four combinators write the same word <span class="mono">f f f …</span> at four speeds. Curry's hurries after its first step; Turing's keeps an even two; the Owl, postfixed, drags each successive combinator two steps slower. The tree saw none of this.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">a third equality, between the two we knew&nbsp;&nbsp;</span>The clock is not merely a trick for this family; it occupies a precise place in the order of distinctions. Plain <span class="mono">β</span>-convertibility is the finest relation — interconvertible terms are identical for every purpose — and Böhm-tree equality is among the coarsest, identifying everything with the same eventual skeleton. The clocked tree sits <i>strictly between</i> them: convertible terms always have the same clock, terms with the same clock always have the same tree, and both implications can fail in reverse. So the clock catches differences the tree misses — enough to split the entire Böhm sequence, proving it has no duplicates — without claiming to decide convertibility outright, for there are combinators that keep the same simple clock yet remain inconvertible. For those the theory sharpens the instrument further, to an <i>atomic clock</i> that times individual reduction events, and reaches still finer with Lévy–Longo and Berarducci trees, which remember more of what ordinary Böhm trees discard about non-terminating subterms. The discrimination of the family is a ladder of ever-finer clocks, climbing toward convertibility without ever quite arriving.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the first movement's question, returned as a question of speed</div>
+      <p>This closes a circle opened in <i>The Combinators</i>. There the distinction between Curry's combinator and Turing's was that Turing's <i>reduces</i> to its unfolding in a fixed number of steps while Curry's only <i>converts</i> to it — a difference in the <i>tempo</i> of reaching <span class="mono">f(Y&#8202;f)</span>, though it was not yet named as one. The clock names it. Convertibility asked <i>whether</i> two combinators reach a common form; the clock asks <i>how fast</i> each reaches it, and that finer question is the one that actually separates the family. What looked like a footnote about reduction strategy turns out to be the only thing distinguishing an infinity of combinators that are, in every other respect, the same bird.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV THE OPEN FRONTIER ===== -->
+  <section class="sec" id="frontier">
+    <div class="sec-head"><span class="num">IV · the open frontier</span><h2>Questions the family has not answered</h2><p class="sub">The combinators are easy to breed and hard to tell apart, and that asymmetry leaves some of the most elementary questions about them unsolved. New ones can be generated by infinitely many schemes; proving any two of them genuinely different is the labour, and at the edge of that labour sit problems open for decades.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">how many fixed points?&nbsp;&nbsp;</span>Begin with a question that sounds too simple to be open. The Fixed-Point Theorem hands every <span class="mono">λ</span>-term at least one fixed point. How many are there? The <i>fixed-point property</i> conjectures a stark dichotomy: every term has either <i>exactly one</i> fixed point or <i>infinitely many</i> — never two, never seventeen. It is known to hold in two important cases — when the term has a fixed point in normal form (Intrigila and Statman, 2000), and when open fixed points are allowed (Manzonetto, Polonsky, Saurin and Simonsen, 2019) — and it is known to <i>fail</i> in every sensible <span class="mono">λ</span>-theory, where some term can be made to have an intermediate count. But for closed terms in the pure calculus the general question — can a <span class="mono">λ</span>-term have a finite number of fixed points greater than one? — remains, after all this time, <b>unanswered</b>.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the double combinator — conjectured impossible, still undecided</div>
+      <div class="ts">Every fixed-point combinator satisfies <span class="mono">δ&#8202;Y =β Y</span> by definition. Statman asked whether any combinator can also satisfy the <i>mirror</i> equation <span class="mono">Y&#8202;δ =β Y</span> — a <b>double fixed-point combinator</b>, invariant under postfixing the Owl as well as prefixing it. His intuition was that the Owl, postfixed, must <i>slow the clock</i> (as the previous movement confirms it does, by two), so that <span class="mono">Y&#8202;δ</span> and <span class="mono">Y</span> could never share a reduct; he conjectured no such combinator exists. Intrigila published a proof in 1997. But in 2011 Endrullis found the argument wanting, and the question reopened; the 2019 study of the problem proves only that the theory generated by the double-combinator equation is consistent (a conservative extension of the <span class="mono">λ</span>-calculus) and proposes a technique that <i>might</i> settle it negatively. Whether a double fixed-point combinator exists is, today, <b>open</b> — a clean equation about the most studied term in the subject, unresolved for thirty years.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">breeding faster than discriminating&nbsp;&nbsp;</span>The asymmetry runs deeper than two famous problems. Postfixing the Owl is only the <i>simplest</i> way to breed combinators; working in the infinitary <span class="mono">λ</span>-calculus, Endrullis and Klop exhibit infinitely many other generation schemes, modular building blocks that assemble new fixed-point combinators at will. Creation is cheap. The cost is always the same: <i>having made a new combinator, one must prove it is new</i> — prove it <span class="mono">β</span>-inconvertible with every combinator already in hand — and that is exactly the discrimination problem, where, as Intrigila remarked, the techniques are remarkably few. Even the most natural follow-up to the previous movement is open: the standard Böhm sequence from Curry's <span class="mono">Y</span> is proven duplicate-free by its clocks, but whether the sequence <span class="mono">Z, Z&#8202;δ, Z&#8202;δ², …</span> begun from an <i>arbitrary</i> combinator <span class="mono">Z</span> ever repeats is not known. The family grows faster than we can sort it, and the clock — the finest instrument we have — runs out before the questions do.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V THE UNDECIDABLE FAMILY ===== -->
+  <section class="sec" id="undecidable">
+    <div class="sec-head"><span class="num">V · the undecidable family</span><h2>A flock no algorithm can survey</h2><p class="sub">After breeding and discriminating, one last hope: perhaps the family can at least be <span style="font-style:italic">recognised</span> — perhaps some procedure can decide, of a given term, whether it is a fixed-point combinator. It cannot. The combinators form a class no algorithm can pick out, and even the larger class that merely shares their tree is beyond enumeration.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">the recognition question&nbsp;&nbsp;</span>We have a generator that breeds combinators, a clock that distinguishes them, and a frontier of open problems. The most basic computational question remains: is there an algorithm that, handed a closed <span class="mono">λ</span>-term, decides whether it is a fixed-point combinator? Membership in the family is a <span class="mono">Π</span>-shaped condition — <span class="mono">Y&#8202;F =β F(Y&#8202;F)</span> must hold for <i>every</i> <span class="mono">F</span> — and conditions of that shape are rarely decidable. Here they are provably not, and the reason is a theorem at the foundation of the subject's undecidability.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">no procedure recognises a combinator — Scott and Curry</div>
+      <div class="ts">The Scott–Curry theorem states that any two disjoint, non-trivial sets of <span class="mono">λ</span>-terms, each closed under <span class="mono">β</span>-conversion, are <i>recursively inseparable</i> — no decidable set lies between them. A set is non-trivial when it is neither empty nor everything. The fixed-point combinators form exactly such a set: it is closed under <span class="mono">β</span>-conversion (if <span class="mono">Y</span> is a combinator and <span class="mono">Y =β Y'</span> then <span class="mono">Y'&#8202;F =β Y&#8202;F =β F(Y&#8202;F) =β F(Y'&#8202;F)</span>, so <span class="mono">Y'</span> is one too), and it is non-trivial. Taken with its complement, recursive inseparability forces the conclusion: <b>the set of fixed-point combinators is not decidable.</b> No algorithm can tell a genuine combinator from an impostor. The term that solves every recursive equation cannot itself be recognised by any mechanical test.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">even the look-alikes escape enumeration&nbsp;&nbsp;</span>The undecidability is not an artefact of the strict fixed-point equation; it survives loosening. Call a term a <i>non-standard</i> fixed-point combinator if it merely has the same Böhm tree as one — the spine <span class="mono">λf.f<sup>ω</sup></span> — whether or not it satisfies the equation. Every genuine combinator is non-standard, but not conversely: there are <i>strictly</i> non-standard combinators, terms that unfold into <span class="mono">f(f(f(&#8230;)))</span> and yet fail to be fixed-point combinators at all — the tree, once more, underdetermining the term. And the set of these look-alikes is not even recursively enumerable; one cannot so much as list the terms that share the combinators' tree. So the family is hemmed by undecidability on every side: infinite, bred by a single Owl, rigid enough that a clean clock separates its members, and yet impossible to recognise, impossible to enumerate even in its loosest form. The most surveyed term in the <span class="mono">λ</span>-calculus heads a population that admits no census.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">BT(Y) = λf.f<sup>ω</sup></span><span class="ln"></span></div>
+
+  <div class="coda"><p>The fixed-point combinator was supposed to be a single term, a tool reached for and set down. It is instead a boundless flock, hatched from an Owl, every bird of it singing the one endless note <span class="mono">f(f(f(&#8230;)))</span> — the same Böhm tree, the same denotation, the same eventual shape, indistinguishable to every instrument that listens for <i>what</i> is sung. Only the tempo betrays them: the wait between one note and the next, the clock, which the Owl drags two beats slower at every postfixing, and which is the lone invariant fine enough to prove that Curry's bird and Turing's and all their descendants are truly different birds. Yet the clock that tells them apart cannot count them, and no algorithm can take the roll. What began in <i>The Combinators</i> as a question of whether a term <i>converts</i> or <i>reduces</i> to its unfolding ends here as a question of <i>speed</i> — the one difference between an infinity of combinators that are, in every other respect, the same. <span class="mono">One song, sung at every speed, and beyond all counting.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deep-dive companion · the population of fixed-point combinators</span></div>
+    <p class="colophon">A tier-three companion, drawn from the third movement of <i>The Combinators</i>. Where that volume noted in passing that the fixed-point combinators form a structured infinity, this one is the natural history of that infinity: how it is bred (by postfixing Smullyan's Owl, <span class="mono">δ = SI</span>), why its members look identical (one shared Böhm tree, <span class="mono">λf.f<sup>ω</sup></span>), how they are nonetheless told apart (by the clock, the tempo of head reduction), what about them remains unknown (the fixed-point property, the double combinator), and why no algorithm can survey them (Scott–Curry). The mathematics is classical and is hand-verified before it is written; in particular the clock sequences and the Owl's two-step slowdown were computed by direct head reduction.</p>
+    <p class="notes"><span class="nl">on the aviary.</span> &nbsp;In Smullyan's <i>To Mock a Mockingbird</i>, combinators are birds and application is one bird calling another's name; a bird <span class="mono">A</span> is <i>fond</i> of <span class="mono">x</span> when <span class="mono">A&#8202;x = x</span>, and the Fixed-Point Theorem says every bird is fond of some bird. The founding birds: Mockingbird <span class="mono">M&#8202;x = x&#8202;x</span>, Lark <span class="mono">L&#8202;x&#8202;y = x(y&#8202;y)</span>, Bluebird <span class="mono">B&#8202;x&#8202;y&#8202;z = x(y&#8202;z)</span>, Starling <span class="mono">S</span>, Kestrel <span class="mono">K</span>, Identity <span class="mono">I</span>. The Sage bird (a fixed-point combinator) is <span class="mono">Θ = B&#8202;M&#8202;L</span>: <span class="mono">B&#8202;M&#8202;L&#8202;f = M(L&#8202;f) = (L&#8202;f)(L&#8202;f) = f((L&#8202;f)(L&#8202;f))</span>, and since <span class="mono">L&#8202;f = λy.f(y&#8202;y)</span> this is exactly Curry's <span class="mono">Y&#8202;f = (λx.f(x&#8202;x))(λx.f(x&#8202;x))</span>. The generator is the Owl <span class="mono">O&#8202;x&#8202;y = y(x&#8202;y)</span>: from <span class="mono">S&#8202;I&#8202;x&#8202;y = I&#8202;y(x&#8202;y) = y(x&#8202;y)</span> one reads <span class="mono">O = S&#8202;I = δ</span>, and postfixing it generates the Böhm sequence.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on Böhm trees and the clock.</span> &nbsp;The Böhm tree of a term is built by head-reducing to head normal form <span class="mono">λx⃗.y&#8202;M₁&#8230;Mₖ</span>, recording the head <span class="mono">y</span>, and recursing into the arguments (<span class="mono">⊥</span> for unsolvable terms). Because <span class="mono">Y&#8202;f =β f(Y&#8202;f)</span>, every fixed-point combinator has the identical tree <span class="mono">λf.f<sup>ω</sup></span>, so Böhm's separation theorem (1968) — which separates terms with <i>distinct</i> trees — cannot discriminate them. The clocked Böhm trees of Endrullis, Hendriks and Klop annotate each node with its head-step cost; the resulting clocked equality is strictly intermediate between <span class="mono">β</span>-convertibility and Böhm-tree equality. Computed directly, the clocks are <span class="mono">Y</span>: 2,1,1,…; <span class="mono">Θ</span>: 2,2,2,…; <span class="mono">Yδ</span>: 4,3,3,…; <span class="mono">Yδδ</span>: 6,5,5,… — postfixing the Owl raises the steady tempo by exactly two, the precise content of &ldquo;<span class="mono">δ</span> slows the clock.&rdquo; Distinct clocks entail <span class="mono">β</span>-inconvertibility; by this means the standard Böhm sequence is proven duplicate-free. Not all combinators are separated by the simple clock, so the theory refines to the <i>atomic</i> clock and to Lévy–Longo and Berarducci trees, which retain more of what Böhm trees discard.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on the frontier and the boundary.</span> &nbsp;The <i>fixed-point property</i> — that every term has one or infinitely many fixed points — holds for open fixed points (Manzonetto, Polonsky, Saurin, Simonsen, 2019) and when a normal-form fixed point exists (Intrigila–Statman, 2000), fails in every sensible <span class="mono">λ</span>-theory, and is open for closed terms in the pure calculus. Statman's <i>double fixed-point combinator</i> (an fpc with <span class="mono">Y&#8202;δ =β Y</span>) was conjectured not to exist; Intrigila's 1997 proof was found wanting (Endrullis, 2011) and the question is open. Endrullis and Klop give infinitely many generation schemes via the infinitary <span class="mono">λ</span>-calculus, the difficulty always being to prove the new combinators <span class="mono">β</span>-inconvertible. Recognition is impossible: by Scott–Curry, disjoint non-trivial <span class="mono">β</span>-closed sets are recursively inseparable, so the (β-closed, non-trivial) set of fixed-point combinators is undecidable; the looser class of <i>non-standard</i> combinators (terms with the tree <span class="mono">λf.f<sup>ω</sup></span>, the standard ones a proper subset) is not even recursively enumerable.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Smullyan, <i>To Mock a Mockingbird</i> (the aviary; the Sage bird, the Owl) · Schönfinkel 1924 / Curry (combinatory logic; <span class="mono">δ = SI</span>) · Böhm 1968 (Böhm trees; the separation theorem) · Endrullis, Hendriks &amp; Klop (clocked and atomic Böhm trees; <span class="mono">β</span>-discrimination of fixed-point combinators; modular generation schemes) · Lévy, Longo, Berarducci (refined tree semantics) · Intrigila &amp; Statman 1997, 2000 (the structure of fpc's; the fixed-point property) · Endrullis 2011 (on the double-combinator proof) · Manzonetto, Polonsky, Saurin &amp; Simonsen 2019 (the fixed-point property; harnessing double fixed-point combinators) · Scott &amp; Curry (recursive inseparability of <span class="mono">β</span>-closed sets) · Barendregt, <i>The Lambda Calculus</i> (solvability, head normal forms, Böhm trees) · Lawvere 1969.</p>
+  </footer>
+
+</div>
+  <script>
+  "use strict";
+  function E(t,c){ const e=document.createElement(t); if(c) e.className=c; return e; }
+  function sup(n){ const m={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"}; return String(n).split("").map(function(d){return m[d];}).join(""); }
+
+  /* ---- de Bruijn engine ---- */
+  const V=function(n){return {v:n};}, L=function(b){return {l:b};}, A=function(s,t){return {a:[s,t]};}, C=function(n){return {c:n};};
+  function shift(d,c,t){ if("v"in t) return t.v>=c?V(t.v+d):t; if("c"in t) return t; if("l"in t) return L(shift(d,c+1,t.l)); return A(shift(d,c,t.a[0]),shift(d,c,t.a[1])); }
+  function subst(j,s,t){ if("v"in t) return t.v===j?s:t; if("c"in t) return t; if("l"in t) return L(subst(j+1,shift(1,0,s),t.l)); return A(subst(j,s,t.a[0]),subst(j,s,t.a[1])); }
+  function contract(r){ return shift(-1,0,subst(0,shift(1,0,r.a[1]),r.a[0].l)); }
+
+  /* ---- HEAD reduction (contract only the head redex) ---- */
+  function headStep(t){
+    if("l"in t){ const b=headStep(t.l); return b?L(b):null; }
+    if("a"in t){
+      let args=[],h=t; while("a"in h){ args.push(h.a[1]); h=h.a[0]; }
+      if("l"in h){
+        let red=contract(A(h,args[args.length-1]));
+        for(let i=args.length-2;i>=0;i--) red=A(red,args[i]);
+        return red;
+      }
+      return null;
+    }
+    return null;
+  }
+  function headNF(t){ let c=t,n=0; while(true){ const s=headStep(c); if(!s)break; c=s; if(++n>3000)break; } return {t:c,steps:n}; }
+  /* clock along the f-spine: head-steps to expose each successive f */
+  function clock(t,levels){
+    const cl=[]; let cur=t;
+    for(let i=0;i<levels;i++){
+      const r=headNF(cur); cl.push(r.steps);
+      let h=r.t; while("l"in h) h=h.l;
+      let hd=h; while("a"in hd) hd=hd.a[0];
+      if("a"in h && "c"in hd && hd.c==="f"){ cur=h.a[1]; } else break;
+    }
+    return cl;
+  }
+
+  /* ---- the combinators (applied to the free functional f) ---- */
+  const f=C("f");
+  const Yc=L(A(L(A(V(1),A(V(0),V(0)))),L(A(V(1),A(V(0),V(0))))));      // Curry  Y = λf.(λx.f(xx))(λx.f(xx))
+  const TA=L(L(A(V(0),A(A(V(1),V(1)),V(0))))), Theta=A(TA,TA);          // Turing Θ = (λx.λf.f(xxf))²
+  const delta=L(L(A(V(0),A(V(1),V(0)))));                              // Owl    δ = λy.λf.f(yf)
+
+  /* ============ WIDGET I — the brood (Böhm sequence) ============ */
+  const genFactF=function(r){ return function(n){ return n<=1?1:n*r(n-1); }; };
+  const genZ=function(f){ return (function(x){return f(function(v){return x(x)(v);});})(function(x){return f(function(v){return x(x)(v);});}); };
+  const genDelta=function(y){ return function(f){ return function(v){ return f(function(w){return y(f)(w);})(v); }; }; };
+  function genLabel(k){ return k===0?"Y":"Yδ"+(k===1?"":sup(k)); }
+  const GEN_CAP=6;
+  let genSeq=[genZ];
+  function genRunFact(comb){ try{ return comb(genFactF)(6); }catch(e){ return "∞"; } }
+  function genRender(){
+    const box=document.getElementById("genList"); if(!box) return; box.innerHTML="";
+    genSeq.forEach(function(c,k){
+      const r=genRunFact(c);
+      const row=E("div","dn-row");
+      const lab=E("div","dn-lab"); lab.innerHTML=genLabel(k);
+      const pair=E("div","dn-pair"+(r===720?" fresh":"")); pair.innerHTML="fact(6) = "+r+(r===720?"  ✓":"");
+      row.appendChild(lab); row.appendChild(pair); box.appendChild(row);
+    });
+  }
+  function genReadoutUpd(){ const ro=document.getElementById("genReadout"); if(!ro) return;
+    ro.innerHTML = genSeq.length>=GEN_CAP ? "six rungs shown — the sequence runs on without end, and (proven by the clocks of §III) never repeats." : ("rung "+(genSeq.length-1)+" — postfix the Owl again to breed the next; every rung is a new combinator computing the same factorial."); }
+  function genNext(){ if(genSeq.length>=GEN_CAP) return; genSeq.push(genDelta(genSeq[genSeq.length-1])); genRender(); genReadoutUpd(); }
+  function genReset(){ genSeq=[genZ]; genRender(); genReadoutUpd(); }
+
+  /* ============ WIDGET II — the shared spine ============ */
+  const spTerms={ Y:function(){return A(Yc,f);}, T:function(){return A(Theta,f);}, Yd:function(){return A(A(Yc,delta),f);} };
+  const spNames={ Y:"Curry  Y", T:"Turing  Θ", Yd:"Y δ" };
+  let spSel="Y", spCur=null, spDepth=0;
+  function spReset(){ spDepth=0; spCur=spTerms[spSel](); spRender(); }
+  function spExpose(){
+    if(spDepth>=12) return;
+    const r=headNF(spCur);
+    let h=r.t; while("l"in h) h=h.l;
+    let hd=h; while("a"in hd) hd=hd.a[0];
+    if("a"in h && "c"in hd && hd.c==="f"){ spCur=h.a[1]; spDepth++; spRender(); }
+  }
+  function spRender(){
+    const where=document.getElementById("spWhere"); if(where) where.textContent="reducing: "+spNames[spSel];
+    const list=document.getElementById("spList");
+    if(list){
+      if(spDepth===0){ list.textContent='— press "expose the next f" to head-reduce —'; list.style.color="var(--faintest)"; }
+      else { let s="•"; for(let i=0;i<spDepth;i++) s="f ("+s+")"; list.textContent=s; list.style.color="var(--ink)"; }
+    }
+    const ro=document.getElementById("spReadout");
+    if(ro) ro.innerHTML = spDepth===0 ? "the spine is hidden until reduction draws it out." : ("spine depth "+spDepth+" — this skeleton <span class='mono'>f(f(…f(•)…))</span> is <b>identical</b> for Curry's, Turing's and Yδ. Switch combinators and expose again: the very same spine appears. The Böhm tree is <span class='mono'>λf.f<sup>ω</sup></span> for every one of them.");
+  }
+
+  /* ============ WIDGET III — the clock ============ */
+  const CLK_DEFS=[
+    {lab:"Curry  Y", col:"var(--teal-deep)", t:function(){return A(Yc,f);}},
+    {lab:"Turing  Θ", col:"var(--gold-deep)", t:function(){return A(Theta,f);}},
+    {lab:"Y δ", col:"var(--red-deep)", t:function(){return A(A(Yc,delta),f);}},
+    {lab:"Y δ²", col:"var(--steel)", t:function(){return A(A(A(Yc,delta),delta),f);}}
+  ];
+  let clkN=6;
+  function clkRender(){
+    const box=document.getElementById("clkBars"); if(!box) return; box.innerHTML="";
+    const seqs=CLK_DEFS.map(function(d){ return clock(d.t(),clkN); });
+    let maxv=1; seqs.forEach(function(s){ s.forEach(function(v){ if(v>maxv)maxv=v; }); });
+    CLK_DEFS.forEach(function(d,i){
+      const seq=seqs[i];
+      const row=document.createElement("div"); row.style.cssText="display:flex;align-items:flex-end;gap:.7rem;margin:.15rem 0 .55rem";
+      const lab=document.createElement("div"); lab.style.cssText="font:600 .74rem/1.1 'IBM Plex Mono',monospace;color:var(--soft1);width:5.4rem;flex:0 0 auto;text-align:right;padding-bottom:1.05rem"; lab.textContent=d.lab;
+      const bars=document.createElement("div"); bars.style.cssText="display:flex;align-items:flex-end;gap:5px;min-height:60px";
+      seq.forEach(function(v){
+        const cell=document.createElement("div"); cell.style.cssText="display:flex;flex-direction:column;align-items:center;gap:3px";
+        const bar=document.createElement("div"); bar.style.cssText="width:15px;border-radius:2px 2px 0 0;background:"+d.col+";opacity:.86;height:"+(9+(v/maxv)*48)+"px";
+        const num=document.createElement("div"); num.style.cssText="font:600 .66rem/1 'IBM Plex Mono',monospace;color:var(--faint)"; num.textContent=v;
+        cell.appendChild(bar); cell.appendChild(num); bars.appendChild(cell);
+      });
+      row.appendChild(lab); row.appendChild(bars); box.appendChild(row);
+    });
+  }
+  function clkMore(){ if(clkN<14){ clkN+=2; clkRender(); } }
+  function clkReset(){ clkN=6; clkRender(); }
+
+  /* ---- init ---- */
+  function init(){
+    try{ genRender(); genReadoutUpd();
+      document.getElementById("genNext").onclick=genNext;
+      document.getElementById("genReset").onclick=genReset;
+    }catch(e){ console.error("brood",e); }
+    try{ spReset();
+      document.getElementById("spY").onclick=function(){spSel="Y";spReset();};
+      document.getElementById("spT").onclick=function(){spSel="T";spReset();};
+      document.getElementById("spYd").onclick=function(){spSel="Yd";spReset();};
+      document.getElementById("spNext").onclick=spExpose;
+      document.getElementById("spReset").onclick=spReset;
+    }catch(e){ console.error("spine",e); }
+    try{ clkRender();
+      const ro=document.getElementById("clkReadout");
+      if(ro) ro.innerHTML="All four write the same word <span class='mono'>f f f …</span>, at four speeds. Curry's settles to one step between heads; Turing's holds an even two; and each postfixing of the Owl <span class='mono'>δ</span> adds exactly two — Yδ runs at three, Yδ² at five. One Böhm tree, four clocks — and the differing clocks <b>prove</b> the four combinators pairwise <span class='mono'>β</span>-inconvertible, which no tree could.";
+      document.getElementById("clkMore").onclick=clkMore;
+      document.getElementById("clkReset").onclick=clkReset;
+    }catch(e){ console.error("clock",e); }
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+  </script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-plural.html">← The Plural</a><a rel="next" href="quodlibet-the-toll.html">The Toll →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

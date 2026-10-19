@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Recurrence — why one construction, six times</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup,sub{font-size:.7em;line-height:0;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(2.9rem,10vw,7.2rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.24rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:46rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:42rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:44rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem / derivation */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:44rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.02rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.9rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+  .pf{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.8;color:var(--soft1);margin-top:.7rem;}
+  .pf .hot{color:var(--red-deep);} .pf b{color:var(--ink);font-weight:600;} .pf .q{color:var(--faintest);}
+
+  .bigeq{text-align:center;font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.7rem,3vw,2.3rem);margin:1.4rem 0;letter-spacing:.01em;}
+  .bigeq .v{font-style:italic;} .bigeq .r{color:var(--red);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:44rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+  .callout.ink{border-left-color:var(--ink);background:var(--panel);} .callout.ink .cl-lab{color:var(--ink);}
+
+  /* the three mechanism cards */
+  .mechs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:780px){ .mechs{grid-template-columns:1fr;} }
+  .mech{background:var(--paper);padding:1.2rem 1.25rem;}
+  .mech .m-tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;display:inline-block;padding:.2rem .5rem;border-radius:2px;margin-bottom:.7rem;}
+  .mech.m1 .m-tag{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .mech.m2 .m-tag{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .mech.m3 .m-tag{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .mech h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .35rem;letter-spacing:-.01em;}
+  .mech .m-eq{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);margin:.3rem 0 .55rem;padding:.4rem .55rem;background:var(--panel);border-radius:2px;border:1px solid var(--hair);}
+  .mech p{font-size:.88rem;line-height:1.52;color:var(--soft1);}
+  .mech .m-mem{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.55;color:var(--faint);margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--hair);}
+  .mech .m-mem b{color:var(--ink);font-weight:500;}
+
+  /* a worked-reduction spec (5-tuple + discharge) */
+  .spec{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:46rem;background:var(--paper);}
+  .spec .sp-h{display:flex;justify-content:space-between;align-items:baseline;gap:.8rem;padding:.85rem 1.15rem;border-bottom:1px solid var(--hair);flex-wrap:wrap;}
+  .spec .sp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;letter-spacing:-.01em;}
+  .spec .sp-name b{color:var(--red-deep);}
+  .spec .sp-mech{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:2px;white-space:nowrap;}
+  .spec .sp-mech.m1{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .spec .sp-mech.m2{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .spec .sp-mech.m3{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .spec .sp-grid{display:grid;grid-template-columns:auto 1fr;gap:.1rem .9rem;padding:.85rem 1.15rem;font-size:.9rem;line-height:1.5;}
+  .spec .sp-grid dt{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--faintest);padding-top:.32rem;}
+  .spec .sp-grid dd{margin:0;padding:.18rem 0;}
+  .spec .sp-grid dd .mono{font-size:.84rem;}
+  .spec .sp-grid dd .h{color:var(--red-deep);font-weight:500;}
+  .spec .sp-disc{padding:.8rem 1.15rem;border-top:1px solid var(--hair);background:var(--panel);font-size:.86rem;line-height:1.55;color:var(--soft1);}
+  .spec .sp-disc .dl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.3rem;}
+  .spec .sp-disc b{color:var(--ink);font-weight:600;}
+  @media(max-width:540px){ .spec .sp-grid{grid-template-columns:1fr;gap:.05rem;} .spec .sp-grid dt{padding-top:.45rem;} }
+
+  /* the cost ledger */
+  .cost{width:100%;border-collapse:collapse;font-size:.88rem;}
+  .cost th{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:500;text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--rule);vertical-align:bottom;}
+  .cost td{padding:.6rem .7rem;border-bottom:1px solid var(--hair);vertical-align:top;line-height:1.45;}
+  .cost td.c-name{font-family:"Spectral",serif;font-style:italic;color:var(--ink);white-space:nowrap;}
+  .cost td.c-cost{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .cost td.c-str{font-family:"IBM Plex Mono",monospace;font-size:.74rem;}
+  .cost .s-none{color:var(--teal-deep);} .cost .s-mid{color:var(--gold-deep);} .cost .s-hi{color:var(--red-deep);}
+  .cost tr:last-child td{border-bottom:none;}
+  @media(max-width:680px){
+    .cost thead{display:none;} .cost,.cost tbody,.cost tr,.cost td{display:block;width:100%;}
+    .cost tr{border:1px solid var(--hair);border-radius:3px;margin-bottom:.55rem;padding:.5rem .7rem;}
+    .cost td{border:none;padding:.16rem 0;}
+    .cost td.c-cost::before{content:"pays — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+    .cost td.c-str::before{content:"strength — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+  }
+
+  /* definition box */
+  .defn{border:1px solid var(--ink);border-radius:3px;padding:1.1rem 1.3rem;margin:1.5rem auto;max-width:44rem;background:var(--panel);}
+  .defn .d-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin-bottom:.6rem;}
+  .defn p{font-size:.96rem;line-height:1.62;margin:0 0 .55rem;}
+  .defn p:last-child{margin-bottom:0;}
+  .defn .term{font-weight:600;font-style:italic;}
+  .defn .mono{font-size:.85rem;color:var(--red-deep);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* derivation chain (modal proofs) */
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;margin:1.1rem auto;max-width:44rem;border-left:2px solid var(--gold-line);padding:.3rem 0 .3rem 0;}
+  .chain .cstep{display:grid;grid-template-columns:1.7rem 1fr;gap:.2rem .7rem;padding:.32rem 1rem .32rem 1.1rem;}
+  .chain .cstep:not(:last-child){border-bottom:1px solid var(--hair);}
+  .chain .cn{color:var(--gold-deep);font-weight:500;}
+  .chain .cf{color:var(--ink);} .chain .cf .hot{color:var(--red-deep);} .chain .cf b{font-weight:600;}
+  .chain .cj{color:var(--faintest);font-size:.72rem;grid-column:2;margin-top:-.1rem;}
+  .chain .qed{color:var(--red-deep);}
+  /* fixed-point ladder (operator -> unique fixed point) */
+  .fp{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.2rem auto;max-width:46rem;}
+  @media(max-width:640px){ .fp{grid-template-columns:1fr;} }
+  .fp .fpc{background:var(--paper);padding:1.05rem 1.2rem;}
+  .fp .fpc .op{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--faint);text-transform:uppercase;margin-bottom:.5rem;}
+  .fp .fpc .opf{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);margin-bottom:.55rem;}
+  .fp .fpc .opf .b{color:var(--red-deep);}
+  .fp .fpc .fpr{font-family:"Spectral",serif;font-size:1.16rem;font-weight:500;letter-spacing:-.01em;margin:.2rem 0 .35rem;}
+  .fp .fpc .fpr .eq{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);font-weight:400;}
+  .fp .fpc p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .fp .fpc p b{color:var(--ink);font-weight:500;}
+
+  /* inverse-limit ladder (SVG host) */
+  .ladder{margin:1.3rem auto;max-width:46rem;}
+  .ladder svg{width:100%;height:auto;display:block;}
+  /* the switch: two regimes compared */
+  .switch{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin:1.4rem auto;max-width:48rem;border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .switch{grid-template-columns:1fr;} }
+  .switch .sw{padding:1.1rem 1.25rem;background:var(--paper);}
+  .switch .sw.left{border-right:1px solid var(--panelhair);}
+  @media(max-width:680px){ .switch .sw.left{border-right:none;border-bottom:1px solid var(--panelhair);} }
+  .switch .sw .sw-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.55rem;}
+  .switch .sw.left .sw-h{color:var(--red-deep);} .switch .sw.right .sw-h{color:var(--teal-deep);}
+  .switch .sw h4{font-family:"Spectral",serif;font-weight:500;font-size:1.08rem;margin:0 0 .4rem;letter-spacing:-.01em;}
+  .switch .sw p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .switch .sw p .mono{font-size:.8rem;}
+  .switch .sw .res{font-family:"IBM Plex Mono",monospace;font-size:.74rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--hair);color:var(--faint);}
+  .switch .sw.left .res b{color:var(--red-deep);} .switch .sw.right .res b{color:var(--teal-deep);}
+  .switch .pivot{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem;background:var(--panel);border-left:1px solid var(--panelhair);border-right:1px solid var(--panelhair);min-width:6.5rem;}
+  @media(max-width:680px){ .switch .pivot{border:none;border-top:1px solid var(--panelhair);border-bottom:1px solid var(--panelhair);flex-direction:row;gap:.6rem;} }
+  .switch .pivot .pq{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faintest);text-align:center;line-height:1.4;}
+  .switch .pivot .pg{font-family:"Spectral",serif;font-style:italic;font-size:1.4rem;color:var(--ink);margin:.3rem 0;}
+
+  /* source-signature row under each source */
+  .sig{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--faint);margin-top:.7rem;padding-top:.55rem;border-top:1px solid var(--hair);}
+  .sig b{color:var(--ink);font-weight:500;}
+  .sig .needs{color:var(--red-deep);} .sig .yields{color:var(--teal-deep);}
+
+  /* the timeline host */
+  .timeline{margin:1.4rem auto;max-width:48rem;}
+  .timeline svg{width:100%;height:auto;display:block;}
+  /* instance roll — the six (+) discoveries */
+  .roll{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.2rem auto;max-width:46rem;}
+  @media(max-width:640px){ .roll{grid-template-columns:1fr 1fr;} }
+  @media(max-width:430px){ .roll{grid-template-columns:1fr;} }
+  .roll .ri{background:var(--paper);padding:.8rem .95rem;}
+  .roll .ri .ry{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--red-deep);letter-spacing:.04em;}
+  .roll .ri .rw{font-family:"Spectral",serif;font-style:italic;font-size:1.04rem;margin:.12rem 0 .18rem;color:var(--ink);}
+  .roll .ri .rp{font-size:.78rem;line-height:1.4;color:var(--soft1);}
+  .roll .ri .rp .mono{font-size:.72rem;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-collected">Collected Studies</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+          <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deepening · the premise of the whole</span></div>
+    <div class="hero-head">
+      <p class="kicker">Why one construction, six times</p>
+      <h1 class="title">The <span class="x">Recurrence</span></h1>
+      <p class="standfirst">Beneath the whole collection lies an unexamined astonishment. The same construction was found, independently, by Cantor in 1891, Russell in 1901, Gödel in 1931, Tarski in 1933, Turing in 1936, Curry in 1942 — across fifty years and three fields that barely spoke to each other. The collection treats this multiplicity as a curiosity to be <em>explained</em> by the underlying unity. This turns it the other way. The multiplicity is not a curiosity; it is the <em>evidence</em>. You do not find the same construction six times across disconnected mathematics by coincidence or by zeitgeist. You find it because it is <em>structurally forced</em> — the unique answer to a question that keeps being asked — and the history is therefore not decoration on the theorem but a second proof of it.</p>
+      <p class="ed-mark">the fact · two kinds of multiple · the diagonal is forced · Stigler's mirror · the evidence · the seventh instance</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">found · and found · and found</span><span class="ln"></span></div>
+
+  <section class="sec" id="where" style="margin-top:clamp(2.5rem,6vh,4rem)">
+    <div class="lede read">
+      <p>Every descent so far has gone into the diagonal as a piece of mathematics — its mechanisms, its logic, its object, its place among fixed-point theorems, its limit as a method. This last one steps all the way back, beneath the mathematics, to the premise the collection has rested on without ever paying for: that these six famous results are <i>one construction</i>. Grant that they are — the diagonal has earned it many times over — and a question opens that the collection has only ever waved at. <i>Why was the one construction discovered six separate times?</i> Coincidence is absurd at that multiplicity. "The time was ripe" is the historian's reflex, and it will not survive contact with the dates. What remains is the only answer that fits, and it is the most flattering one the collection's thesis could hope for: the construction recurs because it is <i>inevitable</i> — and its inevitability is exactly what a single theorem underlying all of self-reference would predict.</p>
+    </div>
+  </section>
+
+  <!-- ===== I · THE FACT ===== -->
+  <section class="sec" id="fact">
+    <div class="sec-head"><span class="num">I · the fact</span><h2>Six times, fifty years, three fields</h2><p class="sub">Before any theory of why, the bare record — and what is most striking in it is not the cluster but the span. The construction appears in the 1930s in a rush; but it appears in 1891, and again in 1969, far outside any single ripe moment.</p></div>
+    <div class="timeline">
+      <svg viewBox="0 0 680 168" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" aria-label="timeline of the diagonal's discoveries 1891 to 1969">
+        <!-- axis -->
+        <line x1="40" y1="84" x2="640" y2="84" stroke="#ded7c7" stroke-width="1.4"/>
+        <g stroke="#ded7c7" stroke-width="1"><line x1="40" y1="80" x2="40" y2="88"/><line x1="640" y1="80" x2="640" y2="88"/></g>
+        <g font-size="9" fill="#a8a193" text-anchor="middle"><text x="40" y="104">1891</text><text x="640" y="104">1969</text></g>
+        <!-- leader lines + dots + labels -->
+        <g stroke="#b7b0a1" stroke-width="0.8">
+          <line x1="40" y1="84" x2="40" y2="62"/><line x1="117" y1="84" x2="117" y2="112"/>
+          <line x1="348" y1="84" x2="348" y2="62"/><line x1="363" y1="84" x2="363" y2="112"/>
+          <line x1="386" y1="84" x2="386" y2="46"/><line x1="432" y1="84" x2="432" y2="128"/>
+        </g>
+        <g fill="#b23a2e"><circle cx="40" cy="84" r="3.4"/><circle cx="117" cy="84" r="3.4"/><circle cx="348" cy="84" r="3.4"/><circle cx="363" cy="84" r="3.4"/><circle cx="386" cy="84" r="3.4"/><circle cx="432" cy="84" r="3.4"/></g>
+        <circle cx="640" cy="84" r="4.6" fill="none" stroke="#937234" stroke-width="1.6"/>
+        <line x1="640" y1="84" x2="640" y2="62" stroke="#cdbf9a" stroke-width="0.8"/>
+        <g font-size="11" fill="#1a1815">
+          <text x="40" y="58" text-anchor="start">Cantor</text>
+          <text x="117" y="126" text-anchor="middle">Russell</text>
+          <text x="348" y="58" text-anchor="middle">Gödel</text>
+          <text x="363" y="126" text-anchor="middle">Tarski</text>
+          <text x="386" y="42" text-anchor="middle">Turing</text>
+          <text x="432" y="142" text-anchor="middle">Curry</text>
+          <text x="640" y="58" text-anchor="end" font-family="Spectral, serif" font-style="italic" font-size="13" fill="#6f5626">Lawvere</text>
+        </g>
+        <g font-size="8.5" fill="#7c766a">
+          <text x="40" y="46" text-anchor="start">1891</text>
+          <text x="117" y="138" text-anchor="middle">1901</text>
+          <text x="348" y="46" text-anchor="middle">1931</text>
+          <text x="363" y="138" text-anchor="middle">1933</text>
+          <text x="386" y="30" text-anchor="middle">1936</text>
+          <text x="432" y="154" text-anchor="middle">1942</text>
+        </g>
+      </svg>
+    </div>
+    <div class="reading">
+      <p>Cantor's diagonal slices the reals from the integers in 1891. A decade later Russell turns the same move on the set of all sets that do not contain themselves, and the foundations of mathematics buckle. Three decades on, in a four-year burst, the construction surfaces three more times in three more guises: Gödel feeds a formula its own number and arithmetic cannot prove its own consistency; Tarski feeds a sentence its own truth and language cannot define it; Turing feeds a program its own code and computation cannot decide its own halting. Curry, in 1942, turns it on implication itself. And then, twenty-seven years later, Lawvere does the thing none of the six did: he writes down the construction <i>by itself</i>, with no problem attached, and proves that all six were instances of it.</p>
+      <p>The instinct is to read the 1930s cluster as the whole story — a ripe moment in logic when the idea was "in the air." But look at the endpoints. Cantor stands forty years before the cluster, in a different century and a different subject; Lawvere stands twenty-seven years after it, in a field — category theory — that did not yet exist when Cantor wrote. A single ripe moment cannot reach from 1891 to 1969. Whatever the recurrence is, it is not a season. The dates force a different kind of explanation, and the sociology of science already has the distinction ready.</p>
+    </div>
+  </section>
+  <!-- ===== II · TWO KINDS OF MULTIPLE ===== -->
+  <section class="sec" id="kinds">
+    <div class="sec-head"><span class="num">II · two kinds of multiple</span><h2>Ripe, or forced</h2><p class="sub">Independent rediscovery is not rare — it is, Merton argued, the <span class="mono">norm</span>. But "multiple discovery" hides two quite different phenomena, and the whole question is which one the diagonal is.</p></div>
+    <div class="reading">
+      <p>That a discovery is made more than once is, against the romance of the lone genius, the ordinary case. Robert Merton built a sociology of science on the point — his hypothesis, sharpened over the essays of 1957 to 1963, was that <i>singletons</i>, not multiples, are the exception requiring explanation: "all scientific discoveries are in principle multiples, including those that on the surface appear to be singletons." Ogburn and Thomas had already, in 1922, listed one hundred and forty-eight cases. The standard gloss is the historian's: "the times were right" — the prerequisites accumulate, attention converges, and several capable people reach the ready idea at once.</p>
+      <p>But that gloss conceals a fork, and the fork is everything. There are two reasons the same thing can be found twice.</p>
+    </div>
+    <div class="stage">
+      <div class="switch">
+        <div class="sw left">
+          <div class="sw-h">the sociological multiple</div>
+          <h4>Ripe</h4>
+          <p>The same <i>result</i> is reached independently because conditions converge — the knowledge has accumulated, the instruments exist, the field's attention has turned. The discovery was "in the air." Different people may reach it by <i>different routes</i>; what they share is a moment.</p>
+          <div class="res">explained by <b>context</b> · the multiplicity is a fact about the <b>times</b></div>
+        </div>
+        <div class="pivot">
+          <div class="pq">why the<br>same thing<br>twice?</div>
+          <div class="pg">∥</div>
+          <div class="pq">context,<br>or content</div>
+        </div>
+        <div class="sw right">
+          <div class="sw-h">the structural multiple</div>
+          <h4>Forced</h4>
+          <p>The construction is the <i>unique solution</i> to a problem — there is nothing else to find. Anyone who poses the problem is compelled to the same answer by the same route, whenever and wherever they pose it. What they share is not a moment but a <i>logical necessity</i>.</p>
+          <div class="res">explained by <b>content</b> · the multiplicity is a fact about the <b>mathematics</b></div>
+        </div>
+      </div>
+      <figcaption>The fork: a multiple can be <b>ripe</b> (the same result, reached because the time had come) or <b>forced</b> (the same construction, reached because it is the only one that works). The first is sociological and time-bound; the second is structural and timeless. They are distinguished by a test — <i>do the rediscoveries share a moment, or a method?</i> — and the diagonal answers that test unambiguously.</figcaption>
+    </div>
+    <div class="reading">
+      <p>The historian who says "the 1930s were ripe for self-reference" is reaching for the left column, and for the cluster alone it is not a foolish reading — Hilbert's programme had focused a generation of logicians on exactly the questions of provability and decidability that Gödel, Tarski, and Turing answered. But ripeness is a claim about a <i>time</i>, and the diagonal's record does not fit inside one. The test that separates the two columns is whether the rediscoveries share a <i>moment</i> or a <i>method</i>, and applied to the diagonal the test does not return "moment." It returns "method," six times over.</p>
+    </div>
+  </section>
+  <!-- ===== III · THE DIAGONAL IS FORCED ===== -->
+  <section class="sec" id="forced">
+    <div class="sec-head"><span class="num">III · the diagonal is forced</span><h2>Six problems, one compelled answer</h2><p class="sub">What the six rediscoveries share is not a decade. It is a <span class="mono">method</span> — and they share it because six unrelated problems each have the same unique solution, which Lawvere's theorem proves is forced.</p></div>
+    <div class="reading">
+      <p>Lay the six side by side, not by date but by the problem each confronted. They are genuinely different problems — about the size of sets, the membership of sets, the provability of formulas, the truth of sentences, the halting of programs, the implication of propositions — drawn from set theory, logic, and the unborn theory of computation. And each, pressed, yields the <i>same</i> construction: an object that names itself, twisted by an operation with no fixed point.</p>
+    </div>
+    <div class="stage">
+      <div class="roll">
+        <div class="ri"><div class="ry">cardinality · 1891</div><div class="rw">Cantor</div><div class="rp">a set indexed by itself, <span class="mono">A→2ᴬ</span>, twisted by <span class="mono">¬</span> → the set of non-members of their own row.</div></div>
+        <div class="ri"><div class="ry">membership · 1901</div><div class="rw">Russell</div><div class="rp">membership as self-naming, twisted by <span class="mono">¬</span> → <span class="mono">R = {x : x ∉ x}</span>.</div></div>
+        <div class="ri"><div class="ry">provability · 1931</div><div class="rw">Gödel</div><div class="rp">a formula numbering formulas, twisted by <span class="mono">¬Prov</span> → <span class="mono">G ↔ ¬Prov(⌜G⌝)</span>.</div></div>
+        <div class="ri"><div class="ry">truth · 1933</div><div class="rw">Tarski</div><div class="rp">a sentence on its own truth, twisted by <span class="mono">¬</span> → the Liar, <span class="mono">L ↔ ¬Tr(⌜L⌝)</span>.</div></div>
+        <div class="ri"><div class="ry">computation · 1936</div><div class="rw">Turing</div><div class="rp">a program reading its own code, twisted by halt↔loop → the diagonal machine.</div></div>
+        <div class="ri"><div class="ry">implication · 1942</div><div class="rw">Curry</div><div class="rp">a proposition asserting its own consequence, twisted by <span class="mono">→⊥</span> → <span class="mono">C ↔ (C→⊥)</span>.</div></div>
+      </div>
+      <figcaption>Six different problems, drawn from three fields across fifty years — and one construction at the bottom of every one: <b>self-application, twisted by a fixed-point-free map</b>. Not the same result by varied routes (the ripe pattern) but the same <i>route</i>, forced anew by each problem. That is the signature the test demanded.</figcaption>
+    </div>
+    <div class="reading">
+      <p>And here the collection's own central theorem does work it was not built for: it certifies that the shared route is not a habit of the period but a <i>necessity</i> of the problems. Lawvere's theorem says that once a self-naming is in place and the twist has no fixed point, the construction — and the contradiction, or the sentence — is <i>forced</i>: the missed map <span class="mono">g = α ∘ d</span> is the witness the structure hands you, the fixed point it produces is canonical, determined by the data rather than chosen by the discoverer. There is, in a precise sense, nothing else to find. So whoever asks the question is led to the same answer by the same path, in 1891 or 1942 or 1969, because the path is the only one there is. The diagonal is the purest possible <i>structural</i> multiple — found again and again not because its times kept being right but because its answer keeps being forced.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout">
+        <div class="cl-lab">an honest qualification</div>
+        <p>The six were not hermetically independent — Gödel knew Cantor and Richard, Turing knew Gödel, Tarski knew Gödel. So this is not a claim that six people in sealed rooms reinvented one trick. The recurrence runs deeper than that, and the awareness is beside its point. Each <i>new problem</i> — truth, halting, implication — independently <i>re-forces</i> the construction: Turing did not transcribe Cantor's proof, he was compelled to the same move because the halting problem admits no other. The inevitability is <b>per problem</b>, not per person. That is why it reaches across awareness and across fields: the construction is not passed hand to hand, it is re-derived under compulsion, each time the structure recurs.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ===== IV · STIGLER'S MIRROR ===== -->
+  <section class="sec" id="stigler">
+    <div class="sec-head"><span class="num">IV · Stigler's mirror</span><h2>A recurrence about naming, inside the recurrence</h2><p class="sub">There is a law about exactly this kind of repeated discovery — and the law is itself a repeated discovery, named after the wrong person on purpose. The diagonal obeys it twice over.</p></div>
+    <div class="reading">
+      <p>In 1980, in a volume honoring Merton, the statistician Stephen Stigler proposed <i>Stigler's Law of Eponymy</i>: "no scientific discovery is named after its original discoverer." The joke, which is also the thesis, is that the law exemplifies itself — Stigler credited the idea to Merton, who had it from a tradition reaching back through Ogburn and Thomas and, by the law's own logic, further still. A self-exemplifying theorem about misattribution: a small perfect instance of the very pattern the collection studies, self-reference folded into the sociology of discovery.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout">
+        <div class="cl-lab">the construction obeys the law it illustrates</div>
+        <p>It is called <i>Cantor's diagonal</i> — but Cantor was neither the first to wield a diagonal (anticipations run back through du Bois-Reymond and further) nor remotely the last, and the general construction beneath all six instances carries no one's name at all until 1969, when it becomes, retrospectively and only categorically, <i>Lawvere's</i>. The thing discovered six times is named, in its particular guises, after one of its discoverers, and in its general form after a seventh person who discovered nothing new but the unity. Stigler's law, exactly. The recurrence has a recurrence inside it — about who gets the credit — and it too is forced.</p>
+      </div>
+    </div>
+    <div class="reading">
+      <p>This is more than an ornament. The eponymic tangle is itself <i>evidence</i> for the structural reading. A genuinely novel singleton gets named, cleanly, after its author; the contested, multiply-attributed, "who really had it first" texture of the diagonal's history is the fingerprint of a forced construction — one that no single person can own because no single person <i>chose</i> it. You cannot have priority over a necessity. The misattributions are not noise in the historical record; they are the record telling you, in its own idiom, that the thing was never anyone's invention.</p>
+    </div>
+  </section>
+  <!-- ===== V · THE EVIDENCE ===== -->
+  <section class="sec" id="evidence">
+    <div class="sec-head"><span class="num">V · the evidence</span><h2>The multiplicity is the proof</h2><p class="sub">Turn the whole question around. The collection asks the unity to explain the multiplicity. But the multiplicity, read as evidence, <span class="mono">establishes</span> the unity — independently of the category theory, on grounds Lawvere never touches.</p></div>
+    <div class="reading">
+      <p>The collection's argument runs in one direction: <i>here is one construction (Lawvere's theorem); therefore the six famous results are instances of it; therefore, no wonder they keep reappearing.</i> The unity explains the multiplicity. That is sound, and it is the wrong way to get the most from the history. Run it backwards and it becomes something stronger than an explanation — a second, independent confirmation.</p>
+    </div>
+    <div class="reading">
+      <p>Ask how surprising the historical record is under two hypotheses. Suppose the six results were <i>not</i> one construction — six genuinely distinct ideas that merely resemble one another. Then their sharing a single deep form — self-application twisted by a fixed-point-free map, down to the structure of the proof — across set theory, logic, and computation, across fifty years, would be a coincidence of staggering improbability, the kind that does not happen. Now suppose instead they <i>are</i> one construction, structurally forced by a common form lurking in all six problems. Then the repeated appearance is not improbable at all; it is <i>obligatory</i> — exactly what you would predict.</p>
+    </div>
+    <div class="thm read">
+      <div class="tl">the inference</div>
+      <div class="ts">The historical record — one construction, six times, across disconnected fields — is <i>astronomically</i> more probable if the results share a single forced structure than if they are independent look-alikes. So the record is strong evidence <i>for</i> the unity, on grounds entirely separate from the categorical proof. The thesis is <b>twice established</b>: proved by Lawvere, and corroborated by history.</div>
+    </div>
+    <div class="reading">
+      <p>This is worth stating plainly because it changes the standing of the collection's central claim. "These six results are one construction" is not only a theorem of category theory, vulnerable to the deflationary worry that any sufficiently abstract framework can make distinct things look alike. It is also an <i>empirical</i> claim with a confirming record: if the unity were a mere artifact of abstraction, the six would not have been <i>independently and repeatedly forced</i> into the same shape by working mathematicians who had never heard of cartesian closed categories. They were. The convergence happened in the wild, under compulsion, before anyone had the theorem to predict it — and a unity that predicts its own rediscoveries, and then is rediscovered on schedule, is not an artifact. It is a fact about the mathematics. The history is the experiment, and the experiment came back positive six times.</p>
+    </div>
+  </section>
+  <!-- ===== VI · THE SEVENTH INSTANCE ===== -->
+  <section class="sec" id="seventh">
+    <div class="sec-head"><span class="num">VI · the seventh instance</span><h2>The construction recognizes itself</h2><p class="sub">Lawvere's 1969 theorem is not a seventh discovery. It is the moment the recurrence becomes aware of itself — and that awareness is the last and strangest instance of the very pattern it describes.</p></div>
+    <div class="lede read">
+      <p>Count again, and notice that the seventh appearance is unlike the first six. Cantor, Russell, Gödel, Tarski, Turing, and Curry each found the construction <i>wearing a problem</i> — disguised as a fact about sets, or proofs, or programs. Lawvere did something none of them did: he stripped the disguise and found the construction <i>by itself</i>, with no problem attached, and proved that the six were one all along. That is not discovery in the sense the others practiced. It is <i>recognition</i> — the construction, having surfaced six times in costume, surfacing at last as itself, and seeing that it had been itself the whole time. The diagonal recognizes the diagonal.</p>
+      <p>And recognition, it turns out, is one more instance of the recurrence — its purest, because here the thing rediscovered is rediscovery. A construction whose entire content is self-reference, found over and over because it is forced, is at last <i>turned on its own history</i> and forced again: of course self-reference recurs; of course the map of self-reference must, being self-referential, contain itself; of course the recognition of the unity is one more turn of the wheel that produced the unity. The pattern does to its own historiography exactly what it does to set theory and logic and computation. It closes the loop it was always going to close.</p>
+      <p>Which makes this collection — and this volume inside it — the latest instance, and consciously so. <i>Quodlibet</i> is a map of a construction that keeps being remapped, written in the knowledge that the writing is one more remapping. The Anatomy took the construction apart; <i>The Wall</i>, <i>The Box</i>, and <i>The Knot</i> opened its three mechanisms; <i>The Provenance</i> set it among all the ways a fixed point can arise; and this last descent asks why the thing was found so many times, and answers: because it is inevitable, and inevitable things are found whenever they are looked for. Each descent is a turn of the same wheel — the construction, dissected, located, and now caught in the act of being rediscovered by the very study of its rediscovery. There is no bottom to this and no outside to it, which is not a defect. It is the subject. A theorem about the limits of self-reference, pursued far enough, becomes a self-referential pursuit — and finds, at the bottom of its own history, the same diagonal it began with, drawn this time by the hand that was tracing it.</p>
+      <p>So the collection's wager arrives at its final and least defeasible form. It is not merely that one construction underlies the reach and the boundary of formal reasoning. It is that one construction was <i>bound</i> to, and the proof is written in the historical record: the same diagonal, forced into the light six times across fifty years and three fields by people who could not have been copying a form none of them yet had — and then recognized, and then mapped, and now explained, each recognition another instance, the wheel still turning. The map of self-reference contains itself; the recurrence recurs; and the last word belongs, as it must, to the construction that keeps writing it.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">found · recognized · mapped · explained</span><span class="ln"></span></div>
+  <div class="coda"><p>It was found six times because there was nothing else to find; recognized at last because the diagonal, given enough mirrors, finds itself. <span class="mono">The recurrence was never a coincidence. It was the theorem, told as history.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deepening · the recurrence</span></div>
+    <p class="colophon"><i>The Recurrence</i> opens the premise the whole collection rests on and never examined: that the six famous results are one construction. Granting it, the volume asks why the one construction was discovered six separate times across fifty years and three fields, and answers that the diagonal is not a <i>sociological</i> multiple — found because its times were ripe — but a <i>structural</i> one, found because it is the unique forced solution to a problem, certified canonical by Lawvere's own theorem and re-forced independently by each of six distinct problems. Its findings — that the multiplicity is therefore not a curiosity to be explained by the unity but independent <i>evidence</i> for it, that Stigler's self-exemplifying law sits as a recurrence about naming inside the recurrence about the construction, and that Lawvere's theorem is the seventh instance, recognition rather than discovery, of which this collection is the latest — are offered as a reading, argued from the record and the mathematics. <a href="quodlibet.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">↩&nbsp;return to the collection's front door</a>, or to <a href="the-anatomy.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Anatomy</a> and the descents <a href="the-wall.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Wall</a>, <a href="the-box.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Box</a>, <a href="the-knot.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Knot</a>, <a href="the-provenance.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Provenance</a>.</p>
+    <p class="notes"><span class="nl">on method.</span> &nbsp;The distinction between a sociological ("ripe") and a structural ("forced") multiple is drawn from the multiple-discovery literature's own debate over whether multiples imply inevitability. The "forced" reading is grounded in the canonicity of Lawvere's fixed point — given a point-surjection and a fixed-point-free twist, the construction and its fixed point are determined, not chosen. The independence of the six discoverers is qualified honestly: the inevitability claimed is <i>per problem</i> (each problem re-forces the construction), not per person. The evidential inversion is a likelihood argument, not a formal calculation.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Cantor 1891 · Russell 1901/1903 (Zermelo, indep.) · Gödel 1931 · Tarski 1933/1936 · Turing 1936 · Curry 1942 · Kleene 1938 · Lawvere 1969 · Yanofsky 2003 · Merton 1957, 1961, 1963 (the sociology of multiples) · Ogburn &amp; Thomas 1922 · Stigler 1980 (the law of eponymy) · Simonton (on multiples and inevitability).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">disposition.</span> &nbsp;The recurrence is the theorem told as history: one construction, forced six times, recognized once, and mapped here. <span class="mono">found · and found · and found.</span></p>
+  </footer>
+
+</div>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="the-provenance.html">← The Provenance</a><a rel="next" href="the-staircase.html">The Staircase →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

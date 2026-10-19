@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Knot — paradox, and the thread that ties it</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.10); --red-line:rgba(178,58,46,.40);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.11); --teal-line:rgba(44,110,106,.40);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.42);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup.fn{font-size:.62em;line-height:0;vertical-align:super;color:var(--red-deep);font-family:"IBM Plex Mono",monospace;padding-left:.1em;}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;
+    border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1.2rem,3vh,2rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.6rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.2rem,11vw,8.4rem);line-height:.94;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.08rem,1.45vw,1.28rem);line-height:1.56;color:var(--soft1);margin:clamp(1.5rem,3vh,2.2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.6rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2.2rem,5vh,3.4rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  /* ---------- prose ---------- */
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.06rem;line-height:1.78;margin:0 0 1.15rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.4rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.6rem auto 0;}
+  .reading p{font-size:1.02rem;line-height:1.76;margin:0 0 1.02rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.35rem;}
+  .reading.wide{max-width:42rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+  .drop em{font-style:italic;color:var(--ink);}
+
+  /* ---------- section heads ---------- */
+  .sec{margin-top:clamp(4.2rem,9vh,7rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.5rem,3vh,2.2rem);max-width:47rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.85rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1.01rem;color:var(--soft1);max-width:39rem;margin:1rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  /* ---------- panels / figures ---------- */
+  .stage{max-width:62rem;margin:clamp(1.8rem,4vh,2.8rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;
+    padding:clamp(1.2rem,3vw,2.2rem);box-shadow:0 1px 0 rgba(255,255,255,.4) inset;}
+  .panel-cap{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin:0 0 1rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.4rem auto 0;max-width:40rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+  figcaption .mono{font-size:.82rem;}
+
+  /* ---------- argument map ---------- */
+  #argmap{display:block;width:100%;height:auto;max-width:60rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- formal theorem block ---------- */
+  .theorem{border:1px solid var(--ink);border-radius:3px;background:rgba(26,24,21,.018);padding:clamp(1.1rem,2.6vw,1.8rem) clamp(1.2rem,3vw,2rem);position:relative;}
+  .theorem .thlab{position:absolute;top:-.72rem;left:1.2rem;background:var(--paper);padding:0 .6rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);}
+  .theorem .stmt{font-size:1.04rem;line-height:1.66;color:var(--ink);}
+  .theorem .stmt b{font-weight:600;}
+  .theorem .stmt .mono{font-size:.92rem;}
+  .theorem .proof{margin-top:1.1rem;padding-top:.95rem;border-top:1px solid var(--panelhair);font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .theorem .proof .plab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-right:.5rem;}
+  .theorem .qed{float:right;color:var(--ink);}
+  .formula{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);text-align:center;margin:.9rem auto;line-height:1.9;letter-spacing:.01em;}
+  .formula .em{color:var(--red-deep);font-weight:500;}
+  .formula.teal .em{color:var(--teal-deep);}
+  .corner{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  .corner > div{background:var(--paper);padding:.85rem 1rem;}
+  .corner .h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.3rem;}
+  .corner .v{font-size:.92rem;line-height:1.45;color:var(--soft1);}
+  @media(max-width:560px){ .corner{grid-template-columns:1fr;} }
+
+  /* ---------- callout / aside ---------- */
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.4rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.84rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);}
+  .callout.teal .cl-lab{color:var(--teal-deep);}
+  .callout.teal p .mono{color:var(--teal-deep);}
+
+  /* ---------- Cantor grid ---------- */
+  .cantor-wrap{display:flex;flex-direction:column;align-items:center;gap:1.1rem;}
+  .cgrid{display:grid;gap:3px;}
+  .crow{display:grid;gap:3px;grid-auto-flow:column;align-items:center;}
+  .clabel{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);width:3.4ch;text-align:right;padding-right:.5rem;}
+  .cell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px solid var(--panelhair);border-radius:2px;
+    background:rgba(26,24,21,.012);cursor:pointer;user-select:none;transition:background .12s,color .12s,border-color .12s;color:var(--soft1);}
+  .cell:hover{background:rgba(26,24,21,.05);}
+  .cell.diag{border-color:var(--red-line);background:var(--red-soft);color:var(--red-deep);font-weight:500;box-shadow:0 0 0 1px var(--red-line) inset;}
+  .escape-row{display:grid;gap:3px;grid-auto-flow:column;align-items:center;margin-top:.5rem;}
+  .escape-row .clabel{color:var(--red-deep);font-weight:500;}
+  .ecell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px dashed var(--red-line);border-radius:2px;color:var(--red-deep);font-weight:500;background:var(--red-soft);}
+  .cantor-note{font-size:.9rem;color:var(--soft1);text-align:center;max-width:34rem;line-height:1.55;}
+  .cantor-note .mono{color:var(--red-deep);}
+
+  /* ---------- buttons ---------- */
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+    background:rgba(26,24,21,.022);border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .95rem;cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .btn:hover{background:rgba(26,24,21,.06);}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .btn.red{color:#fff;background:var(--red);border-color:var(--red-deep);} .btn.red:hover{background:var(--red-deep);}
+  .btn.teal{color:#fff;background:var(--teal);border-color:var(--teal-deep);} .btn.teal:hover{background:var(--teal-deep);}
+  .controls{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;align-items:center;}
+
+  /* ---------- The Machine ---------- */
+  .machine{display:grid;gap:1.2rem;}
+  .selector{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .seltab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--faint);
+    background:transparent;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .8rem;cursor:pointer;
+    transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.12rem;min-width:5.4rem;}
+  .seltab .yr{font-size:.6rem;color:var(--faintest);letter-spacing:.06em;}
+  .seltab:hover{background:rgba(26,24,21,.04);}
+  .seltab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .seltab.on .yr{color:rgba(244,241,232,.6);}
+  .seltab.on.rec{background:var(--teal-deep);border-color:var(--teal-deep);}
+  .seltab.on.rec .yr{color:rgba(244,241,232,.6);}
+  .mach-grid{display:grid;grid-template-columns:1fr 1.28fr;gap:clamp(1rem,2.4vw,1.7rem);align-items:start;}
+  @media(max-width:780px){ .mach-grid{grid-template-columns:1fr;} }
+  .skeleton{border:1px solid var(--panelhair);border-radius:3px;padding:1.1rem 1.1rem 1.3rem;background:rgba(26,24,21,.015);}
+  .skeleton .lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.85rem;}
+  .sk-line{font-family:"IBM Plex Mono",monospace;font-size:.9rem;line-height:1.9;color:var(--soft1);}
+  .sk-line .sub{color:var(--red-deep);font-weight:500;}
+  .sk-line.rec .sub{color:var(--teal-deep);}
+  .sk-defn{display:grid;grid-template-columns:auto 1fr;gap:.28rem .8rem;margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--panelhair);
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.5;color:var(--faint);}
+  .sk-defn b{color:var(--red-deep);font-weight:500;}
+  .sk-defn.rec b{color:var(--teal-deep);}
+  .derivation{display:grid;gap:.5rem;}
+  .deriv-title{font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);margin-bottom:.05rem;}
+  .deriv-body{font-size:.96rem;line-height:1.6;color:var(--soft1);}
+  .deriv-body .mono{font-size:.84rem;color:var(--ink);background:rgba(26,24,21,.04);padding:.05em .3em;border-radius:2px;}
+  .deriv-step{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.68;color:var(--ink);
+    background:rgba(26,24,21,.025);border-left:2px solid var(--red-line);padding:.65rem .85rem;border-radius:0 2px 2px 0;margin:.25rem 0;white-space:pre-wrap;}
+  .deriv-step.rec{border-left-color:var(--teal-line);}
+  .fate-row{display:grid;grid-template-columns:auto 1fr;gap:.3rem .7rem;font-size:.88rem;line-height:1.5;margin-top:.2rem;}
+  .fate-row .fk{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .fate-row .fv{color:var(--soft1);}
+  .fate-row .fv b{color:var(--ink);font-weight:500;}
+  .verdict{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;padding:.85rem 1.05rem;border-radius:3px;background:var(--red-soft);border:1px solid var(--red-line);}
+  .verdict.rec{background:var(--teal-soft);border-color:var(--teal-line);}
+  .verdict .tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .verdict.rec .tag{color:var(--teal-deep);}
+  .verdict .txt{font-size:.94rem;color:var(--soft1);font-style:italic;}
+
+  /* ---------- code runner (quine / Y) ---------- */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner-bar{display:flex;justify-content:space-between;align-items:center;padding:.5rem .8rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner-bar .ttl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner pre{margin:0;padding:.95rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;word-break:break-word;overflow-x:auto;}
+  .runner .rout{border-top:1px dashed var(--panelhair);padding:.8rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.6;color:var(--soft1);white-space:pre-wrap;word-break:break-word;min-height:1.5rem;}
+  .runner .rout .ok{color:var(--teal-deep);font-weight:500;}
+  .runner .rout .lbl{color:var(--faintest);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:.25rem;}
+
+  /* ---------- hinge ---------- */
+  .hinge-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2.4vw,1.7rem);}
+  @media(max-width:700px){ .hinge-grid{grid-template-columns:1fr;} }
+  .hinge-card{border:1px solid var(--panelhair);border-radius:3px;padding:1.15rem;text-align:center;background:rgba(26,24,21,.012);}
+  .hinge-card svg{display:block;width:100%;height:auto;max-width:240px;margin:.3rem auto .7rem;overflow:visible;}
+  .hinge-card h4{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin:0 0 .2rem;}
+  .hinge-card .verdict-line{font-size:.9rem;font-style:italic;line-height:1.5;margin-top:.5rem;}
+  .hinge-card.lim h4{color:var(--red-deep);} .hinge-card.lim .verdict-line{color:var(--red-deep);}
+  .hinge-card.rec h4{color:var(--teal-deep);} .hinge-card.rec .verdict-line{color:var(--teal-deep);}
+
+  /* ---------- four fates strip ---------- */
+  .fates{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:820px){ .fates{grid-template-columns:1fr 1fr;} }
+  @media(max-width:460px){ .fates{grid-template-columns:1fr;} }
+  .fate{background:var(--paper);padding:1rem 1rem 1.1rem;}
+  .fate .fn{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .fate .fh{font-family:"Spectral",serif;font-style:italic;font-size:1.06rem;color:var(--ink);margin-bottom:.35rem;line-height:1.2;}
+  .fate .fb{font-size:.86rem;line-height:1.48;color:var(--soft1);}
+  .fate .fr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.5;}
+  .fate.f-red{box-shadow:inset 3px 0 0 var(--red-line);} .fate.f-red .fh{color:var(--red-deep);}
+  .fate.f-teal{box-shadow:inset 3px 0 0 var(--teal-line);} .fate.f-teal .fh{color:var(--teal-deep);}
+  .fate.f-gold{box-shadow:inset 3px 0 0 var(--gold-line);} .fate.f-gold .fh{color:var(--gold-deep);}
+
+  /* ---------- Löb derivation chain ---------- */
+  .lobchain{display:grid;gap:.4rem;max-width:46rem;margin:1.4rem auto 0;}
+  .lobstep{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);}
+  .lobstep .ln{color:var(--faintest);font-size:.7rem;}
+  .lobstep .ex{color:var(--ink);}
+  .lobstep .ex .em{color:var(--red-deep);}
+  .lobstep .why{color:var(--faint);font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;text-align:right;}
+  .lobstep.key{border-color:var(--red-line);background:var(--red-soft);}
+
+  /* ---------- bridge table ---------- */
+  .bridge{max-width:55rem;margin:clamp(1.5rem,3vh,2.2rem) auto 0;}
+  .bridge-row{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .bridge-row+.bridge-row{margin-top:1px;}
+  .bcell{background:var(--paper);padding:.9rem 1.05rem;}
+  .bcell .h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .bcell .v{font-size:.93rem;line-height:1.45;color:var(--soft1);}
+  .bcell .v b{font-weight:500;color:var(--ink);}
+  .bridge-head .bcell{background:rgba(26,24,21,.025);}
+  .bridge-head .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:1rem;}
+  @media(max-width:660px){ .bridge-row{grid-template-columns:1fr;} }
+
+  /* ---------- trilemma ---------- */
+  .trilemma{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;}
+  @media(max-width:780px){ .trilemma{grid-template-columns:1fr;} }
+  #triSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .tri-readout{min-height:9rem;}
+  .tri-readout .tr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.5rem;}
+  .tri-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.3rem;margin:0 0 .5rem;color:var(--ink);}
+  .tri-readout p{font-size:.95rem;line-height:1.58;color:var(--soft1);}
+  .tri-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faint);margin-top:.6rem;display:block;line-height:1.6;}
+  .tri-readout .mech{font-size:.86rem;color:var(--faint);margin-top:.55rem;line-height:1.5;font-style:italic;}
+
+  /* ---------- coda + footer ---------- */
+  .coda{max-width:46rem;margin:clamp(4.5rem,10vh,7rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.4rem,2.5vw,1.95rem);line-height:1.34;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.88em;}
+  .coda .mono.t{color:var(--teal-deep);}
+  footer{margin-top:clamp(4.5rem,10vh,7rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:66ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:66ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+  .refs{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.95;color:var(--faintest);margin-top:1.2rem;max-width:70ch;}
+  .refs b{color:var(--faint);font-weight:500;}
+
+  /* ---------- Kleene ascent (§VII) ---------- */
+  .asc-wrap{display:grid;gap:4px;max-width:31rem;margin:.4rem auto 0;}
+  .asc-row{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .85rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);
+    transition:background .14s,border-color .14s;}
+  .asc-row .asc-lab{color:var(--faint);white-space:nowrap;}
+  .asc-row .asc-map{color:var(--soft1);word-break:break-word;}
+  .asc-row.cur{border-color:var(--teal-line);background:var(--teal-soft);}
+  .asc-row.cur .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-row.lim{border-style:dashed;border-color:var(--teal-line);}
+  .asc-row.lim .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:35rem;margin:.95rem auto 0;font-style:italic;}
+  .asc-note .mono{font-style:normal;color:var(--teal-deep);font-size:.82rem;}
+
+  /* ---------- value-lattice dial ---------- */
+  .dial{display:grid;gap:1.1rem;}
+  .dial-sel{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .dial-stage{display:flex;justify-content:center;padding:.3rem 0;}
+  #dialViz{display:block;width:100%;height:auto;max-width:30rem;overflow:visible;}
+  .dial-readout{min-height:7rem;max-width:42rem;margin:0 auto;text-align:center;}
+  .dial-readout .dr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.45rem;color:var(--faint);}
+  .dial-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.26rem;margin:0 0 .45rem;color:var(--ink);}
+  .dial-readout p{font-size:.94rem;line-height:1.56;color:var(--soft1);}
+  .dial-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.62;}
+  .dial-readout.red .dr-pair{color:var(--red-deep);}
+  .dial-readout.teal .dr-pair{color:var(--teal-deep);}
+  .dial-readout.gold .dr-pair{color:var(--gold-deep);}
+
+  /* ---------- de Jongh–Sambin fixed-point grid ---------- */
+  .fpgrid{max-width:56rem;margin:1.3rem auto 0;}
+  .fprow{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .fprow+.fprow{margin-top:1px;}
+  .fpcell{background:var(--paper);padding:.85rem 1.05rem;}
+  .fpcell .h{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.38rem;}
+  .fpcell .v{font-family:"IBM Plex Mono",monospace;font-size:.85rem;line-height:1.55;color:var(--soft1);}
+  .fpcell .v .em{color:var(--gold-deep);font-weight:500;}
+  .fpcell .vn{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .fpcell .vn b{color:var(--ink);font-weight:500;}
+  .fphead .fpcell{background:rgba(26,24,21,.025);}
+  .fphead .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:.98rem;}
+  @media(max-width:660px){ .fprow{grid-template-columns:1fr;} }
+
+  /* ---------- twist classifier (§III) ---------- */
+  .tclass{max-width:43rem;margin:.4rem auto 0;display:grid;gap:1.05rem;}
+  .tclass-q{display:grid;gap:.5rem;}
+  .tclass-q .ql{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);}
+  .tclass-q .qt{font-size:.95rem;line-height:1.5;color:var(--soft1);}
+  .tclass-q .qt b{color:var(--ink);font-weight:600;}
+  .tclass-opts{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .topt{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.01em;color:var(--faint);
+    border:1px solid var(--panelhair);border-radius:2px;padding:.36rem .82rem;background:var(--paper);cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .topt:hover{background:rgba(26,24,21,.04);}
+  .topt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .topt.dis{opacity:.32;pointer-events:none;}
+  .tclass-out{border-top:1px solid var(--panelhair);padding-top:1.1rem;text-align:center;min-height:7rem;}
+  .tclass-out .to-pair{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.42rem;color:var(--faint);}
+  .tclass-out h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.24rem;margin:0 0 .42rem;color:var(--ink);}
+  .tclass-out p{font-size:.93rem;line-height:1.56;color:var(--soft1);max-width:40rem;margin:0 auto;}
+  .tclass-out .to-ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.6;}
+  .tclass-out.red .to-pair{color:var(--red-deep);}
+  .tclass-out.teal .to-pair{color:var(--teal-deep);}
+  .tclass-out.gold .to-pair{color:var(--gold-deep);}
+
+  /* ---------- GL Kripke frame ---------- */
+  #glFrame{display:block;width:100%;height:auto;max-width:34rem;margin:0 auto;overflow:visible;}
+  .glframe-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .glframe-note .mono{font-style:normal;color:var(--gold-deep);font-size:.82rem;}
+
+  /* ---------- the Kernel: comparison axes + diagrams ---------- */
+  .cmp-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .cmp-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .cmp-axes .av{color:var(--soft1);line-height:1.42;}
+  .cmp-axes .av b{color:var(--ink);font-weight:600;}
+  #kccc,#kproof{display:block;width:100%;height:auto;max-width:35rem;margin:0 auto;overflow:visible;}
+  .kdiag-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .kdiag-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  /* ---------- the Mechanism: diagrams ---------- */
+  #secEval,#dgtrace{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- the Ceiling: jump ladder + diagrams ---------- */
+  #witness,#rice,#spectrum{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+  .ladder{display:flex;flex-direction:column-reverse;gap:3px;max-width:31rem;margin:.4rem auto .2rem;}
+  .lrung{display:flex;align-items:center;gap:.7rem;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .85rem;background:var(--paper);cursor:pointer;transition:background .14s,border-color .14s;text-align:left;}
+  .lrung:hover{background:rgba(26,24,21,.035);}
+  .lrung.on{border-color:var(--red-deep);background:rgba(176,58,46,.055);}
+  .lrung .deg{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:600;color:var(--ink);min-width:3.4rem;}
+  .lrung.on .deg{color:var(--red-deep);}
+  .lrung .lvl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);min-width:4.2rem;}
+  .lrung .lgloss{font-size:.82rem;color:var(--soft1);margin-left:auto;font-style:italic;text-align:right;}
+  .jr-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .jr-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .jr-axes .av{color:var(--soft1);line-height:1.42;}
+  .jr-axes .av b{color:var(--ink);font-weight:600;}
+
+  /* ---------- the Floor: the Kleene ascent ---------- */
+  .ascent{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:35rem;margin:.5rem auto .2rem;}
+  .acell{width:3.15rem;border:1px solid var(--panelhair);border-radius:2px;padding:.42rem .2rem;text-align:center;background:var(--paper);transition:background .25s,border-color .25s;}
+  .acell .ai{font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:var(--faintest);}
+  .acell .av{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:600;color:var(--soft1);margin-top:.16rem;}
+  .acell.def{background:var(--teal-soft);border-color:var(--teal-line);}
+  .acell.def .av{color:var(--teal-deep);}
+  .acell.fresh{background:var(--gold-soft);border-color:var(--gold-line);}
+  .acell.fresh .av{color:var(--gold-deep);}
+  .ascent-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--faint);margin-top:.8rem;line-height:1.5;}
+  .ascent-stat b{color:var(--ink);}
+  .ascent-stat .em{color:var(--teal-deep);}
+
+  /* ---------- the Knot: Curry derivation + Kripke ascent ---------- */
+  .deriv{max-width:41rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:2px;}
+  .dstep{display:grid;grid-template-columns:1.5rem 1fr;gap:.6rem;align-items:baseline;padding:.46rem .7rem;border-left:2px solid var(--panelhair);background:var(--paper);}
+  .dstep .dn{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);}
+  .dstep .db{display:flex;justify-content:space-between;gap:.8rem;align-items:baseline;flex-wrap:wrap;}
+  .dstep .df{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);line-height:1.45;}
+  .dstep .dj{font-size:.73rem;color:var(--faint);font-style:italic;white-space:nowrap;}
+  .dstep.contr{border-left-color:var(--red);background:rgba(176,58,46,.05);}
+  .dstep.contr .df{color:var(--red-deep);font-weight:600;}
+  .dstep.trivial{border-left-color:var(--red-deep);background:rgba(176,58,46,.08);}
+  .dstep.trivial .df{color:var(--red-deep);font-weight:600;}
+  .dstep.defused{border-left-color:var(--teal-deep);background:rgba(42,107,107,.07);}
+  .dstep.defused .df{color:var(--teal-deep);font-weight:600;}
+  .deriv-note{text-align:center;font-size:.86rem;color:var(--faint);font-style:italic;margin-top:.8rem;line-height:1.5;}
+  .deriv-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  .ktab{max-width:35rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:3px;}
+  .krow{display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:center;border:1px solid var(--panelhair);border-radius:2px;padding:.48rem .8rem;background:var(--paper);}
+  .krow.liar{border-color:var(--red-line);}
+  .krow .ksent{font-family:"IBM Plex Mono",monospace;font-size:.83rem;color:var(--ink);line-height:1.35;}
+  .krow .ksub{font-size:.66rem;color:var(--faintest);font-style:italic;}
+  .kval{font-family:"IBM Plex Mono",monospace;font-size:.8rem;font-weight:600;min-width:4.2rem;text-align:center;border-radius:2px;padding:.18rem .4rem;transition:background .25s,color .25s,border-color .25s;}
+  .kval.gap{background:var(--gold-soft);color:var(--gold-deep);border:1px solid var(--gold-line);}
+  .kval.tt{background:var(--teal-soft);color:var(--teal-deep);border:1px solid var(--teal-line);}
+  .kval.ff{background:rgba(124,118,106,.1);color:var(--soft1);border:1px solid var(--panelhair);}
+  .kval.fresh{box-shadow:0 0 0 2px var(--gold-line);}
+  .ktab-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.79rem;color:var(--faint);margin-top:.8rem;line-height:1.5;}
+  .ktab-stat b{color:var(--ink);} .ktab-stat .em{color:var(--gold-deep);}
+  #revengeFig{display:block;width:100%;height:auto;max-width:33rem;margin:0 auto;overflow:visible;}
+
+  @media (max-width:600px){ body{font-size:18px;} .mach-grid{grid-template-columns:1fr;} .f-bar{flex-direction:column;gap:.6rem;} .lrung .lgloss{display:none;} .dstep .dj{display:none;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{
+    body{background:#f4f1e8 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5pt;}
+    body::before{display:none !important;}
+    .btn,.controls,.selector,.runner-bar .btn{display:none !important;}
+    .sec,.panel,.stage,figcaption,.reading,.coda,.theorem,.fates,.runner{break-inside:avoid;}
+    .sec-head{break-after:avoid;}
+  }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-diagonal">The Diagonal</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the knot · fifth deepening</span></div>
+    <div class="hero-head">
+      <p class="kicker">Where the fixed point detonates</p>
+      <h1>The Knot</h1>
+      <p class="standfirst">There is a third thing the forced fixed point can do. The Ceiling forbade it; the Floor built it; here it <i>explodes</i>. When the system names itself, the twist has no resting value, and the codomain is genuine truth, the fixed point is a flat contradiction — and a contradiction, in a classical logic, proves everything. This is the fate of the paradoxes. But the deepest fact about them is not that they detonate; it is <i>why</i>. The blast is not in the negation, as the Liar suggests, but in a structural rule so quiet it is almost never noticed — and once that is seen, the paradox can be untied, or given slack, in ways that reveal it to be the same fixed point the other fates merely received differently.</p>
+      <p class="ed-mark">component V of the diagonal · the explosive face, isolated and deepened — Russell, the Liar, and Curry as one Lawvere structure; the principle of explosion and what it requires; the structural revelation that contraction, not negation, is the detonator; the dial of values that gives the twist a fixed point; Kripke's least&#8209;fixed&#8209;point taming of the Liar; and revenge, the conservation law on the paradox's own face</p>
+    </div>
+  </header>
+
+  <!-- ============ §I THE DETONATION ============ -->
+  <section class="sec" id="detonation">
+    <div class="sec-head"><span class="num">I · the detonation</span><h2>A fixed point that cannot rest</h2><p class="sub">Fate&nbsp;3 is the diagonal's most violent reception, and its conditions are exact. They differ from the absorbed fate of incompleteness by one thing only — and that one thing is the whole difference between a contradiction and a true&#8209;but&#8209;unprovable sentence.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the three conditions&nbsp;&nbsp;</span>The explosive fate requires all three to hold at once. <b>First</b>, the system is reflexive — it can name its own sentences, so the diagonal applies and a fixed point of the twist is forced. <b>Second</b>, the twist is <i>fixed&#8209;point&#8209;free</i> in the codomain — negation over rigid two&#8209;valued truth fixes nothing, since nothing is its own opposite. <b>Third</b>, and decisively, the codomain is the <i>genuine</i> semantic target — truth itself, governed by the T&#8209;schema <span class="mono">True(⌜φ⌝) ↔ φ</span>. The first condition forces the fixed point to exist; the second denies it any value to take; the third forbids it from quietly landing somewhere harmless. With nowhere to go and no proxy to absorb it, the forced fixed point is a sentence equivalent to its own denial — a contradiction in the system's own voice.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">and then everything follows&nbsp;&nbsp;</span>A contradiction in a classical logic is not a local wound; it is total. From <span class="mono">A ∧ ¬A</span> one derives <i>any</i> <span class="mono">B</span> whatever — the principle of <b>explosion</b>, <i>ex contradictione quodlibet</i>. The derivation is short and worth seeing, because every step will matter when we ask how to stop it: from <span class="mono">A</span> infer <span class="mono">A ∨ B</span> by weakening the disjunction; from <span class="mono">¬A</span> and <span class="mono">A ∨ B</span> infer <span class="mono">B</span> by disjunctive syllogism. So a single self&#8209;referential sentence, if it detonates, does not merely fail to have a truth&#8209;value — it collapses the distinction between the provable and the unprovable, making the system <b>trivial</b>: a theory that proves everything proves nothing. This is the catastrophe the paradoxes threaten, and the reason they were felt, in their day, as crises in the foundations rather than curiosities.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the one difference from incompleteness — the seam to the next volume</div>
+      <p>Hold the explosive fate against the absorbed one, because they are nearer than they look and the gap between them is a single hair. The <b>Liar</b> takes the twist <span class="mono">¬</span> over <i>truth</i>, and detonates. <b>Gödel's sentence</b> takes the very same twist <span class="mono">¬</span> over <i>provability</i>, and does not — it lands gently as a sentence that is true and unprovable. The diagonal is identical; the negation is identical; the self&#8209;reference is identical. What differs is the codomain. Truth obeys the full T&#8209;schema, <span class="mono">True(⌜φ⌝) ↔ φ</span>, and a fixed point of <span class="mono">¬True</span> is therefore a genuine contradiction. Provability obeys only the weaker <b>derivability conditions</b> — provable sentences are provably provable, provability respects implication — but <i>not</i> <span class="mono">Prov(⌜φ⌝) → φ</span>, internal soundness; so a fixed point of <span class="mono">¬Prov</span> is not a contradiction but an undecided truth. The explosive fate and the absorbed fate are one diagonal divided by one schema. This volume is the explosion; the next is the absorption; and the seam between them is exactly the strength of the predicate the twist is built from.</p>
+    </div>
+  </section>
+
+  <!-- ============ §II THE THREE PARADOXES ============ -->
+  <section class="sec" id="three">
+    <div class="sec-head"><span class="num">II · the three paradoxes</span><h2>Russell, the Liar, and Curry — one structure</h2><p class="sub">The classical paradoxes look like three different accidents of language and set theory. They are one Lawvere fixed point over a genuine codomain — and the third of them carries a clue the first two conceal.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">Russell&nbsp;&nbsp;</span>Naïve set theory lets every predicate carve out a set — the principle of unrestricted comprehension, which is precisely the claim that the universe of sets <i>names its own properties</i>, the reflexivity the diagonal needs. Apply it to the predicate "is not a member of itself" and form <span class="mono">R = {x : x ∉ x}</span>. Then <span class="mono">R ∈ R ↔ R ∉ R</span>: the twist is membership&#8209;negation <span class="mono">¬</span>, fixed&#8209;point&#8209;free over the rigid two values <span class="mono">{in, out}</span>, and the forced fixed point is a flat contradiction. This was the crisis that ended naïve set theory, and the standard repair — <span class="mono">ZF</span>'s restriction of comprehension, building sets in a cumulative hierarchy — is exactly the move the Ceiling described: <i>deny the reflexivity</i>, stratify the universe so that no set can range over all sets, and the diagonal has nothing to bite.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the Liar&nbsp;&nbsp;</span>The semantic twin needs no sets, only a language that can speak of its own sentences' truth. The diagonal lemma, applied to <span class="mono">¬True(x)</span>, builds <span class="mono">L ↔ ¬True(⌜L⌝)</span>; the T&#8209;schema <span class="mono">True(⌜L⌝) ↔ L</span> then forces <span class="mono">True(⌜L⌝) ↔ ¬True(⌜L⌝)</span>, contradiction. Same structure exactly — reflexive system, fixed&#8209;point&#8209;free negation, genuine codomain — and the same detonation. The Liar is Russell's paradox in the medium of truth rather than membership; what membership was to the universe of sets, truth is to the universe of sentences, and the diagonal does not care which.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">Curry — the paradox without a negation</div>
+      <p>The third paradox is the one that changes everything, because it removes the feature the first two seemed to depend on. Build, by the diagonal lemma, a sentence that says <i>of itself</i> that its own truth implies some fixed <span class="mono">φ</span>: <span class="mono">c ↔ (c → φ)</span>, where <span class="mono">φ</span> is <b>anything at all</b> — "the moon is cheese," "<span class="mono">0 = 1</span>," any sentence you like. There is <i>no negation anywhere</i> in <span class="mono">c</span> — only the conditional. And yet, in a classical or intuitionistic logic, <span class="mono">c</span> proves <span class="mono">φ</span> outright. A self&#8209;referential sentence with no negation in it proves the moon is made of cheese. This is <b>Curry's paradox</b>, and it detonates as surely as the Liar — which means the explosion cannot be blamed on negation, since here there is none. Something else is the detonator. The next section finds it, and it is not where anyone first looks.</p>
+    </div>
+  </section>
+
+  <!-- ============ §III THE STRUCTURAL REVELATION ============ -->
+  <section class="sec" id="structural">
+    <div class="sec-head"><span class="num">III · the detonator</span><h2>It was never the negation</h2><p class="sub">Curry's paradox proves that paradox does not need negation. Trace its derivation and the real culprit appears — not a connective at all, but a <i>structural rule</i> so basic it is used without comment: the licence to invoke a hypothesis twice.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">find the load-bearing step&nbsp;&nbsp;</span>Run Curry's derivation of <span class="mono">φ</span> from <span class="mono">c ↔ (c → φ)</span> and watch which inferences it uses. The connectives are innocent: only <i>modus ponens</i> and the introduction and elimination of the conditional, the most uncontroversial rules in logic. The self&#8209;reference is innocent too — the Floor showed self&#8209;application is the engine of all computation, not a defect. The detonator is neither. It is the moment the single hypothesis <span class="mono">c</span> is used <i>twice</i> — once to supply the conditional <span class="mono">c → φ</span>, once to supply its antecedent <span class="mono">c</span> — and then the two uses are collapsed back into one. That collapse is the structural rule of <b>contraction</b>: from "<span class="mono">c</span>, used twice, yields <span class="mono">φ</span>" to "<span class="mono">c</span>, used once, yields <span class="mono">φ</span>." Block it, and the derivation cannot complete.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">Curry's derivation — toggle the structural rule</p>
+        <div class="deriv" id="curryDeriv"></div>
+        <div class="deriv-note" id="curryNote"></div>
+        <div class="controls" style="margin-top:1.1rem;justify-content:center"><button class="btn red" id="curryToggle">contraction: ON</button></div>
+      </div>
+      <figcaption>With <b>contraction</b>, step&nbsp;4's "<span class="mono">c, c ⊢ φ</span>" collapses to "<span class="mono">c ⊢ φ</span>," and the derivation runs to <span class="mono">⊢ φ</span> for <i>any</i> <span class="mono">φ</span> — the system is trivial. Without it, the duplicate <span class="mono">c</span> cannot be discharged, the derivation halts, and the knot is untied. Same sentence, same connectives, same self&#8209;reference — only the structural rule changed.</figcaption>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">paradox is structural — the deepest diagnosis</div>
+      <p>This is the volume's first climax, and it overturns the usual story. The paradoxes are not a problem with negation (Curry has none), nor with self&#8209;reference (the Floor runs on it), nor even with truth (Curry's <span class="mono">φ</span> can be any sentence). They are a problem with <b>contraction</b> — the structural rule permitting a hypothesis, once assumed, to be used as many times as wanted. Remove it and the whole family is defused at a stroke: the <b>substructural logics</b> — linear, affine, relevance, and Łukasiewicz's infinite&#8209;valued logic — keep reflexivity, keep implication, keep negation, keep a perfectly classical&#8209;looking truth predicate, and simply decline to reuse hypotheses freely. In them the Liar and Curry are not paradoxes but harmless fixed points. So the detonator was never a connective. It was the bookkeeping of how often a premise may be spent — and that is why the diagonal monograph counted "drop contraction" as a fourth response to self&#8209;reference, distinct from surrendering reflexivity, coherence, or bivalence. The knot is tied not by what the sentence says but by how the logic lets its assumption be handled. Loosen that single thread and the sentence, still saying exactly what it said, no longer pulls tight.</p>
+    </div>
+  </section>
+
+  <!-- ============ §IV THE DIAL OF VALUES ============ -->
+  <section class="sec" id="dial">
+    <div class="sec-head"><span class="num">IV · the dial of values</span><h2>Give the twist somewhere to rest</h2><p class="sub">Dropping contraction defuses the paradox by changing the rules. The other family of responses leaves the rules alone and enriches the <i>codomain</i> — and in Lawvere's terms that is the same as handing the fixed&#8209;point&#8209;free twist a fixed point, turning the explosive fate toward the benign one.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">why enrichment works&nbsp;&nbsp;</span>The detonation needed a <i>rigid</i> codomain: two values, with negation fixing neither. Loosen that and the contradiction dissolves, because the twist regains a resting value. Add a third value <span class="mono">½</span> with <span class="mono">¬½ = ½</span>, and the Liar <span class="mono">L = ¬L</span> is simply <i>true at <span class="mono">½</span></i> — no contradiction, just a sentence of indeterminate truth. Allow a sentence to be <i>neither</i> true nor false — a gap — and the Liar rests there. Allow it to be <i>both</i> — a glut — and the explosion is contained. Each move is the same in Lawvere's frame: it enlarges the codomain until the fixed&#8209;point&#8209;free <span class="mono">¬</span> acquires a fixed point, and the moment it does, Fate&nbsp;3 becomes Fate&nbsp;2 — the forced fixed point no longer detonates but simply sits. The dial of values is a dial of <i>how rigid the codomain is</i>, and rigidity is the only thing standing between paradox and rest.</p>
+    </div>
+    <div class="stage" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <div class="panel">
+        <p class="panel-cap">the dial — where the Liar lands in each logic</p>
+        <div class="dial">
+          <div class="dial-sel" id="valSel"></div>
+          <div class="dial-readout" id="valReadout"></div>
+        </div>
+        <figcaption>Classical logic gives the twist nowhere to rest and the Liar explodes. Every other setting <b>enriches the codomain</b> — a middle value, a gap, a glut — until <span class="mono">¬</span> has a fixed point and the Liar is merely odd, not fatal. Stratification takes the opposite road, denying the reflexivity entirely; it is the Ceiling's move, read in truth.</figcaption>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the cost is never zero — and it is always the same coin</div>
+      <p>No setting on the dial is free, and the charges rhyme. The many&#8209;valued logics surrender <b>bivalence</b> — the clean law that every sentence is true or false. The paraconsistent logics surrender <b>explosion</b> itself, and with it disjunctive syllogism, a workhorse of ordinary inference. Stratification surrenders <b>semantic closure</b> — the power of a language to talk about its own truth — which is the very expressiveness that made the diagonal possible. And the substructural route of §III surrenders <b>contraction</b>, the free reuse of hypotheses. Four different prices, but one ledger: each is a power the classical system had, paid out to keep the others. This is the trilemma the diagonal monograph drew, now seen on the paradox's face — reflexivity, coherence, bivalence, and the structural rules cannot all be kept, and the paradox is precisely the proof that they cannot. The fixed point is conserved; what the dial chooses is merely which currency to pay it in.</p>
+    </div>
+  </section>
+
+  <!-- ============ §V KRIPKE ============ -->
+  <section class="sec" id="kripke">
+    <div class="sec-head"><span class="num">V · Kripke</span><h2>The Liar tamed by a least fixed point</h2><p class="sub">The gap approach, made fully rigorous, is the volume's second climax — and a quiet astonishment. The construction that resolves the Liar is not a new idea at all. It is the Floor's machinery, the least fixed point of a monotone operator, applied to truth itself.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the Tarski jump&nbsp;&nbsp;</span>Kripke's theory of truth (1975) begins by allowing the truth predicate to be <i>partial</i>: each sentence is assigned true, false, or — for now — nothing at all. Over such partial valuations define an operator <span class="mono">Φ</span>, the <b>Tarski jump</b>: given a current valuation, <span class="mono">Φ</span> declares <span class="mono">True(⌜A⌝)</span> to be true when <span class="mono">A</span> is already true, false when <span class="mono">A</span> is already false, and leaves it undefined otherwise — evaluating compounds by the strong Kleene tables, where a gap in a part may or may not infect the whole. Applying <span class="mono">Φ</span> extends the valuation: sentences whose truth is <i>grounded</i> in the facts so far now receive values they lacked. Truth, on this picture, is not given all at once but <b>grown</b>, stage by stage, from the ground up.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Kripke's fixed point · the Floor, over truth</span>
+        <div class="stmt"><span class="mono">Φ</span> is <b>monotone</b> on the partial valuations ordered by extension — more input information yields more output information, never less. By Knaster–Tarski it has a <b>least fixed point</b>, reached by iterating from the empty valuation <span class="mono">⊥</span>:</div>
+        <div class="formula teal">truth &nbsp;=&nbsp; least fixed point of Φ &nbsp;=&nbsp; ⊔<sub style="font-size:.7em">α</sub> Φ<sup class="fn" style="vertical-align:super">α</sup>(⊥) &nbsp;&nbsp;·&nbsp;&nbsp; ⊥ ⊑ Φ(⊥) ⊑ Φ²(⊥) ⊑ ⋯</div>
+        <div class="proof"><span class="plab">the astonishment</span> This is exactly the construction of the Floor — the least fixed point of a monotone operator on a domain with a bottom, built as the supremum of an ascending chain begun at <span class="mono">⊥</span>. There, the operator was "one more layer of a recursion" and the fixed point was a computable function. Here the operator is "one more layer of grounded truth" and the fixed point is a <i>truth predicate</i>. The Liar's resolution is not a special trick for paradoxes; it is recursion, wearing the costume of semantics. <b>Kripke tames Fate 3 by importing Fate 2.</b> <span class="qed">∎</span></div>
+      </div>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">growing truth from ⊥ — watch the Liar stay ungrounded</p>
+        <div class="ktab" id="ktab"></div>
+        <div class="ktab-stat" id="ktabStat"></div>
+        <div class="controls" style="margin-top:1rem;justify-content:center"><button class="btn teal" id="kStep">▶&nbsp; one more stage</button><button class="btn" id="kReset">reset to ⊥</button></div>
+      </div>
+      <figcaption>At each stage <span class="mono">Φ</span> settles the sentences <i>grounded</i> in the facts so far; the chain only climbs. Atomic facts and their iterated truths settle quickly; the <b>Liar never does</b> — it is ungrounded, and at the least fixed point it rests permanently in the gap. The same ascent that built the factorial here builds truth, and leaves the Liar exactly where it belongs: undefined.</figcaption>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">grounded and ungrounded — what the fixed point sees</div>
+      <p>The least fixed point sorts every sentence into <b>grounded</b> — eventually given a value, because its truth traces back through finitely or transfinitely many stages to the non&#8209;semantic facts — and <b>ungrounded</b> — never given one. "Snow is white is true" is grounded; the Liar is ungrounded, and so is the truth&#8209;teller "this sentence is true," which the construction also leaves in the gap (it could consistently be true or false, but nothing <i>grounds</i> either choice, so the minimal fixed point declines both). The picture is precise and, for the grounded fragment, fully classical: where truth is grounded, it obeys the T&#8209;schema exactly. The gap is reserved for sentences that float free of the facts. This is the most satisfying of the dial's settings — but it is not the end of the story, because the gap, once introduced, can itself be named. And a nameable gap is a new place for the diagonal to strike.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VI REVENGE ============ -->
+  <section class="sec" id="revenge">
+    <div class="sec-head"><span class="num">VI · revenge</span><h2>The fixed point relocates — it never vanishes</h2><p class="sub">Every repair of the Liar names a new semantic status. And every nameable status is a fresh target for the diagonal, which builds a strengthened Liar one level up. This is not a flaw in any particular theory. It is the conservation law, written on the paradox's own face.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">name the gap and it bites&nbsp;&nbsp;</span>Kripke's least fixed point seats the Liar in the gap — but the gap is a <i>thing</i>, and things can be named. From within the object language the Liar <span class="mono">L = ¬True(⌜L⌝)</span> is gappy and harmless, because its own negation is the partial, gap&#8209;tolerant <span class="mono">¬</span>. Step up to the metalanguage, though, and a stronger predicate is available — "is not true" in the full classical sense, where a gap counts as <i>not true</i>. Call it <span class="mono">untrue</span>. Now form the <b>strengthened Liar</b>: <span class="mono">λ ↔ untrue(⌜λ⌝)</span>, the sentence saying it is not true in this stronger sense. If <span class="mono">λ</span> is gappy, then it is not true, so what it says holds, so it is true — contradiction. If true, it says it is not, contradiction. The gap that absorbed the first Liar gives the second one nowhere to hide. The repair did not remove the fixed point; it created a new value, and the new value created a new diagonal.</p>
+    </div>
+    <div class="stage narrow" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">revenge — the Tarski hierarchy, regenerated</p>
+        <div><svg id="revengeFig" role="img" aria-label="Three stacked levels: at each, the Liar is resolved by a gap, but the gap is nameable at the next level, where a strengthened Liar re-paradoxes — the fixed point climbing upward without end."></svg></div>
+      </div>
+      <figcaption>Each repair resolves its Liar with a gap — and makes that gap expressible, which hands the diagonal a stronger twist at the next level. The fixed point climbs: <span class="mono">L₀ ⤳ L₁ ⤳ L₂ ⤳ ⋯</span>. This is exactly the ascending hierarchy the Ceiling described, here regenerated by the act of repair itself. The only way to stop the climb is to forbid the naming — which <i>is</i> stratification, and which <i>is</i> relocating the fixed point up a level by hand.</figcaption>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">conservation, on the paradox's face — deletion is not on offer</div>
+      <p>Generalise, because the phenomenon is not about gaps. Any theory of truth that (i) is expressive enough to name the semantic status it assigns the Liar and (ii) resolves the Liar by giving it that status, immediately admits a strengthened Liar aimed at "has a status other than true," and re&#8209;paradoxes. Gaps invite a "not true" revenge; gluts invite a "true only" revenge; a third value <span class="mono">½</span> invites a "not&#8209;fully&#8209;true" revenge. The escape — making the status&#8209;predicate inexpressible in the object language — is precisely the Tarski hierarchy, and it works only by <i>relocating the fixed point up a level explicitly</i>. So across every consistent treatment, the outcome is the same: <b>the forced fixed point cannot be deleted, only moved.</b> It is moved into a gap, and the gap is climbed; into a glut, and the glut is climbed; into a higher language, and the languages stack forever. Kripke called the residue "the ghost of the Tarski hierarchy," and the ghost is unkillable for a reason this whole fascicle has been circling: the diagonal does not <i>place</i> the fixed point anywhere in particular — it merely <i>forces it to exist</i>, and existence is conserved. You may choose its address. You may never evict it.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VII THE FOURTH FATE IN WAITING ============ -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">VII · the fourth fate in waiting</span><h2>One construction, four receptions</h2><p class="sub">The explosive face is complete, and it points directly at its quietest sibling. Set the four fates side by side and the whole architecture stands revealed — and with it the single hinge that turns detonation into mere incompleteness.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">two diagnoses, one knot&nbsp;&nbsp;</span>The paradox admits two readings, and both live inside the Lawvere frame. The <b>semantic</b> diagnosis says the twist has no fixed point in a rigid codomain, so the forced fixed point is a contradiction — and the cure is to enrich the codomain until the twist can rest (the dial of §IV). The <b>structural</b> diagnosis says contraction is what converts "no fixed point" into "proves everything" — and the cure is to drop contraction, so that the missing fixed point merely fails to exist rather than detonating (the substructural route of §III). These are not rival theories; they are two faces of one fact. The twist has nowhere to rest <i>and</i> the logic lets that absence explode. Patch either side — give the twist a home, or deny the explosion its fuel — and the knot comes loose. The sentence still says exactly what it said. What changes is whether the system can be made to choke on it.</p>
+    </div>
+    <div class="fpgrid">
+      <div class="fprow fphead">
+        <div class="fpcell"><div class="v">the fate</div></div>
+        <div class="fpcell"><div class="v">the twist &amp; its codomain</div></div>
+        <div class="fpcell"><div class="v">the forced fixed point becomes</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">Fate 1 · forbidden</div><div class="v">the Ceiling</div></div>
+        <div class="fpcell"><div class="vn">fixed-point-free twist; the existence of a <i>naming</i> is what is at stake</div></div>
+        <div class="fpcell"><div class="vn"><b>impossible</b> — no host; the limit relocates up a hierarchy</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">Fate 2 · built</div><div class="v">the Floor</div></div>
+        <div class="fpcell"><div class="vn">a complete domain — a bottom <span class="mono">⊥</span> and all suprema</div></div>
+        <div class="fpcell"><div class="vn">a <b>least fixed point</b> — recursion, the engine of computation</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">Fate 3 · explosive</div><div class="v">the Knot</div></div>
+        <div class="fpcell"><div class="vn">fixed-point-free twist over <i>genuine truth</i> — the full T-schema</div></div>
+        <div class="fpcell"><div class="vn">a <b>contradiction</b> — explosion, unless the codomain is enriched</div></div>
+      </div>
+      <div class="fprow">
+        <div class="fpcell"><div class="h">Fate 4 · absorbed</div><div class="v">Incompleteness</div></div>
+        <div class="fpcell"><div class="vn">fixed-point-free twist over a <i>proxy</i> — provability, the derivability conditions only</div></div>
+        <div class="fpcell"><div class="vn">an <b>undecided sentence</b> — true but unprovable, no contradiction</div></div>
+      </div>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.8rem,3.4vh,2.6rem)">
+      <p><span class="lead-in">the hinge to the next volume&nbsp;&nbsp;</span>Look hard at the last two rows, because they are the same diagonal separated by a single property. Fate&nbsp;3 builds <span class="mono">¬True</span> and detonates; Fate&nbsp;4 builds <span class="mono">¬Prov</span> and does not. The reflexivity is identical, the negation is identical, the forced fixed point is identical in form. What differs is the strength of the predicate the twist is made from. Truth obeys <span class="mono">True(⌜φ⌝) ↔ φ</span> in full, so its fixed point is a contradiction and the system either explodes or pays one of the dial's four prices. Provability obeys only the derivability conditions — it is provably monotone and provably closed under <i>modus ponens</i>, but it does <i>not</i> certify its own soundness, <span class="mono">Prov(⌜φ⌝) → φ</span> — so its fixed point is not a contradiction at all, but a sentence the system can neither prove nor refute. Weaken the codomain from genuine truth to mere provability, and the explosion cools into incompleteness. That cooling is the whole subject of the next volume. The Knot detonates because its codomain tells the truth; the absorbed fate survives because its codomain only tracks what can be proved — and the diagonal, indifferent as ever, simply takes whichever fixed point the host allows. The construction is one. The reception is the host's to decide. And whatever the host decides, the fixed point is conserved.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">c ↔ (c → φ)</span><span class="ln"></span></div>
+  <div class="coda"><p>The third reception of the forced fixed point is detonation: a reflexive system, a twist with no value to take, a codomain that genuinely means what it says — and the fixed point becomes a contradiction that, in a classical logic, proves everything. But the paradox keeps its deepest secret well. The blast is not in the negation, for Curry has none; it is in contraction, the unremarked licence to spend a hypothesis twice. Loosen that thread, or enrich the codomain until the twist can rest, and the knot comes untied — and when it is untied by gaps, the resolution turns out to be the Floor's own least fixed point, recursion wearing the costume of truth. Yet nothing deletes the fixed point. Name the gap that absorbed it and a strengthened Liar climbs to the next level; the Tarski hierarchy regenerates from the act of repair, and the diagonal's point is moved but never removed. The explosive fate and the absorbed fate differ by a single schema — truth detonates where provability only goes quiet — and that difference is the door to the next volume. <span class="mono t">c ↔ (c → φ)</span> — a sentence with no negation in it, proving the moon is cheese, until you notice how its one assumption was allowed to be spent.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the knot · component V</span></div>
+    <p class="colophon">The fifth of the diagonal's constituent components: the explosive face, where the forced fixed point has no resting value and the codomain is genuine truth, so the fixed point is a contradiction. Russell, the Liar, and Curry are developed as one Lawvere structure, and then the volume's two findings are drawn out — that contraction, not negation, is the detonator, so the paradoxes are a <i>structural</i> phenomenon defused by the substructural logics; and that Kripke's gap&#8209;theoretic resolution of the Liar is the least fixed point of a monotone operator, the construction of the Floor imported wholesale into semantics, so that Fate&nbsp;3 is tamed by Fate&nbsp;2. The dial of values is read as a dial of codomain rigidity, the trilemma's four prices are tallied to its four settings, and revenge is shown to be the conservation law on the paradox's own face: the fixed point relocates up the Tarski hierarchy and is never deleted. The volume closes on the hinge to incompleteness — that truth detonates where provability, obeying only the derivability conditions, merely goes silent. The paradoxes follow Russell, Tarski, and Curry; the many&#8209;valued and paraconsistent responses, Łukasiewicz, Kleene, and Priest; the least&#8209;fixed&#8209;point theory of truth, Kripke; the substructural diagnosis, the relevance and linear logicians; and the unifying construction, Lawvere and Yanofsky. The remaining volumes take up the absorbed fate of incompleteness and the law that governs all four.</p>
+    <p class="notes"><span class="nl">technical qualifications.</span> &nbsp;Explosion is derived by disjunction&#8209;introduction followed by disjunctive syllogism; the paraconsistent logics (Priest's <span class="mono">LP</span>) reject the latter and so contain the contradiction without trivialising. Curry's derivation of <span class="mono">φ</span> from <span class="mono">c ↔ (c → φ)</span> requires the structural rule of contraction at the discharge step; the contraction&#8209;free logics — linear, affine, relevance, and Łukasiewicz's infinite&#8209;valued logic — block it and defuse both Curry and the Liar. In the strong Kleene and Łukasiewicz three&#8209;valued schemes <span class="mono">¬½ = ½</span>, so the Liar rests at <span class="mono">½</span>. Kripke's jump on partial valuations is monotone in the extension order; by Knaster–Tarski it has a least fixed point, the supremum of the transfinite chain <span class="mono">Φ<sup class="fn" style="vertical-align:super">α</sup>(⊥)</span>, at which grounded sentences obey the T&#8209;schema and the Liar (and the truth&#8209;teller) remain ungrounded — in the gap. The minimal fixed point is one of many; maximal and intrinsic fixed points differ on the ungrounded sentences. Revenge — the strengthened Liar built from a metalinguistic "not true" — afflicts every theory that can name the status it assigns the Liar; escaping it is the Tarski hierarchy. The contrast with incompleteness turns on the full T&#8209;schema versus the derivability conditions, in particular the failure of <span class="mono">Prov(⌜φ⌝) → φ</span> internally.</p>
+    <p class="refs"><b>Sources.</b> &nbsp;Russell, letter to Frege (1902) · Łukasiewicz, three&#8209;valued logic (1920) · Tarski, <i>Der Wahrheitsbegriff</i> (1936) · Curry, <i>The Inconsistency of Certain Formal Logics</i> (1942) · Kleene, strong three&#8209;valued logic (1952) · Kripke, <i>Outline of a Theory of Truth</i> (1975) · Priest, <i>The Logic of Paradox</i> (1979) · Anderson &amp; Belnap, relevance logic (1975); Girard, linear logic (1987); Restall and Petersen, contraction&#8209;free theories of truth (1990s–2000s) · Beall (ed.), <i>Revenge of the Liar</i> (2007) · Lawvere, <i>Diagonal Arguments and Cartesian Closed Categories</i> (1969) · Yanofsky (2003).</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  function E(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
+  function T(t){return document.createTextNode(t);}
+  function S(name,attrs){var e=document.createElementNS(SVGNS,name);if(attrs)for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+  function svgText(parent,x,y,str,o){o=o||{};var t=S("text",{x:x,y:y,"text-anchor":o.anchor||"middle","font-family":o.mono?"IBM Plex Mono, monospace":"Spectral, serif","font-size":o.size||"13",fill:o.fill||"var(--ink)"});if(o.style)t.setAttribute("font-style",o.style);if(o.weight)t.setAttribute("font-weight",o.weight);if(o.spacing)t.setAttribute("letter-spacing",o.spacing);t.appendChild(T(str));parent.appendChild(t);return t;}
+
+  /* ============ §III — the Curry contraction tracer ============ */
+  var contraction=true;
+  function curryRender(){
+    var box=document.getElementById("curryDeriv"); if(!box)return;
+    box.innerHTML="";
+    var steps=[
+      {n:"1", f:"c \u2194 (c \u2192 \u03c6)", j:"the Curry sentence"},
+      {n:"2", f:"c \u22a2 c \u2192 \u03c6", j:"\u2194 elimination"},
+      {n:"3", f:"c \u22a2 c", j:"assumption"},
+      {n:"4", f:"c, c \u22a2 \u03c6", j:"modus ponens \u2014 c used twice"}
+    ];
+    if(contraction){
+      steps.push({n:"5", f:"c \u22a2 \u03c6", j:"contraction \u2014 drop the duplicate", cls:"contr"});
+      steps.push({n:"6", f:"\u22a2 c \u2192 \u03c6", j:"\u2192 introduction"});
+      steps.push({n:"7", f:"\u22a2 c", j:"\u2194 elimination"});
+      steps.push({n:"8", f:"\u22a2 \u03c6   (for ANY \u03c6)", j:"modus ponens", cls:"trivial"});
+    } else {
+      steps.push({n:"5", f:"\u2717  c, c \u22a2 \u03c6  cannot become  c \u22a2 \u03c6", j:"contraction blocked", cls:"contr"});
+      steps.push({n:"\u2014", f:"the derivation halts \u2014 \u03c6 is not proved", j:"the knot is untied", cls:"defused"});
+    }
+    for(var i=0;i<steps.length;i++){
+      var s=steps[i];
+      var row=E("div","dstep"+(s.cls?" "+s.cls:""));
+      var dn=E("span","dn"); dn.appendChild(T(s.n)); row.appendChild(dn);
+      var db=E("div","db");
+      var df=E("span","df"); df.appendChild(T(s.f)); db.appendChild(df);
+      var dj=E("span","dj"); dj.appendChild(T(s.j)); db.appendChild(dj);
+      row.appendChild(db);
+      box.appendChild(row);
+    }
+    var note=document.getElementById("curryNote");
+    if(note){
+      note.innerHTML = contraction
+        ? "With contraction, the single hypothesis <span class='mono'>c</span> is spent twice and then counted once \u2014 and <span class='mono'>c</span> proves <span class='mono'>\u03c6</span> for <i>any</i> <span class='mono'>\u03c6</span>. The system is trivial."
+        : "Without contraction the duplicate <span class='mono'>c</span> cannot be discharged. The derivation stalls; <span class='mono'>\u03c6</span> is never reached. The detonator was structural all along.";
+    }
+    var btn=document.getElementById("curryToggle");
+    if(btn){ btn.textContent="contraction: "+(contraction?"ON":"OFF"); btn.className="btn "+(contraction?"red":"teal"); }
+  }
+
+  /* ============ §IV — the dial of values ============ */
+  var VAL={
+    classical:{ name:"classical", yr:"two values \u00b7 explodes", tag:"two-valued \u00b7 bivalent",
+      title:"The Liar explodes",
+      lands:"nowhere \u2014 <span class='mono'>\u00ac</span> fixes nothing in <span class='mono'>{T, F}</span>",
+      twist:"<b>no fixed point</b> \u2014 nothing is its own negation",
+      fate:"contradiction \u2192 triviality (with contraction)",
+      cost:"the system proves everything \u2014 the paradox is fatal",
+      ex:"L = \u00acL : no value in {T, F}" },
+    manyvalued:{ name:"many-valued", yr:"\u00bd added \u00b7 rests", tag:"\u0141ukasiewicz / Kleene \u00b7 three-valued",
+      title:"The Liar rests at \u00bd",
+      lands:"the middle value <span class='mono'>\u00bd</span> \u2014 indeterminate",
+      twist:"<b>fixed point gained:</b> <span class='mono'>\u00ac\u00bd = \u00bd</span>, so <span class='mono'>L = \u00acL</span> holds at <span class='mono'>\u00bd</span>",
+      fate:"benign \u2014 the twist now has a fixed point (\u2192 Fate 2)",
+      cost:"bivalence is surrendered; the conditional must be chosen with care",
+      ex:"\u00ac\u00bd = \u00bd  \u27f9  L = \u00bd" },
+    gap:{ name:"gaps (Kripke)", yr:"undefined \u00b7 grounded", tag:"Kripke 1975 \u00b7 partial valuations",
+      title:"The Liar falls in the gap",
+      lands:"undefined \u2014 the Liar is <i>ungrounded</i>",
+      twist:"<b>fixed point gained:</b> the least fixed point of the Tarski jump",
+      fate:"benign \u2014 Fate 3 tamed by Fate 2's least fixed point (\u00a7V)",
+      cost:"truth-value gaps; and the gap is nameable \u2014 revenge (\u00a7VI)",
+      ex:"L ungrounded : gap at the minimal fixed point" },
+    glut:{ name:"gluts (LP)", yr:"both \u00b7 paraconsistent", tag:"Priest's LP \u00b7 dialetheism",
+      title:"The Liar is both true and false",
+      lands:"the glut \u2014 the value <span class='mono'>'both'</span>, true and false at once",
+      twist:"<b>fixed point gained:</b> <span class='mono'>\u00ac both = both</span>",
+      fate:"contained \u2014 explosion is blocked (no <i>ex falso</i>)",
+      cost:"disjunctive syllogism fails; some classical reasoning is given up",
+      ex:"\u00ac b = b ; ECQ rejected" },
+    stratified:{ name:"stratified (Tarski)", yr:"levels \u00b7 forbidden", tag:"Tarski hierarchy \u00b7 no semantic closure",
+      title:"The Liar cannot be written",
+      lands:"nowhere \u2014 <span class='mono'>'true'</span> means true-at-a-lower-level; the Liar has no level",
+      twist:"<b>no fixed point</b> \u2014 because there is no reflexivity (the Ceiling's move)",
+      fate:"forbidden \u2014 deny self-reference, stratify truth into a hierarchy",
+      cost:"no universal truth predicate; the language is not semantically closed",
+      ex:"True\u2099 definable only in level n+1" }
+  };
+  var valOrder=["classical","manyvalued","gap","glut","stratified"];
+  var valSelKey="classical";
+  function valRender(){
+    var sel=document.getElementById("valSel");
+    if(sel){
+      if(!sel.hasChildNodes()){
+        for(var i=0;i<valOrder.length;i++){ (function(key){
+          var x=VAL[key];
+          var b=E("button","seltab"); b.setAttribute("data-key",key);
+          var n=E("span"); n.appendChild(T(x.name)); b.appendChild(n);
+          var y=E("span","yr"); y.appendChild(T(x.yr)); b.appendChild(y);
+          b.addEventListener("click",function(){valSelKey=key;valRender();});
+          sel.appendChild(b);
+        })(valOrder[i]); }
+      }
+      var kids=sel.children;
+      for(var c=0;c<kids.length;c++){ var k=kids[c].getAttribute("data-key"); kids[c].className="seltab"+(k===valSelKey?" on":""); }
+    }
+    var d=VAL[valSelKey], ro=document.getElementById("valReadout");
+    if(ro){
+      ro.className="dial-readout";
+      ro.innerHTML="<div class='dr-pair'>"+d.tag+"</div><h4>"+d.title+"</h4>"+
+        "<div class='jr-axes'>"+
+        "<div class='ax'>the Liar lands</div><div class='av'>"+d.lands+"</div>"+
+        "<div class='ax'>the twist \u00ac</div><div class='av'>"+d.twist+"</div>"+
+        "<div class='ax'>the fate</div><div class='av'>"+d.fate+"</div>"+
+        "<div class='ax'>the cost</div><div class='av'>"+d.cost+"</div>"+
+        "</div><span class='ex'>"+d.ex+"</span>";
+    }
+  }
+
+  /* ============ §V — the Kripke ascent ============ */
+  var SENT=[
+    {sent:"0 = 0", sub:"atomic \u2014 true", vals:["T","T","T","T"]},
+    {sent:"0 = 1", sub:"atomic \u2014 false", vals:["F","F","F","F"]},
+    {sent:"T\u230c0=0\u230d", sub:"truth of a true sentence", vals:["gap","T","T","T"]},
+    {sent:"T\u230cT\u230c0=0\u230d\u230d", sub:"depth-2 grounded", vals:["gap","gap","T","T"]},
+    {sent:"L  =  \u00acT\u230cL\u230d", sub:"the Liar \u2014 ungrounded", vals:["gap","gap","gap","gap"], liar:true}
+  ];
+  var kStage=0;
+  function kvalClass(v){ return v==="T"?"tt":(v==="F"?"ff":"gap"); }
+  function ktabRender(){
+    var tab=document.getElementById("ktab"); if(!tab)return;
+    tab.innerHTML="";
+    for(var i=0;i<SENT.length;i++){
+      var s=SENT[i], v=s.vals[kStage];
+      var fresh=(kStage>0 && s.vals[kStage]!==s.vals[kStage-1]);
+      var row=E("div","krow"+(s.liar?" liar":""));
+      var left=E("div");
+      var sent=E("div","ksent"); sent.appendChild(T(s.sent)); left.appendChild(sent);
+      var sub=E("div","ksub"); sub.appendChild(T(s.sub)); left.appendChild(sub);
+      row.appendChild(left);
+      var val=E("div","kval "+kvalClass(v)+(fresh?" fresh":""));
+      val.appendChild(T(v==="gap"?"gap":v));
+      row.appendChild(val);
+      tab.appendChild(row);
+    }
+    var stat=document.getElementById("ktabStat");
+    if(stat){
+      var msg=[
+        "<b>Stage 0 \u2014 the empty valuation <span class='mono'>\u22a5</span>.</b> Only the base language has values; every <span class='mono'>T(\u2026)</span> sentence is undefined.",
+        "<b>Stage 1 = \u03a6(\u22a5)</b> \u2014 sentences grounded in one step settle. The Liar stays in the gap.",
+        "<b>Stage 2 = \u03a6\u00b2(\u22a5)</b> \u2014 depth-2 grounded truths settle. The Liar is still ungrounded.",
+        "<b>The least fixed point <span class='em'>\u2294\u2099 \u03a6\u207f(\u22a5)</span>.</b> Grounded sentences obey the T-schema; the Liar is ungrounded and rests in the gap \u2014 permanently. The Floor's construction, over truth."
+      ];
+      stat.innerHTML=msg[kStage];
+    }
+  }
+
+  /* ============ §VI — the revenge schematic ============ */
+  function revengeRender(){
+    var svg=document.getElementById("revengeFig"); if(!svg)return;
+    svg.setAttribute("viewBox","0 0 480 300"); svg.innerHTML="";
+    var defs=S("defs"); var mk=S("marker",{id:"rvarr",viewBox:"0 0 10 10",refX:"8",refY:"5",markerWidth:"7",markerHeight:"7",orient:"auto-start-reverse"});
+    mk.appendChild(S("path",{d:"M0,0 L10,5 L0,10 z",fill:"var(--gold-deep)"})); defs.appendChild(mk); svg.appendChild(defs);
+    function box(y,lvl,txt,accent){
+      svg.appendChild(S("rect",{x:55,y:y,width:370,height:46,rx:3,fill:"var(--paper)",stroke:accent,"stroke-width":"1.4"}));
+      svgText(svg,72,y+19,lvl,{mono:true,size:"11",weight:"600",fill:accent,anchor:"start"});
+      svgText(svg,72,y+36,txt,{size:"12",fill:"var(--ink)",anchor:"start"});
+    }
+    function uparrow(yb,yt,label){
+      svg.appendChild(S("line",{x1:"240",y1:yb,x2:"240",y2:yt,stroke:"var(--gold-deep)","stroke-width":"1.4","marker-end":"url(#rvarr)"}));
+      svgText(svg,252,(yb+yt)/2+4,label,{size:"10.5",style:"italic",fill:"var(--gold-deep)",anchor:"start"});
+    }
+    svgText(svg,240,18,"\u22ee   ad infinitum",{mono:true,size:"10",fill:"var(--faintest)"});
+    box(34,"LEVEL 2","\u2018not true\u2081\u2019 is nameable \u2014 L\u2082 re-paradoxes \u2014 \u22ef","var(--faint)");
+    uparrow(118,82,"name the gap");
+    box(120,"LEVEL 1","\u2018not true\u2080\u2019 is nameable \u2014 L\u2081 re-paradoxes, then gaps","var(--gold-deep)");
+    uparrow(206,170,"name the gap");
+    box(208,"LEVEL 0","True\u2080 has a gap \u2014 the Liar L\u2080 rests there  \u2713","var(--teal-deep)");
+    svgText(svg,240,278,"the diagonal forces existence \u2014 the level only chooses its address",{size:"11",style:"italic",fill:"var(--soft1)"});
+  }
+
+  /* ============ INIT ============ */
+  function init(){
+    try{ curryRender(); var t=document.getElementById("curryToggle"); if(t)t.addEventListener("click",function(){contraction=!contraction;curryRender();}); }catch(e){}
+    try{ valRender(); }catch(e){}
+    try{ ktabRender();
+      var s=document.getElementById("kStep"); if(s)s.addEventListener("click",function(){ if(kStage<3)kStage++; ktabRender(); });
+      var r=document.getElementById("kReset"); if(r)r.addEventListener("click",function(){ kStage=0; ktabRender(); });
+    }catch(e){}
+    try{ revengeRender(); }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-floor.html">← The Floor</a><a rel="next" href="quodlibet-the-silence.html">The Silence →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

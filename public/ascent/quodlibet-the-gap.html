@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Gap — proof, truth, and the wall between them</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout p + p{margin-top:.7rem;}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== goodstein engine ===== */
+  .good-controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .good-seed{display:flex;gap:.35rem;}
+  .good-sbtn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.35rem .7rem;cursor:pointer;transition:all .15s;}
+  .good-sbtn:hover{background:rgba(26,24,21,.05);}
+  .good-sbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .good-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.5rem .9rem;cursor:pointer;transition:opacity .15s;}
+  .good-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .good-btn:hover{opacity:.85;} .good-btn:disabled{opacity:.45;cursor:default;}
+  .good-read{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .good-read b{color:var(--ink);}
+  .good-tracks{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:560px){ .good-tracks{grid-template-columns:1fr;} }
+  .good-col{background:var(--paper);padding:.9rem 1rem 1.1rem;min-height:8rem;}
+  .good-col .gc-h{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+  .good-col.val .gc-h{color:var(--red-deep);} .good-col.ord .gc-h{color:var(--teal-deep);}
+  .good-col .gc-arrow{font-size:.95rem;}
+  .good-rows{display:flex;flex-direction:column;gap:.2rem;}
+  .good-row{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;animation:rise .3s ease;}
+  .good-row .gr-n{font-size:.58rem;color:var(--faintest);}
+  .good-col.val .good-row .gr-v{color:var(--ink);}
+  .good-col.ord .good-row .gr-v{color:var(--teal-deep);}
+  .good-row.zero .gr-v{font-weight:600;}
+  .good-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.03em;padding:.6rem;border-radius:3px;margin-top:.9rem;}
+  .good-banner.done{color:var(--teal-deep);border:1px dashed var(--teal-line);background:var(--teal-soft);}
+  .good-banner.cap{color:var(--gold-deep);border:1px dashed var(--gold-line);background:var(--gold-soft);}
+
+  /* ===== modal engine — Löb box, fixed-point ledger, GLP tower ===== */
+  .loeb{border:1px dashed var(--ink);border-radius:3px;padding:1.1rem 1.1rem;margin:1.5rem auto;max-width:42rem;text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .loeb .ll{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem;}
+  .loeb .lr{font-size:1.02rem;color:var(--ink);line-height:2;}
+  .loeb .lr .hot{color:var(--red-deep);}
+  .loeb .lr .gr{color:var(--faintest);}
+  .loeb .sub{font-family:"Spectral",serif;font-style:italic;font-size:.94rem;color:var(--soft1);margin-top:.8rem;line-height:1.5;}
+
+  .glp{display:flex;flex-direction:column-reverse;gap:.3rem;margin:.2rem auto 0;max-width:27rem;}
+  .glp-row{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.42rem .75rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .glp-row .gm{color:var(--teal-deep);} .glp-row .gt{color:var(--ink);} .glp-row .go{color:var(--gold-deep);white-space:nowrap;}
+  .glp-row.cap{border-style:dashed;border-color:var(--gold-line);}
+
+  /* ===== bridge-assumptions (Scholia idiom) ===== */
+  .bridge{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.1rem;}
+  .bridge-row{background:var(--paper);padding:.82rem 1rem;display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:start;}
+  .bridge-row .br-main{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .bridge-row .br-main b{color:var(--ink);font-weight:600;}
+  .bridge-row .br-main .mono{font-size:.82rem;color:var(--red-deep);}
+  .bridge-pill{font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;padding:.24em .55em;border-radius:10px;white-space:nowrap;align-self:start;}
+  .bridge-pill.hold{background:var(--teal-soft);color:var(--teal-deep);}
+  .bridge-pill.thm{background:var(--gold-soft);color:var(--gold-deep);}
+  .bridge-verdict{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .bridge-verdict b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side.left.tealhead .hs-lab{color:var(--teal-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .hinge-side p + p{margin-top:.55rem;}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);} .chain .tl{color:var(--teal-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+  .granted{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--teal-deep);margin:.6rem 0;text-align:left;padding:.7rem .8rem;border:1px dashed var(--teal-line);border-radius:3px;line-height:1.85;}
+  .granted .ok{color:var(--teal-deep);font-weight:600;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-cell .tc-tax{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);margin-top:.5rem;display:block;}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== independence demonstrator / absoluteness ladder (deep-dive additions) ===== */
+  .rec-sel{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.1rem;}
+  .rec-panel{border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:1.1rem 1.2rem;}
+  .rec-top{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;margin-bottom:.85rem;border-bottom:1px solid var(--hair);padding-bottom:.7rem;}
+  .rec-title{font-family:"Spectral",serif;font-weight:500;font-size:1.18rem;color:var(--ink);line-height:1.2;}
+  .rec-badge{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.26em .6em;border-radius:10px;white-space:nowrap;align-self:center;}
+  .rec-badge.thm{background:var(--teal-soft);color:var(--teal-deep);}
+  .rec-badge.syn{background:var(--gold-soft);color:var(--gold-deep);}
+  .rec-badge.forb{background:var(--red-soft);color:var(--red-deep);}
+  .rec-row{display:grid;grid-template-columns:6.2rem 1fr;gap:.8rem;align-items:baseline;padding:.42rem 0;border-top:1px solid var(--hair);}
+  .rec-row:first-of-type{border-top:none;}
+  .rec-lab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faintest);padding-top:.2rem;}
+  .rec-txt{font-size:.92rem;line-height:1.55;color:var(--soft1);text-wrap:pretty;}
+  .rec-txt .mono{font-size:.82rem;color:var(--ink);}
+  .rec-formula{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--ink);text-align:center;padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;background:var(--paper);margin:.1rem 0 .2rem;line-height:1.7;}
+  /* two-model bracket */
+  .gap-cols{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:.3rem 0 .2rem;}
+  .gap-side{background:var(--paper);padding:.85rem .95rem;}
+  .gap-vt{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.45rem;}
+  .gap-side.t .gap-vt{color:var(--teal-deep);} .gap-side.f .gap-vt{color:var(--red-deep);}
+  .gap-mod{font-family:"Spectral",serif;font-weight:500;font-size:1.02rem;color:var(--ink);margin-bottom:.3rem;}
+  .gap-how{font-size:.84rem;line-height:1.5;color:var(--soft1);}
+  @media(max-width:540px){.gap-cols{grid-template-columns:1fr;}}
+  /* ===== absoluteness ladder ===== */
+  .ab-key{display:flex;gap:1.1rem;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:var(--faintest);margin-bottom:.9rem;flex-wrap:wrap;letter-spacing:.03em;}
+  .ab-key span{display:inline-flex;align-items:center;gap:.34rem;}
+  .ab-key i{width:.5rem;height:.5rem;border-radius:50%;display:inline-block;}
+  .ab-ladder{display:flex;flex-direction:column;gap:.34rem;margin-bottom:1.1rem;}
+  .ab-rung{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.5rem .72rem;border:1px solid var(--panelhair);border-radius:3px;background:transparent;cursor:pointer;transition:all .15s;color:var(--soft1);}
+  .ab-rung:hover{background:rgba(26,24,21,.04);}
+  .ab-rung.on{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);}
+  .ab-dot{width:.5rem;height:.5rem;border-radius:50%;flex-shrink:0;}
+  .ab-dot.firm{background:var(--teal);} .ab-dot.porous{background:var(--red);} .ab-dot.cond{background:var(--gold);}
+  .ab-nm{font-weight:500;} .ab-br{color:var(--faintest);font-size:.66rem;margin-left:auto;text-align:right;}
+  .ab-line{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);padding:.25rem 0;border-top:1px dashed var(--gold-line);border-bottom:1px dashed var(--gold-line);margin:.1rem 0;}
+</style>
+
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-ascent">The Ascent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">A deep study · The Ascent · §VI</span></div>
+    <div class="hero-head">
+      <p class="kicker">The same wall, read up in proof and down in meaning</p>
+      <h1 class="title">The <span class="x">Gap</span></h1>
+      <p class="standfirst">The whole ascent was syntax — which marks on paper follow from which. Its one recurring conclusion was not: <em>the Gödel sentence is true</em>. True, but true <em>where</em>? The instant that word is spoken the argument has left proof for a model, and stepped onto ground the climb never inspected — ground that is not solid. This study shows the missing roof and the missing floor to be one wall seen from two sides, joined at the hinge of Gödel's <em>other</em> theorem; carries the no-floor to the scale of the universe, where forcing makes the continuum float free; marks exactly how far down the floor gives way; and closes the corpus on the one thing every repair leaves behind.</p>
+      <p class="ed-mark">read downward · completeness · one wall · forcing · how far the floor gives · is there a fact · the invariant</p>
+    </div>
+  </header>
+
+  <div class="lede">
+    <p>We have read the wall upward, as far as mathematics reaches — from the integers to the universe of sets, finding at every height a ladder that builds and never tops out. Read it now in the other direction. Across five movements the argument was carried entirely in syntax, a calculus of derivations; and across five movements its payoff was stated in a single semantic breath. <i>The Gödel sentence is true</i>, we kept saying — true though unprovable. But a <span class="mono">Π⁰₁</span> sentence is true in a <i>structure</i>, and the structure meant was the standard numbers <span class="mono">ℕ</span>. To assert <span class="mono">G</span> is to choose that model over its rivals — and the theory cannot make the choice.</p>
+    <p>This is the sixth and final movement of <em>The Ascent</em>, drawn out to the place where proof and truth come apart and are shown to be one gap. We begin by following the wall down — into the models a theory cannot exclude, where the Gödel sentence is false. We prove the hinge that makes the two directions one: Gödel's completeness theorem, by which a sentence is unprovable for the exact reason that some model refutes it, so that incompleteness simply <i>is</i> the failure to pin the model. We carry the floor to the scale of sets, where Cohen's forcing sets the size of the continuum drifting across a multiverse and <span class="mono">CH</span> turns out never to have been a rung of any ladder. We mark the precise depth at which the floor gives way — solid through <span class="mono">Σ¹₂</span> by Shoenfield's theorem, and, where large cardinals reach, re-firmed above it. And we close on the question the wall leaves open and on the one invariant the whole corpus has been circling: not a quantity, but a deficit that survives every repair.</p>
+  </div>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(3rem,7vh,5rem)"><span class="ln"></span><span class="g mono">G is true — but true where?</span><span class="ln"></span></div>
+
+  <!-- ===== §I THE WALL, READ DOWNWARD ===== -->
+  <section class="sec" id="downward">
+    <div class="sec-head"><span class="num">I · read downward</span><h2>The ground the climb never inspected</h2><p class="sub">Every line of the ascent was a fact about derivations. Its conclusion was a fact about a <i>world</i>. Between them lies a step the argument took silently — the choice of which structure the Gödel sentence is true <i>in</i> — and that ground turns out to have no bottom.</p></div>
+    <div class="reading">
+      <p>Return to the refrain. <span class="mono">G</span> is true, we said at every level — true though unprovable. But truth is not a syntactic property; a <span class="mono">Π⁰₁</span> sentence is true or false <i>in a structure</i>, and the structure we meant, without quite saying so, was the standard natural numbers <span class="mono">ℕ</span>: zero, its successors, and nothing else. The instant we asserted <span class="mono">G</span> we left the calculus of proofs and stood inside a particular model — and stepped onto ground the climb had never inspected.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">and the ground gives&nbsp;&nbsp;</span>For consider what the theory itself permits. <span class="mono">G</span> is unprovable, so its negation cannot be refuted: <span class="mono">T + ¬G</span> is consistent, and therefore — this is the next section's theorem — it <i>has a model</i>. In that model <span class="mono">G</span> is <b>false</b>. It contains an object the model reads as a proof of <span class="mono">0=1</span>, a thing lying past every numeral <span class="mono">0, 1, 2, …</span> — a nonstandard number the theory has no means to tell from a genuine one. Nothing in <span class="mono">T</span> excludes such models. By the Löwenheim–Skolem theorems the intended <span class="mono">ℕ</span> has rivals of every infinite cardinality, and <b>no first-order theory with an infinite model can fix its model from inside</b>.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the borrowed step</div>
+      <p>So the ascent's confident &ldquo;<span class="mono">G</span> is true&rdquo; already borrowed something it never earned: the selection of <span class="mono">ℕ</span> from among all the models of <span class="mono">T</span>, a selection no proof can compel. The climb that has no top rests its one semantic claim on a ground that has no bottom. The roof and the floor are not two walls — and the rest of this study makes that identity exact.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">T ⊬ φ  ⟺  some model refutes φ</span><span class="ln"></span></div>
+
+  <!-- ===== §II COMPLETENESS — THE HINGE ===== -->
+  <section class="sec" id="hinge">
+    <div class="sec-head"><span class="num">II · the hinge</span><h2>Why the two directions are one</h2><p class="sub">The identity of roof and floor is not a metaphor. It is a theorem — Gödel's <i>other</i> one, proved before the incompleteness theorems and pointing the opposite way. Completeness equates what a theory proves with what holds in all its models, and turned around it says: a sentence goes unproved for the exact reason that some model makes it false.</p></div>
+    <div class="reading">
+      <p>Two years before the incompleteness theorems, Gödel proved their hinge.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">Gödel's completeness theorem (1929)</div>
+      <div class="ts"><b>A first-order sentence is provable from <span class="mono">T</span> exactly when it holds in every model of <span class="mono">T</span></b>: <span class="mono">T ⊢ φ ⟺ T ⊨ φ</span>. Equivalently — Henkin's form — <b>every consistent theory has a model</b>. Henkin builds it by extending <span class="mono">T</span> to a maximal consistent theory with a witnessing constant for each existential claim, then reading off a model from the closed terms themselves. The compactness theorem falls out at once: a theory has a model iff each of its finite subsets does.</div>
+    </div>
+    <div class="reading">
+      <p>Now turn it around, which is where its force lies for us. Provability is truth in <i>all</i> models; so <i>un</i>provability is falsity in <i>some</i> model. <span class="mono">T ⊬ φ</span> holds for one exact reason — there exists a model of <span class="mono">T</span> in which <span class="mono">φ</span> fails.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">incompleteness <em>is</em> non-pinning</div>
+      <div class="ts">A statement is independent of <span class="mono">T</span> — neither proved nor refuted — <b>precisely when <span class="mono">T</span> has models on both sides of it</b>: a model of <span class="mono">T + φ</span> and a model of <span class="mono">T + ¬φ</span>. So <span class="mono">G</span>, true in <span class="mono">ℕ</span> and unprovable in <span class="mono">T</span>, is unprovable <i>because</i> some other model refutes it. Incompleteness is not merely accompanied by the failure to fix the model; <b>it is that failure</b>. The roof is missing because the floor is.</div>
+    </div>
+    <div class="reading">
+      <p>This makes the whole zoo of unprovable statements legible at a stroke: each is a fork in the space of models. Watch four of them — two in arithmetic, two in set theory — split their models in two. In every case the unprovability <i>is</i> the pair of worlds:</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="rec-sel" id="indSel">
+          <button class="fgh-pill on" data-ind="godel">Gödel's G</button>
+          <button class="fgh-pill" data-ind="con">Con(ZFC)</button>
+          <button class="fgh-pill" data-ind="ch">CH</button>
+          <button class="fgh-pill" data-ind="diamond">◊</button>
+        </div>
+        <div class="rec-panel" id="indPanel"></div>
+        <figcaption>Each independent statement is a fork: a model on the left where it holds, a model on the right where it fails. For arithmetic the second model is a nonstandard rival, summoned by compactness; for set theory it is built — a narrow inner model on one side, a forcing extension on the other. The mechanism differs; the shape, by completeness, is identical.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">one gap · read two ways</span><span class="ln"></span></div>
+
+  <!-- ===== §III ONE WALL ===== -->
+  <section class="sec" id="onewall">
+    <div class="sec-head"><span class="num">III · one wall</span><h2>No roof and no floor are the same gap</h2><p class="sub">Completeness fixes the space between proof and truth as a single object. Read that space upward and it is the roof the ladder cannot reach; read it downward and it is the floor the dig cannot find. Not two analogous walls — one wall, seen from two sides.</p></div>
+    <div class="reading">
+      <p>The gap completeness identifies — between what a theory proves and what holds in all its models — admits exactly two readings, and the whole corpus is the elaboration of both.</p>
+    </div>
+    <div class="hinge">
+      <div class="hinge-side left tealhead">
+        <div class="hs-lab">read up — in proof</div>
+        <h4>No roof</h4>
+        <p>The operation <i>add the soundness you lack</i> has no fixed point: no consistent r.e. theory proves its own soundness, so the climb up never completes. This was <em>The Ascent</em>.</p>
+        <div class="granted"><span class="ok">R(T) = T</span> &nbsp;✗ &nbsp;— self-soundness unreachable</div>
+      </div>
+      <div class="hinge-side right">
+        <div class="hs-lab">read down — in meaning</div>
+        <h4>No floor</h4>
+        <p>The operation <i>add the strength to fix your model</i> has no self-grounding base: no first-order theory with an infinite model is categorical, so the dig down never reaches bedrock.</p>
+        <div class="forbidden"><span class="x">✕</span> &nbsp;fix <span class="mono">Mod(T)</span> from inside &nbsp;— the model recedes</div>
+      </div>
+    </div>
+    <div class="bridge-verdict" style="margin-top:1.4rem"><b>Two readings of one gap.</b> The completeness theorem equates what a theory proves with what is true in all its models — so the space between proof and truth shows, read upward, as the unreachable roof of incompleteness, and read downward, as the ungroundable floor of non-categoricity. They are not analogous walls. By that theorem they are the same wall, seen from two sides. Truth outruns proof along the vertical <i>exactly insofar as</i> the theory fails to fix its model along the horizontal.</div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">M  ⟿  M[G]  ⊨  ZFC + ¬CH</span><span class="ln"></span></div>
+
+  <!-- ===== §IV FORCING ===== -->
+  <section class="sec" id="forcing">
+    <div class="sec-head"><span class="num">IV · forcing</span><h2>The floor at the scale of the universe</h2><p class="sub">Set theory has nonstandard models too, and — unlike arithmetic — a machine for building them to order. Cohen's forcing takes a model of <span class="mono">ZFC</span> and produces another in which the continuum has whatever size you please. The most famous undecidable statement of all turns out never to have been a rung of the ladder; it is the floor receding, one universe up.</p></div>
+    <div class="reading">
+      <p>The completeness theorem guarantees that an independent statement has models on both sides — but in arithmetic those models are summoned abstractly, by compactness, and never inspected. Cohen's achievement was to make the second model <i>constructible</i>: to start from a given universe of sets and build, by hand, an extension in which a chosen statement comes out the way you want.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the method of forcing (Cohen, 1963)</div>
+      <div class="ts">Begin with a model <span class="mono">M ⊨ ZFC</span> and a partial order <span class="mono">P ∈ M</span> of &ldquo;conditions.&rdquo; A filter <span class="mono">G ⊆ P</span> is <i>generic</i> over <span class="mono">M</span> if it meets every dense set lying in <span class="mono">M</span>; for countable <span class="mono">M</span> such a <span class="mono">G</span> exists. The <b>generic extension <span class="mono">M[G]</span></b>, assembled from names in <span class="mono">M</span>, is again a model of <span class="mono">ZFC</span>. Its central virtue is the <b>forcing relation</b> <span class="mono">p ⊩ φ</span>, <i>definable inside <span class="mono">M</span></i>: <span class="mono">M[G] ⊨ φ</span> if and only if some <span class="mono">p ∈ G</span> forces <span class="mono">φ</span>. The truth of the new universe is legislated from within the old one.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the continuum, set free&nbsp;&nbsp;</span>With this, <span class="mono">CH</span> is bracketed from both sides — and the two sides are the two directions of §III made into models.</p>
+    </div>
+    <div class="bridge">
+      <div class="bridge-row"><div class="br-main"><b>Downward — the inner model.</b> Gödel (1940): in <span class="mono">L</span>, the constructible universe — the narrowest model of <span class="mono">ZFC</span>, built by iterating definability — <span class="mono">GCH</span> holds, so <span class="mono">CH</span> is true. <span class="mono">Con(ZFC) ⟹ Con(ZFC + CH)</span>.</div><span class="rec-badge thm">CH holds</span></div>
+      <div class="bridge-row"><div class="br-main"><b>Outward — the forcing extension.</b> Cohen (1963): adjoin <span class="mono">ℵ₂</span> generic reals by the poset <span class="mono">Add(ω, ℵ₂)</span>. It has the countable chain condition, so cardinals are preserved; the new reals are distinct, so <span class="mono">2^{ℵ₀} ≥ ℵ₂ &gt; ℵ₁</span> and <span class="mono">CH</span> fails. <span class="mono">Con(ZFC) ⟹ Con(ZFC + ¬CH)</span>.</div><span class="rec-badge forb">CH fails</span></div>
+    </div>
+    <div class="reading">
+      <p>So the size of the continuum varies across the forcing multiverse exactly the way the length of the number line varies across the models of arithmetic. <span class="mono">CH</span> is true in some models of <span class="mono">ZFC</span> and false in others, as <span class="mono">G</span> is true in <span class="mono">ℕ</span> and false in its nonstandard rivals. <span class="mono">CH</span> was never a missing rung of the ladder; it is the recession of the floor, one universe up. And the Lévy–Solovay theorem of <em>The Summit</em> now reads as it should: adding a large cardinal cannot settle <span class="mono">CH</span>, because strength moves you <i>up</i>, and <span class="mono">CH</span> is a question of which way <i>across</i>. The vertical instrument is simply pointed at a horizontal fact.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">firm through Σ¹₂ · porous above</span><span class="ln"></span></div>
+
+  <!-- ===== §V HOW FAR THE FLOOR GIVES WAY ===== -->
+  <section class="sec" id="absoluteness">
+    <div class="sec-head"><span class="num">V · how far it gives</span><h2>The exact depth of the floor</h2><p class="sub">The floor recedes — but not everywhere, and not without limit. Forcing cannot touch arithmetic, nor anything up to a precise level of complexity fixed by Shoenfield's theorem. And where it can reach, the strength ladder can sometimes reach down and make it firm again. The no-floor has an exact shape.</p></div>
+    <div class="reading">
+      <p>If the continuum can be set to any size, can <i>everything</i> be forced? No — and the boundary is sharp. The arithmetic the whole ascent was conducted in is <b>absolute</b>: no forcing extension changes a single arithmetic truth, because forcing cannot disturb facts that low in the hierarchy. <span class="mono">G</span> is true in <span class="mono">ℕ</span> and stays true in every forcing extension of every model; the floor beneath arithmetic is bedrock. The receding only begins higher up.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">Shoenfield's absoluteness theorem (1961)</div>
+      <div class="ts">Every <span class="mono">Σ¹₂</span> (and <span class="mono">Π¹₂</span>) statement is <b>absolute</b> between <span class="mono">V</span>, the inner model <span class="mono">L</span>, and every forcing extension. All of arithmetic, and the analytic and co-analytic facts, and one quantifier-level beyond — <i>none of it</i> can be moved by forcing. <span class="mono">Σ¹₂</span> is the exact ceiling of unconditional absoluteness. <span class="mono">CH</span> lies above it — it quantifies over <i>all sets of reals</i>, a <span class="mono">Σ²₁</span> statement — which is precisely why forcing can move <span class="mono">CH</span> and cannot move <span class="mono">G</span>.</div>
+    </div>
+    <div class="reading">
+      <p>And here the two axes of the whole corpus, for once, touch. Above <span class="mono">Σ¹₂</span> the floor is porous <i>in <span class="mono">ZFC</span> alone</i> — forcing can stir the projective sets. But climb the strength ladder and the floor firms again: under infinitely many Woodin cardinals the entire projective theory becomes forcing-<i>absolute</i> (Woodin). The no-roof reaches down and re-solidifies the no-floor — exactly at the projective level, exactly where determinacy lived in <em>The Summit</em>. Strength and groundedness, the vertical and the horizontal, turn out to be the same resource after all. Walk the floor from bedrock upward:</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="ab-key">
+          <span><i style="background:var(--teal)"></i> firm in ZFC</span>
+          <span><i style="background:var(--gold)"></i> re-firmed by large cardinals</span>
+          <span><i style="background:var(--red)"></i> porous — forceable</span>
+        </div>
+        <div class="ab-ladder" id="abLadder">
+          <button class="ab-rung" data-ab="continuum"><span class="ab-dot porous"></span><span class="ab-nm">size of 2<sup>ℵ₀</sup></span><span class="ab-br">any cf &gt; ω — Easton</span></button>
+          <button class="ab-rung" data-ab="ch"><span class="ab-dot porous"></span><span class="ab-nm">CH — Σ²₁</span><span class="ab-br">forceable — Cohen</span></button>
+          <button class="ab-rung" data-ab="projective"><span class="ab-dot cond"></span><span class="ab-nm">projective — Σ¹₃₊</span><span class="ab-br">firm under Woodins</span></button>
+          <div class="ab-line">— Shoenfield: absolute at and below, in ZFC —</div>
+          <button class="ab-rung on" data-ab="sigma12"><span class="ab-dot firm"></span><span class="ab-nm">Σ¹₂ / Π¹₂</span><span class="ab-br">absolute — Shoenfield</span></button>
+          <button class="ab-rung" data-ab="analytic"><span class="ab-dot firm"></span><span class="ab-nm">analytic — Σ¹₁</span><span class="ab-br">absolute</span></button>
+          <button class="ab-rung" data-ab="arith"><span class="ab-dot firm"></span><span class="ab-nm">arithmetic — Σ⁰ₙ</span><span class="ab-br">bedrock</span></button>
+        </div>
+        <div class="rec-panel" id="abDetail"></div>
+        <figcaption>Read bottom to top: the floor is solid through <span class="mono">Σ¹₂</span> in <span class="mono">ZFC</span> (Shoenfield), conditionally firm at the projective level if the large cardinals are there (Woodin), and genuinely liquid at <span class="mono">CH</span> and the continuum, where no axiom of infinity can help. The dashed line is the exact reach of unconditional absoluteness.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">a defect of our axioms — or the absence of a fact?</span><span class="ln"></span></div>
+
+  <!-- ===== §VI IS THERE A FACT ===== -->
+  <section class="sec" id="fact">
+    <div class="sec-head"><span class="num">VI · is there a fact</span><h2>The question the wall leaves open</h2><p class="sub">Completeness guarantees the multiplicity of models at every scale. But it does not say what the multiplicity <i>means</i> — and here the two scales part company on a matter of substance. For the number line, almost everyone reads the extra models as spurious. For the continuum, it is genuinely open whether there is a fact at all. The corpus marks the fork; it does not pretend to close it.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">arithmetic: a floor only apparently soft&nbsp;&nbsp;</span>For arithmetic the verdict is near-unanimous: the nonstandard models are artifacts of a first-order language too weak to exclude them, and there is a real <span class="mono">ℕ</span> in which <span class="mono">G</span> is determinately true. The mathematics backs the conviction. The <i>second-order</i> Peano axioms are <b>categorical</b> — Dedekind's theorem: they have, up to isomorphism, exactly one model. <span class="mono">ℕ</span> is pinned; what the first-order theory could not fix, the second-order theory fixes outright. The floor under arithmetic only looks soft because first-order logic is looking.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">set theory: genuinely open&nbsp;&nbsp;</span>For <span class="mono">CH</span> the same move very nearly works — and that it does not <i>settle</i> the matter is the whole difficulty. Second-order <span class="mono">ZFC</span> is <b>quasi-categorical</b> (Zermelo, 1930): its models are exactly the <span class="mono">V_κ</span> for <span class="mono">κ</span> inaccessible, and any two are comparable, one an initial segment of the other. Across all of them <span class="mono">CH</span> has the <i>same</i> truth value — it is decided already in <span class="mono">V_{ω+2}</span>, which they all share. So on the second-order, realist reading, <span class="mono">CH</span> <i>has</i> a definite truth value. The catch is that we cannot read it off: second-order logic has no completeness theorem, its consequence relation is not even recursively enumerable, and the determinate fact is sealed away from proof.</p>
+    </div>
+    <div class="trilemma">
+      <div class="tri-cell"><div class="tc-n">the realist</div><h4>There is a fact</h4><p>Descending from Gödel: <span class="mono">CH</span> has a definite value we have merely failed to find the axioms to see. Woodin's Ultimate-L is the most serious modern search for them.</p><span class="tc-tax">a defect of our axioms</span></div>
+      <div class="tri-cell"><div class="tc-n">the pluralist</div><h4>There is no fact</h4><p>The forcing multiverse is the whole story (Hamkins). <span class="mono">CH</span> is no more determinate than the question of which nonstandard model is the &ldquo;real&rdquo; one — a choice, not a truth.</p><span class="tc-tax">the absence of a fact</span></div>
+      <div class="tri-cell"><div class="tc-n">the skeptic</div><h4>The question is vague</h4><p>The concept of arbitrary set of reals may simply be underdetermined. Feferman judged <span class="mono">CH</span> &ldquo;inherently vague&rdquo; — not false, not unknown, but not the kind of thing with an answer.</p><span class="tc-tax">underdetermined</span></div>
+    </div>
+    <div class="tri-note">The completeness theorem manufactures the multiplicity of models at every scale alike. Whether that multiplicity is a defect of our (first-order, effective) axioms — with a determinate second-order fact sealed behind it — or the genuine absence of any fact is the deepest question the wall leaves open, and not one this corpus claims to answer.</div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">□φ → φ : the line a mind cannot cross for itself</span><span class="ln"></span></div>
+
+  <!-- ===== §VII THE LIVE OBSTACLE + THE INVARIANT ===== -->
+  <section class="sec" id="invariant">
+    <div class="sec-head"><span class="num">VII · the invariant</span><h2>The live obstacle, and what survives every repair</h2><p class="sub">The upward wall is not only old; it is the working obstacle of a young field. And once it is seen there too, the corpus's single thread can be pulled tight: across every scale and every repair, what persists is not any quantity but one deficit — the obstruction that outlives the theory built to escape it.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">the Löbian obstacle&nbsp;&nbsp;</span>Consider an agent reasoning inside a fixed formal system that wishes to build — or to become — a successor it can trust. It would like to commit to a single principle: <i>whatever my successor proves, I may rely on</i>. But that is wholesale self-trust, the schema <span class="mono">□φ → φ</span> — and it is exactly the line Löb's theorem forbids any consistent theory to assert short of already proving <span class="mono">φ</span>. An agent cannot, on pain of inconsistency, fully endorse a faithful copy of its own reasoning. This is the <b>Löbian obstacle</b> to self-modifying agents, and its proposed escapes have the precise shape of this essay: trust indexed rung by rung, in descending chains of theories each willing to vouch for the next but strictly weaker — delegation bought at the cost of strength, the loop never closing.</p>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">a fallacy in the costume of a theorem</div>
+      <p>This is a real constraint on naïve self-trust. It is <b>not</b> — and the corpus is emphatic here — a proof that minds or machines cannot improve, or that human insight outruns any formal system. That stronger inference, drawn from Gödel straight to the limits of mechanism, is the Lucas–Penrose argument, and it does not go through: it assumes the agent can see its own Gödel sentence to be <i>true</i>, which requires knowing its own consistency — the very thing Gödel's second theorem denies it. The obstacle is a constraint on a particular kind of self-endorsement, not a verdict on the powers of mind.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the corpus's invariant&nbsp;&nbsp;</span>And so to the one thing every movement has been circling. No theory of its own semantics can hold <i>closure</i>, <i>consistency</i>, and <i>effectiveness</i> together; each repair surrenders one of the three. But notice what is conserved across the surrender. The theory changes — grows, ascends, is exceeded — yet the <i>property of being deficient</i> survives intact. <b>The deficit is the fixed point.</b> What is invariant is not a quantity but an obstruction, and one can watch it move to evade each repair in turn.</p>
+    </div>
+    <div class="bridge">
+      <div class="bridge-row"><div class="br-main"><b>Within arithmetic</b> it stays exactly one step ahead — uniform Gödel-2, the same schema at every rung.</div><span class="rec-badge thm">parametric</span></div>
+      <div class="bridge-row"><div class="br-main"><b>Up the type hierarchy</b> it changes complexity rather than vanishing — a <span class="mono">Π⁰₁</span> deficit becoming a <span class="mono">Π¹₁</span> one.</div><span class="rec-badge thm">higher</span></div>
+      <div class="bridge-row"><div class="br-main"><b>Folded onto its own measure</b> its height is the strength it began with — the reflection ladder closing at <span class="mono">ε₀ = |PA|</span>.</div><span class="rec-badge thm">reflexive</span></div>
+      <div class="bridge-row"><div class="br-main"><b>At the scale of <span class="mono">V</span></b> it is the self-embedding the universe is forbidden — <span class="mono">j : V → V</span>, ruled out by Kunen.</div><span class="rec-badge thm">embedding</span></div>
+      <div class="bridge-row"><div class="br-main"><b>Read downward, in meaning</b> it is the floor that recedes — the model no first-order theory can fix, the continuum adrift in the multiverse.</div><span class="rec-badge forb">semantic</span></div>
+    </div>
+    <div class="bridge-verdict" style="margin-top:1.4rem"><b>One obstruction, every disguise.</b> The diagonal that has no fixed point in two truth-values is the same diagonal that denies a theory its soundness, climbs a quantifier-type, measures out its own strength, forbids the universe its mirror, and lets the floor fall away beneath every model. Power and limit are one purchase — read up in proof and down in meaning, on the scale of <span class="mono">ℕ</span> and on the scale of <span class="mono">V</span>, all the way to the horizon in either direction.</div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the deficit is the fixed point</span><span class="ln"></span></div>
+  <div class="coda"><p>We set out to climb and found no roof; we turned to dig and found no floor; and the completeness theorem showed the two to be one wall, read in opposite directions. The Gödel sentence is true — but its truth was always a claim about a chosen world, and the choice was never the theory's to make. Forcing carried that lesson to the continuum, where the floor is genuinely liquid and it is an open question whether anything is being chosen <i>among</i>. What endures, through every ascent and every excavation, is neither the theory nor any number it carries, but the deficit itself: closure, consistency, effectiveness — pick two, forever, at every scale. The one construction returns at the level of values, of theories, of types, of universes, and of meaning, and it is fixed by nothing. That is the wall the whole corpus has been reading. It has no top and no bottom, and it is the same wall throughout.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">A deep study · The Gap</span></div>
+    <p class="colophon">The closing component study of <i>The Ascent</i>, drawing out its sixth movement: the wall read downward, and the two directions shown to be one. The load-bearing results are theorems — Gödel's completeness theorem and the Henkin construction; the equivalence of independence with two-sided model existence; the Löwenheim–Skolem theorems and the non-categoricity of any first-order theory with an infinite model; Cohen's method of forcing and the independence of <span class="mono">CH</span> (Gödel's <span class="mono">L</span> for <span class="mono">CH</span>, Cohen's generic extension for its negation); Shoenfield's <span class="mono">Σ¹₂</span> absoluteness and Woodin's projective absoluteness from large cardinals; the second-order categoricity of arithmetic (Dedekind) and quasi-categoricity of set theory (Zermelo); and Löb's theorem in its agent-theoretic guise. The framing — that completeness is the hinge making incompleteness <i>identical</i> to the failure to fix a model; that forcing is the no-floor made constructive and <span class="mono">CH</span> a horizontal rather than vertical fact; that the floor is firm through <span class="mono">Σ¹₂</span> and re-firmed above it exactly where the strength ladder reaches; and that the corpus's true invariant is the deficit, not any quantity — is the corpus's synthesis, marked as such and faithful to the theorems beneath it. The status of <span class="mono">CH</span> as fact or non-fact, and the powers of mind beyond formal systems, are flagged as open and as fallacy respectively, not resolved.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;Completeness and the Henkin construction are for first-order logic with a set-sized signature; compactness and Löwenheim–Skolem are corollaries. &ldquo;<span class="mono">T ⊬ φ ⟺</span> some model of <span class="mono">T</span> refutes <span class="mono">φ</span>&rdquo; combines completeness with soundness. Forcing is presented over a countable transitive model for definiteness; the generic filter's existence uses the Rasiowa–Sikorski lemma, and the development is equivalently carried out over <span class="mono">V</span> via Boolean-valued models or as a syntactic relation. <span class="mono">L ⊨ GCH</span> is Gödel (1938–40); the Cohen extension uses <span class="mono">Add(ω, ℵ₂)</span>, which is ccc and so preserves cofinalities and cardinals, yielding <span class="mono">2^{ℵ₀} ≥ ℵ₂</span>. Shoenfield absoluteness covers <span class="mono">Σ¹₂</span>/<span class="mono">Π¹₂</span> between <span class="mono">V</span>, inner models containing the ordinals, and set-forcing extensions; <span class="mono">CH</span> is <span class="mono">Σ²₁</span> over the reals (a quantifier over <span class="mono">P(ℝ)</span>), above the projective hierarchy, hence not protected. Projective absoluteness under set forcing follows from a proper class of Woodin cardinals (Woodin); the continuum function obeys Easton's constraints (monotone, with <span class="mono">cf(2^κ) &gt; κ</span>), so <span class="mono">2^{ℵ₀}</span> may be forced to any cardinal of uncountable cofinality. Dedekind categoricity and Zermelo quasi-categoricity are theorems of second-order logic, whose consequence relation is not r.e.; they pin the models semantically without yielding an effective proof system — which is why a determinate second-order truth value for <span class="mono">CH</span> need not be knowable. The Löbian obstacle is the agent-theoretic reading of Löb's theorem (Yudkowsky–Herreshoff; Fallenstein–Soares); the descending-trust schemes are real partial escapes, not a closing of the loop. The Lucas–Penrose argument is, on the consensus of Putnam, Feferman, Shapiro and others, fallacious: it presumes the agent's knowledge of its own consistency. <i>The Descent</i> carries the model theory this movement only opens (Löwenheim–Skolem, Lindström, Tennenbaum, Shoenfield); <i>The Summit</i> carries the large cardinals that re-firm the floor; <i>The Recurrence</i> carries the no-fixed-point this reads downward; <i>The Law</i> carries the Löb theorem behind the obstacle; the <i>Scholia</i> carry the Lucas–Penrose audit.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Gödel 1929 (completeness), 1931 (incompleteness), 1940 (<span class="mono">L</span>), 1947 (<i>What is Cantor's Continuum Problem?</i>) · Henkin 1949 · Löwenheim 1915 · Skolem 1920 · Dedekind 1888 · Zermelo 1930 · Cohen 1963 · Shoenfield 1961 · Easton 1970 · Woodin (projective absoluteness; Ultimate-L) · Hamkins (the set-theoretic multiverse) · Feferman (&ldquo;Is the Continuum Hypothesis a definite mathematical problem?&rdquo;) · Löb 1955 · Yudkowsky–Herreshoff / Fallenstein–Soares (tiling agents) · Lucas 1961, Penrose 1989, with Putnam, Feferman, Shapiro (the refutations).</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function row(lab, html){ return "<div class='rec-row'><div class='rec-lab'>" + lab + "</div><div class='rec-txt'>" + html + "</div></div>"; }
+  function panel(title, badgeCls, badgeTxt, body){
+    var badge = badgeTxt ? "<span class='rec-badge " + badgeCls + "'>" + badgeTxt + "</span>" : "";
+    return "<div class='rec-top'><span class='rec-title'>" + title + "</span>" + badge + "</div>" + body;
+  }
+  function bracket(modT, howT, modF, howF){
+    return "<div class='gap-cols'>" +
+      "<div class='gap-side t'><div class='gap-vt'>\u22a8 the statement</div><div class='gap-mod'>" + modT + "</div><div class='gap-how'>" + howT + "</div></div>" +
+      "<div class='gap-side f'><div class='gap-vt'>\u22a8 its negation</div><div class='gap-mod'>" + modF + "</div><div class='gap-how'>" + howF + "</div></div>" +
+      "</div>";
+  }
+  function indP(title, badge, br, mechLab, mech){
+    return "<div class='rec-top'><span class='rec-title'>" + title + "</span><span class='rec-badge syn'>" + badge + "</span></div>" +
+      br + "<div class='rec-row' style='margin-top:.55rem'><div class='rec-lab'>" + mechLab + "</div><div class='rec-txt'>" + mech + "</div></div>";
+  }
+
+  /* ============ INDEPENDENCE DEMONSTRATOR ============ */
+  var IND = {
+    godel: indP("G\u00f6del's sentence  G", "independent of PA",
+      bracket("\u2115 \u2014 the standard model", "Zero and its successors, nothing more. Here G is true: no object codes a proof of a contradiction.",
+              "A nonstandard model of PA + \u00acG", "Summoned by compactness; it holds an object past every numeral that it reads as a proof of 0=1."),
+      "mechanism", "Compactness / L\u00f6wenheim\u2013Skolem \u2014 the rival is abstract, never inspected. The floor of arithmetic."),
+    con: indP("Con(ZFC)", "independent of ZFC",
+      bracket("A model with an inaccessible", "If \u03ba is inaccessible, V\u03ba \u22a8 ZFC + Con(ZFC). The consistency statement holds.",
+              "A model of ZFC + \u00acCon(ZFC)", "If ZFC is consistent, G\u00f6del-2 leaves \u00acCon(ZFC) unrefuted, so by completeness it has a model \u2014 one that believes ZFC inconsistent."),
+      "mechanism", "G\u00f6del-2 + completeness \u2014 the no-roof statement (Con unprovable) is also a no-floor multiplicity (models on both sides)."),
+    ch: indP("the Continuum Hypothesis", "independent of ZFC",
+      bracket("L \u2014 the constructible universe", "G\u00f6del (1940): the narrowest model of ZFC satisfies GCH, so CH holds. Built by iterating definability \u2014 inward.",
+              "A Cohen forcing extension M[G]", "Cohen (1963): adjoin \u2135\u2082 generic reals; cardinals are preserved and 2^\u2135\u2080 \u2265 \u2135\u2082, so CH fails. Built outward."),
+      "mechanism", "Inner model + forcing \u2014 both models constructed, not merely summoned. The floor at the scale of V."),
+    diamond: indP("Jensen's \u25ca (diamond)", "independent of ZFC",
+      bracket("L \u2014 the constructible universe", "Jensen: \u25ca holds in L (and \u25ca \u27f9 CH). The combinatorial principle is true in the narrow model.",
+              "A forcing extension", "\u25ca can be forced to fail; ZFC does not decide it. A finer fork than CH, splitting the models the same way."),
+      "mechanism", "Inner model + forcing \u2014 \u25ca refines CH and divides the universe by the same two directions.")
+  };
+  var indKey = "godel";
+  function indRender(){ document.getElementById("indPanel").innerHTML = IND[indKey]; }
+
+  /* ============ ABSOLUTENESS LADDER ============ */
+  var AB = {
+    arith: panel("Arithmetic \u2014 \u03a3\u2070\u2099", "thm", "firm \u2014 bedrock",
+      row("status", "Absolute between V, L, and every forcing extension.") +
+      row("why", "Forcing cannot disturb facts this low in the hierarchy; \u2115's truths are fixed across all models.") +
+      row("so", "G is true in \u2115 and stays true everywhere. Whatever forcing does, it does above here.")),
+    analytic: panel("Analytic \u2014 \u03a3\u00b9\u2081", "thm", "firm",
+      row("status", "Absolute (Mostowski). Well-foundedness is absolute, so \u03a3\u00b9\u2081 facts are forcing-invariant.") +
+      row("note", "Still solid floor \u2014 below the Shoenfield ceiling.")),
+    sigma12: panel("\u03a3\u00b9\u2082 / \u03a0\u00b9\u2082", "thm", "firm \u2014 the ceiling",
+      row("theorem", "Shoenfield (1961): every \u03a3\u00b9\u2082 and \u03a0\u00b9\u2082 statement is absolute between V, L, and forcing extensions.") +
+      row("the line", "The exact reach of unconditional absoluteness. Up to here the floor is solid in ZFC alone.")),
+    projective: panel("Projective \u2014 \u03a3\u00b9\u2083 and up", "syn", "re-firmed by large cardinals",
+      row("in ZFC", "Not absolute \u2014 forcing can move the higher projective sets.") +
+      row("with strength", "Under infinitely many Woodin cardinals the entire projective theory becomes forcing-absolute (Woodin).") +
+      row("the meeting", "The no-roof reaches down and re-solidifies the no-floor \u2014 exactly where determinacy lived in The Summit.")),
+    ch: panel("CH \u2014 \u03a3\u00b2\u2081", "forb", "porous \u2014 forceable",
+      row("status", "Forceable: Cohen moves CH freely. CH quantifies over all sets of reals \u2014 above the projective hierarchy.") +
+      row("and", "No large cardinal re-firms it: L\u00e9vy\u2013Solovay preserves them while small forcing changes CH.") +
+      row("so", "Genuinely porous. CH is a horizontal fact, not a height.")),
+    continuum: panel("Size of 2^\u2135\u2080", "forb", "porous \u2014 most liquid",
+      row("status", "2^\u2135\u2080 can be forced to almost any cardinal (Easton: monotone, with cf(2^\u2135\u2080) > \u2135\u2080).") +
+      row("note", "The floor at its most liquid \u2014 the continuum floats free across the multiverse."))
+  };
+  var abKey = "sigma12";
+  function abRender(){ document.getElementById("abDetail").innerHTML = AB[abKey]; }
+
+  function init(){
+    document.querySelectorAll("#indSel .fgh-pill").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll("#indSel .fgh-pill").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on"); indKey = btn.getAttribute("data-ind"); indRender();
+      });
+    });
+    document.querySelectorAll("#abLadder .ab-rung").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll("#abLadder .ab-rung").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on"); abKey = btn.getAttribute("data-ab"); abRender();
+      });
+    });
+    indRender(); abRender();
+  }
+  if(document.readyState === "loading"){ document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-summit.html">← The Summit</a><a rel="next" href="quodlibet-the-endorsement.html">The Endorsement →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Jump — the halting problem relativized, and the tower it builds</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout p + p{margin-top:.7rem;}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== goodstein engine ===== */
+  .good-controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .good-seed{display:flex;gap:.35rem;}
+  .good-sbtn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.35rem .7rem;cursor:pointer;transition:all .15s;}
+  .good-sbtn:hover{background:rgba(26,24,21,.05);}
+  .good-sbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .good-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.5rem .9rem;cursor:pointer;transition:opacity .15s;}
+  .good-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .good-btn:hover{opacity:.85;} .good-btn:disabled{opacity:.45;cursor:default;}
+  .good-read{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .good-read b{color:var(--ink);}
+  .good-tracks{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:560px){ .good-tracks{grid-template-columns:1fr;} }
+  .good-col{background:var(--paper);padding:.9rem 1rem 1.1rem;min-height:8rem;}
+  .good-col .gc-h{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+  .good-col.val .gc-h{color:var(--red-deep);} .good-col.ord .gc-h{color:var(--teal-deep);}
+  .good-col .gc-arrow{font-size:.95rem;}
+  .good-rows{display:flex;flex-direction:column;gap:.2rem;}
+  .good-row{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;animation:rise .3s ease;}
+  .good-row .gr-n{font-size:.58rem;color:var(--faintest);}
+  .good-col.val .good-row .gr-v{color:var(--ink);}
+  .good-col.ord .good-row .gr-v{color:var(--teal-deep);}
+  .good-row.zero .gr-v{font-weight:600;}
+  .good-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.03em;padding:.6rem;border-radius:3px;margin-top:.9rem;}
+  .good-banner.done{color:var(--teal-deep);border:1px dashed var(--teal-line);background:var(--teal-soft);}
+  .good-banner.cap{color:var(--gold-deep);border:1px dashed var(--gold-line);background:var(--gold-soft);}
+
+  /* ===== modal engine — Löb box, fixed-point ledger, GLP tower ===== */
+  .loeb{border:1px dashed var(--ink);border-radius:3px;padding:1.1rem 1.1rem;margin:1.5rem auto;max-width:42rem;text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .loeb .ll{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem;}
+  .loeb .lr{font-size:1.02rem;color:var(--ink);line-height:2;}
+  .loeb .lr .hot{color:var(--red-deep);}
+  .loeb .lr .gr{color:var(--faintest);}
+  .loeb .sub{font-family:"Spectral",serif;font-style:italic;font-size:.94rem;color:var(--soft1);margin-top:.8rem;line-height:1.5;}
+
+  .glp{display:flex;flex-direction:column-reverse;gap:.3rem;margin:.2rem auto 0;max-width:27rem;}
+  .glp-row{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.42rem .75rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .glp-row .gm{color:var(--teal-deep);} .glp-row .gt{color:var(--ink);} .glp-row .go{color:var(--gold-deep);white-space:nowrap;}
+  .glp-row.cap{border-style:dashed;border-color:var(--gold-line);}
+
+  /* ===== bridge-assumptions (Scholia idiom) ===== */
+  .bridge{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.1rem;}
+  .bridge-row{background:var(--paper);padding:.82rem 1rem;display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:start;}
+  .bridge-row .br-main{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .bridge-row .br-main b{color:var(--ink);font-weight:600;}
+  .bridge-row .br-main .mono{font-size:.82rem;color:var(--red-deep);}
+  .bridge-pill{font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;padding:.24em .55em;border-radius:10px;white-space:nowrap;align-self:start;}
+  .bridge-pill.hold{background:var(--teal-soft);color:var(--teal-deep);}
+  .bridge-pill.thm{background:var(--gold-soft);color:var(--gold-deep);}
+  .bridge-verdict{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .bridge-verdict b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side.left.tealhead .hs-lab{color:var(--teal-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .hinge-side p + p{margin-top:.55rem;}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);} .chain .tl{color:var(--teal-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+  .granted{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--teal-deep);margin:.6rem 0;text-align:left;padding:.7rem .8rem;border:1px dashed var(--teal-line);border-radius:3px;line-height:1.85;}
+  .granted .ok{color:var(--teal-deep);font-weight:600;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-cell .tc-tax{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);margin-top:.5rem;display:block;}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== jump-tower ladder / priority-method tabs (deep-dive additions) ===== */
+  .rec-sel{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.1rem;}
+  .rec-panel{border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:1.1rem 1.2rem;}
+  .rec-top{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;margin-bottom:.85rem;border-bottom:1px solid var(--hair);padding-bottom:.7rem;}
+  .rec-title{font-family:"Spectral",serif;font-weight:500;font-size:1.18rem;color:var(--ink);line-height:1.2;}
+  .rec-badge{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.26em .6em;border-radius:10px;white-space:nowrap;align-self:center;}
+  .rec-badge.thm{background:var(--teal-soft);color:var(--teal-deep);}
+  .rec-badge.syn{background:var(--gold-soft);color:var(--gold-deep);}
+  .rec-badge.forb{background:var(--red-soft);color:var(--red-deep);}
+  .rec-row{display:grid;grid-template-columns:6.6rem 1fr;gap:.8rem;align-items:baseline;padding:.42rem 0;border-top:1px solid var(--hair);}
+  .rec-row:first-of-type{border-top:none;}
+  .rec-lab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faintest);padding-top:.2rem;}
+  .rec-txt{font-size:.92rem;line-height:1.55;color:var(--soft1);text-wrap:pretty;}
+  .rec-txt .mono{font-size:.82rem;color:var(--ink);}
+  .rec-formula{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--ink);text-align:center;padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;background:var(--paper);margin:.1rem 0 .2rem;line-height:1.7;}
+  /* jump tower ladder */
+  .jt-key{display:flex;gap:1.1rem;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:var(--faintest);margin-bottom:.9rem;flex-wrap:wrap;letter-spacing:.03em;}
+  .jt-key span{display:inline-flex;align-items:center;gap:.34rem;}
+  .jt-key i{width:.5rem;height:.5rem;border-radius:50%;display:inline-block;}
+  .jt-ladder{display:flex;flex-direction:column;gap:.34rem;margin-bottom:1.1rem;}
+  .jt-rung{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.5rem .72rem;border:1px solid var(--panelhair);border-radius:3px;background:transparent;cursor:pointer;transition:all .15s;color:var(--soft1);}
+  .jt-rung:hover{background:rgba(26,24,21,.04);}
+  .jt-rung.on{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);}
+  .jt-dot{width:.5rem;height:.5rem;border-radius:50%;flex-shrink:0;}
+  .jt-dot.fin{background:var(--teal);} .jt-dot.inf{background:var(--gold);} .jt-dot.base{background:var(--soft1);}
+  .jt-nm{font-weight:500;} .jt-br{color:var(--faintest);font-size:.66rem;margin-left:auto;text-align:right;}
+  .jt-line{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);padding:.25rem 0;border-top:1px dashed var(--gold-line);border-bottom:1px dashed var(--gold-line);margin:.1rem 0;}
+</style>
+
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-ascent">The Ascent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">A deep study · the Turing degrees</span></div>
+    <div class="hero-head">
+      <p class="kicker">The diagonal, relativized — and then iterated without end</p>
+      <h1 class="title">The <span class="x">Jump</span></h1>
+      <p class="standfirst">Give a machine an oracle, and it has a new halting problem it still cannot solve. That single move — from a set to the halting set above it — is the <em>jump</em>, and it never stops climbing: <span class="mono">0 &lt;ₜ 0′ &lt;ₜ 0″ &lt;ₜ …</span>, on through the recursive ordinals. This study follows the operator that is Turing's diagonal made portable. It shows the tower of jumps to be, rung for rung, the arithmetical hierarchy of logic; it answers Post's old question of what lives in the very first gap, with the priority method that founded a field; and it finds, at the end, that the operator generating the whole structure is already written into the order it generates.</p>
+      <p class="ed-mark">the operator · the tower · Post's theorem · Post's problem · finite injury · the shape of the degrees · the diagonal iterated</p>
+    </div>
+  </header>
+
+  <div class="lede">
+    <p>The reflection ladder of <em>The Ascent</em> climbed by adding, at each rung, the soundness the rung below could not assert. There is an exact twin of that climb in the theory of computation, and it is in some ways more tangible, because its rungs are not theories but <i>oracles</i>, and the thing each oracle supplies is concrete: the answer to the halting problem of the level beneath it. The operator that produces it is the most important single construction in computability theory, and it is the diagonal of <em>The Diagonal</em> in working clothes.</p>
+    <p>This is a study of the Turing jump and the structure it organizes. We define the operator and prove its one essential property — that it strictly increases degree, for the same diagonal reason Turing's halting problem is undecidable. We climb the tower of iterated jumps into the transfinite, to the edge of the recursive ordinals. We prove Post's theorem, the dictionary that makes the <span class="mono">n</span>-th jump and the <span class="mono">n</span>-th level of the arithmetical hierarchy the same thing — so that a tower of oracles turns out to <i>be</i> a hierarchy of quantifiers. We take up Post's 1944 question of whether anything lies strictly between the computable sets and the halting problem, watch his own program fail, and watch the finite-injury priority method settle it. We survey the dense and intricate world of the recursively enumerable degrees the method opened. And we close on what ties the jump to everything else in the corpus: it is the diagonal, relativized and iterated, and — by a theorem of Shore and Slaman — definable from nothing but the reducibility order it builds.</p>
+  </div>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(3rem,7vh,5rem)"><span class="ln"></span><span class="g mono">A′ = { e : Φₑᴬ(e)↓ }</span><span class="ln"></span></div>
+
+  <!-- ===== §I THE OPERATOR ===== -->
+  <section class="sec" id="operator">
+    <div class="sec-head"><span class="num">I · the operator</span><h2>The halting problem you carry with you</h2><p class="sub">Relativize Turing's construction. Hand a machine an oracle for a set <span class="mono">A</span> and ask which such machines halt on their own index — that set is the <i>jump</i> of <span class="mono">A</span>. It answers every question about <span class="mono">A</span>'s own halting behaviour, and it is, for the same diagonal reason as the original, strictly beyond <span class="mono">A</span>'s reach.</p></div>
+    <div class="reading">
+      <p>First the order the jump lives in. Write <span class="mono">A ≤ₜ B</span> — <span class="mono">A</span> is <i>Turing reducible</i> to <span class="mono">B</span> — when a Turing machine equipped with an oracle for <span class="mono">B</span> computes the characteristic function of <span class="mono">A</span>: <span class="mono">A</span> is decidable <i>given</i> <span class="mono">B</span> for free. Mutual reducibility <span class="mono">≡ₜ</span> sorts the sets into <b>Turing degrees</b>, partially ordered by <span class="mono">≤ₜ</span>, with least element <span class="mono">0</span> — the computable sets — and a join <span class="mono">a ∨ b</span> given by <span class="mono">A ⊕ B</span>. The degrees measure relative computational power.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the Turing jump</div>
+      <p>The <i>jump</i> of <span class="mono">A</span> is the halting problem of machines run with oracle <span class="mono">A</span>: <div class="rec-formula" style="margin:.6rem auto"><span class="mono">A′  =  { e : Φₑᴬ(e)↓ }</span></div> the set of indices <span class="mono">e</span> such that the <span class="mono">e</span>-th oracle machine, given <span class="mono">A</span>, halts on input <span class="mono">e</span>. It is the relativization of Turing's <span class="mono">K</span>: where <span class="mono">K = ∅′</span> is the ordinary halting problem, <span class="mono">A′</span> is halting <i>relative to <span class="mono">A</span></i>. It is also the canonical maximal set recursively enumerable in <span class="mono">A</span>: every set r.e. in <span class="mono">A</span> is many-one reducible to <span class="mono">A′</span>.</p>
+    </div>
+    <div class="reading">
+      <p>Its one indispensable property is that it always climbs — never sideways, never down, always strictly up.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the jump strictly increases degree</div>
+      <div class="ts"><span class="mono">A &lt;ₜ A′</span> for every <span class="mono">A</span>. <b>Below:</b> <span class="mono">A ≤ₜ A′</span> — indeed <span class="mono">A ≤₁ A′</span>, since from <span class="mono">x</span> one computes an index <span class="mono">eₓ</span> of a machine that, with oracle <span class="mono">A</span>, halts on <span class="mono">eₓ</span> iff <span class="mono">x ∈ A</span>; so <span class="mono">x ∈ A ⟺ eₓ ∈ A′</span>. <b>Strict:</b> <span class="mono">A′ ≰ₜ A</span> — were <span class="mono">A′</span> computable from <span class="mono">A</span>, the halting problem relative to <span class="mono">A</span> would be <span class="mono">A</span>-decidable, and Turing's diagonal — the machine that halts on <span class="mono">e</span> exactly when <span class="mono">Φₑᴬ(e)</span> does not — would contradict itself relative to <span class="mono">A</span>. The jump is monotone and well defined on degrees: <span class="mono">A ≡ₜ B ⟹ A′ ≡ₜ B′</span>, and <span class="mono">A ≤ₜ B ⟹ A′ ≤ₜ B′</span>.</div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">power and limit, one operator</div>
+      <p>Read the two halves together. <span class="mono">A′</span> <i>knows more</i> than <span class="mono">A</span> — it decides the one thing <span class="mono">A</span> provably cannot, its own halting problem — and yet it <i>stands strictly above</i> <span class="mono">A</span>, uncomputable from it. The very gain in power is what places it out of reach. This is the diagonal's signature exactly as the corpus draws it elsewhere: the construction that hands a system new strength is the same construction that the system cannot absorb. Here it is a single operator, <span class="mono">A ↦ A′</span>, and the whole tower is its iteration.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">0 &lt;ₜ 0′ &lt;ₜ 0″ &lt;ₜ … &lt;ₜ 0⁽ᵅ⁾</span><span class="ln"></span></div>
+
+  <!-- ===== §II THE TOWER ===== -->
+  <section class="sec" id="tower">
+    <div class="sec-head"><span class="num">II · the tower</span><h2>Iterated without end</h2><p class="sub">Apply the jump to its own output and a strictly increasing tower unfolds — the finite jumps <span class="mono">0, 0′, 0″, …</span> and then, taking effective limits, on through the recursive ordinals to the very edge of what computation can name. This tower is the spine of the arithmetical and hyperarithmetic hierarchies.</p></div>
+    <div class="reading">
+      <p>Start from <span class="mono">0</span>, the computable sets, and iterate. Each jump is strictly above the last, so the finite jumps form a strictly increasing chain <span class="mono">0 &lt;ₜ 0′ &lt;ₜ 0″ &lt;ₜ ⋯ &lt;ₜ 0⁽ⁿ⁾ &lt;ₜ ⋯</span> — the <b>arithmetical degrees</b>. At the limit, take the effective join of all of them, <span class="mono">0⁽ω⁾ = ⊕ₙ 0⁽ⁿ⁾</span>, and jump again: <span class="mono">0⁽ω⁺¹⁾ = (0⁽ω⁾)′</span>, and onward. Indexed along Kleene's notations for the recursive ordinals, the tower continues to every <span class="mono">α</span> below the Church–Kleene ordinal <span class="mono">ω₁ᶜᴷ</span> — the least ordinal no machine can name.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the tower reaches exactly the hyperarithmetic sets</div>
+      <div class="ts">The sets Turing-below some <span class="mono">0⁽ᵅ⁾</span> for a recursive ordinal <span class="mono">α &lt; ω₁ᶜᴷ</span> are precisely the <b>hyperarithmetic</b> sets — and by Kleene's theorem these are exactly the <span class="mono">Δ¹₁</span> sets, those both <span class="mono">Σ¹₁</span> and <span class="mono">Π¹₁</span>. The jump, climbed through the constructive ordinals, exhausts the hyperarithmetic hierarchy and halts at its frontier. (The iteration is along notations in Kleene's <span class="mono">O</span>; the sets depend on the path, but Spector's theorem fixes their <i>degree</i> by the ordinal.)</div>
+    </div>
+    <div class="reading">
+      <p>Climb it. Each rung is a degree; each tells you what new halting problem it has solved, and — by the theorem of the next section — exactly which level of logical complexity it occupies.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="jt-key">
+          <span><i style="background:var(--teal)"></i> finite jump — arithmetical</span>
+          <span><i style="background:var(--gold)"></i> transfinite — hyperarithmetic</span>
+          <span><i style="background:var(--soft1)"></i> base</span>
+        </div>
+        <div class="jt-ladder" id="jtLadder">
+          <button class="jt-rung" data-jt="hyp"><span class="jt-dot inf"></span><span class="jt-nm">0⁽ᵅ⁾,  α &lt; ω₁ᶜᴷ</span><span class="jt-br">hyperarithmetic = Δ¹₁</span></button>
+          <button class="jt-rung" data-jt="omega1"><span class="jt-dot inf"></span><span class="jt-nm">0⁽ω⁺¹⁾ = (0⁽ω⁾)′</span><span class="jt-br">past the join</span></button>
+          <button class="jt-rung" data-jt="omega"><span class="jt-dot inf"></span><span class="jt-nm">0⁽ω⁾ = ⊕ₙ 0⁽ⁿ⁾</span><span class="jt-br">≡ₜ true arithmetic</span></button>
+          <div class="jt-line">— ω : the first effective limit, join of all finite jumps —</div>
+          <button class="jt-rung" data-jt="n"><span class="jt-dot fin"></span><span class="jt-nm">0⁽ⁿ⁾</span><span class="jt-br">Σ⁰ₙ-complete</span></button>
+          <button class="jt-rung" data-jt="three"><span class="jt-dot fin"></span><span class="jt-nm">0‴</span><span class="jt-br">Σ⁰₃ · Cof</span></button>
+          <button class="jt-rung" data-jt="two"><span class="jt-dot fin"></span><span class="jt-nm">0″</span><span class="jt-br">Σ⁰₂ · Fin, Tot</span></button>
+          <button class="jt-rung on" data-jt="one"><span class="jt-dot fin"></span><span class="jt-nm">0′</span><span class="jt-br">Σ⁰₁ · K, the halting problem</span></button>
+          <button class="jt-rung" data-jt="zero"><span class="jt-dot base"></span><span class="jt-nm">0</span><span class="jt-br">the computable sets</span></button>
+        </div>
+        <div class="rec-panel" id="jtDetail"></div>
+        <figcaption>Read bottom to top. Below the dashed line are the finite jumps — the arithmetical degrees, one per level of quantifier complexity. Above it the tower passes to effective limits and climbs the recursive ordinals, exhausting the hyperarithmetic sets and stopping at <span class="mono">ω₁ᶜᴷ</span>, the boundary of what computation can name.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">n-th jump  =  n quantifier alternations</span><span class="ln"></span></div>
+
+  <!-- ===== §III POST'S THEOREM ===== -->
+  <section class="sec" id="post-theorem">
+    <div class="sec-head"><span class="num">III · Post's theorem</span><h2>The tower is the hierarchy</h2><p class="sub">A tower of oracles and a hierarchy of quantifiers were defined for different reasons in different languages — one computational, one logical. Post's theorem says they are the same object. The <span class="mono">n</span>-th jump is the <span class="mono">Σ⁰ₙ</span>-complete set; climbing the tower by one is adding one quantifier alternation.</p></div>
+    <div class="reading">
+      <p>Recall the arithmetical hierarchy: <span class="mono">Σ⁰₁</span> the recursively enumerable sets, <span class="mono">Σ⁰₂</span> those defined by a <span class="mono">∃∀</span> prefix over a computable matrix, and so on up, each level one quantifier alternation beyond the last. Post connected it, level by level, to the jumps of <span class="mono">0</span>.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">Post's theorem (1948)</div>
+      <div class="ts">For every <span class="mono">n ≥ 1</span>:
+      <div style="margin:.5rem 0 .2rem;padding-left:.2rem">• &nbsp;<span class="mono">A</span> is <span class="mono">Σ⁰ₙ₊₁</span> &nbsp;⟺&nbsp; <span class="mono">A</span> is recursively enumerable in <span class="mono">0⁽ⁿ⁾</span>;<br>• &nbsp;<span class="mono">0⁽ⁿ⁾</span> is <b><span class="mono">Σ⁰ₙ</span>-complete</b> — it is <span class="mono">Σ⁰ₙ</span>, and every <span class="mono">Σ⁰ₙ</span> set is many-one reducible to it;<br>• &nbsp;<span class="mono">A ≤ₜ 0⁽ⁿ⁾</span> &nbsp;⟺&nbsp; <span class="mono">A</span> is <span class="mono">Δ⁰ₙ₊₁</span>.</div>
+      The jump and the quantifier are two faces of one operation: to ask whether a <span class="mono">Σ⁰ₙ</span> fact holds is to consult <span class="mono">0⁽ⁿ⁾</span>, and to consult <span class="mono">0⁽ⁿ⁾</span> is to evaluate a <span class="mono">Σ⁰ₙ</span> formula.</div>
+    </div>
+    <div class="reading">
+      <p>The dictionary is not abstract — each rung has a natural inhabitant, a decision problem about programs whose complexity is exactly that level and whose Turing degree is exactly that jump:</p>
+    </div>
+    <div class="bridge">
+      <div class="bridge-row"><div class="br-main"><span class="mono">K = {e : Φₑ(e)↓}</span> — does this program halt on itself? The halting problem.</div><span class="rec-badge thm">Σ⁰₁ · 0′</span></div>
+      <div class="bridge-row"><div class="br-main"><span class="mono">Tot = {e : Φₑ total}</span> — does it halt on <i>every</i> input? And <span class="mono">Fin = {e : Wₑ finite}</span> — does it accept only finitely many?</div><span class="rec-badge thm">Π⁰₂ / Σ⁰₂ · 0″</span></div>
+      <div class="bridge-row"><div class="br-main"><span class="mono">Cof = {e : Wₑ cofinite}</span> — does it accept all but finitely many inputs?</div><span class="rec-badge thm">Σ⁰₃ · 0‴</span></div>
+      <div class="bridge-row"><div class="br-main"><span class="mono">⊕ₙ 0⁽ⁿ⁾ = 0⁽ω⁾</span> — the join of all of them, the degree of <b>true first-order arithmetic</b> <span class="mono">Th(ℕ)</span>.</div><span class="rec-badge syn">⋃ₙ Σ⁰ₙ · 0⁽ω⁾</span></div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the same climb, twice</div>
+      <p>This is the computational form of a movement the corpus has made before. <em>The Recurrence</em> and <em>The Gap</em> watched a single obstruction migrate <i>upward in complexity</i> — a <span class="mono">Π⁰₁</span> deficit becoming <span class="mono">Π¹₁</span>, the arithmetical giving way to the analytical. Post's theorem shows that ascent <i>is</i> a tower of oracles: each quantifier alternation is one application of the jump, each level of definitional complexity a degree of relative computational power. To climb in logical strength and to climb in oracle power are one motion, read in two notations.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">is there anything between 0 and 0′?</span><span class="ln"></span></div>
+
+  <!-- ===== §IV POST'S PROBLEM ===== -->
+  <section class="sec" id="post-problem">
+    <div class="sec-head"><span class="num">IV · Post's problem</span><h2>What lives in the first gap</h2><p class="sub">Every recursively enumerable set sits at or below the halting problem. Post asked in 1944 whether any of them sits strictly <i>between</i> — an r.e. set undecidable yet not powerful enough to decide halting. He spent a decade trying to build one by making its complement thin, and the attempt instructively failed.</p></div>
+    <div class="reading">
+      <p>The r.e. sets are the <span class="mono">Σ⁰₁</span> sets, and so by Post's theorem each is recursively enumerable in <span class="mono">0</span> and therefore <span class="mono">≤ₜ 0′</span>. The two extremes are obvious: the computable r.e. sets have degree <span class="mono">0</span>, and <span class="mono">K</span> itself has degree <span class="mono">0′</span>. <b>Post's problem</b> is whether anything r.e. lies strictly in between — whether there is an r.e. set <span class="mono">A</span> with <span class="mono">0 &lt;ₜ A &lt;ₜ 0′</span>.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">Post's program, and why it stalled</div>
+      <p>Post's idea was to keep <span class="mono">A</span> from coding the halting problem by keeping its <i>complement</i> sparse — too thin to carry that much information. He defined a graded sequence of sparseness conditions: <b>simple</b> (the complement is infinite but contains no infinite r.e. set), then <b>hypersimple</b>, then <b>hyperhypersimple</b>, each stronger than the last. The conditions do lower a set's place under the finer reducibilities — many-one, truth-table. But they do not touch Turing reducibility: there exist simple, even hypersimple, sets that are nonetheless Turing-<i>complete</i>, <span class="mono">≡ₜ 0′</span>. Thinness of the complement is the wrong invariant for <span class="mono">≤ₜ</span>, and Post's problem stood open from 1944 until 1956 — its real content now sharp: <i>is the structure of the r.e. degrees trivial, just <span class="mono">{0, 0′}</span>, or is it rich?</i></p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">Φₑᴮ ≠ A  ·  Φₑᴬ ≠ B  ·  injured finitely often</span><span class="ln"></span></div>
+
+  <!-- ===== §V THE PRIORITY METHOD ===== -->
+  <section class="sec" id="priority">
+    <div class="sec-head"><span class="num">V · finite injury</span><h2>Building the gap by hand</h2><p class="sub">Friedberg and Muchnik, independently, answered Post's question — and the answer was richer than a single intermediate degree. There are two recursively enumerable sets neither of which computes the other. The construction that produces them is the <i>finite-injury priority method</i>, the technique on which all of modern degree theory is built.</p></div>
+    <div class="reading">
+      <p>The result clears the gap completely — not one intermediate degree but a pair of mutually incomparable ones, each therefore strictly between <span class="mono">0</span> and <span class="mono">0′</span>.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the Friedberg–Muchnik theorem (Friedberg 1957, Muchnik 1956)</div>
+      <div class="ts">There exist recursively enumerable sets <span class="mono">A</span> and <span class="mono">B</span> of <b>incomparable Turing degree</b>: <span class="mono">A ≰ₜ B</span> and <span class="mono">B ≰ₜ A</span>. Since both are r.e. and neither is computable or complete, each satisfies <span class="mono">0 &lt;ₜ A, B &lt;ₜ 0′</span> — so the recursively enumerable degrees are not <span class="mono">{0, 0′}</span> but contain incomparable elements, and Post's problem is answered.</div>
+    </div>
+    <div class="reading">
+      <p>The construction enumerates <span class="mono">A</span> and <span class="mono">B</span> together, in stages, chasing a list of requirements whose joint satisfaction forces incomparability. Step through what each part of it does.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="rec-sel" id="priSel">
+          <button class="fgh-pill on" data-pri="reqs">the requirements</button>
+          <button class="fgh-pill" data-pri="strategy">one strategy</button>
+          <button class="fgh-pill" data-pri="injury">injury &amp; restraint</button>
+          <button class="fgh-pill" data-pri="finite">why it converges</button>
+        </div>
+        <div class="rec-panel" id="priPanel"></div>
+        <figcaption>Each requirement, left alone, would meet itself in finitely many steps. The difficulty is that they share the sets <span class="mono">A</span> and <span class="mono">B</span>: a move one requirement makes can destroy a result another has secured. The priority ordering and the finiteness of injury are exactly what guarantee that every requirement is eventually left in peace.</figcaption>
+      </div>
+    </div>
+
+    <div class="callout teal">
+      <div class="cl-lab">the engine of a field</div>
+      <p>The finite-injury argument was the first of its kind, and it opened everything after it. Its descendants — the infinite-injury method behind the density theorem, the tree arguments, the <span class="mono">0‴</span> priority constructions — are the standard machinery of computability theory. What Friedberg and Muchnik showed was not only that the gap is inhabited, but that it can be <i>engineered</i>: r.e. degrees with prescribed relationships can be built to order, requirement by requirement, with conflicts resolved by priority. The diagonal that forbids self-completion, it turns out, leaves behind a structure intricate enough to be designed.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">dense · embeddable · the jump definable from ≤ₜ</span><span class="ln"></span></div>
+
+  <!-- ===== §VI THE SHAPE OF THE DEGREES ===== -->
+  <section class="sec" id="shape">
+    <div class="sec-head"><span class="num">VI · the shape</span><h2>The world the method opened</h2><p class="sub">Once the gap was known to be inhabited, the priority method laid the recursively enumerable degrees open as a vast and intricate order — dense, universal for countable structures, stratified by the jump. And then a final turn: the jump, which seemed an operation added from outside, is definable from the bare reducibility order itself.</p></div>
+    <div class="reading">
+      <p>The single incomparable pair was the doorway. The structure behind it is as rich as an order can be.</p>
+    </div>
+    <div class="bridge">
+      <div class="bridge-row"><div class="br-main"><b>Density</b> (Sacks, 1964). Between any two r.e. degrees <span class="mono">a &lt;ₜ b</span> there is a third r.e. degree strictly between. The r.e. degrees have no gaps and no minimal element above <span class="mono">0</span> — they are dense, like the rationals. (The proof is an infinite-injury argument.)</div><span class="rec-badge thm">dense</span></div>
+      <div class="bridge-row"><div class="br-main"><b>Universality.</b> Every countable partial order embeds into the r.e. degrees; the first-order theory of the structure is undecidable (Harrington–Shelah). Whatever order pattern you can describe, the r.e. degrees contain it.</div><span class="rec-badge thm">universal</span></div>
+      <div class="bridge-row"><div class="br-main"><b>The high/low hierarchy.</b> An r.e. degree <span class="mono">a</span> is <i>low</i> if its jump is as small as possible, <span class="mono">a′ = 0′</span>, and <i>high</i> if as large as possible, <span class="mono">a′ = 0″</span>; the grades <span class="mono">Lowₙ</span> and <span class="mono">Highₙ</span> stratify the degrees by where the jump sends them. The Friedberg–Muchnik pair can be built <i>low</i> — undecidable, yet with the jump of the computable sets.</div><span class="rec-badge thm">stratified by ′</span></div>
+      <div class="bridge-row"><div class="br-main"><b>Jump inversion</b> (Friedberg, 1957). The jump is <i>onto</i> the degrees above <span class="mono">0′</span>: every degree <span class="mono">c ≥ 0′</span> is the jump <span class="mono">a′</span> of some <span class="mono">a</span>. Nothing above the halting problem is missed; the operator covers its whole range. (Sacks, 1963, settled which degrees are jumps of <i>r.e.</i> degrees.)</div><span class="rec-badge thm">surjective ≥ 0′</span></div>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the jump is definable from the order (Shore–Slaman, 1999)</div>
+      <div class="ts">The Turing jump <span class="mono">a ↦ a′</span> is <b>definable in the structure <span class="mono">(𝒟, ≤ₜ)</span> of the Turing degrees</b> using only the reducibility relation. The operator that built the entire tower, that seemed an extra piece of apparatus laid on top of the degrees, was implicit in the order all along — recoverable from nothing but which degrees compute which.</div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the operator was in the order</div>
+      <p>This is the kind of closure the corpus prizes. The diagonal generates the jump; the jump generates the order of degrees; and the order, it emerges, already contains a definition of the jump. The construction and the structure it produces are not two things with a one-way arrow between them — the structure remembers its generator. The diagonal's signature is legible not only in the tower it raises but in the bare shape of the order left behind.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">two towers, one diagonal</span><span class="ln"></span></div>
+
+  <!-- ===== §VII SYNTHESIS ===== -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">VII · the diagonal iterated</span><h2>Where the jump rejoins the corpus</h2><p class="sub">The jump is not an isolated tool of computability. It is Turing's diagonal — one of the six limitative results the corpus reads as a single construction — relativized to an oracle and then climbed. Seen so, the tower of degrees is the exact computational twin of the reflection ladder, and Post's theorem is the bridge that identifies the two ascents.</p></div>
+    <div class="reading">
+      <p>Set the two climbs side by side. In <em>The Ascent</em>, each rung was a theory, and what it added was the soundness — the consistency, the reflected truth — that the theory below could not assert about itself. Here, each rung is an oracle, and what it adds is the halting problem that the degree below could not solve. The motive is identical: a system cannot complete itself, and the missing completion sits exactly one level up.</p>
+    </div>
+    <div class="hinge">
+      <div class="hinge-side left tealhead">
+        <div class="hs-lab">in proof — The Ascent</div>
+        <h4>The reflection ladder</h4>
+        <p>Each rung adds the soundness the theory below cannot prove of itself. <span class="mono">Con(T)</span> is unprovable in <span class="mono">T</span>; the climb supplies it from above and never reaches a self-justifying top.</p>
+        <div class="granted"><span class="ok">T + Con(T)</span> &nbsp;— soundness, one level up</div>
+      </div>
+      <div class="hinge-side right tealhead">
+        <div class="hs-lab">in computation — The Jump</div>
+        <h4>The jump tower</h4>
+        <p>Each rung adds the halting problem the degree below cannot solve. <span class="mono">A′</span> is uncomputable from <span class="mono">A</span>; the climb supplies it from above and never reaches a self-deciding top.</p>
+        <div class="granted"><span class="ok">A′</span> &nbsp;— the halting oracle, one level up</div>
+      </div>
+    </div>
+    <div class="bridge-verdict" style="margin-top:1.4rem"><b>Two towers, one diagonal — and Post's theorem is the bridge.</b> The reflection ladder is measured by ordinals and tops out, for <span class="mono">PA</span>, at <span class="mono">ε₀</span>; the jump tower is measured by the recursive ordinals and tops out at <span class="mono">ω₁ᶜᴷ</span>. Between them runs Post's dictionary: each rung of the jump tower is a level of the arithmetical hierarchy, so the migration of an obstruction <i>upward in logical complexity</i>, which <em>The Recurrence</em> and <em>The Gap</em> tracked, simply <i>is</i> the climbing of this tower of oracles. The arithmetical hierarchy is the jump tower wearing the costume of quantifiers; the jump tower is the arithmetical hierarchy wearing the costume of oracles.</div>
+    <div class="reading">
+      <p>And the corpus's invariant stands here in its sharpest single form. Elsewhere it took a sentence, a theory, a cardinal to display the union of power and limit. In the degrees it is one operator. <span class="mono">A ↦ A′</span> both knows more than <span class="mono">A</span> and stands strictly above it; the gain in knowledge is the loss of reach, in a single stroke. Between its rungs the priority method finds a structure dense and designable; and the operator itself, by Shore and Slaman, is already written into the order it raises. Power and limit, one construction — relativized, iterated, and legible in the bare shape of what it leaves behind.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the gain in power is the loss of reach</span><span class="ln"></span></div>
+  <div class="coda"><p>A machine handed an oracle is stronger, and still incomplete — and the proof of its incompleteness is the proof that there is somewhere new to climb. That is the whole of the jump, and the whole of the tower it raises: an operator that strictly increases power because, and exactly insofar as, it cannot be absorbed by what it acts on. Climbed through the finite jumps it is the arithmetical hierarchy; climbed through the recursive ordinals it is the hyperarithmetic sets, halting only where computation runs out of names. In the first gap it opens, Post's question becomes the priority method and a field is born; across its whole range the jump is onto, and definable from the order it generates. It is Turing's diagonal made portable, and it carries, into the theory of computation, the one structure this corpus keeps finding everywhere: the construction whose strength is its limit, returning here as a single arrow from a set to the halting problem it cannot reach.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">A deep study · The Jump</span></div>
+    <p class="colophon">A study of the Turing jump and the structure of the degrees of unsolvability, set within the corpus's reading of the diagonal. The load-bearing results are theorems — the strict increase of degree under the jump and its monotonicity on degrees; the iterated and transfinite jump hierarchy and its coincidence, through the recursive ordinals, with the hyperarithmetic <span class="mono">Δ¹₁</span> sets; Post's theorem identifying <span class="mono">0⁽ⁿ⁾</span> with the <span class="mono">Σ⁰ₙ</span>-complete degree; the index-set completeness of <span class="mono">K</span>, <span class="mono">Tot</span>, <span class="mono">Fin</span>, <span class="mono">Cof</span>; the Friedberg–Muchnik theorem and the finite-injury priority construction; Sacks's density and jump-inversion theorems; the high/low hierarchy; and the Shore–Slaman definability of the jump. The framing — that the jump is Turing's diagonal relativized and iterated; that the jump tower and the reflection ladder of <em>The Ascent</em> are one ascent in two currencies, joined by Post's dictionary; and that the corpus's union of power and limit appears here as a single operator — is interpretation, marked as such and faithful to the theorems beneath it.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;The jump is defined relative to a fixed effective enumeration <span class="mono">Φₑᴬ</span> of oracle machines; <span class="mono">A ≤₁ A′</span> uses the <span class="mono">s</span>-<span class="mono">m</span>-<span class="mono">n</span> theorem to produce the index <span class="mono">eₓ</span> uniformly. The strict-increase theorem is the relativization of the unsolvability of the halting problem; everything in §I–III relativizes over an arbitrary oracle. The transfinite jumps are taken along notations in Kleene's <span class="mono">O</span>; the resulting sets are path-dependent below <span class="mono">ω₁ᶜᴷ</span>, but Spector's uniqueness theorem fixes the <i>degree</i> of <span class="mono">0⁽ᵅ⁾</span> by the ordinal, and the union over all recursive ordinals is the hyperarithmetic <span class="mono">= Δ¹₁</span> sets (Kleene). Post's theorem is stated for <span class="mono">n ≥ 1</span> and holds in relativized form; <span class="mono">0⁽ω⁾ ≡ₜ Th(ℕ)</span> is the degree of true first-order arithmetic. The completeness classifications — <span class="mono">K</span> as <span class="mono">Σ⁰₁</span>-, <span class="mono">Tot</span> as <span class="mono">Π⁰₂</span>-, <span class="mono">Fin</span> as <span class="mono">Σ⁰₂</span>-, <span class="mono">Cof</span> as <span class="mono">Σ⁰₃</span>-complete — are standard index-set results; <span class="mono">Fin ≡ₜ Tot ≡ₜ 0″</span> and <span class="mono">Cof ≡ₜ 0‴</span>. Kleene–Post (1954) first produced incomparable degrees below <span class="mono">0′</span> by the finite-extension method, but those sets are not r.e.; the move to <i>recursively enumerable</i> incomparable degrees is exactly the finite-injury innovation of Muchnik (1956) and Friedberg (1957), in which each requirement is injured at most finitely often (a bound computable from its priority) and so is eventually satisfied permanently. Density is Sacks (1964); jump inversion onto the degrees above <span class="mono">0′</span> is Friedberg (1957), with the recursively enumerable jump theorem due to Sacks (1963); the high/low hierarchy is due to Sacks and Soare; Shore–Slaman (1999) prove the jump definable in <span class="mono">(𝒟, ≤ₜ)</span>, part of the broader Slaman–Woodin bi-interpretability program, which is flagged here as the deeper result and not developed. <em>The Diagonal</em> carries Turing's halting problem as one of the six limitative results unified by Lawvere; <em>The Ascent</em> carries the reflection ladder this mirrors and the ordinal <span class="mono">ε₀</span>; <em>The Recurrence</em> and <em>The Gap</em> carry the complexity hierarchies Post's theorem identifies with the tower; <em>The Measure</em> carries the ordinal analysis to which <span class="mono">ω₁ᶜᴷ</span> is the recursion-theoretic counterpart.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Turing 1936 (the halting problem), 1939 (oracle machines, ordinal logics) · Kleene–Mostowski 1943 (the arithmetical hierarchy) · Post 1944 (<i>Recursively enumerable sets…</i>; simple sets), 1948 (degrees; Post's theorem) · Kleene–Post 1954 · Muchnik 1956 · Friedberg 1957 · Spector 1955 · Sacks 1963 (<i>Degrees of Unsolvability</i>), 1964 (density) · Shore–Slaman 1999 · Soare, <i>Recursively Enumerable Sets and Degrees</i>.</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function row(lab, html){ return "<div class='rec-row'><div class='rec-lab'>" + lab + "</div><div class='rec-txt'>" + html + "</div></div>"; }
+  function panel(title, badgeCls, badgeTxt, body){
+    var badge = badgeTxt ? "<span class='rec-badge " + badgeCls + "'>" + badgeTxt + "</span>" : "";
+    return "<div class='rec-top'><span class='rec-title'>" + title + "</span>" + badge + "</div>" + body;
+  }
+
+  /* ============ JUMP TOWER LADDER ============ */
+  var JT = {
+    zero: panel("0 \u2014 the computable sets", "", "the base",
+      row("what it is", "The degree of every decidable set; the recursive functions.") +
+      row("decides", "Everything computable outright \u2014 and nothing more. It cannot solve its own halting problem.") +
+      row("the lack", "K = 0\u2032 is already beyond it. The first jump is the first step up.")),
+    one: panel("0\u2032 \u2014 the halting problem", "thm", "\u03a3\u2070\u2081-complete",
+      row("the set", "K = {e : \u03a6\u2091(e)\u2193} \u2014 the halting problem, \u03a3\u2070\u2081-complete.") +
+      row("decides", "Whether any given program halts. Every r.e. set is \u2264\u209c 0\u2032.") +
+      row("place", "The first jump of 0; the join of all r.e. degrees sits here, at the ceiling of the r.e. world.")),
+    two: panel("0\u2033 \u2014 the second jump", "thm", "\u03a3\u2070\u2082-complete",
+      row("the sets", "Tot = {e : \u03a6\u2091 total} (\u03a0\u2070\u2082-complete); Fin = {e : W\u2091 finite} (\u03a3\u2070\u2082-complete). Both \u2261\u209c 0\u2033.") +
+      row("decides", "\u2203\u2200 and \u2200\u2203 facts about programs \u2014 totality, finiteness of the accepted set.") +
+      row("place", "\u03a3\u2070\u2082-complete: two quantifier alternations, two jumps.")),
+    three: panel("0\u2034 \u2014 the third jump", "thm", "\u03a3\u2070\u2083-complete",
+      row("the set", "Cof = {e : W\u2091 cofinite} \u2014 accepting all but finitely many inputs. \u03a3\u2070\u2083-complete, \u2261\u209c 0\u2034.") +
+      row("decides", "\u2203\u2200\u2203 facts; cofiniteness of the accepted set.") +
+      row("place", "Three quantifier alternations, three jumps.")),
+    n: panel("0\u207d\u207f\u207e \u2014 the n-th jump", "syn", "\u03a3\u2070\u2099-complete",
+      row("Post", "0\u207d\u207f\u207e is \u03a3\u2070\u2099-complete: it is \u03a3\u2070\u2099, and every \u03a3\u2070\u2099 set is \u2264\u2098 it.") +
+      row("decides", "Exactly the \u0394\u2070\u2099\u208a\u2081 sets are computable from it; the \u03a3\u2070\u2099\u208a\u2081 sets are r.e. in it.") +
+      row("place", "n quantifier alternations = n jumps. The arithmetical degrees are this whole chain.")),
+    omega: panel("0\u207d\u1d61\u207e \u2014 the first limit", "syn", "\u2261\u209c true arithmetic",
+      row("the set", "\u2295\u2099 0\u207d\u207f\u207e, the effective join of all finite jumps.") +
+      row("decides", "Every arithmetical set; 0\u207d\u1d61\u207e \u2261\u209c Th(\u2115), the degree of true first-order arithmetic.") +
+      row("place", "The supremum of the arithmetical tower \u2014 and the jump climbs on past it.")),
+    omega1: panel("0\u207d\u1d61\u207a\u00b9\u207e \u2014 past the join", "syn", "transfinite",
+      row("the set", "(0\u207d\u1d61\u207e)\u2032 \u2014 the halting problem relative to arithmetical truth.") +
+      row("decides", "Facts one quantifier beyond all of arithmetic.") +
+      row("place", "The jump does not stop at \u03c9; it climbs the recursive ordinals.")),
+    hyp: panel("0\u207d\u1d45\u207e,  \u03b1 < \u03c9\u2081\u1d9c\u1d4f \u2014 the frontier", "forb", "hyperarithmetic = \u0394\u00b9\u2081",
+      row("reach", "Climbed along Kleene's O through every recursive ordinal, the tower's downward closure is exactly the hyperarithmetic sets \u2014 the \u0394\u00b9\u2081 sets (Kleene).") +
+      row("the wall", "\u03c9\u2081\u1d9c\u1d4f, the Church\u2013Kleene ordinal, is the least ordinal with no recursive notation. The jump can climb no further; computation has run out of names.") +
+      row("beyond", "Past \u0394\u00b9\u2081 lie the genuinely analytical sets \u2014 \u03a0\u00b9\u2081 and above \u2014 where the hyperjump and admissibility take over."))
+  };
+  var jtKey = "one";
+  function jtRender(){ document.getElementById("jtDetail").innerHTML = JT[jtKey]; }
+
+  /* ============ PRIORITY METHOD TABS ============ */
+  var PRI = {
+    reqs: panel("The requirements", "", "what to satisfy",
+      row("goal", "Build r.e. sets A and B with A \u2270\u209c B and B \u2270\u209c A. Incomparability splits into infinitely many tasks.") +
+      row("the list", "For each index e \u2014 R\u2082\u2091: \u03a6\u2091\u1d2e \u2260 \u03c7_A (B's e-th machine fails to compute A); R\u2082\u2091\u208a\u2081: \u03a6\u2091\u1d2c \u2260 \u03c7_B.") +
+      row("why", "If every R\u2082\u2091 holds, no B-machine computes A, so A \u2270\u209c B; symmetrically B \u2270\u209c A. Meeting all requirements forces incomparability.") +
+      row("priority", "Order them R\u2080 > R\u2081 > R\u2082 > \u2026 \u2014 lower index, higher priority. Conflicts resolve in favour of the higher.")),
+    strategy: panel("One requirement's strategy", "thm", "diagonalize",
+      row("aim", "R\u2082\u2091 wants a single witness x on which \u03a6\u2091\u1d2e(x) and A(x) disagree.") +
+      row("appoint", "Pick a fresh follower x \u2014 large, currently outside A.") +
+      row("wait", "Do nothing until a stage where \u03a6\u2091\u1d2e(x)\u2193 = 0 \u2014 the machine converges and declares x \u2209 A.") +
+      row("act", "Enumerate x into A. Now A(x) = 1 \u2260 0 = \u03a6\u2091\u1d2e(x): the requirement is met. To keep it met, restrain B below the use of that computation, so the oracle answer cannot change.")),
+    injury: panel("Injury & restraint", "forb", "the conflict",
+      row("the clash", "R\u2082\u2091 restrains a segment of B. But higher-priority odd requirements enumerate numbers into B to meet their own diagonalizations.") +
+      row("injury", "If such a requirement puts a number below R\u2082\u2091's restraint into B, the preserved computation \u03a6\u2091\u1d2e(x) is destroyed \u2014 the oracle changed beneath the use. R\u2082\u2091 is injured; its disagreement may now fail.") +
+      row("recover", "The injured requirement discards x, appoints a new and larger follower, and waits again \u2014 only ever moving to fresh witnesses, never reusing a spoiled one.")),
+    finite: panel("Why it converges", "thm", "finite injury",
+      row("the count", "R_i can be injured only by the finitely many requirements of higher priority, R\u2080,\u2026,R_{i\u22121}.") +
+      row("each acts finitely", "Each requirement, once permanently satisfied, stops acting. By induction on priority, each higher requirement acts \u2014 and so injures \u2014 only finitely often.") +
+      row("so", "R_i is injured at most finitely many times. After its last injury, its next successful computation is preserved forever, and R_i is met for good.") +
+      row("conclusion", "Every requirement is eventually permanently satisfied. A and B are r.e. (numbers only enter, never leave), incomparable, and so both strictly between 0 and 0\u2032."))
+  };
+  var priKey = "reqs";
+  function priRender(){ document.getElementById("priPanel").innerHTML = PRI[priKey]; }
+
+  function init(){
+    document.querySelectorAll("#jtLadder .jt-rung").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll("#jtLadder .jt-rung").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on"); jtKey = btn.getAttribute("data-jt"); jtRender();
+      });
+    });
+    document.querySelectorAll("#priSel .fgh-pill").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll("#priSel .fgh-pill").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on"); priKey = btn.getAttribute("data-pri"); priRender();
+      });
+    });
+    jtRender(); priRender();
+  }
+  if(document.readyState === "loading"){ document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-endorsement.html">← The Endorsement</a><a rel="next" href="quodlibet-the-order.html">The Order →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

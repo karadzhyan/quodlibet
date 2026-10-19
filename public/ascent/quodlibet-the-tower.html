@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Tower — Girard's paradox, and why no universe contains itself</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout p + p{margin-top:.7rem;}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== goodstein engine ===== */
+  .good-controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .good-seed{display:flex;gap:.35rem;}
+  .good-sbtn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.35rem .7rem;cursor:pointer;transition:all .15s;}
+  .good-sbtn:hover{background:rgba(26,24,21,.05);}
+  .good-sbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .good-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.5rem .9rem;cursor:pointer;transition:opacity .15s;}
+  .good-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .good-btn:hover{opacity:.85;} .good-btn:disabled{opacity:.45;cursor:default;}
+  .good-read{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .good-read b{color:var(--ink);}
+  .good-tracks{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:560px){ .good-tracks{grid-template-columns:1fr;} }
+  .good-col{background:var(--paper);padding:.9rem 1rem 1.1rem;min-height:8rem;}
+  .good-col .gc-h{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+  .good-col.val .gc-h{color:var(--red-deep);} .good-col.ord .gc-h{color:var(--teal-deep);}
+  .good-col .gc-arrow{font-size:.95rem;}
+  .good-rows{display:flex;flex-direction:column;gap:.2rem;}
+  .good-row{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;animation:rise .3s ease;}
+  .good-row .gr-n{font-size:.58rem;color:var(--faintest);}
+  .good-col.val .good-row .gr-v{color:var(--ink);}
+  .good-col.ord .good-row .gr-v{color:var(--teal-deep);}
+  .good-row.zero .gr-v{font-weight:600;}
+  .good-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.03em;padding:.6rem;border-radius:3px;margin-top:.9rem;}
+  .good-banner.done{color:var(--teal-deep);border:1px dashed var(--teal-line);background:var(--teal-soft);}
+  .good-banner.cap{color:var(--gold-deep);border:1px dashed var(--gold-line);background:var(--gold-soft);}
+
+  /* ===== modal engine — Löb box, fixed-point ledger, GLP tower ===== */
+  .loeb{border:1px dashed var(--ink);border-radius:3px;padding:1.1rem 1.1rem;margin:1.5rem auto;max-width:42rem;text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .loeb .ll{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem;}
+  .loeb .lr{font-size:1.02rem;color:var(--ink);line-height:2;}
+  .loeb .lr .hot{color:var(--red-deep);}
+  .loeb .lr .gr{color:var(--faintest);}
+  .loeb .sub{font-family:"Spectral",serif;font-style:italic;font-size:.94rem;color:var(--soft1);margin-top:.8rem;line-height:1.5;}
+
+  .glp{display:flex;flex-direction:column-reverse;gap:.3rem;margin:.2rem auto 0;max-width:27rem;}
+  .glp-row{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.42rem .75rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .glp-row .gm{color:var(--teal-deep);} .glp-row .gt{color:var(--ink);} .glp-row .go{color:var(--gold-deep);white-space:nowrap;}
+  .glp-row.cap{border-style:dashed;border-color:var(--gold-line);}
+
+  /* ===== bridge-assumptions (Scholia idiom) ===== */
+  .bridge{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.1rem;}
+  .bridge-row{background:var(--paper);padding:.82rem 1rem;display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:start;}
+  .bridge-row .br-main{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .bridge-row .br-main b{color:var(--ink);font-weight:600;}
+  .bridge-row .br-main .mono{font-size:.82rem;color:var(--red-deep);}
+  .bridge-pill{font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;padding:.24em .55em;border-radius:10px;white-space:nowrap;align-self:start;}
+  .bridge-pill.hold{background:var(--teal-soft);color:var(--teal-deep);}
+  .bridge-pill.thm{background:var(--gold-soft);color:var(--gold-deep);}
+  .bridge-verdict{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .bridge-verdict b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side.left.tealhead .hs-lab{color:var(--teal-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .hinge-side p + p{margin-top:.55rem;}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);} .chain .tl{color:var(--teal-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+  .granted{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--teal-deep);margin:.6rem 0;text-align:left;padding:.7rem .8rem;border:1px dashed var(--teal-line);border-radius:3px;line-height:1.85;}
+  .granted .ok{color:var(--teal-deep);font-weight:600;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-cell .tc-tax{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);margin-top:.5rem;display:block;}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== Cantor diagonal demonstrator / consistency classifier (deep-dive additions) ===== */
+  .rec-sel{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1rem;}
+  .rec-panel{border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:1.1rem 1.2rem;}
+  .rec-top{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;margin-bottom:.85rem;border-bottom:1px solid var(--hair);padding-bottom:.7rem;}
+  .rec-title{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;color:var(--ink);line-height:1.25;}
+  .rec-badge{font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.26em .6em;border-radius:10px;white-space:nowrap;align-self:center;}
+  .rec-badge.con{background:var(--teal-soft);color:var(--teal-deep);}
+  .rec-badge.incon{background:var(--red-soft);color:var(--red-deep);}
+  .rec-row{display:grid;grid-template-columns:6.6rem 1fr;gap:.8rem;align-items:baseline;padding:.42rem 0;border-top:1px solid var(--hair);}
+  .rec-row:first-of-type{border-top:none;}
+  .rec-lab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faintest);padding-top:.2rem;}
+  .rec-txt{font-size:.92rem;line-height:1.55;color:var(--soft1);text-wrap:pretty;}
+  .rec-txt .mono{font-size:.82rem;color:var(--ink);}
+  /* cantor diagonal */
+  .cd-A{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faintest);margin-bottom:.9rem;letter-spacing:.02em;}
+  .cd-rows{display:flex;flex-direction:column;gap:.1rem;}
+  .cd-row{display:grid;grid-template-columns:9.5rem 1fr auto;gap:.8rem;align-items:center;padding:.4rem 0;border-top:1px solid var(--hair);font-family:"IBM Plex Mono",monospace;}
+  .cd-row:first-child{border-top:none;}
+  .cd-map{font-size:.82rem;color:var(--ink);}
+  .cd-test{font-size:.7rem;color:var(--faintest);}
+  .cd-mark{font-family:"IBM Plex Mono",monospace;font-size:.64rem;padding:.2em .55em;border-radius:3px;letter-spacing:.03em;white-space:nowrap;}
+  .cd-mark.in{background:var(--teal-soft);color:var(--teal-deep);}
+  .cd-mark.out{background:rgba(26,24,21,.05);color:var(--faintest);}
+  .cd-result{margin-top:.85rem;border-top:1px solid var(--hair);padding-top:.75rem;font-size:.9rem;line-height:1.55;color:var(--ink);}
+  .cd-D{font-family:"IBM Plex Mono",monospace;color:var(--red-deep);font-weight:600;}
+</style>
+
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-ascent">The Ascent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">A deep study · type theory &amp; the universe hierarchy</span></div>
+    <div class="hero-head">
+      <p class="kicker">The diagonal, in the type of all types</p>
+      <h1 class="title">The <span class="x">Tower</span></h1>
+      <p class="standfirst">A dependent type theory wants a universe — a type whose members are types. And then it wants the obvious simplification: let the universe be a type like any other, a member of itself, <span class="mono">Type : Type</span>. Martin-Löf's first system granted the wish, and Girard proved it fatal. A universe that contains itself lets you build a proof of falsehood; every proposition becomes provable and no program terminates. The reason is the oldest one in the corpus: an impredicative universe would admit a surjection onto its own power, which Cantor's diagonal forbids — and Lawvere turns the forbidden surjection into a fixed point of negation, a proposition equal to its own denial. This study builds the paradox from that diagonal, draws the exact line between the impredicativity that is safe and the impredicativity that is fatal, and climbs the tower of stratified universes that is the only cure.</p>
+      <p class="ed-mark">the tempting axiom · Girard's theorem · Cantor in the universe · the diagonal that inhabits ⊥ · the line · the tower · one theorem again</p>
+    </div>
+  </header>
+
+  <div class="lede">
+    <p>Type theory is built to be constructive and safe: a proof is a program, a proposition a type, and a contradiction a program of the empty type. That safety is not automatic. It rests on a discipline that a first, natural-seeming axiom quietly destroys — the axiom that the universe of types is itself a type, <span class="mono">Type : Type</span>. The wish is understandable. Without it one needs a hierarchy of universes, each just out of reach of the last, with all the bookkeeping that entails; with it, everything is uniform and one universe suffices. Per Martin-Löf's 1971 system it was assumed, and within a year Girard had shown it inconsistent.</p>
+    <p>The inconsistency is not a technicality of type theory but the corpus's central diagonal wearing new clothes. Cantor proved that no set surjects onto its power set — the diagonal set of elements not belonging to their own image escapes every listing. An impredicative universe, one large enough to quantify over itself, is exactly a structure in which that impossible surjection can be built; and once it is, Lawvere's fixed-point theorem does the rest, forcing the negation map on propositions to have a fixed point — a proposition <span class="mono">P</span> equivalent to <span class="mono">¬P</span>, which is falsehood inhabited. Girard's paradox is Cantor's theorem failing where a universe was allowed to hold itself, and Russell's paradox — the set of all sets that do not contain themselves — in the notation of types. This study runs the Cantor diagonal that drives it, follows the impredicative universe to its proof of <span class="mono">⊥</span>, marks precisely why an impredicative <i>proposition</i> universe stays consistent while an impredicative <i>type</i> universe is fatal, and builds the stratified tower — <span class="mono">Type₀ : Type₁ : Type₂ : ⋯</span> — that modern proof assistants climb to keep their footing. The self-reference that Cantor found in the power set and Russell in the universal set is here, once more, one theorem.</p>
+  </div>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(3rem,7vh,5rem)"><span class="ln"></span><span class="g mono">Type : Type ?</span><span class="ln"></span></div>
+
+  <!-- ===== §I THE TEMPTING AXIOM ===== -->
+  <section class="sec" id="tempting">
+    <div class="sec-head"><span class="num">I · the tempting axiom</span><h2>A universe that holds itself</h2><p class="sub">A type theory with dependent types needs a universe: a type <span class="mono">Type</span> whose members are the types. The first question anyone asks is whether the universe is itself among them — whether <span class="mono">Type : Type</span>. It is the type-theoretic form of asking whether the set of all sets contains itself, and it has the same answer.</p></div>
+    <div class="reading">
+      <p>To speak of types generically — to write a function that takes a type and returns a type, or to quantify over all types — a theory needs the collection of types to <i>be</i> something it can name: a universe <span class="mono">Type</span>, with <span class="mono">A : Type</span> meaning &ldquo;<span class="mono">A</span> is a type.&rdquo; The temptation is immediate and strong. If <span class="mono">Type</span> is itself a type, then <span class="mono">Type : Type</span>, and there is one uniform universe containing everything, itself included — no hierarchy, no bookkeeping, maximum economy. Martin-Löf's first published type theory, in 1971, took exactly this step.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the shape of the danger</div>
+      <p>The move should feel familiar, because the corpus has met it before. Naive set theory let a set contain all sets, itself included, and Russell's diagonal — the set of all sets that do not contain themselves — brought it down. A universe that contains itself is the same gesture in the language of types: a totality large enough to quantify over itself. The lesson of Russell was that such totalities are not free, and the question is whether type theory escapes the bill. It does not. Within a year of Martin-Löf's system, Girard had located the paradox and inhabited falsehood.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">⊥ inhabited · every proposition provable</span><span class="ln"></span></div>
+
+  <!-- ===== §II GIRARD'S THEOREM ===== -->
+  <section class="sec" id="girard">
+    <div class="sec-head"><span class="num">II · Girard's theorem</span><h2>Falsehood, inhabited</h2><p class="sub">Girard's 1972 result is that the type theory with a self-containing universe is inconsistent in the strongest sense: one can write a closed term of the empty type. Under the propositions-as-types reading that makes every proposition provable, and it destroys the property on which a type theory's meaning rests — that its programs terminate.</p></div>
+    <div class="thm red">
+      <div class="tl">Girard's paradox (1972)</div>
+      <div class="ts">In a type theory with <span class="mono">Type : Type</span> — and in the pure type system <span class="mono">U</span> that isolates its strength — the empty type <span class="mono">⊥ = ∀P:Type. P</span> is <b>inhabited</b>: there is a closed term <span class="mono">⊢ t : ⊥</span>. Consequently every type is inhabited (every proposition is &ldquo;provable&rdquo;), and the system fails to be <b>strongly normalizing</b> — some well-typed terms have no normal form. The theory is inconsistent as a logic and non-terminating as a calculus.</div>
+    </div>
+    <div class="reading">
+      <p>The two failures are one failure, seen through the Curry–Howard correspondence. A proof of <span class="mono">⊥</span> is a closed term of the empty type; a closed term of the empty type cannot reduce to a value, because the empty type has none, so it must reduce forever. Inconsistency and non-termination are the same event — the arithmetic wall of <em>The Ceiling</em> and the looping term of <em>The Combinators</em> meeting in a single object. What remains is to see <i>why</i> a self-containing universe produces it, and the reason is a diagonal the corpus proved on its first page.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">no set surjects onto its power</span><span class="ln"></span></div>
+
+  <!-- ===== §III CANTOR IN THE UNIVERSE ===== -->
+  <section class="sec" id="cantor">
+    <div class="sec-head"><span class="num">III · Cantor in the universe</span><h2>The diagonal that forbids the surjection</h2><p class="sub">Cantor's theorem says no set maps onto its own collection of subsets: the diagonal set of elements that miss their own image is on no one's list. In type theory the collection of subsets of <span class="mono">A</span> is the power object <span class="mono">A → *</span>, and the same diagonal holds — until an impredicative universe is large enough to break it.</p></div>
+    <div class="reading">
+      <p>For any set <span class="mono">A</span> and any function <span class="mono">f</span> from <span class="mono">A</span> to its power set, form the <b>diagonal set</b> <span class="mono">D = { x ∈ A : x ∉ f(x) }</span>. For every <span class="mono">x</span>, whether <span class="mono">x</span> lies in <span class="mono">D</span> is the opposite of whether it lies in <span class="mono">f(x)</span> — so <span class="mono">D</span> differs from <span class="mono">f(x)</span> precisely at <span class="mono">x</span>, and therefore <span class="mono">D</span> is not <span class="mono">f</span> of anything. No <span class="mono">f</span> is onto. Watch it escape.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="cd-A">A = { a, b, c, d } &nbsp;&nbsp;·&nbsp;&nbsp; f : A &#8594; &#8472;(A) &nbsp;&nbsp;·&nbsp;&nbsp; D = { x : x &#8713; f(x) }</div>
+        <div class="rec-sel" id="cdSel">
+          <button class="fgh-pill on" data-cd="f1">a map f&#8321;</button>
+          <button class="fgh-pill" data-cd="f2">a &ldquo;staircase&rdquo; f&#8322;</button>
+          <button class="fgh-pill" data-cd="f3">a map f&#8323;</button>
+        </div>
+        <div class="rec-panel"><div class="cd-rows" id="cdRows"></div><div class="cd-result" id="cdResult"></div></div>
+        <figcaption>For any function <span class="mono">f : A → ℘(A)</span>, the diagonal set <span class="mono">D</span> collects exactly the elements that are <i>not</i> in their own image. By construction <span class="mono">D</span> disagrees with each <span class="mono">f(x)</span> at the point <span class="mono">x</span>, so <span class="mono">D</span> equals no <span class="mono">f(x)</span> — whatever <span class="mono">f</span> you pick, the diagonal set is missing from its range. There is no surjection from a set onto its power. This single fact, lifted into an impredicative universe, is Girard's paradox.</figcaption>
+      </div>
+    </div>
+
+    <div class="callout teal">
+      <div class="cl-lab">the power object</div>
+      <p>In type theory the subsets of a type <span class="mono">A</span> are the predicates on it — the functions <span class="mono">A → *</span> into the universe <span class="mono">*</span> of propositions, written <span class="mono">℘A</span>. Cantor's theorem holds here in the same diagonal form: there is no surjection <span class="mono">A → ℘A</span>, because the predicate <span class="mono">λx. ¬(f(x)(x))</span> — &ldquo;<span class="mono">x</span> does not satisfy the predicate <span class="mono">f</span> assigns to it&rdquo; — is the diagonal, equal to no <span class="mono">f(x)</span>. In a well-behaved theory this is a harmless theorem. The catastrophe begins only when the universe is impredicative enough that a type can be built <i>with</i> such a surjection onto its own power — and then the diagonal, instead of proving a limitation, inhabits a contradiction.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">a proposition equal to its own denial</span><span class="ln"></span></div>
+
+  <!-- ===== §IV THE DIAGONAL THAT INHABITS ⊥ ===== -->
+  <section class="sec" id="inhabit">
+    <div class="sec-head"><span class="num">IV · the diagonal that inhabits ⊥</span><h2>From the forbidden surjection to falsehood</h2><p class="sub">Lawvere's fixed-point theorem is the hinge. A surjection from a type onto its power forces every operation on propositions to have a fixed point — and the operation of <i>negation</i> has none, unless falsehood is inhabited. So the impredicative universe, by supplying the surjection Cantor forbids, supplies a proposition equal to its own negation, which is a proof of <span class="mono">⊥</span>.</p></div>
+    <div class="thm teal">
+      <div class="tl">Lawvere's theorem, and the mechanism of the paradox</div>
+      <div class="ts">If there is a point-surjective map <span class="mono">A → B<sup>A</sup></span>, then every endomorphism <span class="mono">g : B → B</span> has a fixed point. Take <span class="mono">B = *</span>, the universe of propositions, so that <span class="mono">B<sup>A</sup> = ℘A</span>, and take <span class="mono">g = ¬</span>, negation. A fixed point of <span class="mono">¬</span> is a proposition <span class="mono">P</span> with <span class="mono">P ↔ ¬P</span> — which yields <span class="mono">⊥</span>. Contrapositively, in a consistent theory <span class="mono">¬</span> has no fixed point, so there is <b>no</b> surjection <span class="mono">A → ℘A</span> — Cantor's theorem. The impredicative universe reverses the implication: it constructs a type <span class="mono">U</span> that defeats this obstruction — a type standing to its own power object as no set is permitted to — and Lawvere then delivers the fixed point of negation, and with it falsehood.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">Hurkens' three lines&nbsp;&nbsp;</span>Girard's original route was the Burali-Forti paradox — a well-ordering of all well-orderings, which must exceed itself. The shortest known route is Hurkens', in 1995: define a &ldquo;paradoxical universe&rdquo; <span class="mono">U = ∀X:*. (℘℘X → X) → ℘℘X</span>, a type whose impredicative quantification over all <span class="mono">X</span> lets <span class="mono">U</span> encode its own double power. One then constructs the retraction that makes <span class="mono">℘℘U</span> a &ldquo;subset&rdquo; of <span class="mono">U</span>, defines the diagonal predicate — the members that do not contain themselves under the encoding — and derives the contradiction in a term only a few lines long. Stripped of its type-theoretic machinery, it is Cantor's diagonal and Russell's set, run inside a universe that was allowed to hold itself.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">why impredicativity is the culprit</div>
+      <p><b>Impredicative</b> means self-encompassing: a definition that quantifies over a totality to which the thing being defined belongs. The universe <span class="mono">U</span> is defined by quantifying over <i>all</i> types <span class="mono">X</span>, and <span class="mono">U</span> is one of them — the definition ropes in its own object. That is precisely the circularity Russell diagnosed and the predicativists sought to ban. When the impredicative totality is the whole universe of types, it is large enough to reflect its own power inside itself, and Cantor's diagonal — harmless as an external theorem — becomes an internal proof of falsehood. The paradox is not a flaw in the diagonal; it is the diagonal, working correctly, in a place it should never have been admitted.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">impredicative Prop lives · impredicative Type dies</span><span class="ln"></span></div>
+
+  <!-- ===== §V THE LINE ===== -->
+  <section class="sec" id="line">
+    <div class="sec-head"><span class="num">V · the line</span><h2>Where impredicativity is safe</h2><p class="sub">Not all impredicativity is fatal. Quantifying a <i>proposition</i> over all propositions is harmless — the Calculus of Constructions does it and remains strongly normalizing. Quantifying a <i>type</i> over all types is lethal. The boundary is exact, and it is the line every proof assistant is built to respect.</p></div>
+    <div class="reading">
+      <p>System F already quantifies impredicatively over all types — the polymorphic identity <span class="mono">ΛX. λx:X. x</span> has type <span class="mono">∀X. X → X</span>, a quantifier ranging over the very types the term can be instantiated at, itself included. Girard proved System F <i>strongly normalizing</i>, using the method of reducibility candidates — the same craftsman who found the paradox found the proof of safety just below it. The difference is that in System F types are not terms: there is no universe <span class="mono">Type : Type</span>, only a stratified separation of terms and types. Impredicativity is safe when it does not also collapse the levels.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="rec-sel" id="csSel">
+          <button class="fgh-pill" data-cs="f">System F</button>
+          <button class="fgh-pill" data-cs="coc">Calculus of Constructions</button>
+          <button class="fgh-pill on" data-cs="tt">Type : Type</button>
+          <button class="fgh-pill" data-cs="u">System U</button>
+          <button class="fgh-pill" data-cs="strat">stratified universes</button>
+        </div>
+        <div class="rec-panel" id="csPanel"></div>
+        <figcaption>The dividing line. Impredicative quantification is consistent when types are kept out of themselves — System F has no universe at all; the Calculus of Constructions has an impredicative universe of <i>propositions</i> but keeps the universe of <i>types</i> out of its own membership. The instant a universe of types contains itself, whether directly (<span class="mono">Type : Type</span>) or through the pure type system <span class="mono">U</span>, Girard's paradox inhabits falsehood. Stratification restores consistency by putting every universe below a larger one.</figcaption>
+      </div>
+    </div>
+
+    <div class="reading">
+      <p>The Calculus of Constructions sits on the safe side by a hair. It keeps an impredicative universe of propositions, <span class="mono">Prop</span> — one may form <span class="mono">∀P:Prop. …</span> and land back in <span class="mono">Prop</span> — because a universe of <i>propositions</i>, whose inhabitants are proofs to be erased, is not rich enough to encode the paradoxical universe. But it does <i>not</i> allow <span class="mono">Type : Type</span>: the universe of types is stratified above <span class="mono">Prop</span> and does not contain itself. Coquand's analysis drew the line exactly here, and it is why Coq can offer an impredicative <span class="mono">Prop</span> and remain consistent while any system with a self-membered type universe cannot.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">Type₀ : Type₁ : Type₂ : ⋯</span><span class="ln"></span></div>
+
+  <!-- ===== §VI THE CURE ===== -->
+  <section class="sec" id="cure">
+    <div class="sec-head"><span class="num">VI · the cure</span><h2>The tower of universes</h2><p class="sub">The remedy is the hierarchy the tempting axiom tried to avoid. Give not one universe but an endless ascending sequence, each a member of the next and none of itself — a tower. No universe holds itself, so the impredicative surjection can never be built, and consistency is restored at the price of the bookkeeping <span class="mono">Type : Type</span> was meant to spare.</p></div>
+    <div class="reading">
+      <p>Replace the single self-membered <span class="mono">Type</span> with a stratified family <span class="mono">Type₀ : Type₁ : Type₂ : ⋯</span>, where each universe is an element of the next and the universes are <b>cumulative</b> — everything in <span class="mono">Typeₙ</span> is also in <span class="mono">Type<sub>n+1</sub></span>. A universe may quantify over all the universes below it but never over itself, so the definition of any type ranges only over totalities already complete — the discipline of <b>predicativity</b> at the level of universes. The paradoxical universe cannot be formed, because there is no top for it to live at. This is exactly the architecture of Coq, Agda, and Lean; the friction of tracking universe levels is softened by <b>universe polymorphism</b>, which lets a construction be written once and used at every level, but the tower itself is non-negotiable.</p>
+    </div>
+    <div class="callout gold">
+      <div class="cl-lab">the same cure, three times</div>
+      <p>The tower is not a new idea but the corpus's recurring answer to self-membership. Russell met the paradox of the universal set and answered with a <i>ramified hierarchy</i> of types, each definable only from lower ones — predicativity's first form. Set theory met it and answered with the <i>cumulative hierarchy</i> <span class="mono">V₀ ⊆ V₁ ⊆ ⋯ ⊆ V<sub>α</sub> ⊆ ⋯</span>, built by iterating the power set through the ordinals, in which no set is a member of itself and the &ldquo;set of all sets&rdquo; is no set at all — the subject of <em>The Stages</em>. Type theory meets it and answers with the tower of universes. Three hierarchies, one principle: a totality that would contain itself must instead be spread across levels, each closed before the next begins, so that self-reference never finds a floor beneath its own feet.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">Cantor, Russell, Girard — one diagonal</span><span class="ln"></span></div>
+
+  <!-- ===== §VII SYNTHESIS ===== -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">VII · one theorem again</span><h2>Where the type of types rejoins the diagonal</h2><p class="sub">Girard's paradox is not a curiosity of type theory but the corpus's founding diagonal, arriving in the last language that tried to hold a totality of itself. Cantor's power set, Russell's universal set, and Girard's universe of types are three names for one impossibility, and the fixed point that closes each is Lawvere's.</p></div>
+    <div class="reading">
+      <p>Set the three side by side. Cantor: no set surjects onto its subsets, because the diagonal set escapes. Russell: no set contains exactly the sets that do not contain themselves, because it would contain itself iff it does not. Girard: no universe of types contains itself, because the diagonal predicate would inhabit falsehood. The middle terms differ — a set of subsets, a set of sets, a universe of types — but the move is identical: a totality large enough to be indexed by itself is fed the predicate that negates the diagonal, and the predicate has nowhere consistent to land.</p>
+    </div>
+    <div class="hinge">
+      <div class="hinge-side left tealhead">
+        <div class="hs-lab">the diagonal</div>
+        <h4>one construction</h4>
+        <p>A self-indexing totality <span class="mono">A → ℘A</span>, and the negated-diagonal predicate <span class="mono">λx. ¬(x ∈ x)</span>. Lawvere: it is a fixed point of negation, which no consistent world allows. Cantor reads it as a missing subset; Russell as an impossible set; Girard as inhabited falsehood.</p>
+        <div class="granted"><span class="ok">P ↔ ¬P</span> &nbsp;— the fixed point no world can hold</div>
+      </div>
+      <div class="hinge-side right tealhead">
+        <div class="hs-lab">one cure</div>
+        <h4>the hierarchy</h4>
+        <p>Spread the totality across levels, each complete before the next: Russell's ramified types, the cumulative hierarchy <span class="mono">V<sub>α</sub></span>, the tower of universes. No level contains itself, so the self-indexing map is never formed, and the diagonal has no floor to stand on.</p>
+        <div class="granted"><span class="ok">Type₀ : Type₁ : ⋯</span> &nbsp;— self-reference denied a footing</div>
+      </div>
+    </div>
+    <div class="bridge-verdict" style="margin-top:1.4rem"><b>The type of all types is the set of all sets, and it falls to the same diagonal — read, through Curry–Howard, as a program that cannot stop.</b> This is the sharpest form of the corpus's thesis. In arithmetic the diagonal produced an undecided sentence; in the λ-calculus a non-terminating term; in computation an uncomputable boundary. In type theory, where a proof <i>is</i> a program and reduction <i>is</i> computation, the first two arrive as one event — for a proof of <span class="mono">⊥</span> is a term that cannot stop reducing, so the collapse of the logic and the divergence of the term are the same thing. Girard's paradox is where the incompleteness cost and the non-termination cost fuse, because type theory is where proof and reduction are one. The impredicative universe is a reflexive object, a structure that maps onto its own function space; Lawvere's theorem says such an object forces every endomap a fixed point; negation is an endomap with no consistent fixed point; and so the reflexive universe cannot exist without inhabiting falsehood. The tower is the corpus's oldest answer, given a third time: what cannot be held all at once must be climbed. A universe may quantify over everything below it and reach as high as one likes, but it may never turn and contain itself — for at the moment it does, Cantor's diagonal, patient since the first page, writes down the proposition that is its own denial, and the whole edifice reduces, forever, to nothing.</div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">climb — but never contain yourself</span><span class="ln"></span></div>
+  <div class="coda"><p>The wish behind <span class="mono">Type : Type</span> is the wish for a totality that needs nothing above it — one universe, closed, containing even itself. It is the same wish that wanted a set of all sets, and it fails for the same reason, on the same diagonal. Girard's proof is often told as a technical inconvenience, a reason proof assistants carry the bureaucracy of universe levels; it is better told as the corpus's first theorem reaching its last frontier. Cantor drew the diagonal across a list of reals; Russell drew it across the sets; Girard drew it across the types — and in type theory, where a proof is a program, the diagonal's verdict is not merely an unprovable sentence or a missing subset but a term that runs without end, the logic dissolving into non-termination. The cure is never to fill the totality in but to stack it: ramified types, the cumulative hierarchy, the tower of universes, each level sealed before the next is opened, so that nothing is ever asked to contain itself. A universe can be as tall as the ordinals and still be safe, so long as it keeps climbing. The one thing it must not do — the thing Cantor forbade before type theory existed — is close the loop and hold itself, because on that loop the diagonal is always waiting, and what it writes is falsehood.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">A deep study · The Tower</span></div>
+    <p class="colophon">A study of Girard's paradox and the universe hierarchy, set within the corpus's reading of the diagonal, and a companion to <em>The Correspondence</em> and <em>The Stages</em>. The load-bearing results are theorems — Cantor's theorem that no function surjects onto a power set, in its diagonal form; Girard's theorem that a type theory with <span class="mono">Type : Type</span>, and the pure type systems <span class="mono">U</span> and <span class="mono">U⁻</span>, are inconsistent and non-normalizing; the mechanism, via Lawvere's fixed-point theorem, by which an impredicative universe's surjection onto its own power object forces a fixed point of negation and so inhabits <span class="mono">⊥</span>, with Hurkens' short proof as the explicit realization; the strong normalization of System F and of the Calculus of Constructions, marking the safe side of the line; and the consistency of stratified, cumulative universe hierarchies. The framing — that Girard's paradox is Cantor's and Russell's diagonal in the type of all types, that its inconsistency and non-normalization are one event under Curry–Howard, and that the tower of universes is the same cure as Russell's ramification and the set-theoretic cumulative hierarchy — is interpretation, marked as such and faithful to the theorems beneath it.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;Girard's paradox originates in Girard's 1972 thesis, via the Burali-Forti paradox encoded in the pure type system <span class="mono">U</span>; Martin-Löf's 1971 type theory with <span class="mono">Type : Type</span> is inconsistent by the same means, and Hurkens' 1995 &ldquo;simplification&rdquo; gives the shortest known term of <span class="mono">⊥</span>, in <span class="mono">U⁻</span>. The reading of the paradox through Cantor and Lawvere is the modern conceptual account — the impredicative universe realizes the surjection onto its own power that Cantor forbids, and Lawvere converts it to a fixed point of negation; the actual inconsistency is Hurkens' explicit construction, not the schematic picture. A closely related fact is Reynolds' theorem (1984) that System F has no set-theoretic model in which types are non-trivial sets, again for Cantor-cardinality reasons — but System F is nonetheless <i>consistent</i> and strongly normalizing (Girard's reducibility candidates); no-set-theoretic-model and inconsistency are different conclusions, and only <span class="mono">Type : Type</span> yields the latter. The Calculus of Constructions keeps an impredicative universe <span class="mono">Prop</span> and is consistent (strong normalization: Coquand–Gallier, Geuvers), but impredicative <span class="mono">Prop</span> is delicate — its large elimination into <span class="mono">Type</span> is restricted precisely to block paradox, and impredicative <span class="mono">Prop</span> is incompatible with certain further axioms. The empty type is the impredicative encoding <span class="mono">⊥ = ∀P. P</span>; the power object is <span class="mono">℘A = A → *</span>. The universe hierarchy is cumulative and predicative at the universe level; its proof-theoretic strength grows with height, and universe polymorphism is an ergonomic device, not a weakening of the discipline. The demonstrator computes the Cantor diagonal on a four-element set for several functions, exhibiting in each case a diagonal subset outside the range; the escape shown is computed, not staged. <em>The Correspondence</em> carries the propositions-as-types reading under which inconsistency and non-normalization coincide; <em>The Stages</em> carries the cumulative hierarchy and the iterative conception this cure mirrors; <em>The Kernel</em> carries Russell's and Cantor's paradoxes at the root; <em>The Recurrence</em> and the <em>Mirror</em> carry Lawvere's theorem; <em>The Combinators</em> carries the <span class="mono">Y</span> combinator whose non-termination is the untyped shadow of this collapse.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Girard 1972 (<i>Interprétation fonctionnelle…</i>, thèse) · Martin-Löf 1971 · Coquand 1986 (<i>An analysis of Girard's paradox</i>); Coquand &amp; Huet (the Calculus of Constructions) · Hurkens 1995 (<i>A simplification of Girard's paradox</i>) · Reynolds 1984 (<i>Polymorphism is not set-theoretic</i>) · Barendregt (the λ-cube; pure type systems) · Girard, Lafont &amp; Taylor, <i>Proofs and Types</i> · Cantor 1891 · Russell 1908 · Lawvere 1969.</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  function rowc(lab, html){ return "<div class='rec-row'><div class='rec-lab'>"+lab+"</div><div class='rec-txt'>"+html+"</div></div>"; }
+
+  /* ---------- Cantor diagonal demonstrator (verified) ---------- */
+  var A = ['a','b','c','d'];
+  var FS = {
+    f1: {a:[], b:['a','b'], c:['a','c'], d:['b','c','d']},
+    f2: {a:[], b:['a'], c:['a','b'], d:['a','b','c']},
+    f3: {a:['a','b','c','d'], b:['b'], c:['a','c'], d:['d']}
+  };
+  function powShow(arr){ return '{' + A.filter(function(x){ return arr.indexOf(x)>=0; }).join(',') + '}'; }
+  var cdKey="f1";
+  function cdRender(){
+    var f=FS[cdKey], rows="";
+    for(var i=0;i<A.length;i++){ var x=A[i]; var inFx = f[x].indexOf(x)>=0;
+      rows += "<div class='cd-row'><span class='cd-map'>"+x+" \u21a6 "+powShow(f[x])+"</span>"
+           + "<span class='cd-test'>"+x+" \u2208 f("+x+")? &nbsp;"+(inFx?"yes":"no")+"</span>"
+           + "<span class='cd-mark "+(inFx?"out":"in")+"'>"+(inFx ? x+" \u2209 D" : x+" \u2208 D")+"</span></div>";
+    }
+    document.getElementById("cdRows").innerHTML = rows;
+    var D = A.filter(function(x){ return f[x].indexOf(x)<0; });
+    document.getElementById("cdResult").innerHTML =
+      "The diagonal set is <span class='cd-D'>D = "+powShow(D)+"</span>. For every <span class='mono'>x</span>, membership in <span class='mono'>D</span> is the negation of membership in <span class='mono'>f(x)</span> \u2014 so <span class='mono'>D</span> disagrees with each <span class='mono'>f(x)</span> at <span class='mono'>x</span>, and <span class='mono'>D \u2260 f(a), f(b), f(c), f(d)</span>. <b>The diagonal set is outside the range of f.</b> No <span class='mono'>f : A \u2192 \u2118(A)</span> is onto \u2014 Cantor's theorem, and the engine of Girard's paradox.";
+  }
+
+  /* ---------- consistency classifier ---------- */
+  function panel(title, badge, cls, rows){
+    return "<div class='rec-top'><span class='rec-title'>"+title+"</span><span class='rec-badge "+cls+"'>"+badge+"</span></div>"+rows;
+  }
+  var CS = {
+    f: panel("System F \u2014 the polymorphic \u03bb-calculus", "consistent", "con",
+      rowc("impredicativity","Quantifies over <i>all</i> types \u2014 <span class='mono'>\u2200X. X \u2192 X</span> ranges over the types it can be instantiated at, itself included.")+
+      rowc("but","Types are not terms; there is no universe <span class='mono'>Type : Type</span>. The levels stay separate.")+
+      rowc("status","Strongly normalizing, by Girard's reducibility candidates. <b>Consistent.</b> (No set-theoretic model with types as sets \u2014 Reynolds \u2014 yet consistent as a calculus.)")),
+    coc: panel("The Calculus of Constructions", "consistent", "con",
+      rowc("impredicativity","An impredicative universe of <i>propositions</i>: <span class='mono'>\u2200P:Prop. \u2026</span> lands back in <span class='mono'>Prop</span>.")+
+      rowc("but","<span class='mono'>Type</span> is stratified above <span class='mono'>Prop</span> and does not contain itself \u2014 no <span class='mono'>Type : Type</span>. A universe of proofs is not rich enough for the paradox.")+
+      rowc("status","Strongly normalizing (Coquand\u2013Gallier, Geuvers). <b>Consistent.</b> The basis of Coq.")),
+    tt: panel("Type : Type", "inconsistent", "incon",
+      rowc("the axiom","The universe of types contains itself: <span class='mono'>Type : Type</span>. Martin-L\u00f6f's 1971 system.")+
+      rowc("consequence","Girard's paradox: <span class='mono'>\u22a5 = \u2200P.P</span> is inhabited, so <i>every</i> proposition is provable.")+
+      rowc("calculus","Strong normalization fails \u2014 some well-typed terms never reduce to a value. <b>Fatal.</b>")),
+    u: panel("System U (and U\u207b)", "inconsistent", "incon",
+      rowc("the system","The pure type system isolating <span class='mono'>Type : Type</span>'s strength \u2014 an impredicative universe quantified over to build the paradoxical universe.")+
+      rowc("consequence","Girard (1972) via Burali-Forti, and Hurkens (1995) in a few lines, construct a closed term of <span class='mono'>\u22a5</span>.")+
+      rowc("status","<b>Fatal.</b> <span class='mono'>U\u207b</span> already suffices \u2014 the paradox needs very little.")),
+    strat: panel("Stratified universes", "consistent", "con",
+      rowc("structure","<span class='mono'>Type\u2080 : Type\u2081 : Type\u2082 : \u22ef</span> \u2014 cumulative, and no universe is a member of itself.")+
+      rowc("discipline","Predicative at the universe level: a universe quantifies only over those below it, never over itself. The paradoxical universe cannot be formed.")+
+      rowc("status","<b>Consistent</b> \u2014 the cure. Coq, Agda, and Lean, with universe polymorphism to ease the bookkeeping."))
+  };
+  var csKey="tt";
+  function csRender(){ document.getElementById("csPanel").innerHTML = CS[csKey]; }
+
+  function wire(sel, cb){
+    document.querySelectorAll(sel).forEach(function(b){
+      b.addEventListener("click", function(){
+        b.parentNode.querySelectorAll(".fgh-pill").forEach(function(x){ x.classList.remove("on"); });
+        b.classList.add("on"); cb(b);
+      });
+    });
+  }
+  function init(){
+    wire("#cdSel .fgh-pill", function(b){ cdKey=b.getAttribute("data-cd"); cdRender(); });
+    wire("#csSel .fgh-pill", function(b){ csKey=b.getAttribute("data-cs"); csRender(); });
+    cdRender(); csRender();
+  }
+  if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-quine.html">← The Quine</a><a href="../library.html#edition-contents">Return to complete contents →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

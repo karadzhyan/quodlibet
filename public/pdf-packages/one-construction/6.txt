@@ -1,0 +1,14 @@
+T H E F A C E T H A T B U I L D S
+Give the twist a fixed point instead — let the
+answers form a place where every map already has
+a name, where to apply a thing to itself is always
+defined — and the same construction does not
+forbid the fixed point. It hands it over. And what it
+hands over is recursion itself —
+Y F = F(Y F)
+the program that calls itself with no name for
+itself, the function defined in terms of the very
+thing it defines, the machine that reads its own
+description and builds a copy. The diagonal that
+bounded, read forwards, is the diagonal that builds.
+6

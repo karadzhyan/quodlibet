@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Substrate — the categorical setting, in depth</title>
+<style>
+
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== a fifth, cool accent for technique-transfer ===== */
+  :root{ --steel:#3d5a6b; --steel-deep:#2e4654; --steel-soft:rgba(61,90,107,.09); --steel-line:rgba(61,90,107,.32); }
+
+  /* ===== formal definitions (numbered) ===== */
+  .defn{border:1px solid var(--panelhair);border-left:2px solid var(--faintest);border-radius:0 3px 3px 0;padding:.95rem 1.15rem;margin:1.1rem 0;background:rgba(26,24,21,.012);}
+  .defn .dl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .defn .ds{font-size:1rem;line-height:1.6;color:var(--ink);}
+  .defn .ds b{font-weight:600;} .defn .ds .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+
+  /* ===== the bridge-assumption inspector ===== */
+  .br-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .br-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.42rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .br-opt:hover{background:rgba(26,24,21,.05);}
+  .br-opt .bd{width:8px;height:8px;border-radius:50%;flex:none;}
+  .br-opt.t-iso .bd{background:var(--teal);} .br-opt.t-tech .bd{background:var(--steel);} .br-opt.t-eng .bd{background:var(--gold);} .br-opt.t-sug .bd{background:var(--red);border-radius:50%;}
+  .br-opt.t-sug .bd{background:transparent;border:1.4px solid var(--red);}
+  .br-opt.on{color:var(--paper);border-color:var(--ink);} .br-opt.on.t-iso{background:var(--teal-deep);border-color:var(--teal-deep);} .br-opt.on.t-tech{background:var(--steel-deep);border-color:var(--steel-deep);} .br-opt.on.t-eng{background:var(--gold-deep);border-color:var(--gold-deep);} .br-opt.on.t-sug{background:var(--red-deep);border-color:var(--red-deep);}
+  .br-opt.on .bd{background:var(--paper)!important;border-color:var(--paper)!important;}
+  .br-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;}
+  .br-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);}
+  .br-head.t-iso{background:var(--teal-soft);} .br-head.t-tech{background:var(--steel-soft);} .br-head.t-eng{background:var(--gold-soft,rgba(147,114,52,.08));} .br-head.t-sug{background:var(--red-soft);}
+  .br-type{display:inline-flex;align-items:center;gap:.45rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .br-type.t-iso{color:var(--teal-deep);} .br-type.t-tech{color:var(--steel-deep);} .br-type.t-eng{color:var(--gold-deep);} .br-type.t-sug{color:var(--red-deep);}
+  .br-name{font-family:"Spectral",serif;font-weight:500;font-size:1.4rem;letter-spacing:-.01em;margin:0 0 .15rem;}
+  .br-claim{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .br-body{padding:1.1rem 1.2rem;}
+  .br-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.6rem;}
+  .br-assum{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;padding:.5rem 0;border-bottom:1px dashed var(--hair);}
+  .br-assum:last-of-type{border-bottom:none;}
+  .br-assum .ba-tag{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);font-weight:500;white-space:nowrap;}
+  .br-assum .ba-txt{font-size:.92rem;line-height:1.5;color:var(--soft1);}
+  .br-assum .ba-txt .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;}
+  .br-assum .ba-st{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .45rem;border-radius:3px;white-space:nowrap;}
+  .ba-st.holds{background:var(--teal-soft);color:var(--teal-deep);} .ba-st.theorem{background:rgba(147,114,52,.1);color:var(--gold-deep);} .ba-st.none{background:var(--red-soft);color:var(--red-deep);}
+  .br-none{font-size:.94rem;line-height:1.55;color:var(--faint);font-style:italic;padding:.3rem 0;}
+  .br-verdict{margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--hair);font-size:.98rem;line-height:1.6;color:var(--ink);}
+  .br-verdict b{font-weight:600;}
+
+  /* ===== boundary legend ===== */
+  .bd-legend{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .bd-legend{grid-template-columns:1fr;} }
+  .bd-cell{background:var(--paper);padding:1rem 1.15rem;}
+  .bd-cell .bc-h{display:flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:.35rem;}
+  .bd-cell .bc-dot{width:9px;height:9px;border-radius:50%;}
+  .bd-cell.t-iso .bc-h{color:var(--teal-deep);} .bd-cell.t-iso .bc-dot{background:var(--teal);}
+  .bd-cell.t-tech .bc-h{color:var(--steel-deep);} .bd-cell.t-tech .bc-dot{background:var(--steel);}
+  .bd-cell.t-eng .bc-h{color:var(--gold-deep);} .bd-cell.t-eng .bc-dot{background:var(--gold);}
+  .bd-cell.t-sug .bc-h{color:var(--red-deep);} .bd-cell.t-sug .bc-dot{background:transparent;border:1.4px solid var(--red);}
+  .bd-cell p{font-size:.88rem;line-height:1.5;color:var(--soft1);margin:0;}
+  .bd-cell p .ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);}
+
+  /* ===== supplement: the four fates (instance schema) ===== */
+  :root{ --fate-absent:#7c766a; --fate-benign:#2c6e6a; --fate-explosive:#b23a2e; --fate-undecided:#937234; }
+  .ins-dict{display:grid;grid-template-columns:auto 1fr;gap:.35rem .9rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;margin:.2rem 0 0;}
+  .ins-dict b{color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .ins-dict span{color:var(--soft1);}
+  .ins-step{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;background:rgba(26,24,21,.025);border:1px solid var(--panelhair);border-radius:3px;padding:.8rem 1rem;margin:.2rem 0;}
+  .ins-step .bad{color:var(--red-deep);} .ins-step .good{color:var(--teal-deep);}
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+  .fate-badge .fdot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .fate-absent{color:var(--fate-absent);} .fate-absent .fdot{background:transparent;border:1.5px solid var(--fate-absent);}
+  .fate-benign{color:var(--fate-benign);} .fate-benign .fdot{background:var(--fate-benign);}
+  .fate-explosive{color:var(--fate-explosive);} .fate-explosive .fdot{background:var(--fate-explosive);}
+  .fate-undecided{color:var(--fate-undecided);} .fate-undecided .fdot{background:var(--fate-undecided);}
+  .ins-outcome{padding:1rem 1.15rem;border-radius:3px;margin-top:.2rem;}
+  .ins-outcome.f-absent{background:rgba(124,118,106,.07);border:1px solid rgba(124,118,106,.3);}
+  .ins-outcome.f-benign{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .ins-outcome.f-explosive{background:var(--red-soft);border:1px solid var(--red-line);}
+  .ins-outcome.f-undecided{background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .ins-outcome .io-fate{font-family:"Spectral",serif;font-weight:600;font-size:1.32rem;margin:.45rem 0 .3rem;}
+  .ins-outcome.f-absent .io-fate{color:var(--fate-absent);} .ins-outcome.f-benign .io-fate{color:var(--fate-benign);}
+  .ins-outcome.f-explosive .io-fate{color:var(--fate-explosive);} .ins-outcome.f-undecided .io-fate{color:var(--fate-undecided);}
+  .ins-outcome .io-gloss{font-size:.92rem;line-height:1.52;color:var(--soft1);}
+  .ins-outcome .io-verdict{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.65rem;letter-spacing:.01em;}
+  .dial-opt.rec.on{background:var(--teal-deep);border-color:var(--teal-deep);}
+
+  /* ===== supplement: rank badge (boundary + grid) ===== */
+  .rank-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.16rem .5rem;border-radius:3px;}
+  .rank-badge .rdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .rank-iso{color:var(--teal-deep);background:var(--teal-soft);} .rank-iso .rdot{background:var(--teal);}
+  .rank-tech{color:var(--steel-deep);background:var(--steel-soft);} .rank-tech .rdot{background:var(--steel);}
+  .rank-eng{color:var(--gold-deep);background:var(--gold-soft);} .rank-eng .rdot{background:var(--gold);}
+  .rank-sug{color:var(--red-deep);background:var(--red-soft);} .rank-sug .rdot{background:transparent;border:1.4px solid var(--red);}
+  .rank-root{color:var(--ink);background:rgba(26,24,21,.06);} .rank-root .rdot{background:var(--ink);}
+  .vol-card .vc-rank{margin-top:.55rem;}
+  .vol-card .vol-num{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;color:var(--faintest);float:right;}
+
+  /* ===== supplement: proof warrant column + toggle ===== */
+  .pf-toggle{display:flex;gap:.4rem;justify-content:center;margin-bottom:1rem;}
+  .pstep .pbody .pw{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);margin-top:.35rem;}
+  .pstep.qed .pbody .pw{color:var(--teal-deep);}
+
+  /* ===== supplement: two-axes hinge labels reuse, plus a small note ===== */
+  .axis-note{font-size:.9rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;text-align:center;max-width:42rem;margin-left:auto;margin-right:auto;}
+  .axis-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== supplement II: provability-core fixed points (§IV) ===== */
+  .gl-ax{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin:.3rem 0 .2rem;}
+  .gl-chip{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.3rem .65rem;}
+  .gl-chip.key{background:var(--gold-soft);color:var(--gold-deep);border-color:var(--gold-line);font-weight:500;}
+  .gl-chip.rule{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .fp-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:var(--teal-soft);}
+  .fp-head .fp-kind{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-deep);font-weight:600;margin-bottom:.4rem;}
+  .fp-head .fp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.32rem;letter-spacing:-.01em;margin:0 0 .35rem;}
+  .fp-head .fp-schema{font-family:"IBM Plex Mono",monospace;font-size:.96rem;color:var(--ink);}
+  .fp-head .fp-schema .hot{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.1rem 1.2rem;}
+  .fp-fp{display:flex;align-items:baseline;gap:.6rem .8rem;flex-wrap:wrap;padding:.75rem .95rem;background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;margin-bottom:.95rem;}
+  .fp-fp .fpl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-deep);}
+  .fp-fp .fpv{font-family:"IBM Plex Mono",monospace;font-size:1.1rem;font-weight:600;color:var(--teal-deep);}
+  .fp-fp .fpn{font-size:.9rem;color:var(--soft1);font-style:italic;}
+  .fp-vlab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin:.2rem 0 .55rem;}
+  .fp-verify{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.95rem;}
+  .fp-vstep{display:grid;grid-template-columns:2.4rem 1fr;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;padding:.4rem .65rem;border-left:2px solid var(--hair);background:rgba(26,24,21,.012);}
+  .fp-vstep .vk{color:var(--faintest);white-space:nowrap;font-size:.74rem;}
+  .fp-vstep .vv{color:var(--ink);} .fp-vstep .vv .hot{color:var(--red-deep);}
+  .fp-vstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);} .fp-vstep.qed .vv{color:var(--teal-deep);font-weight:500;} .fp-vstep.qed .vk{color:var(--teal-deep);}
+  .fp-read{font-size:.94rem;line-height:1.6;color:var(--soft1);padding-top:.75rem;border-top:1px solid var(--hair);}
+  .fp-read b{color:var(--ink);font-weight:600;}
+
+  /* ============================================================
+     DEEP-DIVE SUPPLEMENT — components specific to The Substrate
+     ============================================================ */
+
+  /* a depth marker on the hero — this is the apparatus opened up */
+  .depth-mark{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.1rem;}
+  .depth-mark .of{color:var(--faintest);}
+
+  /* static derivations — numbered, justified, monospace */
+  .deriv{display:flex;flex-direction:column;gap:.4rem;margin:1.1rem auto;max-width:42rem;}
+  .deriv.wide{max-width:46rem;}
+  .drow{display:grid;grid-template-columns:2.6rem 1fr;gap:.7rem;align-items:baseline;padding:.45rem .7rem;border-left:2px solid var(--rule);background:rgba(26,24,21,.012);border-radius:0 3px 3px 0;}
+  .drow .dn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .drow .db{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.55;color:var(--ink);}
+  .drow .db .hot{color:var(--red-deep);} .drow .db .cool{color:var(--teal-deep);}
+  .drow .dj{display:block;font-family:"Spectral",serif;font-style:italic;font-size:.86rem;color:var(--faint);margin-top:.2rem;}
+  .drow.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .drow.qed .dn{color:var(--teal-deep);} .drow.qed .db{color:var(--teal-deep);font-weight:500;}
+  .drow.hl{border-left-color:var(--red-line);background:var(--red-soft);}
+
+  /* a labelled proof wrapper */
+  .proofwrap{margin:1.2rem auto;max-width:42rem;}
+  .proofwrap .pw-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .proofwrap.wide{max-width:46rem;}
+  .pw-prose{font-size:.98rem;line-height:1.66;color:var(--ink);}
+  .pw-prose .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+  .pw-prose .qedmark{float:right;color:var(--teal-deep);font-weight:600;}
+
+  /* example / non-example dyad */
+  .dyad{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:44rem;}
+  @media(max-width:640px){ .dyad{grid-template-columns:1fr;} }
+  .dyad-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .dyad-cell .dc-h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .dyad-cell.yes .dc-h{color:var(--teal-deep);} .dyad-cell.no .dc-h{color:var(--red-deep);}
+  .dyad-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.08rem;margin:0 0 .4rem;}
+  .dyad-cell p{font-size:.88rem;line-height:1.52;color:var(--soft1);margin:0 0 .5rem;}
+  .dyad-cell p:last-child{margin-bottom:0;}
+  .dyad-cell .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--faint);}
+
+  /* the genera explorer */
+  .gx-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .gx-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.02);}
+  .gx-tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .gx-name{font-family:"Spectral",serif;font-weight:500;font-size:1.3rem;letter-spacing:-.01em;margin:0 0 .2rem;}
+  .gx-sub{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .gx-body{padding:.6rem 1.2rem 1.1rem;}
+  .gx-rows{margin:.3rem 0;}
+  .gx-rows .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.42rem 0;font-size:.88rem;border-bottom:1px solid var(--hair);}
+  .gx-rows .dirow:last-child{border-bottom:none;}
+  .gx-rows .dirow .dk{color:var(--soft1);} .gx-rows .dirow .dk .sm{color:var(--faintest);font-size:.9em;}
+  .gx-rows .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.8rem;white-space:nowrap;}
+  .gx-rows .dirow .dv.yes{color:var(--teal-deep);} .gx-rows .dirow .dv.no{color:var(--red-deep);}
+  .gx-note{font-size:.9rem;line-height:1.56;color:var(--soft1);padding-top:.75rem;margin-top:.4rem;border-top:1px solid var(--hair);}
+  .gx-note b{color:var(--ink);font-weight:600;}
+  .gx-note.coin{background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;padding:.7rem .9rem;margin-top:.7rem;}
+  .gx-note.coin b{color:var(--teal-deep);}
+
+  /* the iteration ladder (Kleene ascent to lfp) */
+  .itr-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.9rem;}
+  .itr-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .itr-btn:hover{opacity:.85;} .itr-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .itr-btn.go{background:var(--teal-deep);}
+  .itr-read{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);} .itr-read b{color:var(--ink);}
+  .itr-chain{display:flex;flex-direction:column;gap:.35rem;}
+  .itr-step{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.55rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .itr-step .is-n{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .itr-step .is-v{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--ink);letter-spacing:.01em;}
+  .itr-step .is-v .new{color:var(--teal-deep);font-weight:600;}
+  .itr-step .is-d{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--gold-deep);white-space:nowrap;}
+  .itr-step.fixed{border-color:var(--teal-line);background:var(--teal-soft);}
+  .itr-step.fixed .is-n{color:var(--teal-deep);} .itr-step.fixed .is-d{color:var(--teal-deep);}
+  .itr-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--teal-deep);padding:.7rem;border:1px dashed var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.3rem;}
+
+  /* small inline glyph row for the hero signature */
+  .sig-row{display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:clamp(.85rem,2vw,1.05rem);color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;letter-spacing:.01em;}
+  .sig-row .o{color:var(--red-deep);} .sig-row .d{color:var(--faintest);}
+
+  /* a structural strata bar used as a section opener */
+  .strata{display:flex;gap:2px;margin:0 auto 1.4rem;max-width:42rem;}
+  .strata span{height:5px;flex:1;border-radius:2px;opacity:.5;}
+  .strata .s1{background:var(--steel);} .strata .s2{background:var(--gold);} .strata .s3{background:var(--teal);} .strata .s4{background:var(--red);}
+
+  /* tightened figure label reused inline */
+  .blab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-scholia">Scholia</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">the apparatus, opened up · I — the setting</span></div>
+    <div class="hero-head">
+      <p class="depth-mark">Deep apparatus · I &nbsp;<span class="of">— the setting, unfolded</span></p>
+      <h1 class="title">The <span class="x">Substrate</span></h1>
+      <p class="standfirst">Every claim the corpus makes is downstream of one categorical structure. The <em>Scholia</em> gave its definitions a paragraph each; here each paragraph is unfolded to the depth a proof demands — the cartesian closed category and the adjunction that defines it, the divide between a category's <em>points</em> and its <em>internal logic</em>, the precise hypothesis Lawvere's theorem actually consumes, the reflexive objects where self-application becomes total, and the three independent mechanisms by which a map is forced to fix a point. The reach of the unification is exactly the reach of what is written here — so here it is written in full.</p>
+      <div class="sig-row"><span>−&#8202;×&#8202;A</span><span class="o">&#8867;</span><span>(−)<tspan></tspan>ᴬ</span><span class="d">·</span><span>1&#8202;→&#8202;A</span><span class="d">·</span><span>D&#8201;≅&#8201;Dᴰ</span></div>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">⊣</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>A unification is only as solid as its ground. The corpus argues that one categorical construction — Lawvere's — runs beneath Cantor, Gödel, Turing and the rest; but a construction is an arrangement of <i>objects, maps, and universal properties</i>, and if those are left vague the whole edifice rests on sand. This document is the ground, surveyed. It assumes a reader who wants to <i>check</i>, and so it states each structural fact precisely, proves what is provable, and is explicit about the one place — the gap between points and the internal logic — where intuition from the category of sets quietly misleads.</p>
+    <p>Five things are developed, in order: the <i>closed category</i> and the adjunction that gives it exponentials; the distinction between a category's <i>global points</i> and its <i>generalized elements</i>, on which the precise force of every theorem here turns; the <i>weak point-surjectivity</i> that is the theorem's true and minimal hypothesis — together with the fact, invisible in the <i>Scholia</i>, that the theorem needs no exponentials at all, only finite products; the <i>reflexive objects</i> in which self-application is total, and Scott's construction of one; and the <i>three genera</i> of fixed-point theorem, of which Lawvere's is one, set out as a structural taxonomy with their exact points of overlap. Nothing here is new mathematics. The discipline of saying all of it exactly is the point.</p>
+  </div>
+
+  <!-- ===== §1 THE CLOSED CATEGORY ===== -->
+  <section class="sec" id="closed">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">1 · the closed category</span><h2>Products, exponentials, and the adjunction that defines them</h2><p class="sub">A cartesian closed category is not a list of three features but a single demand: that the operation <span class="mono">−&#8202;×&#8202;A</span> have a right adjoint. Everything the construction needs — duplication, naming, evaluation — is read off that one adjunction.</p></div>
+    <div class="reading">
+      <p>The setting must do two things at once. It must let a map be <i>applied to an argument</i> — the bare content of computation — and it must let a map itself <i>become an object</i>, a thing that can be named, passed, and fed its own index. The first is products; the second is exponentials; and the precise statement that binds them is an adjunction. We take the three universal properties in turn, then collapse them into the one that matters.</p>
+    </div>
+    <div class="defn">
+      <div class="dl">Definition 1.1 — finite products and the terminal object</div>
+      <div class="ds">A category <span class="m">𝒞</span> has <b>finite products</b> when it has a <b>terminal object</b> <span class="m">1</span> — for every <span class="m">X</span> a unique <span class="m">! : X → 1</span> — and for every pair <span class="m">A, B</span> a <b>product</b> <span class="m">A × B</span> with projections <span class="m">π₁, π₂</span> that is <i>universal</i>: every pair <span class="m">f : X → A</span>, <span class="m">g : X → B</span> factors as a unique <span class="m">⟨f, g⟩ : X → A × B</span> with <span class="m">π₁∘⟨f,g⟩ = f</span> and <span class="m">π₂∘⟨f,g⟩ = g</span>. A <b>point</b> (or <b>global element</b>) of <span class="m">A</span> is a map <span class="m">1 → A</span>. The <b>diagonal</b> is the canonical <span class="m">Δ_A = ⟨id, id⟩ : A → A × A</span>; it is the universal property used in the negative direction — one map out, duplicated.</div>
+    </div>
+    <div class="defn">
+      <div class="dl">Definition 1.2 — exponentials, as a right adjoint</div>
+      <div class="ds">𝒞 is <b>cartesian closed</b> (a <b>CCC</b>) when, on top of finite products, the functor <span class="m">(−) × A</span> has a <b>right adjoint</b> <span class="m">(−)ᴬ</span> for every object <span class="m">A</span>. Unpacked, this is an object <span class="m">Bᴬ</span> with an <b>evaluation</b> map <span class="m">ev : Bᴬ × A → B</span> that is universal: for every <span class="m">f : X × A → B</span> there is a <i>unique</i> <b>transpose</b> <span class="m">Λf : X → Bᴬ</span> — currying — with
+      <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:.9rem;color:var(--red-deep);margin:.55rem 0;">ev ∘ (Λf × id<tspan>ₐ</tspan>) = f.</div>
+      Equivalently, a natural bijection <span class="m">Hom(X × A, B) ≅ Hom(X, Bᴬ)</span>. The <b>counit</b> of the adjunction <i>is</i> evaluation; the <b>unit</b> is <b>coevaluation</b> <span class="m">η_X = Λ(id) : X → (X × A)ᴬ</span>, sending <span class="m">x</span> to <span class="m">a ↦ (x, a)</span>; and the two <b>triangle identities</b> are the bare statements that currying and uncurrying invert one another.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the universal property of evaluation — every f factors uniquely through ev</div>
+        <svg viewBox="0 0 620 240" role="img" aria-label="A commutative triangle: X times A maps by curry-f times identity to B-to-the-A times A, then by evaluation to B; the diagonal map f from X times A to B equals that composite." style="display:block;width:100%;height:auto;overflow:visible">
+          <defs><marker id="ta" markerWidth="10" markerHeight="10" refX="8" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#565147"/></marker>
+            <marker id="tar" markerWidth="10" markerHeight="10" refX="8" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#8f2d23"/></marker></defs>
+          <text x="40" y="70" font-family="IBM Plex Mono, monospace" font-size="18" fill="#1a1815">X&#8202;×&#8202;A</text>
+          <text x="404" y="70" font-family="IBM Plex Mono, monospace" font-size="17" fill="#1a1815">Bᴬ&#8202;×&#8202;A</text>
+          <text x="556" y="196" font-family="Spectral, serif" font-style="italic" font-size="24" fill="#1a1815">B</text>
+          <!-- top arrow: (Λf × id) -->
+          <line x1="108" y1="62" x2="396" y2="62" stroke="#565147" stroke-width="1.4" marker-end="url(#ta)"/>
+          <text x="250" y="50" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#565147">Λf × id</text>
+          <!-- right arrow: ev -->
+          <line x1="470" y1="78" x2="554" y2="180" stroke="#565147" stroke-width="1.4" marker-end="url(#ta)"/>
+          <text x="540" y="128" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#565147">ev</text>
+          <!-- hypotenuse: f -->
+          <line x1="92" y1="80" x2="548" y2="186" stroke="#8f2d23" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#tar)"/>
+          <text x="300" y="150" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="19" fill="#8f2d23">f</text>
+          <text x="250" y="172" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="#a8a193">commutes — and Λf is the only map making it so</text>
+        </svg>
+        <figcaption>Closure is exactly this: every map of two arguments <span class="mono">f : X × A → B</span> is the same data as a map of one argument valued in functions, <span class="mono">Λf : X → Bᴬ</span>. The bijection is the adjunction <span class="mono">(−)×A ⊣ (−)ᴬ</span>; uniqueness of <span class="mono">Λf</span> is what makes <span class="mono">Bᴬ</span> a genuine object of maps and not merely a set of them.</figcaption>
+      </div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">why "a right adjoint" is the whole definition</div>
+      <p>Products, the terminal object, and exponentials look like three separate gifts. They are not. <span class="mono">1</span> is the empty product and <span class="mono">A × B</span> the binary one — finite products are a single closure condition — and exponentials are the single further condition that each <span class="mono">−×A</span> be a <i>left adjoint</i>. A CCC is therefore one sentence: <i>finite products, and every product functor has a right adjoint.</i> The construction at the heart of the corpus uses precisely the three pieces this sentence hands over — the diagonal from products, evaluation as the counit, currying as the bijection — and not one structural fact more.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">the Lambek correspondence — what a CCC is a model of</div>
+      <div class="ts"><b>Cartesian closed categories are the categorical semantics of typed functional computation.</b> Up to equivalence, a CCC <i>is</i> a simply-typed λ-calculus with product types: objects are types, a morphism <span class="mono">X → Y</span> is a term of type <span class="mono">Y</span> with one free variable of type <span class="mono">X</span> taken modulo <span class="mono">βη</span>-equality, composition is substitution, the counit <span class="mono">ev</span> is application, and the transpose <span class="mono">Λ</span> is <span class="mono">λ</span>-abstraction. This is why the setting can host computation at all: to live in a CCC is to be a model of the typed λ-calculus, and the diagonal construction is then a single closed λ-term read categorically.</div>
+    </div>
+    <div class="reading">
+      <p>Two examples fix the boundary of the definition — and the second is more instructive than the first, because it shows that closure is a real demand, easily failed.</p>
+    </div>
+    <div class="dyad">
+      <div class="dyad-cell yes">
+        <div class="dc-h">closed — the prototype</div>
+        <h4>Set</h4>
+        <p>Products are cartesian products, <span class="m">1</span> a one-point set, and <span class="m">Bᴬ</span> the set of all functions <span class="m">A → B</span> with <span class="m">ev(f, a) = f(a)</span>. Currying is the familiar <span class="m">Λf(x) = (a ↦ f(x, a))</span>.</p>
+        <p>Every topos is closed for the same structural reason; so are <span class="m">Cat</span>, the typed and untyped λ-calculi, and any Heyting algebra read as a category. Closure is the common home of logic and computation.</p>
+      </div>
+      <div class="dyad-cell no">
+        <div class="dc-h">not closed — and why</div>
+        <h4>Vect<tspan>_k</tspan></h4>
+        <p>The cartesian product of vector spaces is the direct sum <span class="m">⊕</span>, which is also a <i>co</i>product. So <span class="m">Hom(X⊕A, B) ≅ Hom(X,B) × Hom(A,B)</span> — and as a functor of <span class="m">X</span> this sends <span class="m">0</span> to <span class="m">Hom(A,B) ≠ 0</span>, whereas any <span class="m">Hom(X, Bᴬ)</span> must send <span class="m">0</span> to <span class="m">0</span>.</p>
+        <p>No object <span class="m">Bᴬ</span> can represent it. <span class="m">Vect</span> is <i>monoidal</i> closed — via <span class="m">⊗</span> and linear <span class="m">Hom</span> — but not <i>cartesian</i> closed. (For the same reason <span class="m">Top</span> fails unless one restricts to compactly generated spaces.)</p>
+      </div>
+    </div>
+    <div class="axis-note">The lesson the non-example teaches: "a space of maps" is cheap, but a <b>cartesian</b> exponential — one whose points are exactly the maps, with currying an isomorphism — is a structural privilege. The corpus's whole machinery presupposes it, which is already a substantive choice of where the argument lives.</div>
+  </section>
+
+  <!-- ===== §2 POINTS AND ELEMENTS ===== -->
+  <section class="sec" id="points">
+    <div class="strata" aria-hidden="true"><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s1"></span></div>
+    <div class="sec-head"><span class="num">2 · points and elements</span><h2>Global points, generalized elements, and the divide intuition hides</h2><p class="sub">Reasoning about a category as if it were sets is reasoning about its <i>points</i>. For the category of sets this loses nothing. Elsewhere it loses a great deal — and the precise strength of every theorem in this corpus depends on knowing exactly what.</p></div>
+    <div class="reading">
+      <p>There are two ways to speak of an "element" of an object, and confusing them is the most common error in reading a categorical theorem. A <b>global point</b> is a map <span class="mono">1 → A</span>. A <b>generalized element</b> is a map <span class="mono">X → A</span> from <i>any</i> object — an "element of <span class="mono">A</span> at stage <span class="mono">X</span>." Yoneda's lemma says the second notion is complete: the assignment <span class="mono">A ↦ Hom(−, A)</span> is a full and faithful embedding, so an object is determined, to isomorphism, by the totality of its generalized elements and how they restrict along maps. Global points are just the slice at <span class="mono">X = 1</span> — and that slice can be empty, or too coarse to tell two maps apart.</p>
+    </div>
+    <div class="defn">
+      <div class="dl">Definition 2.1 — well-pointed</div>
+      <div class="ds">A category is <b>well-pointed</b> when the terminal object <span class="m">1</span> is a <b>generator</b>: for parallel maps <span class="m">f, g : A → B</span>, if <span class="m">f∘a = g∘a</span> for every point <span class="m">a : 1 → A</span>, then <span class="m">f = g</span>. Equivalently, the points functor <span class="m">Hom(1, −)</span> is faithful — global points <i>separate</i> maps. <span class="m">Set</span> is well-pointed: a function is its table of values on points. This single property is what licenses "diagram-chase by elements," and it is exactly what a general topos lacks.</div>
+    </div>
+    <div class="reading">
+      <p>The cleanest failure is small and complete. Let <span class="mono">G = ℤ/2</span> and work in <span class="mono">G-Set</span>, sets with an involution, equivariant maps between them — a topos, hence cartesian closed. Its terminal object is the one-point set with trivial action, so a point <span class="mono">1 → A</span> is precisely a <i>fixed point</i> of the involution on <span class="mono">A</span>. Now take <span class="mono">A = {x, σx}</span> with <span class="mono">σ</span> swapping the two — the free <span class="mono">G</span>-set on one generator.</p>
+    </div>
+    <div class="dyad">
+      <div class="dyad-cell yes">
+        <div class="dc-h">Set — points suffice</div>
+        <h4>A map is its values</h4>
+        <p>For <span class="m">f, g : A → B</span> in <span class="m">Set</span>, knowing <span class="m">f(a) = g(a)</span> for every <span class="m">a ∈ A</span> — every point <span class="m">1 → A</span> — is knowing <span class="m">f = g</span>. Points are a faithful coordinate system.</p>
+        <p>So "for all elements…" in a categorical proof means what it appears to mean, and a fixed point of <span class="m">α</span> is a genuine inhabited value.</p>
+      </div>
+      <div class="dyad-cell no">
+        <div class="dc-h">G-Set — points fail</div>
+        <h4>Zero points, two maps</h4>
+        <p>The swapped pair <span class="m">A = {x, σx}</span> has <i>no</i> fixed point, so <span class="m">Hom(1, A) = ∅</span>: <span class="m">A</span> has no global points at all. Yet it has two distinct equivariant endomaps — the identity and the swap <span class="m">s</span>.</p>
+        <p>They agree on every point of <span class="m">A</span> — vacuously, there are none — but <span class="m">s ≠ id</span>. Points cannot see the difference. The category is not well-pointed.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the internal language — where the difference is repaired</div>
+      <p>A topos carries an <b>internal logic</b> (the Mitchell–Bénabou language, with Kripke–Joyal forcing) in which "elements" range over generalized elements at every stage at once. A sentence proved <i>internally</i> holds at all stages — strictly more than holding on global points. So a property can be internally true while having no global witness, and conversely. The category of sets is the degenerate case where internal and external coincide, which is precisely why it is safe to compute there and unsafe to over-generalize the habit.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">consequence for the corpus — the theorem has two strengths</div>
+      <div class="ts"><b>Lawvere's theorem comes in an external form and an internal form, and the corpus uses the external one.</b> The <i>external</i> statement speaks of global points: a weakly point-surjective <span class="mono">A × A → B</span> forces a <i>point</i> <span class="mono">1 → B</span> fixed by <span class="mono">α</span>. The <i>internal</i> statement, in a topos's own logic, is stronger and is what holds of generalized elements. In a <b>well-pointed</b> category the two collapse into one — and the arithmetic and computational universes the corpus reduces to are, for these purposes, well-pointed. This is why "fixed point" may be read throughout as a genuine global value, and why the hypothesis the next section isolates is stated on points. The flag is necessary all the same: in a non-well-pointed topos a fixed point may be internal with no point to exhibit it.</div>
+    </div>
+    <div class="reading">
+      <p>One last object earns its place here, because the "limit face" of the construction will need it. In a topos the <b>subobject classifier</b> <span class="mono">Ω</span> represents subobjects — <span class="mono">Sub(A) ≅ Hom(A, Ω)</span> — and plays the role of "the object of truth values." In <span class="mono">Set</span>, <span class="mono">Ω = {⊤, ⊥}</span>: two values, Boolean, with negation a fixed-point-free involution. In a general topos <span class="mono">Ω</span> is an internal <i>Heyting</i> algebra, possibly with many values and a negation that need not be an involution at all. The diagonal's limitative face — the one that yields Cantor and Gödel — turns on the codomain <span class="mono">B</span> carrying a fixed-point-free twist; over <span class="mono">Ω</span> that is the law of the excluded middle made geometric. Where <span class="mono">Ω</span> is non-Boolean, the swap that drives those theorems must be supplied by hand, not assumed. The setting fixes not only what can be named, but what can be negated.</p>
+    </div>
+  </section>
+
+  <!-- ===== §3 THE HYPOTHESIS ===== -->
+  <section class="sec" id="hypothesis">
+    <div class="strata" aria-hidden="true"><span class="s3"></span><span class="s4"></span><span class="s1"></span><span class="s2"></span></div>
+    <div class="sec-head"><span class="num">3 · the hypothesis</span><h2>Weak point-surjectivity — the true and minimal premise</h2><p class="sub">The theorem's hypothesis is not "an object names all maps out of itself." It is weaker, and the weakness is the source of the theorem's reach. Stated exactly, it also reveals that the construction needs no exponentials at all — only finite products.</p></div>
+    <div class="reading">
+      <p>Two surjectivity notions must be kept apart, because the theorem consumes the weaker one and the difference is the whole reason it applies in arithmetic and computation, where the stronger one is false.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="faces">
+        <div class="face std">
+          <div class="f-h">the weak notion — what the theorem uses</div>
+          <h4>Weak point-surjectivity</h4>
+          <p style="margin-top:0;color:var(--soft1)">A map <span class="mono" style="font-size:.82rem">f : T × T → Y</span> is weakly point-surjective when for every <span class="mono" style="font-size:.82rem">g : T → Y</span> there is a <i>point</i> <span class="mono" style="font-size:.82rem">t_g : 1 → T</span> with</p>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:var(--teal-deep);text-align:center;margin:.5rem 0">f ∘ ⟨t_g, x⟩ = g ∘ x &nbsp; for all points x.</div>
+          <p style="margin-top:.4rem">Agreement <i>on points only</i>. The single row <span class="mono" style="font-size:.82rem">f(t_g, −)</span> reproduces <span class="mono" style="font-size:.82rem">g</span> pointwise — nothing is claimed about <span class="mono" style="font-size:.82rem">f</span> as a morphism, or about most of <span class="mono" style="font-size:.82rem">T</span>.</p>
+        </div>
+        <div class="face non">
+          <div class="f-h">the strong notion — more than is needed</div>
+          <h4>Point-surjectivity</h4>
+          <p style="margin-top:0;color:var(--soft1)">A map <span class="mono" style="font-size:.82rem">φ : A → Bᴬ</span> is point-surjective when every point <span class="mono" style="font-size:.82rem">q : 1 → Bᴬ</span> is <span class="mono" style="font-size:.82rem">φ ∘ a</span> for some point <span class="mono" style="font-size:.82rem">a</span> —</p>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:var(--red-deep);text-align:center;margin:.5rem 0">every map A → B is <i>named</i> by an element of A.</div>
+          <p style="margin-top:.4rem">This needs an <i>exponential</i> to even state, and it is what a genuine <i>reflexive object</i> supplies. It is strictly stronger, and in arithmetic it is false — codes do not surject onto functions.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the strong implies the weak (and uses closure to do it)</div>
+      <p>If <span class="mono">φ : A → Bᴬ</span> is point-surjective, its uncurrying <span class="mono">f = ev ∘ (φ × id) : A × A → B</span> is weakly point-surjective. Given <span class="mono">g : A → B</span>, its name <span class="mono">Λg : 1 → Bᴬ</span> is a point; surjectivity yields <span class="mono">a</span> with <span class="mono">φ∘a = Λg</span>, and then <span class="mono">f(a, x) = ev(φ(a), x) = ev(Λg, x) = g(x)</span> at every point <span class="mono">x</span>. The passage uses the exponential twice — to form <span class="mono">Λg</span> and to evaluate it. The weak notion, by contrast, never mentions <span class="mono">Bᴬ</span>. That is the door the next result walks through.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">Lawvere's theorem needs only finite products — the binary form</div>
+      <div class="ts"><b>In any category with finite products, a weakly point-surjective <span class="mono">f : T × T → Y</span> forces every <span class="mono">α : Y → Y</span> to have a fixed point.</b> No exponential, no closure, no negation, no numbers. The exponential statement — point-surjective <span class="mono">φ : A → Bᴬ</span> — is merely the special case <span class="mono">f = ev∘(φ×1)</span> in a category that happens to be closed. The hypothesis the theorem truly rests on is weak point-surjectivity over finite products, and that is a far cheaper thing to come by.</div>
+    </div>
+    <div class="proofwrap">
+      <div class="pw-lab">proof — four lines, and the diagonal is the only self-reference</div>
+      <div class="deriv">
+        <div class="drow"><span class="dn">(1)</span><span class="db">Fix <span class="hot">α : Y → Y</span>. Define <span class="hot">g</span> = α ∘ f ∘ Δ<tspan>_T</tspan> : T → Y,&nbsp; so&nbsp; g(x) = α( f(x, x) ).<span class="dj">Duplicate by the diagonal, apply f to the doubled argument, twist by α. Products only.</span></span></div>
+        <div class="drow"><span class="dn">(2)</span><span class="db">By weak point-surjectivity of f, fix a point <span class="hot">t</span> : 1 → T with&nbsp; f(t, x) = g(x)&nbsp; for all points x.<span class="dj">The entire use of the hypothesis: g is some map T → Y, so some row of f reproduces it on points.</span></span></div>
+        <div class="drow"><span class="dn">(3)</span><span class="db">Set <span class="hot">y</span> := f(t, t) : 1 → Y,&nbsp; a global point of Y.<span class="dj">Evaluate the chosen row at its own index — the diagonal closing on itself.</span></span></div>
+        <div class="drow qed"><span class="dn">(4)</span><span class="db">y = f(t, t) = g(t) = α( f(t, t) ) = α(y).&nbsp; So α ∘ y = y. ∎<span class="dj" style="color:var(--teal-deep)">Step (1) closes the loop step (2) opened; no further hypothesis enters.</span></span></div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Now the necessity. Weak point-surjectivity is not merely <i>enough</i>; it is the <i>most</i> that the corpus's instances ever provide, which is why the theorem must ask for no more. The diagonal lemma of arithmetic gives, for each formula <span class="mono">ψ(x)</span>, a sentence <span class="mono">G</span> with <span class="mono">⊢ G ↔ ψ(⌜G⌝)</span> — agreement at the <i>single</i> point <span class="mono">⌜G⌝</span>, a self-reference holding at one code, not a surjection of codes onto formulas as objects. The s-m-n theorem of computability gives a total <span class="mono">s</span> with <span class="mono">φ_{s(e,x)}(y) = φ_e(x, y)</span> — enough to internalize a parameter and so to manufacture, for any given function, <i>one</i> index that behaves correctly, again on points. Neither delivers a point-surjection in the strong sense; both deliver exactly weak point-surjectivity. The theorem is calibrated to its instances, not the instances stretched to fit the theorem — and the binary form makes plain that what they share is the cheapest structure imaginable: a way to feed something its own index, inside a category that can merely form pairs.</p>
+    </div>
+    <div class="axis-note">Read together, §1–§3 say something exact about the construction's cost. It runs in any category with <b>finite products</b> given a single <b>weakly point-surjective</b> map; the cartesian <i>closure</i> of §1 is the convenient packaging that turns "a weakly point-surjective <span class="mono">f</span>" into "a point-surjective naming <span class="mono">φ</span>," but it is not load-bearing for the theorem itself. The next two sections ask the opposite question — not how little structure forces a fixed point, but how much structure it takes for the <i>strong</i> hypothesis to hold, and what universe that requires.</div>
+  </section>
+
+  <!-- ===== §4 REFLEXIVE OBJECTS ===== -->
+  <section class="sec" id="reflexive">
+    <div class="strata" aria-hidden="true"><span class="s4"></span><span class="s1"></span><span class="s2"></span><span class="s3"></span></div>
+    <div class="sec-head"><span class="num">4 · reflexive objects</span><h2>Where self-application is total — and the Cantorian price of getting there</h2><p class="sub">The strong hypothesis of §3 — an object that names every map out of itself — is a structural luxury. In the category of sets it is outright impossible, for a reason that is itself the diagonal. To buy it one must leave Set for the continuous world, and there Scott built one by hand.</p></div>
+    <div class="defn">
+      <div class="dl">Definition 4.1 — reflexive object</div>
+      <div class="ds">An object <span class="m">D</span> is <b>reflexive</b> when its function space is a <b>retract</b> of it: continuous maps <span class="m">F : D → Dᴰ</span> (<i>application</i>) and <span class="m">G : Dᴰ → D</span> (<i>abstraction</i>) with <span class="m">F ∘ G = id_{Dᴰ}</span>. Then every map <span class="m">D → D</span> is named by a point of <span class="m">D</span> — the identity on <span class="m">Dᴰ</span> made structural — so <span class="m">F</span> is a genuine point-surjection and self-application <span class="m">D × D → D</span>, given by <span class="m">F</span>, is total. The pure case is an <b>isomorphism</b> <span class="m">D ≅ Dᴰ</span>, which also forces <span class="m">G ∘ F = id_D</span> — extensionality.</div>
+    </div>
+    <div class="thm gold">
+      <div class="tl">Proposition 4.2 — the Cantor obstruction (Lawvere's Proposition 1, in cardinal form)</div>
+      <div class="ts"><b>No object of <span class="mono">Set</span> with more than one point is reflexive.</b> If <span class="mono">D</span> were reflexive in <span class="mono">Set</span>, the application <span class="mono">F : D → Dᴰ</span> would be a point-surjection, so by Lawvere's theorem every <span class="mono">α : D → D</span> would have a fixed point. But for <span class="mono">|D| ≥ 2</span> the swap-style map (Definition&nbsp;4 of the <i>Scholia</i>) is fixed-point-free — and directly, <span class="mono">|Dᴰ| = |D|^{|D|} &gt; |D|</span> by Cantor's theorem, so no surjection <span class="mono">D → Dᴰ</span> exists at all. The obstruction to genus I's strong hypothesis <i>is</i> the diagonal's limitative face, in the codomain of cardinals. Power and limit cannot share a well-pointed category: the very theorem that would make self-naming powerful is the one that forbids it there.</div>
+    </div>
+    <div class="reading">
+      <p>So a reflexive object cannot be a set — at least, not a set with two distinguishable points and the classical logic that lets them be swapped. It must live where the order of approximation replaces the algebra of membership: in <b>domain theory</b>, the category <span class="mono">DCPO</span> of directed-complete partial orders with least element and Scott-continuous maps. That category is cartesian closed — <span class="mono">[D → E]</span> is the continuous maps under the pointwise order, itself a dcpo — and in it Dana Scott, in 1969–72, constructed a non-trivial <span class="mono">D ≅ Dᴰ</span>: the first mathematical model of the untyped λ-calculus, and the proof that self-application need not be paradoxical, only <i>partial in the right way</i>.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">Scott's D∞ — a reflexive object built as an inverse limit</div>
+      <div class="ts"><b>There is a dcpo <span class="mono">D∞</span> with <span class="mono">D∞ ≅ [D∞ → D∞]</span>.</b> Start from any dcpo <span class="mono">D₀</span> with bottom and iterate the function-space: <span class="mono">D_{n+1} = [D_n → D_n]</span>. Link the levels by <b>embedding-projection pairs</b> <span class="mono">e_n : D_n ⇄ D_{n+1} : p_n</span> with <span class="mono">p_n ∘ e_n = id</span> and <span class="mono">e_n ∘ p_n ⊑ id</span> — at the base, <span class="mono">e₀(x) = (λy.&#8202;x)</span> and <span class="mono">p₀(f) = f(⊥)</span>; then recursively <span class="mono">e_{n+1}(f) = e_n ∘ f ∘ p_n</span>. Take <span class="mono">D∞</span> to be the <b>bilimit</b> — the inverse limit along the projections, which in <span class="mono">DCPO</span> coincides with the colimit along the embeddings. The limit-colimit coincidence makes the function-space of <span class="mono">D∞</span> the limit of the function-spaces of the <span class="mono">D_n</span>, and those are the <span class="mono">D_{n+1}</span> — so <span class="mono">[D∞ → D∞] ≅ D∞</span>, with the iso assembled from the <span class="mono">e_n, p_n</span>.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the inverse-limit tower — function-spaces stacked, glued by e-p pairs, closed at the limit</div>
+        <svg viewBox="0 0 660 220" role="img" aria-label="A tower: D-zero, D-one equals maps D-zero to D-zero, D-two equals maps D-one to D-one, ellipsis, and the bilimit D-infinity, with embedding arrows going right and projection arrows going left between consecutive levels, and D-infinity isomorphic to its own function space." style="display:block;width:100%;height:auto;overflow:visible">
+          <defs><marker id="ea" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto"><path d="M0,0 L7.5,3 L0,6 Z" fill="#2c6e6a"/></marker>
+            <marker id="pa" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto"><path d="M0,0 L7.5,3 L0,6 Z" fill="#937234"/></marker></defs>
+          <!-- levels -->
+          <g font-family="IBM Plex Mono, monospace">
+          <text x="20" y="70" font-size="17" fill="#1a1815">D₀</text>
+          <text x="120" y="64" font-size="13" fill="#1a1815">D₁ = [D₀→D₀]</text>
+          <text x="300" y="64" font-size="13" fill="#1a1815">D₂ = [D₁→D₁]</text>
+          <text x="486" y="70" font-size="15" fill="#a8a193">⋯</text>
+          <text x="540" y="70" font-size="17" fill="#8f2d23">D∞</text>
+          </g>
+          <!-- e arrows (right, teal, above) -->
+          <path d="M44,58 C 70,46 92,46 112,52" fill="none" stroke="#2c6e6a" stroke-width="1.3" marker-end="url(#ea)"/>
+          <text x="78" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#2c6e6a">e₀</text>
+          <path d="M232,58 C 258,46 274,46 292,52" fill="none" stroke="#2c6e6a" stroke-width="1.3" marker-end="url(#ea)"/>
+          <text x="262" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#2c6e6a">e₁</text>
+          <path d="M412,58 C 448,48 470,50 486,56" fill="none" stroke="#2c6e6a" stroke-width="1.3" marker-end="url(#ea)"/>
+          <path d="M512,58 C 524,52 530,52 538,56" fill="none" stroke="#2c6e6a" stroke-width="1.3" marker-end="url(#ea)"/>
+          <!-- p arrows (left, gold, below) -->
+          <path d="M112,86 C 92,96 70,96 46,86" fill="none" stroke="#937234" stroke-width="1.3" marker-end="url(#pa)"/>
+          <text x="78" y="110" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#937234">p₀</text>
+          <path d="M292,86 C 274,96 258,96 234,86" fill="none" stroke="#937234" stroke-width="1.3" marker-end="url(#pa)"/>
+          <text x="262" y="110" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#937234">p₁</text>
+          <path d="M486,86 C 470,96 448,96 414,86" fill="none" stroke="#937234" stroke-width="1.3" marker-end="url(#pa)"/>
+          <path d="M538,86 C 530,92 524,92 514,86" fill="none" stroke="#937234" stroke-width="1.3" marker-end="url(#pa)"/>
+          <!-- the closing iso -->
+          <rect x="430" y="150" width="216" height="44" rx="5" fill="rgba(178,58,46,.07)" stroke="rgba(178,58,46,.42)" stroke-width="1.3"/>
+          <text x="538" y="170" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="#8f2d23">D∞ ≅ [D∞ → D∞]</text>
+          <text x="538" y="186" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#a8a193">self-application, total</text>
+          <line x1="544" y1="80" x2="540" y2="146" stroke="#8f2d23" stroke-width="1" stroke-dasharray="3 3"/>
+          <!-- e/p legend -->
+          <text x="20" y="172" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#2c6e6a">e — embedding, pₙ∘eₙ = id</text>
+          <text x="20" y="188" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#937234">p — projection, eₙ∘pₙ ⊑ id</text>
+        </svg>
+        <figcaption>Each level is the continuous self-maps of the one below; the <span style="color:var(--teal-deep)">embeddings</span> include an approximation into its refinements and the <span style="color:var(--gold-deep)">projections</span> read it back, losing only what the coarser level cannot see. At the limit the tower closes on itself: a point of <span class="mono">D∞</span> and a continuous map <span class="mono">D∞ → D∞</span> are the same datum. Cantor's inequality is escaped because <span class="mono">[D∞ → D∞]</span> means <i>continuous</i> maps — vastly fewer than all maps, and exactly enough.</figcaption>
+      </div>
+    </div>
+    <div class="thm teal">
+      <div class="tl">reflexive objects are models of the untyped λ-calculus</div>
+      <div class="ts"><b>A reflexive object is precisely a place where untyped λ-terms have meaning.</b> Application is <span class="mono">F</span>, abstraction is <span class="mono">G</span>, and the retract equation <span class="mono">F∘G = id</span> validates <span class="mono">β</span>: <span class="mono">(λx.M)N = M[N/x]</span> — a <i>λ-algebra</i>. When the retract is an isomorphism, <span class="mono">G∘F = id</span> validates <span class="mono">η</span> as well — an extensional <i>λ-model</i>, which <span class="mono">D∞</span> is. So the "power face" of the construction, recursion, is nothing other than computation inside such a <span class="mono">D</span>: the fixed-point combinator <span class="mono">Y = λf.&#8202;(λx.&#8202;f(xx))(λx.&#8202;f(xx))</span> is a term that <i>names itself applied to itself</i>, and a reflexive object is exactly what lets that term denote.</div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the two faces, and why they keep separate houses</div>
+      <p>This is the structural form of the <i>Scholia</i>'s central asymmetry. The <b>limit face</b> — Cantor, Gödel, halting — needs only two values to swap, and lives wherever there is a fixed-point-free twist; it is generic. The <b>power face</b> — recursion, <span class="mono">Y</span> — needs a reflexive object, which Cantor's theorem bars from every well-pointed, two-valued world and which exists only after one passes to the continuous order of <span class="mono">D∞</span>. The same diagonal that is cheap and destructive in the first house is expensive and creative in the second, and no single category holds both with more than one point. The biconditional of the corpus — power and limit as one theorem read two ways — is symmetric in logic and asymmetric in habitation, and §4 is the reason why.</p>
+    </div>
+  </section>
+
+  <!-- ===== §5 THE THREE GENERA ===== -->
+  <section class="sec" id="genera">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s3"></span><span class="s2"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">5 · the three genera</span><h2>Three mechanisms that force a fixed point, and their exact overlaps</h2><p class="sub">Every fixed-point theorem answers one question — why can the map not escape? — and there are three independent answers. Lawvere's is one. Setting all three side by side, with their points of contact proved rather than gestured at, is what licenses the corpus to call its reach "one genus, not all of them."</p></div>
+    <div class="reading">
+      <p>A map <span class="mono">f</span> has no fixed point exactly when it displaces every element. The three classical theorems each rule that out by a different surplus of structure: <b>self-reference</b> makes the space name its own maps, so one of them must be <span class="mono">f</span> itself caught at its index; <b>order-completeness</b> makes every ascending approximation have a limit the map cannot overshoot; <b>geometry</b> — connectedness, or shrinking distance — leaves the map nowhere to send a boundary, or forces its iterates to converge. The hypotheses are incomparable, but where two coincide the theorems can be made to speak about the same object, and then the discipline is to ask whether they also agree. We take each genus to its constructive core, then map the overlaps.</p>
+    </div>
+
+    <div class="thm">
+      <div class="tl">genus II — Knaster–Tarski, in full</div>
+      <div class="ts"><b>For a monotone map <span class="mono">f</span> on a complete lattice <span class="mono">L</span>, the set of fixed points is itself a complete lattice</b> — never empty, with a least and a greatest. The least is <span class="mono">μf = ⋀{ x : f(x) ≤ x }</span>, the meet of all <i>pre-fixed</i> points; the greatest is <span class="mono">νf = ⋁{ x : x ≤ f(x) }</span>. The proof is pure order: <span class="mono">μf</span> is below every pre-fixed point and is itself one, so it is the least fixed point. No continuity, no metric, no naming — only that suprema exist. This is the engine of every <i>inductive definition</i> and every <i>monotone induction</i> in logic.</div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the constructive core — Kleene's theorem</div>
+      <p>When <span class="mono">f</span> is moreover <i>Scott-continuous</i> (it preserves directed suprema), the least fixed point is reached from below in <span class="mono">ω</span> steps: <span class="mono">μf = ⨆_n fⁿ(⊥)</span>. This is the domain-theoretic fixed-point operator — and, on a reflexive domain, exactly what the combinator <span class="mono">Y</span> computes. For merely monotone <span class="mono">f</span> the same ascent works but may need transfinitely many stages, <span class="mono">⊥ ≤ f(⊥) ≤ f²(⊥) ≤ ⋯ ≤ f^α(⊥) ≤ ⋯</span>, stabilizing at the least ordinal where it stops moving. The interactive below runs the continuous case on a Horn theory, where the least fixed point is the set of derivable facts.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">genus II, live — the least fixed point of a monotone operator, built from ⊥ upward</div>
+        <p style="font-size:.88rem;line-height:1.5;color:var(--soft1);margin:0 0 .9rem;text-align:center">A Horn theory over atoms <span class="mono">{a, b, c, d, e}</span>. The operator <span class="mono">F(S)</span> adds every head whose body is already in <span class="mono">S</span>. Its least fixed point — the smallest set closed under the rules — is the theory's set of <i>derivable</i> atoms, reached by iterating <span class="mono">F</span> from <span class="mono">∅</span>.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.1rem;font-family:'IBM Plex Mono',monospace;font-size:.74rem">
+          <span class="cm-ax base">⊢ a</span><span class="cm-ax base">⊢ d</span><span class="cm-ax">a ⊢ b</span><span class="cm-ax">b ⊢ c</span><span class="cm-ax">c, d ⊢ e</span>
+        </div>
+        <div class="itr-controls">
+          <button class="itr-btn go" id="itrNext">derive the next stage →</button>
+          <button class="itr-btn ghost" id="itrReset">reset to ∅</button>
+          <span class="itr-read" id="itrRead"></span>
+        </div>
+        <div class="itr-chain" id="itrChain"></div>
+        <figcaption>Each stage is <span class="mono">Fⁿ(∅)</span>; the <span style="color:var(--teal-deep)">new atoms</span> are exactly those whose rule-bodies the previous stage just satisfied. The ascent is monotone and halts when <span class="mono">F(S) = S</span> — that set is <span class="mono">μF</span>, the least fixed point, here <span class="mono">⨆_n Fⁿ(∅)</span>. The same construction, read in arithmetic, is the least Herbrand model; read in computation, the meaning of a recursive definition.</figcaption>
+      </div>
+    </div>
+
+    <div class="reading">
+      <p>The third genus splits into two theorems that share a habitat but not a method, and the contrast is worth drawing precisely, because one is mere existence and the other is everything.</p>
+    </div>
+    <div class="dyad">
+      <div class="dyad-cell no">
+        <div class="dc-h">genus III(a) — topology</div>
+        <h4>Brouwer</h4>
+        <p>A continuous self-map of the closed ball <span class="m">Dⁿ</span> has a fixed point. The proof is by <i>no-retraction</i>: a fixed-point-free <span class="m">f</span> would let <span class="m">x ↦</span> (the boundary point on the ray from <span class="m">f(x)</span> through <span class="m">x</span>) be a continuous retraction <span class="m">Dⁿ → Sⁿ⁻¹</span>, which homology forbids.</p>
+        <p>Existence only. The theorem names no fixed point, gives no count, offers no construction — connectedness alone closes the escape.</p>
+      </div>
+      <div class="dyad-cell yes">
+        <div class="dc-h">genus III(b) — metric</div>
+        <h4>Banach</h4>
+        <p>A <span class="m">k</span>-contraction <span class="m">f</span> (with <span class="m">k &lt; 1</span>) on a complete metric space has a <i>unique</i> fixed point, and the iterates <span class="m">x, f(x), f²(x), …</span> converge to it geometrically: <span class="m">d(xₙ, x*) ≤ kⁿ/(1−k)·d(x₁, x₀)</span>.</p>
+        <p>Uniqueness is forced — two fixed points <span class="m">x, y</span> give <span class="m">d(x,y) ≤ k·d(x,y)</span>, so <span class="m">d = 0</span> — and the proof <i>is</i> an algorithm. Shrinking distance does what naming and order do elsewhere.</p>
+      </div>
+    </div>
+
+    <div class="thm gold">
+      <div class="tl">independence, with the overlaps named — and where they coincide</div>
+      <div class="ts"><b>The three hypotheses are pairwise incomparable, yet they can apply to the same object, and there the verdict on whether they <i>agree</i> is the whole subtlety.</b> Each genus has a witness on which it alone fires (a non-reflexive complete lattice with a non-continuous monotone map; a disk under a rotation; an abstract reflexive object). But <span class="mono">[0,1]</span> is at once a complete lattice and a compact convex body, so a continuous monotone map there is caught by <i>both</i> Knaster–Tarski and Brouwer — which need not return the same point, since Brouwer only asserts existence. And a reflexive Scott domain such as <span class="mono">D∞</span> is caught by <i>both</i> Lawvere and Knaster–Tarski — and there they <b>do</b> coincide: for a continuous <span class="mono">f</span>, the combinator's value <span class="mono">Y(f)</span>, the categorical least fixed point, and <span class="mono">⨆_n fⁿ(⊥)</span> are one and the same. The explorer makes each case explicit.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the genera explorer — choose an object and a map; read which theorems fire, and whether they agree</div>
+        <div class="dial-pick" id="gxPick"></div>
+        <div class="gx-detail" id="gxDetail"></div>
+        <figcaption>Independence is the empty diagonal of single-genus cases; the overlaps are where the corpus's grading earns its care. "Both fire and agree" (<span class="mono">D∞</span>) is the strongest possible kinship short of identity — and still it is two theorems, proved by different means, that happen to meet. "One construction" is a claim about genus I alone, and the explorer is its boundary, drawn case by case.</figcaption>
+      </div>
+    </div>
+    <div class="tri-note">The coincidence on <span class="mono">D∞</span> is the deepest fact in this section, and it is precisely <i>not</i> a reduction. That <span class="mono">Y(f) = ⨆_n fⁿ(⊥)</span> is a theorem of domain theory — Kleene's — not a translation of Lawvere's hypotheses into Knaster–Tarski's. The genera meet on a value while their reasons stay disjoint, which is the exact sense in which the order and topological theorems are the corpus's <b>shared engine</b> and never its <b>proven isomorphism</b>. Same answer; unrelated grounds; no dictionary either way.</div>
+  </section>
+
+  <!-- ===== CODA ===== -->
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">−×A ⊣ (−)ᴬ</span><span class="ln"></span></div>
+  <div class="coda"><p>The ground, surveyed. Finite products to duplicate, a right adjoint to name, a single weakly point-surjective map to fix — and, where the strong hypothesis is wanted, a reflexive object that only the continuous world supplies. Everything the corpus claims for the diagonal is downstream of exactly this, and the three genera mark where the claim is one theorem and where it becomes a likeness. <span class="mono">A construction is only as solid as its ground — so the ground is written in full.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">the apparatus, opened up · I — the setting</span></div>
+    <p class="colophon">This is the first of the deep apparatus — the <i>Scholia</i>'s §I, the setting, unfolded to proof-depth. It develops the cartesian closed category as the single demand that <span class="mono">−×A</span> have a right adjoint; the divide between a category's global points and its internal logic, on which the precise strength of every theorem turns; weak point-surjectivity as the theorem's true and minimal premise, together with the fact that the construction needs only finite products; the reflexive objects in which self-application is total, the Cantorian reason none exist in <span class="mono">Set</span>, and Scott's <span class="mono">D∞</span> as an inverse limit that escapes the obstruction; and the three independent genera of fixed-point theorem, with their incomparable hypotheses, their two overlaps, and the one place — <span class="mono">D∞</span> — where Lawvere's and Knaster–Tarski's verdicts coincide without either reducing to the other. The companion deep-dives take the remaining five sections — the theorem, the instances, the refinement, the bridge-assumptions, the boundary — to the same depth. Nothing here is new mathematics; saying all of it exactly is the work.</p>
+    <p class="notes"><span class="nl">principal sources.</span> &nbsp;Lawvere 1969 · Lambek 1980 / Lambek–Scott 1986 (the correspondence) · Scott 1972 (<span class="mono">D∞</span>) · Yanofsky 2003 · Knaster–Tarski 1928 · Brouwer 1911 · Banach 1922 · Kleene 1952 (the recursion-theoretic fixed point) · Mac Lane 1971 / Johnstone 2002 (CCCs, topoi, the internal language).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on what is proved here.</span> &nbsp;The binary form of Lawvere's theorem (§3) is given in full; Knaster–Tarski with its lattice of fixed points and Kleene's <span class="mono">⨆ fⁿ(⊥)</span> (§5) are stated with their constructive content; Brouwer is sketched via no-retraction, Banach in full with its convergence rate. Scott's <span class="mono">D∞</span> is presented at the level of its embedding-projection tower and the limit-colimit coincidence, precise enough to check, short of the full inverse-limit construction. The coincidence <span class="mono">Y(f) = ⨆ fⁿ(⊥)</span> on a reflexive domain is the section's load-bearing overlap and is exactly Kleene's theorem read through the combinator. Written to be checked.</p>
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+function E(t,c){var e=document.createElement(t); if(c) e.className=c; return e;}
+
+/* ============================================================
+   §5 interactive 1 — Kleene ascent to the least fixed point
+   The immediate-consequence operator of a Horn theory, iterated
+   from the empty set until F(S) = S. lfp = least Herbrand model.
+   ============================================================ */
+var HORN=[
+  {head:"a", body:[],          disp:"\u22a2 a"},
+  {head:"d", body:[],          disp:"\u22a2 d"},
+  {head:"b", body:["a"],       disp:"a \u22a2 b"},
+  {head:"c", body:["b"],       disp:"b \u22a2 c"},
+  {head:"e", body:["c","d"],   disp:"c, d \u22a2 e"}
+];
+var ATOM_ORDER=["a","b","c","d","e"];
+function consequence(S){           /* F(S) = { head : body \u2286 S } */
+  var out={};
+  HORN.forEach(function(r){
+    if(r.body.every(function(x){return S[x];})) out[r.head]=true;
+  });
+  return out;
+}
+function setKey(S){ return ATOM_ORDER.filter(function(a){return S[a];}).join(","); }
+var STAGES=(function(){
+  var st=[{}], guard=0;            /* F^0 = \u2205 */
+  while(guard++<60){
+    var nxt=consequence(st[st.length-1]);
+    st.push(nxt);
+    if(setKey(nxt)===setKey(st[st.length-2])) break;
+  }
+  return st;
+})();
+var FIXED_INDEX=(function(){
+  for(var i=0;i<STAGES.length-1;i++){ if(setKey(STAGES[i])===setKey(STAGES[i+1])) return i; }
+  return STAGES.length-1;
+})();
+var DISTINCT=STAGES.slice(0,FIXED_INDEX+1);   /* the genuinely new stages */
+var SUP={"0":"\u2070","1":"\u00b9","2":"\u00b2","3":"\u00b3","4":"\u2074","5":"\u2075","6":"\u2076","7":"\u2077","8":"\u2078","9":"\u2079"};
+function sup(n){ return String(n).split("").map(function(d){return SUP[d];}).join(""); }
+var itrShown=1;
+function itrRender(){
+  var host=document.getElementById("itrChain"); if(!host) return; host.innerHTML="";
+  var fixedIdx=DISTINCT.length-1;
+  for(var i=0;i<itrShown;i++){
+    var S=DISTINCT[i], prev=(i>0?DISTINCT[i-1]:{});
+    var reached=(itrShown>=DISTINCT.length);
+    var row=E("div","itr-step"+(i===fixedIdx&&reached?" fixed":""));
+    var n=E("span","is-n"); n.textContent="F"+sup(i)+"(\u2205)"; row.appendChild(n);
+    var v=E("span","is-v");
+    var present=ATOM_ORDER.filter(function(a){return S[a];});
+    if(present.length===0){ v.textContent="\u2205"; }
+    else{
+      v.appendChild(document.createTextNode("{ "));
+      present.forEach(function(a,j){
+        var el=prev[a]?E("span"):E("span","new"); el.textContent=a; v.appendChild(el);
+        if(j<present.length-1) v.appendChild(document.createTextNode(", "));
+      });
+      v.appendChild(document.createTextNode(" }"));
+    }
+    row.appendChild(v);
+    var d=E("span","is-d");
+    if(i===0){ d.textContent="the bottom \u22a5"; }
+    else{
+      var added=present.filter(function(a){return !prev[a];});
+      var fired=HORN.filter(function(r){return added.indexOf(r.head)>=0;}).map(function(r){return r.disp;});
+      d.textContent=fired.join("  \u00b7  ");
+    }
+    row.appendChild(d);
+    host.appendChild(row);
+  }
+  if(itrShown>=DISTINCT.length){
+    var lfp=ATOM_ORDER.filter(function(a){return DISTINCT[DISTINCT.length-1][a];}).join(", ");
+    var ban=E("div","itr-banner");
+    ban.textContent="F(S) = S   \u00b7   \u03bcF = { "+lfp+" } = \u2a06\u2099 F\u207f(\u2205)";
+    host.appendChild(ban);
+  }
+  var ro=document.getElementById("itrRead");
+  if(ro){
+    if(itrShown>=DISTINCT.length){ ro.innerHTML="<b>"+(DISTINCT.length-1)+" applications</b> \u00b7 fixed point reached"; }
+    else { ro.innerHTML="at stage <b>"+(itrShown-1)+"</b> of "+(DISTINCT.length-1)+" \u2014 keep deriving"; }
+  }
+  var nb=document.getElementById("itrNext");
+  if(nb){ var done=itrShown>=DISTINCT.length; nb.disabled=done; nb.style.opacity=done?".45":"1"; nb.style.cursor=done?"default":"pointer"; }
+}
+function itrInit(){
+  itrShown=1; itrRender();
+  var nb=document.getElementById("itrNext");
+  if(nb) nb.addEventListener("click",function(){ if(itrShown<DISTINCT.length){ itrShown++; itrRender(); } });
+  var rb=document.getElementById("itrReset");
+  if(rb) rb.addEventListener("click",function(){ itrShown=1; itrRender(); });
+}
+
+/* ============================================================
+   §5 interactive 2 — the genera explorer
+   Each witness: the verdict of all three genera, and whether
+   overlapping genera agree on the fixed point.
+   ============================================================ */
+var GENERA=[
+ {id:"powerset", tab:"\u2118(\u2115)", sub:"order",
+  tag:"order \u2014 no continuity", name:"\u2118(\u2115), a monotone but non-continuous operator", line:"complete lattice \u00b7 F monotone, not Scott-continuous",
+  rows:[
+   {g:"Lawvere", r:"\u2118(\u2115) is not reflexive \u2014 |\u2118\u1d56| > |\u2118|", fires:false},
+   {g:"Knaster\u2013Tarski", r:"complete lattice + monotone \u27f9 \u03bcF, \u03bdF exist", fires:true},
+   {g:"Brouwer \u00b7 Banach", r:"no topology; F is not continuous", fires:false}
+  ],
+  note:"Only genus II fires. The least fixed point exists by Knaster\u2013Tarski, but non-continuity means \u2a06\u2099 F\u207f(\u22a5) can fall short of it \u2014 \u03bcF is reached only after <b>transfinitely</b> many stages.", coin:false},
+ {id:"disk", tab:"disk D\u00b2", sub:"geometry",
+  tag:"geometry only", name:"the disk D\u00b2, a rotation about its centre", line:"compact convex \u00b7 continuous, not monotone",
+  rows:[
+   {g:"Lawvere", r:"D\u00b2 is not reflexive", fires:false},
+   {g:"Knaster\u2013Tarski", r:"a rotation is monotone for no lattice order", fires:false},
+   {g:"Brouwer \u00b7 Banach", r:"compact convex + continuous \u27f9 a fixed point", fires:true}
+  ],
+  note:"Only genus III fires. Brouwer delivers the centre, but the proof is non-constructive (no-retraction) \u2014 and a rotation is no contraction, so Banach is silent too. <b>Existence without a construction.</b>", coin:false},
+ {id:"reflexive", tab:"D \u2245 D\u1d30", sub:"self-ref",
+  tag:"self-reference only", name:"an abstract reflexive object D \u2245 D\u1d30, any endomorphism", line:"point-surjective naming \u00b7 no order, no metric",
+  rows:[
+   {g:"Lawvere", r:"id : D\u1d30 \u2192 D\u1d30 is named \u27f9 every \u03b1 has a fixed point", fires:true},
+   {g:"Knaster\u2013Tarski", r:"no complete-lattice order is assumed", fires:false},
+   {g:"Brouwer \u00b7 Banach", r:"no compact or metric structure is assumed", fires:false}
+  ],
+  note:"Only genus I fires \u2014 the construction in its purest habitat: nothing but a cartesian closed category and an object that names its own maps. <b>This is where recursion lives.</b>", coin:false},
+ {id:"unit", tab:"[0,1]", sub:"II \u2229 III",
+  tag:"two genera \u2014 they may differ", name:"[0,1], a continuous and monotone map", line:"complete lattice AND compact convex body",
+  rows:[
+   {g:"Lawvere", r:"[0,1] is not reflexive", fires:false},
+   {g:"Knaster\u2013Tarski", r:"complete lattice + monotone \u27f9 \u03bcf, the least fixed point", fires:true},
+   {g:"Brouwer \u00b7 Banach", r:"compact convex + continuous \u27f9 a fixed point", fires:true}
+  ],
+  note:"Genera II and III <b>both fire</b> \u2014 [0,1] is at once a complete lattice and a compact convex body. But they need not name the same point: Knaster\u2013Tarski returns the <i>least</i> fixed point; Brouwer asserts only that <i>some</i> fixed point exists. <b>Overlap without agreement.</b>", coin:false},
+ {id:"dinfty", tab:"D\u221e", sub:"I \u2229 II",
+  tag:"two genera \u2014 and they agree", name:"D\u221e, a Scott-continuous map", line:"reflexive Scott domain \u00b7 continuous f",
+  rows:[
+   {g:"Lawvere", r:"D\u221e \u2245 D\u1d30\u221e is reflexive \u27f9 the construction applies", fires:true},
+   {g:"Knaster\u2013Tarski", r:"pointed dcpo + continuous f \u27f9 \u03bcf = \u2a06\u2099 f\u207f(\u22a5)", fires:true},
+   {g:"Brouwer \u00b7 Banach", r:"no compact or metric structure", fires:false}
+  ],
+  note:"Genera I and II both fire \u2014 <b>and here they coincide.</b> The combinator's value Y(f), the categorical least fixed point, and \u2a06\u2099 f\u207f(\u22a5) are one and the same value. The strongest kinship short of identity: two theorems, two proofs, meeting on a single point. <b>Still not a reduction.</b>", coin:true}
+];
+var GXById={}; GENERA.forEach(function(x){ GXById[x.id]=x; });
+var gxSel=null;
+function renderGxPick(){
+  var host=document.getElementById("gxPick"); if(!host) return; host.innerHTML="";
+  GENERA.forEach(function(x){
+    var b=E("button","dial-opt"); b.dataset.id=x.id;
+    b.appendChild(document.createTextNode(x.tab));
+    var s=E("span","dsub"); s.textContent=x.sub; b.appendChild(s);
+    b.addEventListener("click",function(){ gxSelect(x.id); });
+    host.appendChild(b);
+  });
+}
+function gxSelect(id){
+  gxSel=id; var x=GXById[id]; if(!x) return;
+  var pk=document.getElementById("gxPick");
+  if(pk) Array.prototype.forEach.call(pk.querySelectorAll(".dial-opt"),function(b){ b.classList.toggle("on", b.dataset.id===id); });
+  var host=document.getElementById("gxDetail"); if(!host) return; host.innerHTML="";
+  var head=E("div","gx-head");
+  var tag=E("div","gx-tag"); tag.textContent=x.tag; head.appendChild(tag);
+  var nm=E("div","gx-name"); nm.textContent=x.name; head.appendChild(nm);
+  var sb=E("div","gx-sub"); sb.textContent=x.line; head.appendChild(sb);
+  host.appendChild(head);
+  var body=E("div","gx-body");
+  var rows=E("div","gx-rows");
+  x.rows.forEach(function(rw){
+    var dr=E("div","dirow");
+    var dk=E("span","dk");
+    dk.appendChild(document.createTextNode(rw.g+" "));
+    var sm=E("span","sm"); sm.textContent="\u00b7 "+rw.r; dk.appendChild(sm);
+    dr.appendChild(dk);
+    var dv=E("span","dv "+(rw.fires?"yes":"no")); dv.textContent=rw.fires?"fires":"silent";
+    dr.appendChild(dv);
+    rows.appendChild(dr);
+  });
+  body.appendChild(rows);
+  var note=E("div","gx-note"+(x.coin?" coin":""));
+  note.innerHTML=x.note;
+  body.appendChild(note);
+  host.appendChild(body);
+}
+
+function init(){
+  try{ itrInit(); }catch(e){ console.error("kleene",e); }
+  try{ renderGxPick(); gxSelect("dinfty"); }catch(e){ console.error("genera",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="keystone.html">← The Keystone</a><a rel="next" href="fulcrum.html">The Fulcrum →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

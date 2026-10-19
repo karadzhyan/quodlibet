@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Recurrence — the epistemology of multiple discovery</title>
+<style>
+
+
+
+
+
+
+
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== a fifth, cool accent for technique-transfer ===== */
+  :root{ --steel:#3d5a6b; --steel-deep:#2e4654; --steel-soft:rgba(61,90,107,.09); --steel-line:rgba(61,90,107,.32); }
+
+  /* ===== formal definitions (numbered) ===== */
+  .defn{border:1px solid var(--panelhair);border-left:2px solid var(--faintest);border-radius:0 3px 3px 0;padding:.95rem 1.15rem;margin:1.1rem 0;background:rgba(26,24,21,.012);}
+  .defn .dl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .defn .ds{font-size:1rem;line-height:1.6;color:var(--ink);}
+  .defn .ds b{font-weight:600;} .defn .ds .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+
+  /* ===== the bridge-assumption inspector ===== */
+  .br-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .br-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.42rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .br-opt:hover{background:rgba(26,24,21,.05);}
+  .br-opt .bd{width:8px;height:8px;border-radius:50%;flex:none;}
+  .br-opt.t-iso .bd{background:var(--teal);} .br-opt.t-tech .bd{background:var(--steel);} .br-opt.t-eng .bd{background:var(--gold);} .br-opt.t-sug .bd{background:var(--red);border-radius:50%;}
+  .br-opt.t-sug .bd{background:transparent;border:1.4px solid var(--red);}
+  .br-opt.on{color:var(--paper);border-color:var(--ink);} .br-opt.on.t-iso{background:var(--teal-deep);border-color:var(--teal-deep);} .br-opt.on.t-tech{background:var(--steel-deep);border-color:var(--steel-deep);} .br-opt.on.t-eng{background:var(--gold-deep);border-color:var(--gold-deep);} .br-opt.on.t-sug{background:var(--red-deep);border-color:var(--red-deep);}
+  .br-opt.on .bd{background:var(--paper)!important;border-color:var(--paper)!important;}
+  .br-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;}
+  .br-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);}
+  .br-head.t-iso{background:var(--teal-soft);} .br-head.t-tech{background:var(--steel-soft);} .br-head.t-eng{background:var(--gold-soft,rgba(147,114,52,.08));} .br-head.t-sug{background:var(--red-soft);}
+  .br-type{display:inline-flex;align-items:center;gap:.45rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .br-type.t-iso{color:var(--teal-deep);} .br-type.t-tech{color:var(--steel-deep);} .br-type.t-eng{color:var(--gold-deep);} .br-type.t-sug{color:var(--red-deep);}
+  .br-name{font-family:"Spectral",serif;font-weight:500;font-size:1.4rem;letter-spacing:-.01em;margin:0 0 .15rem;}
+  .br-claim{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .br-body{padding:1.1rem 1.2rem;}
+  .br-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.6rem;}
+  .br-assum{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;padding:.5rem 0;border-bottom:1px dashed var(--hair);}
+  .br-assum:last-of-type{border-bottom:none;}
+  .br-assum .ba-tag{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);font-weight:500;white-space:nowrap;}
+  .br-assum .ba-txt{font-size:.92rem;line-height:1.5;color:var(--soft1);}
+  .br-assum .ba-txt .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;}
+  .br-assum .ba-st{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .45rem;border-radius:3px;white-space:nowrap;}
+  .ba-st.holds{background:var(--teal-soft);color:var(--teal-deep);} .ba-st.theorem{background:rgba(147,114,52,.1);color:var(--gold-deep);} .ba-st.none{background:var(--red-soft);color:var(--red-deep);}
+  .br-none{font-size:.94rem;line-height:1.55;color:var(--faint);font-style:italic;padding:.3rem 0;}
+  .br-verdict{margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--hair);font-size:.98rem;line-height:1.6;color:var(--ink);}
+  .br-verdict b{font-weight:600;}
+
+  /* ===== boundary legend ===== */
+  .bd-legend{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .bd-legend{grid-template-columns:1fr;} }
+  .bd-cell{background:var(--paper);padding:1rem 1.15rem;}
+  .bd-cell .bc-h{display:flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:.35rem;}
+  .bd-cell .bc-dot{width:9px;height:9px;border-radius:50%;}
+  .bd-cell.t-iso .bc-h{color:var(--teal-deep);} .bd-cell.t-iso .bc-dot{background:var(--teal);}
+  .bd-cell.t-tech .bc-h{color:var(--steel-deep);} .bd-cell.t-tech .bc-dot{background:var(--steel);}
+  .bd-cell.t-eng .bc-h{color:var(--gold-deep);} .bd-cell.t-eng .bc-dot{background:var(--gold);}
+  .bd-cell.t-sug .bc-h{color:var(--red-deep);} .bd-cell.t-sug .bc-dot{background:transparent;border:1.4px solid var(--red);}
+  .bd-cell p{font-size:.88rem;line-height:1.5;color:var(--soft1);margin:0;}
+  .bd-cell p .ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);}
+
+  /* ===== supplement: the four fates (instance schema) ===== */
+  :root{ --fate-absent:#7c766a; --fate-benign:#2c6e6a; --fate-explosive:#b23a2e; --fate-undecided:#937234; }
+  .ins-dict{display:grid;grid-template-columns:auto 1fr;gap:.35rem .9rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;margin:.2rem 0 0;}
+  .ins-dict b{color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .ins-dict span{color:var(--soft1);}
+  .ins-step{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;background:rgba(26,24,21,.025);border:1px solid var(--panelhair);border-radius:3px;padding:.8rem 1rem;margin:.2rem 0;}
+  .ins-step .bad{color:var(--red-deep);} .ins-step .good{color:var(--teal-deep);}
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+  .fate-badge .fdot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .fate-absent{color:var(--fate-absent);} .fate-absent .fdot{background:transparent;border:1.5px solid var(--fate-absent);}
+  .fate-benign{color:var(--fate-benign);} .fate-benign .fdot{background:var(--fate-benign);}
+  .fate-explosive{color:var(--fate-explosive);} .fate-explosive .fdot{background:var(--fate-explosive);}
+  .fate-undecided{color:var(--fate-undecided);} .fate-undecided .fdot{background:var(--fate-undecided);}
+  .ins-outcome{padding:1rem 1.15rem;border-radius:3px;margin-top:.2rem;}
+  .ins-outcome.f-absent{background:rgba(124,118,106,.07);border:1px solid rgba(124,118,106,.3);}
+  .ins-outcome.f-benign{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .ins-outcome.f-explosive{background:var(--red-soft);border:1px solid var(--red-line);}
+  .ins-outcome.f-undecided{background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .ins-outcome .io-fate{font-family:"Spectral",serif;font-weight:600;font-size:1.32rem;margin:.45rem 0 .3rem;}
+  .ins-outcome.f-absent .io-fate{color:var(--fate-absent);} .ins-outcome.f-benign .io-fate{color:var(--fate-benign);}
+  .ins-outcome.f-explosive .io-fate{color:var(--fate-explosive);} .ins-outcome.f-undecided .io-fate{color:var(--fate-undecided);}
+  .ins-outcome .io-gloss{font-size:.92rem;line-height:1.52;color:var(--soft1);}
+  .ins-outcome .io-verdict{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.65rem;letter-spacing:.01em;}
+  .dial-opt.rec.on{background:var(--teal-deep);border-color:var(--teal-deep);}
+
+  /* ===== supplement: rank badge (boundary + grid) ===== */
+  .rank-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.16rem .5rem;border-radius:3px;}
+  .rank-badge .rdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .rank-iso{color:var(--teal-deep);background:var(--teal-soft);} .rank-iso .rdot{background:var(--teal);}
+  .rank-tech{color:var(--steel-deep);background:var(--steel-soft);} .rank-tech .rdot{background:var(--steel);}
+  .rank-eng{color:var(--gold-deep);background:var(--gold-soft);} .rank-eng .rdot{background:var(--gold);}
+  .rank-sug{color:var(--red-deep);background:var(--red-soft);} .rank-sug .rdot{background:transparent;border:1.4px solid var(--red);}
+  .rank-root{color:var(--ink);background:rgba(26,24,21,.06);} .rank-root .rdot{background:var(--ink);}
+  .vol-card .vc-rank{margin-top:.55rem;}
+  .vol-card .vol-num{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;color:var(--faintest);float:right;}
+
+  /* ===== supplement: proof warrant column + toggle ===== */
+  .pf-toggle{display:flex;gap:.4rem;justify-content:center;margin-bottom:1rem;}
+  .pstep .pbody .pw{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);margin-top:.35rem;}
+  .pstep.qed .pbody .pw{color:var(--teal-deep);}
+
+  /* ===== supplement: two-axes hinge labels reuse, plus a small note ===== */
+  .axis-note{font-size:.9rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;text-align:center;max-width:42rem;margin-left:auto;margin-right:auto;}
+  .axis-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== supplement II: provability-core fixed points (§IV) ===== */
+  .gl-ax{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin:.3rem 0 .2rem;}
+  .gl-chip{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.3rem .65rem;}
+  .gl-chip.key{background:var(--gold-soft);color:var(--gold-deep);border-color:var(--gold-line);font-weight:500;}
+  .gl-chip.rule{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .fp-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:var(--teal-soft);}
+  .fp-head .fp-kind{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-deep);font-weight:600;margin-bottom:.4rem;}
+  .fp-head .fp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.32rem;letter-spacing:-.01em;margin:0 0 .35rem;}
+  .fp-head .fp-schema{font-family:"IBM Plex Mono",monospace;font-size:.96rem;color:var(--ink);}
+  .fp-head .fp-schema .hot{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.1rem 1.2rem;}
+  .fp-fp{display:flex;align-items:baseline;gap:.6rem .8rem;flex-wrap:wrap;padding:.75rem .95rem;background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;margin-bottom:.95rem;}
+  .fp-fp .fpl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-deep);}
+  .fp-fp .fpv{font-family:"IBM Plex Mono",monospace;font-size:1.1rem;font-weight:600;color:var(--teal-deep);}
+  .fp-fp .fpn{font-size:.9rem;color:var(--soft1);font-style:italic;}
+  .fp-vlab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin:.2rem 0 .55rem;}
+  .fp-verify{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.95rem;}
+  .fp-vstep{display:grid;grid-template-columns:2.4rem 1fr;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;padding:.4rem .65rem;border-left:2px solid var(--hair);background:rgba(26,24,21,.012);}
+  .fp-vstep .vk{color:var(--faintest);white-space:nowrap;font-size:.74rem;}
+  .fp-vstep .vv{color:var(--ink);} .fp-vstep .vv .hot{color:var(--red-deep);}
+  .fp-vstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);} .fp-vstep.qed .vv{color:var(--teal-deep);font-weight:500;} .fp-vstep.qed .vk{color:var(--teal-deep);}
+  .fp-read{font-size:.94rem;line-height:1.6;color:var(--soft1);padding-top:.75rem;border-top:1px solid var(--hair);}
+  .fp-read b{color:var(--ink);font-weight:600;}
+
+  /* ============================================================
+     DEEP-DIVE SUPPLEMENT — components specific to The Substrate
+     ============================================================ */
+
+  /* a depth marker on the hero — this is the apparatus opened up */
+  .depth-mark{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.1rem;}
+  .depth-mark .of{color:var(--faintest);}
+
+  /* static derivations — numbered, justified, monospace */
+  .deriv{display:flex;flex-direction:column;gap:.4rem;margin:1.1rem auto;max-width:42rem;}
+  .deriv.wide{max-width:46rem;}
+  .drow{display:grid;grid-template-columns:2.6rem 1fr;gap:.7rem;align-items:baseline;padding:.45rem .7rem;border-left:2px solid var(--rule);background:rgba(26,24,21,.012);border-radius:0 3px 3px 0;}
+  .drow .dn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .drow .db{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.55;color:var(--ink);}
+  .drow .db .hot{color:var(--red-deep);} .drow .db .cool{color:var(--teal-deep);}
+  .drow .dj{display:block;font-family:"Spectral",serif;font-style:italic;font-size:.86rem;color:var(--faint);margin-top:.2rem;}
+  .drow.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .drow.qed .dn{color:var(--teal-deep);} .drow.qed .db{color:var(--teal-deep);font-weight:500;}
+  .drow.hl{border-left-color:var(--red-line);background:var(--red-soft);}
+
+  /* a labelled proof wrapper */
+  .proofwrap{margin:1.2rem auto;max-width:42rem;}
+  .proofwrap .pw-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .proofwrap.wide{max-width:46rem;}
+  .pw-prose{font-size:.98rem;line-height:1.66;color:var(--ink);}
+  .pw-prose .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+  .pw-prose .qedmark{float:right;color:var(--teal-deep);font-weight:600;}
+
+  /* example / non-example dyad */
+  .dyad{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:44rem;}
+  @media(max-width:640px){ .dyad{grid-template-columns:1fr;} }
+  .dyad-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .dyad-cell .dc-h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .dyad-cell.yes .dc-h{color:var(--teal-deep);} .dyad-cell.no .dc-h{color:var(--red-deep);}
+  .dyad-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.08rem;margin:0 0 .4rem;}
+  .dyad-cell p{font-size:.88rem;line-height:1.52;color:var(--soft1);margin:0 0 .5rem;}
+  .dyad-cell p:last-child{margin-bottom:0;}
+  .dyad-cell .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--faint);}
+
+  /* the genera explorer */
+  .gx-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .gx-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.02);}
+  .gx-tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .gx-name{font-family:"Spectral",serif;font-weight:500;font-size:1.3rem;letter-spacing:-.01em;margin:0 0 .2rem;}
+  .gx-sub{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .gx-body{padding:.6rem 1.2rem 1.1rem;}
+  .gx-rows{margin:.3rem 0;}
+  .gx-rows .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.42rem 0;font-size:.88rem;border-bottom:1px solid var(--hair);}
+  .gx-rows .dirow:last-child{border-bottom:none;}
+  .gx-rows .dirow .dk{color:var(--soft1);} .gx-rows .dirow .dk .sm{color:var(--faintest);font-size:.9em;}
+  .gx-rows .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.8rem;white-space:nowrap;}
+  .gx-rows .dirow .dv.yes{color:var(--teal-deep);} .gx-rows .dirow .dv.no{color:var(--red-deep);}
+  .gx-note{font-size:.9rem;line-height:1.56;color:var(--soft1);padding-top:.75rem;margin-top:.4rem;border-top:1px solid var(--hair);}
+  .gx-note b{color:var(--ink);font-weight:600;}
+  .gx-note.coin{background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;padding:.7rem .9rem;margin-top:.7rem;}
+  .gx-note.coin b{color:var(--teal-deep);}
+
+  /* the iteration ladder (Kleene ascent to lfp) */
+  .itr-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.9rem;}
+  .itr-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .itr-btn:hover{opacity:.85;} .itr-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .itr-btn.go{background:var(--teal-deep);}
+  .itr-read{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);} .itr-read b{color:var(--ink);}
+  .itr-chain{display:flex;flex-direction:column;gap:.35rem;}
+  .itr-step{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.55rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .itr-step .is-n{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .itr-step .is-v{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--ink);letter-spacing:.01em;}
+  .itr-step .is-v .new{color:var(--teal-deep);font-weight:600;}
+  .itr-step .is-d{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--gold-deep);white-space:nowrap;}
+  .itr-step.fixed{border-color:var(--teal-line);background:var(--teal-soft);}
+  .itr-step.fixed .is-n{color:var(--teal-deep);} .itr-step.fixed .is-d{color:var(--teal-deep);}
+  .itr-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--teal-deep);padding:.7rem;border:1px dashed var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.3rem;}
+
+  /* small inline glyph row for the hero signature */
+  .sig-row{display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:clamp(.85rem,2vw,1.05rem);color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;letter-spacing:.01em;}
+  .sig-row .o{color:var(--red-deep);} .sig-row .d{color:var(--faintest);}
+
+  /* a structural strata bar used as a section opener */
+  .strata{display:flex;gap:2px;margin:0 auto 1.4rem;max-width:42rem;}
+  .strata span{height:5px;flex:1;border-radius:2px;opacity:.5;}
+  .strata .s1{background:var(--steel);} .strata .s2{background:var(--gold);} .strata .s3{background:var(--teal);} .strata .s4{background:var(--red);}
+
+  /* tightened figure label reused inline */
+  .blab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem;}
+
+  /* ============================================================
+     THE FULCRUM — proof-chase + two-faces supplement
+     ============================================================ */
+
+  /* commutative-diagram highlighting (elements carry .cd-el; JS toggles .dim) */
+  .cd-el{transition:opacity .32s ease;}
+  .cd-el.dim{opacity:.13;}
+
+  /* the proof-chase current line */
+  .chase-line{font-family:"Spectral",serif;font-size:1.05rem;line-height:1.6;color:var(--ink);background:var(--paper);border:1px solid var(--panelhair);border-left:3px solid var(--red);border-radius:0 4px 4px 0;padding:.95rem 1.15rem;margin-top:1.1rem;min-height:3rem;}
+  .chase-line .cl-n{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);display:block;margin-bottom:.4rem;}
+  .chase-line .cl-m{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--soft1);}
+  .chase-line .cl-m .hot{color:var(--red-deep);} .chase-line .cl-m .cool{color:var(--teal-deep);}
+  .chase-line .cl-j{display:block;font-size:.88rem;font-style:italic;color:var(--faint);margin-top:.5rem;line-height:1.5;}
+  .chase-line.qed{border-left-color:var(--teal);background:var(--teal-soft);} .chase-line.qed .cl-n{color:var(--teal-deep);}
+  .chase-count{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);} .chase-count b{color:var(--ink);}
+
+  /* the two-faces reader */
+  .tf-eq{font-family:"IBM Plex Mono",monospace;font-size:clamp(1.3rem,4.4vw,1.85rem);text-align:center;color:var(--ink);margin:1.1rem 0 .5rem;letter-spacing:.02em;}
+  .tf-eq .v{color:var(--red-deep);font-weight:500;}
+  .tf-line{text-align:center;margin:.7rem 0 .2rem;}
+  .tf-badge{display:inline-flex;align-items:center;gap:.55rem;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;font-weight:600;padding:.45rem 1rem;border-radius:3px;}
+  .tf-badge .tfdot{width:8px;height:8px;border-radius:50%;}
+  .tf-badge.power{color:var(--teal-deep);background:var(--teal-soft);} .tf-badge.power .tfdot{background:var(--teal);}
+  .tf-badge.limit{color:var(--red-deep);background:var(--red-soft);} .tf-badge.limit .tfdot{background:var(--red);}
+  .tf-what{font-size:.96rem;line-height:1.62;color:var(--soft1);border-top:1px solid var(--hair);padding-top:.85rem;margin-top:.95rem;}
+  .tf-what b{color:var(--ink);font-weight:600;} .tf-what .m{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--faint);}
+
+  /* a compact statement-forms table */
+  .forms{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.9rem;}
+  .forms th,.forms td{text-align:left;padding:.6rem .7rem;border-bottom:1px solid var(--hair);vertical-align:top;}
+  .forms th{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);font-weight:500;border-bottom:1px solid var(--rule);}
+  .forms td:first-child{font-family:"Spectral",serif;font-style:italic;color:var(--ink);white-space:nowrap;padding-right:1.2rem;}
+  .forms .m{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);}
+  .forms .need{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--gold-deep);}
+
+  /* ============================================================
+     THE FATES — instance-inspector + fate-decision-tree supplement
+     ============================================================ */
+
+  /* the four fates — coloured badges */
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.42rem .9rem;border-radius:3px;}
+  .fate-badge .fdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .fate-badge.benign{color:var(--teal-deep);background:var(--teal-soft);} .fate-badge.benign .fdot{background:var(--teal);}
+  .fate-badge.absent{color:var(--gold-deep);background:rgba(147,114,52,.10);} .fate-badge.absent .fdot{background:var(--gold);}
+  .fate-badge.explosive{color:var(--red-deep);background:var(--red-soft);} .fate-badge.explosive .fdot{background:var(--red);}
+  .fate-badge.undecided{color:var(--steel);background:rgba(61,90,107,.11);} .fate-badge.undecided .fdot{background:var(--steel);}
+
+  /* the fate map — four labelled rows */
+  .fate-map{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin:1.3rem 0;}
+  .fate-row{display:grid;grid-template-columns:11rem 1fr;gap:1.1rem;background:var(--paper);padding:1rem 1.15rem;align-items:start;}
+  @media(max-width:620px){ .fate-row{grid-template-columns:1fr;gap:.5rem;} }
+  .fate-row .fr-l{display:flex;flex-direction:column;gap:.5rem;}
+  .fate-row .fr-when{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);line-height:1.4;}
+  .fate-row .fr-body{font-size:.92rem;line-height:1.55;color:var(--soft1);}
+  .fate-row .fr-body b{color:var(--ink);font-weight:600;} .fate-row .fr-body .m{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--faint);}
+  .fate-row .fr-inst{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);margin-top:.35rem;}
+
+  /* the decision tree */
+  .ftree{border:1px solid var(--panelhair);border-radius:4px;padding:1.2rem;background:rgba(26,24,21,.012);}
+  .ftq{margin-bottom:.4rem;}
+  .ftq-n{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .ftq-t{font-family:"Spectral",serif;font-size:1.12rem;line-height:1.45;color:var(--ink);margin-bottom:.9rem;}
+  .ftq-t .m{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--soft1);}
+  .ft-ans{display:flex;flex-wrap:wrap;gap:.6rem;}
+  .ft-ans button{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:.55rem .95rem;cursor:pointer;transition:all .15s;text-align:left;}
+  .ft-ans button:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .ft-ans button .sub{display:block;font-size:.66rem;color:var(--faintest);margin-top:.2rem;}
+  .ft-path{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:1rem;min-height:1.4rem;}
+  .ft-crumb{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--soft1);background:rgba(26,24,21,.04);border-radius:3px;padding:.25rem .55rem;}
+  .ft-crumb .a{color:var(--teal-deep);}
+  .ft-arrow{color:var(--faintest);font-size:.7rem;}
+  .ft-result{border-radius:4px;padding:1.1rem 1.2rem;border:1px solid var(--panelhair);}
+  .ft-result .ftr-head{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.7rem;}
+  .ft-result .ftr-t{font-family:"Spectral",serif;font-weight:500;font-size:1.2rem;}
+  .ft-result .ftr-body{font-size:.94rem;line-height:1.6;color:var(--soft1);} .ft-result .ftr-body b{color:var(--ink);}
+  .ft-result .ftr-inst{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--soft1);margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--hair);}
+  .ft-reset{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--red-deep);background:none;border:1px solid var(--red-line);border-radius:3px;padding:.4rem .8rem;cursor:pointer;margin-top:.9rem;}
+
+  /* the instance inspector — four-tuple display */
+  .ix-tuple{display:grid;grid-template-columns:auto 1fr;gap:.1rem .9rem;margin:.4rem 0 .2rem;}
+  .ix-tuple .tk{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding:.4rem 0;white-space:nowrap;border-bottom:1px solid var(--hair);}
+  .ix-tuple .tv{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);padding:.4rem 0;border-bottom:1px solid var(--hair);}
+  .ix-tuple .tv .note{color:var(--faint);font-size:.92em;}
+  .ix-g{font-family:"IBM Plex Mono",monospace;font-size:.86rem;text-align:center;color:var(--red-deep);background:var(--red-soft);border-radius:3px;padding:.55rem;margin:.8rem 0 .4rem;}
+  .ix-eq{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--soft1);margin-bottom:.7rem;}
+  .ix-eq .v{color:var(--red-deep);font-weight:500;}
+
+  /* ============================================================
+     THE BOX — Kripke-frame evaluator + fixed-point calculator
+     ============================================================ */
+
+  /* Kripke frame evaluator */
+  .kf-controls{display:flex;flex-wrap:wrap;gap:1.4rem;align-items:flex-start;justify-content:center;margin:1.1rem 0 .4rem;}
+  .kf-group{display:flex;flex-direction:column;gap:.5rem;}
+  .kf-glab{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faintest);text-align:center;}
+  .kf-toggles{display:flex;gap:.4rem;justify-content:center;}
+  .kf-tog{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.42rem .7rem;border:1px solid var(--rule);border-radius:3px;cursor:pointer;background:var(--paper);color:var(--soft1);transition:all .14s;}
+  .kf-tog.on{border-color:var(--teal);color:var(--teal-deep);background:var(--teal-soft);}
+  .kf-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;max-width:30rem;}
+  .kf-eval{margin-top:1rem;display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;}
+  .kf-cell{font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.5rem .85rem;border-radius:3px;border:1px solid var(--panelhair);text-align:center;}
+  .kf-cell .w{color:var(--faintest);display:block;font-size:.7rem;margin-bottom:.2rem;}
+  .kf-cell .t{font-weight:600;}
+  .kf-cell.tt{background:var(--teal-soft);border-color:var(--teal-line);} .kf-cell.tt .t{color:var(--teal-deep);}
+  .kf-cell.ff{background:var(--red-soft);border-color:var(--red-line);} .kf-cell.ff .t{color:var(--red-deep);}
+  .kf-verdict{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;margin-top:.9rem;color:var(--soft1);}
+  .kf-verdict b{color:var(--ink);} .kf-verdict .valid{color:var(--teal-deep);} .kf-verdict .invalid{color:var(--red-deep);}
+
+  /* fixed-point calculator */
+  .fp-out{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:.95rem 1.15rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.02);}
+  .fp-tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .fp-ap{font-family:"IBM Plex Mono",monospace;font-size:1.08rem;color:var(--ink);} .fp-ap .p{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.05rem 1.15rem;}
+  .fp-arrow{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faintest);margin:.1rem 0 .5rem;}
+  .fp-h{font-family:"IBM Plex Mono",monospace;font-size:clamp(1.25rem,4vw,1.7rem);text-align:center;color:var(--teal-deep);margin:.2rem 0 .5rem;letter-spacing:.01em;}
+  .fp-h .eq{color:var(--faintest);font-weight:400;}
+  .fp-read{text-align:center;font-size:.94rem;line-height:1.5;color:var(--soft1);margin-bottom:.4rem;} .fp-read b{color:var(--ink);font-weight:600;}
+  .fp-just{font-size:.87rem;line-height:1.6;color:var(--faint);border-top:1px solid var(--hair);padding-top:.75rem;margin-top:.75rem;}
+  .fp-just .m{font-family:"IBM Plex Mono",monospace;font-size:.85em;color:var(--soft1);}
+
+  /* axiom list */
+  .axlist{display:flex;flex-direction:column;gap:.5rem;margin:1.1rem auto;max-width:40rem;}
+  .axrow{display:grid;grid-template-columns:5rem 1fr;gap:1rem;align-items:baseline;padding:.55rem .8rem;border-left:2px solid var(--rule);background:rgba(26,24,21,.012);border-radius:0 3px 3px 0;}
+  .axrow .axn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--red-deep);font-weight:500;}
+  .axrow .axf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);}
+  .axrow .axd{display:block;font-family:"Spectral",serif;font-style:italic;font-size:.86rem;color:var(--faint);margin-top:.2rem;}
+
+  /* ============================================================
+     THE BRIDGES — bridge inspector + interpretation fan
+     ============================================================ */
+
+  /* bridge inspector */
+  .br-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .br-bridges{padding:.2rem 0;}
+  .br-bridge{display:grid;grid-template-columns:1.7rem 1fr 1.5rem;gap:.85rem;align-items:start;padding:.85rem 1.15rem;border-bottom:1px solid var(--hair);}
+  .br-bridge:last-child{border-bottom:none;}
+  .br-num{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faintest);padding-top:.12rem;}
+  .br-rolelab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--red-deep);display:block;margin-bottom:.22rem;}
+  .br-data{font-size:.92rem;line-height:1.5;color:var(--soft1);} .br-data .m{font-family:"IBM Plex Mono",monospace;font-size:.86em;color:var(--ink);}
+  .br-stat{font-family:"IBM Plex Mono",monospace;font-size:1rem;text-align:center;padding-top:.05rem;}
+  .br-stat.ok{color:var(--teal-deep);} .br-stat.no{color:var(--red-deep);} .br-stat.partial{color:var(--gold-deep);}
+  .br-verdict{padding:.85rem 1.15rem;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;border-top:1px solid var(--panelhair);}
+  .br-verdict .vlab{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);display:block;margin-bottom:.3rem;}
+  .br-verdict.inst{background:var(--teal-soft);} .br-verdict.inst .vt{color:var(--teal-deep);font-weight:600;}
+  .br-verdict.lossy{background:rgba(147,114,52,.07);} .br-verdict.lossy .vt{color:var(--gold-deep);font-weight:600;}
+  .br-verdict.noninst{background:var(--red-soft);} .br-verdict.noninst .vt{color:var(--red-deep);font-weight:600;}
+
+  /* interpretation fan */
+  .fan-cap{margin-top:.6rem;min-height:4.6rem;border-top:1px solid var(--hair);padding-top:.8rem;font-size:.9rem;line-height:1.55;color:var(--soft1);text-align:center;}
+  .fan-cap .ct{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);display:block;margin-bottom:.3rem;}
+  .fan-cap .ctup{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--teal-deep);}
+  .fan-cap .cno{color:var(--red-deep);font-style:italic;}
+  .fan-hint{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);margin-top:.2rem;}
+
+  /* ============================================================
+     THE HORIZON — independence explorer + reflection ladder
+     ============================================================ */
+
+  /* independence explorer */
+  .ind-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .ind-head{padding:.95rem 1.15rem;border-bottom:1px solid var(--panelhair);display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;background:rgba(26,24,21,.018);}
+  .ind-name{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);}
+  .ind-badge{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .62rem;border-radius:3px;white-space:nowrap;}
+  .ind-badge.diag{background:var(--teal-soft);color:var(--teal-deep);border:1px solid var(--teal-line);}
+  .ind-badge.nat{background:rgba(61,90,107,.1);color:var(--steel);border:1px solid rgba(61,90,107,.32);}
+  .ind-body{padding:.3rem 0;}
+  .ind-row{display:grid;grid-template-columns:9rem 1fr;gap:.9rem;padding:.62rem 1.15rem;border-bottom:1px solid var(--hair);}
+  .ind-row:last-child{border-bottom:none;}
+  .ind-k{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);padding-top:.16rem;}
+  .ind-v{font-size:.92rem;line-height:1.52;color:var(--soft1);} .ind-v .m{font-family:"IBM Plex Mono",monospace;font-size:.86em;color:var(--ink);}
+  .ind-reach{padding:.85rem 1.15rem;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;border-top:1px solid var(--panelhair);}
+  .ind-reach .rl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);display:block;margin-bottom:.3rem;}
+  .ind-reach.yes{background:var(--teal-soft);} .ind-reach.yes .rt{color:var(--teal-deep);font-weight:600;}
+  .ind-reach.no{background:rgba(61,90,107,.08);} .ind-reach.no .rt{color:var(--steel);font-weight:600;}
+
+  /* reflection ladder */
+  .lad-cap{margin-top:.5rem;min-height:4.6rem;border-top:1px solid var(--hair);padding-top:.8rem;font-size:.9rem;line-height:1.55;color:var(--soft1);text-align:center;}
+  .lad-cap .ct{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--ink);display:block;margin-bottom:.32rem;}
+  .lad-cap .cx{color:var(--soft1);} .lad-cap .cap-un{color:var(--red-deep);font-style:italic;}
+  .lad-hint{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);margin-top:.2rem;}
+
+  /* ============================================================
+     THE RECURRENCE — timeline + multiples inspector
+     ============================================================ */
+  /* multiples inspector reuses .ind-* ; add two type-badge variants */
+  .ind-badge.mert{background:rgba(61,90,107,.1);color:var(--steel);border:1px solid rgba(61,90,107,.32);}
+  .ind-badge.struc{background:var(--red-soft);color:var(--red-deep);border:1px solid var(--red-line);}
+
+  /* timeline */
+  .tl-cap{margin-top:.5rem;min-height:5rem;border-top:1px solid var(--hair);padding-top:.8rem;font-size:.9rem;line-height:1.55;color:var(--soft1);text-align:center;}
+  .tl-cap .ct{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);display:block;margin-bottom:.3rem;}
+  .tl-cap .cw{font-style:italic;color:var(--faint);}
+  .tl-cap .cinst{color:var(--soft1);display:block;margin-bottom:.34rem;}
+  .tl-rec{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.16rem .5rem;border-radius:3px;}
+  .tl-rec.unaware{background:rgba(61,90,107,.1);color:var(--steel);}
+  .tl-rec.kinship{background:rgba(147,114,52,.1);color:var(--gold-deep);}
+  .tl-rec.identity{background:var(--red-soft);color:var(--red-deep);}
+  .tl-hint{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);margin-top:.2rem;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-scholia">Scholia</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a standalone study · why one construction recurs</span></div>
+    <div class="hero-head">
+      <p class="depth-mark">Companion to the apparatus &nbsp;<span class="of">— the recurrence</span></p>
+      <h1 class="title">The <span class="x">Recurrence</span></h1>
+      <p class="standfirst">One construction was discovered, in disguise, again and again. Cantor drew the diagonal in 1891; Russell, Richard, Gödel, Tarski, Turing, Kleene, and Curry each met it over the next half-century, in set theory, in computability, in logic, in semantics — mostly without seeing that it was one thing; and only in 1969 did Lawvere prove that it <em>was</em> one thing. That is a multiple discovery, but of an unusual kind, and it raises a question the corpus has earned the right to ask. Why does a single structure surface so many times, across so many fields and so many decades, before anyone recognizes the recurrence? This study is the epistemology of that question — what kind of multiple this is, why the diagonal keeps being found, why it was felt as a method long before it was proved as a theorem, and whether the unity Lawvere named was discovered or imposed. The corpus is itself the latest recognition of a recurrence a century and a third in the making, and the honest course is to turn its own instrument on that fact.</p>
+      <div class="sig-row"><span>1891</span><span class="o">⟶</span><span>1969</span></div>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">one structure · found again and again</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The apparatus is closed. Six studies established that a single categorical construction underlies the great limitative results, defined the sense in which they are its instances, and marked the borders of its reach. One question remains, and it is not mathematical but epistemological. The unity is now a theorem; but a theorem of 1969 about constructions first drawn in 1891, 1901, 1931. For most of that span the construction was being used — by mathematicians who did not know they shared it — without anyone holding the thread that ran through them all. A unity discovered so late, of materials assembled so early, is a fact about mathematical discovery that wants explaining.</p>
+    <p>The sociology of science has a name for the general phenomenon, and a literature. Robert Merton called the independent re-finding of a discovery a <i>multiple</i>, against the lone <i>singleton</i>, and argued that multiples are so common as to suggest that discoveries are ripe — in the air, waiting. Stephen Stigler observed, in a law he mischievously credited to Merton, that discoveries are rarely named for their first discoverer. Both bear directly on the diagonal. But the diagonal also resists them, in a way that turns out to be the heart of the matter: it is not the multiple Merton chiefly studied. Five movements. The roll-call, and the timeline that shows it. Then the distinction — singleton, multiple, and a third thing the diagonal exemplifies. Then the explanation of why it recurred. Then the long gap between feeling the recurrence as a method and proving it as a theorem, with Stigler’s law on the eponymy. And finally the reckoning the whole corpus has approached from every side: was the unity found, or made?</p>
+  </div>
+
+  <!-- ===== §1 THE ROLL-CALL ===== -->
+  <section class="sec" id="rollcall">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">1 · the roll-call</span><h2>Nine encounters, eighty years, one construction</h2><p class="sub">The diagonal was met independently across two generations and four subfields. What the timeline records is not only the recurrence but a spectrum of recognition — from a discoverer who could not have known, through many who sensed a kinship, to the one who proved an identity.</p></div>
+    <div class="reading">
+      <p>List the encounters in order. In 1891 Cantor drew the diagonal to prove the reals uncountable and the power set strictly larger. In 1901 Russell, applying Cantor’s argument to the class of all classes, reached his paradox — the first encounter that was <i>consciously</i> Cantorian. Richard in 1905 turned the diagonal on the definable reals; Gödel in 1931 built it into the incompleteness theorems and noted, in passing, the analogy to the Liar and to Richard; Tarski formalized the Liar into the undefinability of truth; Turing in 1936 diagonalized over machines and tied his halting result to Gödel’s; Kleene in 1938 turned the same move to positive use in the recursion theorem, treating diagonalization as a general method; Curry in 1942 stripped the paradox of negation, isolating its implicational core. Then, in 1969, Lawvere proved that all of it — the impossibilities and the fixed points alike — is one categorical theorem. Inspect the sequence, and read the colours.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the timeline of the recurrence — coloured by how far each discoverer recognized the unity</div>
+        <svg viewBox="0 0 740 212" role="img" aria-label="A timeline of independent discoveries of the diagonal construction, from Cantor in 1891 to Lawvere in 1969 and Yanofsky in 2003, clustered notably in the 1930s." style="display:block;width:100%;max-width:680px;margin:0 auto;height:auto;overflow:visible">
+          <line x1="50" y1="88" x2="694" y2="88" stroke="#c9c2b0" stroke-width="1.4"/>
+          <line x1="115.2" y1="84" x2="115.2" y2="92" stroke="#d8d2c4" stroke-width="1"/>
+          <text x="115.2" y="78" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#bdb6a6">1900</text>
+          <line x1="224.7" y1="84" x2="224.7" y2="92" stroke="#d8d2c4" stroke-width="1"/>
+          <text x="224.7" y="78" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#bdb6a6">1920</text>
+          <line x1="334.2" y1="84" x2="334.2" y2="92" stroke="#d8d2c4" stroke-width="1"/>
+          <text x="334.2" y="78" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#bdb6a6">1940</text>
+          <line x1="443.7" y1="84" x2="443.7" y2="92" stroke="#d8d2c4" stroke-width="1"/>
+          <text x="443.7" y="78" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#bdb6a6">1960</text>
+          <line x1="662.6" y1="84" x2="662.6" y2="92" stroke="#d8d2c4" stroke-width="1"/>
+          <text x="662.6" y="78" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#bdb6a6">2000</text>
+          <path d="M276.9,46 L276.9,40 L353.1,40 L353.1,46" fill="none" stroke="#a8a193" stroke-width="1"/>
+          <text x="315.0" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#a8a193">the 1930s flurry</text>
+          <line x1="65.9" y1="93" x2="65.9" y2="99" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-cantor" class="tl-node" cx="65.9" cy="88" r="6" fill="#3d5a6b" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="65.9" y="108" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#3d5a6b" style="pointer-events:none">Cantor ’91</text>
+          <line x1="120.7" y1="93" x2="120.7" y2="121" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-russell" class="tl-node" cx="120.7" cy="88" r="6" fill="#937234" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="120.7" y="130" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#937234" style="pointer-events:none">Russell ’01</text>
+          <line x1="142.6" y1="93" x2="142.6" y2="99" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-richard" class="tl-node" cx="142.6" cy="88" r="6" fill="#937234" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="142.6" y="108" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#937234" style="pointer-events:none">Richard ’05</text>
+          <line x1="284.9" y1="93" x2="284.9" y2="123" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-godel" class="tl-node" cx="284.9" cy="88" r="6" fill="#937234" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="284.9" y="132" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#937234" style="pointer-events:none">Gödel ’31</text>
+          <line x1="295.9" y1="93" x2="295.9" y2="145" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-tarski" class="tl-node" cx="295.9" cy="88" r="6" fill="#937234" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="295.9" y="154" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#937234" style="pointer-events:none">Tarski ’33</text>
+          <line x1="312.3" y1="93" x2="312.3" y2="167" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-turing" class="tl-node" cx="312.3" cy="88" r="6" fill="#937234" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="312.3" y="176" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#937234" style="pointer-events:none">Turing ’36</text>
+          <line x1="323.2" y1="93" x2="323.2" y2="99" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-kleene" class="tl-node" cx="323.2" cy="88" r="6" fill="#937234" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="323.2" y="108" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#937234" style="pointer-events:none">Kleene ’38</text>
+          <line x1="345.1" y1="93" x2="345.1" y2="123" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-curry" class="tl-node" cx="345.1" cy="88" r="6" fill="#937234" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="345.1" y="132" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#937234" style="pointer-events:none">Curry ’42</text>
+          <line x1="492.9" y1="93" x2="492.9" y2="99" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-lawvere" class="tl-node" cx="492.9" cy="88" r="6" fill="#b23a2e" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="492.9" y="108" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">Lawvere ’69</text>
+          <line x1="679.0" y1="93" x2="679.0" y2="99" stroke="#d8d2c4" stroke-width="0.8"/>
+          <circle id="tl-yanofsky" class="tl-node" cx="679.0" cy="88" r="6" fill="#b23a2e" stroke="#f4f1e8" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="679.0" y="108" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">Yanofsky ’03</text>
+          </svg>
+        <div class="tl-cap" id="tlCap"></div>
+        <div class="tl-hint">tap a discoverer — the colour marks the degree of recognition</div>
+        <figcaption>The dates cluster: the 1930s alone hold Gödel, Tarski, Turing, and Kleene, the diagonal turning up four times in a decade across logic, semantics, and computation. The colours tell the deeper story. Cantor, in <span style="color:var(--steel)">steel</span>, could not have seen a unity with results not yet conceived. The long middle, in <span style="color:var(--gold-deep)">gold</span>, sensed a kinship — Russell derived his paradox from Cantor, Gödel named the Liar, Turing named Gödel, Kleene wielded the method knowingly. Only Lawvere and, later, Yanofsky, in <span style="color:var(--red-deep)">red</span>, proved the kinship an identity. The recurrence was felt for seventy years before it was demonstrated for one.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Two facts about the sequence frame everything that follows. It is <i>diachronic</i> — spread thinly across eighty years, not concentrated in a single ripe moment — and it is, at the level of results, <i>heterogeneous</i>: Cantor proved uncountability, Gödel incompleteness, Kleene a fixed-point existence. These are different theorems. What they share is not a conclusion but a construction, and that sharing was invisible to most who participated in it. A multiple discovery spread across generations, of one structure beneath many results, recognized only in retrospect, is not quite the thing Merton catalogued. Naming what it is comes next.</p>
+    </div>
+  </section>
+
+  <!-- ===== §2 TWO KINDS OF MULTIPLE ===== -->
+  <section class="sec" id="kinds">
+    <div class="strata" aria-hidden="true"><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s1"></span></div>
+    <div class="sec-head"><span class="num">2 · two kinds of multiple</span><h2>Singletons, multiples, and the structural multiple</h2><p class="sub">Merton sorted discoveries into the lone <i>singleton</i> and the independently re-found <i>multiple</i>. The diagonal is a multiple — but not of his usual kind. It demands a third category, and naming it precisely is the conceptual core of this study.</p></div>
+    <div class="reading">
+      <p>Merton's distinction is simple and powerful. A <i>singleton</i> is a discovery made once, by one person or group; a <i>multiple</i> is one arrived at independently by several. His thesis, drawing on a long tradition back to Ogburn and Thomas's 1922 catalogue of a hundred and forty-eight cases, is that multiples are not anomalies but the norm — so frequent that they suggest discoveries are <i>ripe</i>, determined by the accumulated state of knowledge rather than by the individual, who is to that extent replaceable. When the times are right, the thing gets found, and often more than once. Calculus, natural selection, the telephone, oxygen: the canonical multiples are independent arrivals at the <i>same result</i>, clustered in a <i>single ripe moment</i>, each discoverer <i>knowing what they had found</i>.</p>
+    </div>
+    <div class="reading">
+      <p>The diagonal satisfies none of those three conditions, and that is the point. Its discoverers did not reach the same result — Cantor's uncountability and Gödel's incompleteness are different theorems. They were not clustered in a moment — eighty years separate the first encounter from the unification. And most did not know what they shared — the common construction was invisible until category theory could express it. The diagonal is a multiple of a different species, and the corpus proposes a name for it.</p>
+    </div>
+    <div class="defn">
+      <div class="dl">Mertonian and structural multiples</div>
+      <div class="ds">A <b>Mertonian multiple</b> is independent discovery of the <i>same result</i>, typically near-simultaneous, recognized as such by the discoverers — the sameness is <i>propositional</i>, at the level of the theorem proved. A <b>structural multiple</b> is the independent instantiation of the <i>same underlying construction</i> across <i>different results</i>, typically across a long span of time, recognized only <i>retrospectively</i> — the sameness is <i>structural</i>, at the level of the proof's form, and becomes visible only when an abstraction adequate to express the common form is developed. The Mertonian multiple is a fact about <i>discovery</i>; the structural multiple is a latent fact about <i>mathematics</i> that awaits its recognition.</div>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the multiples inspector — famous multiples by kind, and where the diagonal sits</div>
+        <div class="dial-pick" id="mxPick"></div>
+        <div class="ind-detail" id="mxOut"></div>
+        <figcaption>The classic multiples — calculus, natural selection, oxygen, the telephone, non-Euclidean geometry — are Mertonian: the same result, independently and almost simultaneously found, each discoverer aware of the find. Bell and Gray filed for the telephone hours apart on a single day; ripeness has no purer illustration. The diagonal is the outlier. Its discoverers found <i>different</i> theorems that shared a hidden construction, across eighty years, mostly unaware — a structural multiple, manifest only under the abstraction that could state the common form. The contrast is not of degree but of kind.</figcaption>
+      </div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">why the distinction matters — two different things to explain</div>
+      <p>The two species pose different questions and want different answers. A Mertonian multiple is explained sociologically: the times were right, the prerequisites were in place, and independent workers converged on the result that the field was ready to yield. The explanation is about the <i>community</i> and its moment. A structural multiple cannot be explained that way, because there was no moment — the instances are scattered across generations and subfields with no common ripeness to invoke. Its explanation must be <i>mathematical</i>: something about the structure itself makes it recur, surfacing wherever a certain configuration arises, independent of who is working or when. To ask why the calculus was found twice is to ask about Newton's century. To ask why the diagonal was found nine times is to ask about the diagonal. That question — why one construction keeps arising — is the next.</p>
+    </div>
+  </section>
+
+  <!-- ===== §3 WHY IT RECURRED ===== -->
+  <section class="sec" id="why">
+    <div class="strata" aria-hidden="true"><span class="s3"></span><span class="s4"></span><span class="s1"></span><span class="s2"></span></div>
+    <div class="sec-head"><span class="num">3 · why it recurred</span><h2>The situation recurs, so the construction recurs</h2><p class="sub">A structural multiple wants a mathematical explanation, not a sociological one. The diagonal recurs because the configuration it answers — a thing that applies to itself, and a twist that seeks to escape — arises wherever a system is rich enough to represent itself. And that, the construction proves about itself.</p></div>
+    <div class="reading">
+      <p>The explanation cannot appeal to a ripe moment, because there was none. It must locate the recurrence in the mathematics. And the mathematics is the apparatus the corpus has already built. The construction answers a specific configuration: a self-application <span class="mono">φ</span>, a thing that can take itself as argument, together with a twist <span class="mono">α</span>, an endomap one hopes has no fixed point. Wherever that configuration appears, <i>The Fulcrum</i> showed the diagonal is the unique and forced response, and a fixed point of the twist is the inescapable conclusion. So the recurrence of the diagonal is exactly the recurrence of the configuration — and the configuration is not rare.</p>
+    </div>
+    <div class="reading">
+      <p>It arises, in fact, wherever a formal system becomes rich enough to represent its own objects and operations — which is to say, wherever a system becomes interesting. Cantor's power set, with membership, lets a set name predicates on its elements. Gödel's arithmetization lets arithmetic name its own syntax, so that provability becomes a predicate the theory can express. Turing's universal machine lets computation name its own programs, so that application becomes internal. Scott's <span class="mono">D∞</span> lets a space of functions be one of its own points. In each case the self-application is not contrived; it is the very feature that makes the system able to talk about itself, and the ambition to talk about oneself is what pushes a formalism from triviality toward power. The naming arises again and again because self-representation is what rich systems do. And once the naming is present, the twist is cheap — negation, a swap, an implication — and the diagonal closes.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">each rediscovery was an interpretation of one generic situation</div>
+      <p>This is the historical shadow of <i>The Bridges</i>. There the unity was made precise: each instance is a faithful interpretation of a single generic situation <span class="mono">G</span> into the subject's own category. Read forward in time rather than backward in logic, that is a claim about discovery. Cantor, working in <span class="mono">Set</span>, was unknowingly interpreting <span class="mono">G</span>; Gödel, in the Lindenbaum algebra of arithmetic, was interpreting the same <span class="mono">G</span>; Turing and Kleene, in the category of computable functions, again the same <span class="mono">G</span>. Nine mathematicians built nine interpretations of one generic object, none of them aware of the object or of each other's interpretations, because the object had no name and no home until 1969. The structural multiple simply <i>is</i> the multiplicity of interpretations of <span class="mono">G</span>, distributed across history. What <i>The Bridges</i> proved as a fact about factorization, the timeline records as a fact about people.</p>
+    </div>
+    <div class="reading">
+      <p>And here the explanation turns on itself, in a way that befits the subject. Why must rich systems contain the self-application that triggers the construction? Because a system able to represent its own syntax necessarily contains the reflexive structure — the Gödel numbering, the universal machine, the power object — that supplies a naming; self-reference is not an optional ornament of expressive systems but a forced feature of them. And <i>that</i> systems rich enough to encode themselves cannot escape the diagonal's consequences — that they must be incomplete, or undecidable, or unable to define their own truth — is precisely what the construction proves. So the construction is both the recurring phenomenon and the explanation of its own recurrence: the diagonal keeps being found because self-reference is unavoidable in rich systems, and the unavoidability of self-reference is a theorem the diagonal itself delivers. The history of the construction's rediscovery is the empirical trace of a necessity the construction certifies. It recurs because it must, and it is the proof that it must.</p>
+    </div>
+    <div class="reading">
+      <p>That settles why the diagonal was found so often. It does not settle why it was found as a <i>method</i> long before it was proved as a <i>theorem</i> — why the kinship that the gold nodes of the timeline record took seventy years to become the identity of the red ones. That gap is about recognition, not occurrence, and it has its own lesson.</p>
+    </div>
+  </section>
+
+  <!-- ===== §4 METHOD BEFORE THEOREM ===== -->
+  <section class="sec" id="method">
+    <div class="strata" aria-hidden="true"><span class="s4"></span><span class="s1"></span><span class="s2"></span><span class="s3"></span></div>
+    <div class="sec-head"><span class="num">4 · method before theorem</span><h2>The diagonal trick, and the lag of abstraction</h2><p class="sub">The recurrence was felt as a <i>method</i> for seventy years before it was proved a <i>theorem</i> — and the delay was not failure of insight but absence of language. A structural multiple cannot be recognized until the abstraction that states its common form has been built.</p></div>
+    <div class="reading">
+      <p>Long before Lawvere, every logician knew "the diagonal argument." It was a method — a heuristic, a move one reached for when a system threatened to enumerate or decide too much. Cantor's argument, Russell's set, the Liar, the halting program: these were felt as a family, related by a shared trick rather than a shared theorem. The acute among the discoverers said so. Gödel noted the analogy of his undecidable sentence to the Liar and to Richard's paradox; Turing tied his halting result to Gödel's; Kleene treated diagonalization explicitly as a general technique of recursion theory. The kinship was visible — as kinship. What no one had was a single statement of which all these were instances, with a single proof.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the method-to-theorem transition</div>
+      <div class="ts"><b>A heuristic pattern becomes a theorem when one finds the structure that makes the pattern a forced consequence.</b> "The diagonal trick" was a recognized family resemblance: a way of arguing that worked, repeatedly, for reasons left implicit. Lawvere supplied the reasons. By identifying the structure — a category with products, a point-surjection, a twist — at which the trick is not a heuristic but an entailment, he converted the method into a theorem and the family resemblance into an identity. The instances ceased to be analogues sharing a technique and became corollaries sharing a proof. This is a recurring event in mathematics: a method is reified into a theorem precisely when the abstraction that explains its success is isolated.</div>
+    </div>
+    <div class="reading">
+      <p>Which raises the question of the lag. If the kinship was felt by the 1930s, why was the identity not proved until 1969? Not for want of brilliance — Gödel, Turing, Tarski were as capable as any. For want of <i>language</i>. The common form can only be stated in the vocabulary of category theory: cartesian closed categories, the diagonal morphism, point-surjectivity, the generic situation. That vocabulary did not exist. Category theory was founded by Eilenberg and Mac Lane only in 1945; the cartesian-closed structures and functorial semantics that Lawvere's argument requires were his own work of the early 1960s. The unification was not overlooked in 1931; it was <i>unstatable</i> in 1931, because the abstraction adequate to express it had not been built. The seventy-year lag between the method and the theorem is, almost exactly, the time it took to develop the language in which the theorem could be written.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the moral of the lag — structural multiples await their abstraction</div>
+      <p>Here is a general lesson the diagonal makes vivid. A structural multiple is latent in the mathematics from the moment its first instance is found, but it is <i>invisible</i> until a meta-theory reaches the level of abstraction at which the common form becomes expressible. Until then the instances can at most be felt as analogues — a family, a method, a trick — by practitioners acute enough to notice the resemblance. The recurrence becomes a recognized unity not when someone is clever enough to see it, but when the field is abstract enough to say it. So the recognition of a structural multiple lags its existence by exactly the development time of its unifying abstraction. The diagonal was found in 1891 and became one theorem in 1969 because category theory was born in between. The pattern was always there; the eyes had to be built.</p>
+    </div>
+    <div class="reading">
+      <p>One consequence touches the name itself. Stigler's law of eponymy holds that no discovery is named for its first discoverer — and Stigler, with a wink, credited the law to Merton, making the law an instance of itself. The diagonal tests the law and refines it. Cantor discovered the diagonal; the construction is called Lawvere's. But the eponymy is not simply misplaced, as Stigler's law would have it; it is displaced by one level. Lawvere did not discover the diagonal, which is Cantor's, nor the fixed-point form's combinatory shadow, which is Curry's; he discovered the <i>unification</i>, the single theorem beneath the instances. The name tracks the discoverer of the unity, not of the phenomenon — and so honestly records that the unity was a separate discovery, made once, late, by one person. Stigler's law applies to the instances, which are misremembered under Lawvere's name; it fails for the unification, which is exactly his. That a law of misattribution should itself be self-exemplifying, and should apply to the diagonal at one level while failing at another, is the kind of reflexive joke the whole subject seems to invite.</p>
+    </div>
+  </section>
+
+  <!-- ===== §5 DISCOVERED OR IMPOSED ===== -->
+  <section class="sec" id="reckoning">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s3"></span><span class="s2"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">5 · discovered or imposed</span><h2>Was the unity found, or made?</h2><p class="sub">A structural multiple recognized retrospectively forces the oldest question in the philosophy of mathematics. Did Lawvere discover a unity that was already there, or impose one by a choice of abstraction? The corpus answers a modest version and declines the immodest one.</p></div>
+    <div class="reading">
+      <p>This is the deflationary worry of <i>The Bridges</i> wearing different clothes. There the question was whether categorical unity is cheap; here it is whether the unity is <i>real</i> — whether Lawvere found a fact or framed a convenience. The structural multiple sharpens the question, because a recurrence spread across eighty years of independent work is exactly the kind of evidence each side most wants to claim.</p>
+    </div>
+    <div class="dyad">
+      <div class="dyad-cell yes">
+        <div class="dc-h">the realist reading</div>
+        <h4>the unity was found</h4>
+        <p>Cantor's diagonal set <i>was</i> the construction <span class="m">g</span> at <span class="m">α = ¬</span>, and Kleene's fixed point <i>was</i> the benign instance, whether or not anyone said so. The interpretations of <span class="m">G</span> were mathematical facts before 1969; Lawvere recognized them, he did not author them.</p>
+        <p>And the recurrence is evidence: a structure independently re-found across generations and fields is most naturally read as something there to be found.</p>
+      </div>
+      <div class="dyad-cell no">
+        <div class="dc-h">the formalist reading</div>
+        <h4>the unity was made</h4>
+        <p>The diagonal is a very general, very reusable move — like induction or pigeonhole. Finding it repeatedly reflects the small toolkit of constructions our practices admit, not a realm beyond them. The "unity" is an organization imposed by one chosen abstraction; a different foundational lens might carve elsewhere.</p>
+        <p>And "faithful interpretation" already presupposes the categorical frame — so the unity is read off a lens, not off the world.</p>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Both readings have force, and the corpus's discipline is to grant each its due rather than to declare a winner the evidence does not name. But the two are not symmetric, and a modest claim can be defended without settling the immodest one. The modest claim is that the unity was <i>discovered, not invented</i> — that there is a fact of the matter Lawvere got right. This is hard to deny at the level of the instances: Cantor's argument, written out, <i>is</i> the generic derivation interpreted in <span class="mono">Set</span>, step for step, and this was true while Cantor lived and category theory did not. The faithfulness of the interpretations, established case by case in <i>The Fates</i> and <i>The Bridges</i>, does not depend on anyone's recognizing it; it is a property of the proofs, not of the recognition. To that extent the structural multiple is real, and Lawvere's unification tracks it.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the honest position — a real recurrence, an open metaphysics</div>
+      <p>What the modest claim does <i>not</i> settle is the immodest one: whether the structure Lawvere found is a Platonic object, or a robust feature of our formal practices, or something else again. The formalist is right that "faithful interpretation" is stated within the categorical frame, and that one cannot read full mathematical realism off the recurrence without further argument the recurrence does not supply. So the corpus stops where the evidence stops. The structural multiple is real in the minimal and defensible sense — the same construction was genuinely instantiated, again and again, before it was named, and the naming discovered rather than created those instantiations. Whether that recurrence is the footprint of a Platonic realm or the shadow of a finite toolkit is a question the diagonal does not decide, and the corpus will not pretend it does. A real recurrence with an open metaphysics is the honest description, and it is enough. The construction was found nine times because it was there to find; what <i>kind</i> of "there" that is remains, as it should, an open question.</p>
+    </div>
+    <div class="reading">
+      <p>So the recurrence resolves into a chain the corpus has assembled from both ends. The diagonal was found again and again because the configuration it answers recurs; the configuration recurs because self-reference is forced in any system rich enough to represent itself; that systems so rich cannot escape the diagonal's consequences is what the construction proves; and the unity of all this stayed latent until category theory could state it, seventy years after the first instance and made manifest in one stroke. There is a last reflexivity, and the subject would be poorer without it. To recognize a structural multiple — to see that scattered results share a hidden construction and to prove the method a theorem — is itself an instance of the pattern this study describes: a retrospective unification, made possible by an abstraction that arrived late. The study of recurrence recurs. The corpus is the latest red node on its own timeline, and will not be the last.</p>
+    </div>
+  </section>
+
+  <!-- ===== CODA ===== -->
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">found nine times · because it was there</span><span class="ln"></span></div>
+  <div class="coda"><p>One construction, drawn first in 1891 and proved single in 1969, was met in between by mathematicians who did not know they shared it. That is a multiple of an uncommon kind — not the same result found at one ripe moment, but one construction found beneath many results across many decades, recognized only when an abstraction adequate to its form was at last built. It recurred because the situation recurred, and the situation recurred because self-reference is the unavoidable companion of any system rich enough to speak about itself — a fact the construction itself certifies. The kinship was felt for seventy years as a method before it was proved for one as a theorem, and the lag was the building of the language. <span class="mono">The diagonal was there to be found, and so it was found, and found, and found.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a standalone study · the recurrence</span></div>
+    <p class="colophon">A companion to the deep apparatus — not one of the six faces of the construction but a reflection on the fact that the construction was discovered, in disguise, again and again. It assembles the roll-call: Cantor 1891, Russell 1901, Richard 1905, Gödel 1931, Tarski, Turing 1936, Kleene 1938, Curry 1942, and the unification by Lawvere in 1969, with Yanofsky's later exposition — a multiple discovery spread across eighty years and four subfields. Against Merton's distinction between the lone singleton and the independently re-found multiple, it draws a further one: between the <i>Mertonian</i> multiple, independent arrival at the same result in a single ripe moment, and the <i>structural</i> multiple, the recurrence of one construction beneath different results across long time, recognized only retrospectively — of which the diagonal is the paradigm. It explains the recurrence not sociologically but mathematically: the configuration the construction answers — a self-application and a twist — arises wherever a system is rich enough to represent itself, so each rediscovery was an unwitting interpretation of the generic situation of <i>The Bridges</i>, and the construction proves its own recurrence inevitable. It locates the seventy-year gap between feeling the diagonal as a method and proving it a theorem in the development time of category theory, the abstraction needed to state the common form, with Stigler's law refined to apply at the level of the instances and fail at the level of the unification. And it answers, modestly, whether the unity was found or made: the structural multiple is real in the defensible sense that the instances were faithful before they were recognized, while its deeper metaphysics is left, evenhandedly, open. Nothing here is new mathematics; the new thing is an epistemology of the corpus's own central fact.</p>
+    <p class="notes"><span class="nl">principal sources.</span> &nbsp;Merton 1961, <i>Singletons and Multiples in Scientific Discovery</i> (and Merton 1957 on priority), with the antecedent catalogue of Ogburn and Thomas 1922 · Stigler 1980, <i>Stigler's Law of Eponymy</i>, self-attributed to Merton. The historical encounters: Cantor 1891, Russell 1901–03, Richard 1905, Gödel 1931, Tarski 1933/1936, Turing 1936, Kleene 1938, Curry 1942, Lawvere 1969, Yanofsky 2003. Category theory's chronology: Eilenberg and Mac Lane 1945, Lawvere's functorial semantics 1963. The generic situation and faithfulness follow <i>The Bridges</i>; the configuration's inevitability follows <i>The Fulcrum</i> and <i>The Substrate</i>.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on what is argued here.</span> &nbsp;The dates and attributions are historical and are cited, not established here; the degrees of recognition — Cantor's none, the middle's sensed kinship, Lawvere's proved identity — are read from the historical record, including Gödel's noted analogy to the Liar and Russell's derivation of his paradox from Cantor. The distinction between Mertonian and structural multiples is the corpus's own framing, offered as a refinement of Merton's, not a result. The explanation of the recurrence by structural inevitability rests on the mathematics of <i>The Fulcrum</i> and <i>The Bridges</i>, here read forward in time. The realism discussion is argued evenhandedly, with a modest realist conclusion defended and the stronger metaphysics left open by design. This study is reflection, not theorem; its claims are conceptual and historical, and are marked as such throughout. Written to be checked.</p>
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+function E(t,c){var e=document.createElement(t); if(c) e.className=c; return e;}
+
+/* ============================================================
+   §1 interactive 1 — the timeline of the recurrence
+   ============================================================ */
+var TLNODES=["cantor","russell","richard","godel","tarski","turing","kleene","curry","lawvere","yanofsky"];
+var TLCOL={unaware:"#3d5a6b", kinship:"#937234", identity:"#b23a2e"};
+var TLDATA={
+ cantor:{name:"Cantor \u00b7 1891", inst:"the diagonal argument \u2014 the reals are uncountable, the power set strictly larger", rec:"unaware", reclab:"could not have known \u2014 a unity with results not yet conceived"},
+ russell:{name:"Russell \u00b7 1901", inst:"Russell\u2019s paradox \u2014 the set of all non-self-membered sets", rec:"kinship", reclab:"consciously Cantorian \u2014 derived by applying Cantor\u2019s argument to the class of all classes"},
+ richard:{name:"Richard \u00b7 1905", inst:"Richard\u2019s paradox \u2014 the diagonal over the definable reals", rec:"kinship", reclab:"a semantic diagonal; its kinship to Cantor\u2019s was discussed at once"},
+ godel:{name:"G\u00f6del \u00b7 1931", inst:"the incompleteness theorems \u2014 the diagonal lemma", rec:"kinship", reclab:"noted the analogy of the undecidable sentence to the Liar and to Richard"},
+ tarski:{name:"Tarski \u00b7 1933", inst:"the undefinability of truth \u2014 the Liar formalized", rec:"kinship", reclab:"acutely aware of the semantic paradoxes\u2019 shared form"},
+ turing:{name:"Turing \u00b7 1936", inst:"the halting problem \u2014 the diagonal over machines", rec:"kinship", reclab:"tied his result explicitly to G\u00f6del\u2019s"},
+ kleene:{name:"Kleene \u00b7 1938", inst:"the recursion theorem \u2014 the diagonal\u2019s positive, benign fixed point", rec:"kinship", reclab:"treated diagonalization as a general method of recursion theory"},
+ curry:{name:"Curry \u00b7 1942", inst:"Curry\u2019s paradox \u2014 the negation-free core", rec:"kinship", reclab:"stripped the paradox of negation, isolating its implicational form"},
+ lawvere:{name:"Lawvere \u00b7 1969", inst:"the fixed-point theorem \u2014 all instances as one categorical construction", rec:"identity", reclab:"proved the family resemblance an identity \u2014 one theorem, one proof"},
+ yanofsky:{name:"Yanofsky \u00b7 2003", inst:"a unified exposition of the self-referential paradoxes via the diagonal", rec:"identity", reclab:"re-presented and extended the single schema for a general audience"}
+};
+function tlSelect(id){
+  TLNODES.forEach(function(k){
+    var n=document.getElementById("tl-"+k);
+    if(n){ n.setAttribute("r","6"); n.setAttribute("stroke","#f4f1e8"); n.setAttribute("stroke-width","1.5"); }
+  });
+  var sel=document.getElementById("tl-"+id);
+  if(sel){ sel.setAttribute("r","8.5"); sel.setAttribute("stroke","#1a1815"); sel.setAttribute("stroke-width","1.6"); }
+  var cap=document.getElementById("tlCap"); if(!cap) return; cap.innerHTML="";
+  var d=TLDATA[id]; if(!d) return;
+  var ct=E("span","ct"); ct.textContent=d.name; cap.appendChild(ct);
+  var ci=E("span","cinst"); ci.textContent=d.inst; cap.appendChild(ci);
+  var bg=E("span","tl-rec "+d.rec); bg.textContent=d.reclab; cap.appendChild(bg);
+}
+function tlInit(){
+  TLNODES.forEach(function(id){
+    var n=document.getElementById("tl-"+id);
+    if(n) n.addEventListener("click",function(){ tlSelect(id); });
+  });
+  tlSelect("cantor");
+}
+
+/* ============================================================
+   §2 interactive 2 — the multiples inspector (reuses .ind-*)
+   ============================================================ */
+var MX=[
+ {id:"diagonal", tab:"the diagonal", type:"struc", typelab:"structural", name:"the diagonal construction (this corpus)",
+  rows:[
+   {k:"result", v:"<b>not one result</b> \u2014 different theorems: uncountability, paradox, incompleteness, undecidability, recursion"},
+   {k:"discoverers", v:"Cantor, Russell, G\u00f6del, Tarski, Turing, Kleene, Curry \u2014 unified by Lawvere"},
+   {k:"timing", v:"diffuse across 1891\u20131969; recognized retrospectively"}],
+  verdict:"Not the Mertonian pattern. Different theorems sharing a hidden construction, across eighty years, mostly unaware \u2014 manifest only under the abstraction that could express it."},
+ {id:"calculus", tab:"the calculus", type:"mert", typelab:"Mertonian", name:"the differential and integral calculus",
+  rows:[
+   {k:"result", v:"the calculus \u2014 the same body of method and theorem"},
+   {k:"discoverers", v:"Newton (c. 1665) and Leibniz (c. 1675), independently"},
+   {k:"timing", v:"within a decade; a bitter priority dispute followed"}],
+  verdict:"The same result, reached independently within a decade, each knowing what he had. The paradigm Mertonian multiple \u2014 the times were right."},
+ {id:"selection", tab:"natural selection", type:"mert", typelab:"Mertonian", name:"evolution by natural selection",
+  rows:[
+   {k:"result", v:"the theory of natural selection"},
+   {k:"discoverers", v:"Darwin and Wallace, independently"},
+   {k:"timing", v:"1858 \u2014 Wallace\u2019s letter forced a joint presentation"}],
+  verdict:"One theory, two independent routes, made public at a single moment. Mertonian: same result, same ripeness."},
+ {id:"oxygen", tab:"oxygen", type:"mert", typelab:"Mertonian", name:"the isolation of oxygen",
+  rows:[
+   {k:"result", v:"the isolation of the same gas"},
+   {k:"discoverers", v:"Scheele (c. 1772) and Priestley (1774); Lavoisier interpreted it"},
+   {k:"timing", v:"the early 1770s, within two years"}],
+  verdict:"Independent isolation of the same substance within two years. Mertonian \u2014 though the interpretation was a further, separate step."},
+ {id:"telephone", tab:"the telephone", type:"mert", typelab:"Mertonian", name:"the electric telephone",
+  rows:[
+   {k:"result", v:"the same invention"},
+   {k:"discoverers", v:"Bell and Gray"},
+   {k:"timing", v:"1876 \u2014 patent filings on the same day"}],
+  verdict:"The starkest Mertonian multiple: the same device filed hours apart. Ripeness at its most literal."},
+ {id:"noneuclidean", tab:"non-Euclidean geometry", type:"mert", typelab:"Mertonian", name:"a geometry denying the parallel postulate",
+  rows:[
+   {k:"result", v:"the same conceptual breakthrough"},
+   {k:"discoverers", v:"Bolyai and Lobachevsky (Gauss privately, earlier)"},
+   {k:"timing", v:"the 1820s\u201330s, independently"}],
+  verdict:"Same breakthrough, independent and near-simultaneous. Mertonian, with Gauss the unpublished precursor."}
+];
+var MXById={}; MX.forEach(function(x){ MXById[x.id]=x; });
+function renderMxPick(){
+  var host=document.getElementById("mxPick"); if(!host) return; host.innerHTML="";
+  MX.forEach(function(x){
+    var b=E("button","dial-opt"); b.dataset.id=x.id;
+    b.appendChild(document.createTextNode(x.tab));
+    var s=E("span","dsub"); s.textContent=x.typelab; b.appendChild(s);
+    b.addEventListener("click",function(){ mxSelect(x.id); });
+    host.appendChild(b);
+  });
+}
+function mxSelect(id){
+  var x=MXById[id]; if(!x) return;
+  var pk=document.getElementById("mxPick");
+  if(pk) Array.prototype.forEach.call(pk.querySelectorAll(".dial-opt"),function(b){ b.classList.toggle("on", b.dataset.id===id); });
+  var host=document.getElementById("mxOut"); if(!host) return; host.innerHTML="";
+  var head=E("div","ind-head");
+  var nm=E("div","ind-name"); nm.textContent=x.name; head.appendChild(nm);
+  var bd=E("div","ind-badge "+x.type); bd.textContent=x.typelab+" multiple"; head.appendChild(bd);
+  host.appendChild(head);
+  var body=E("div","ind-body");
+  x.rows.forEach(function(r){
+    var row=E("div","ind-row");
+    var k=E("div","ind-k"); k.textContent=r.k; row.appendChild(k);
+    var v=E("div","ind-v"); v.innerHTML=r.v; row.appendChild(v);
+    body.appendChild(row);
+  });
+  host.appendChild(body);
+  var rc=E("div","ind-reach");
+  rc.style.background=(x.type==="struc")?"rgba(178,58,46,.07)":"rgba(61,90,107,.08)";
+  var rl=E("span","rl"); rl.textContent="the kind of multiple"; rc.appendChild(rl);
+  var rt=document.createElement("span"); rt.style.fontWeight="600"; rt.style.color=(x.type==="struc")?"#b23a2e":"#3d5a6b"; rt.textContent=x.typelab+" \u2014 "; rc.appendChild(rt);
+  var rx=document.createElement("span"); rx.textContent=x.verdict; rc.appendChild(rx);
+  host.appendChild(rc);
+}
+
+function init(){
+  try{ tlInit(); }catch(e){ console.error("timeline",e); }
+  try{ renderMxPick(); mxSelect("diagonal"); }catch(e){ console.error("multiples",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="horizon.html">← The Horizon</a><a rel="next" href="forge.html">The Forge →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

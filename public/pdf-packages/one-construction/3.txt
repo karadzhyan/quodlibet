@@ -1,0 +1,15 @@
+T H E C O N S T R U C T I O N
+g(x) = α(φ(x)(x))
+Three moves. Let φ give every map a name, so that
+to name a map and to hold an element of the
+system become the same act. Apply a map
+to its own name — the diagonal, the act of
+self-reference. Then twist the result by some
+operation α.
+The object g so built has a strange property. It
+cannot be named inside the system without
+naming, at the same stroke, a fixed point of α — a
+point the twist leaves unmoved. Everything that
+follows turns on a single question: whether such a
+point can exist.
+3

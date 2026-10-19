@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Staircase — incompleteness, measured in ordinals</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup,sub{font-size:.7em;line-height:0;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(2.9rem,10vw,7.2rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.24rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:46rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:42rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:44rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem / derivation */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:44rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.02rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.9rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+  .pf{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.8;color:var(--soft1);margin-top:.7rem;}
+  .pf .hot{color:var(--red-deep);} .pf b{color:var(--ink);font-weight:600;} .pf .q{color:var(--faintest);}
+
+  .bigeq{text-align:center;font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.7rem,3vw,2.3rem);margin:1.4rem 0;letter-spacing:.01em;}
+  .bigeq .v{font-style:italic;} .bigeq .r{color:var(--red);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:44rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+  .callout.ink{border-left-color:var(--ink);background:var(--panel);} .callout.ink .cl-lab{color:var(--ink);}
+
+  /* the three mechanism cards */
+  .mechs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:780px){ .mechs{grid-template-columns:1fr;} }
+  .mech{background:var(--paper);padding:1.2rem 1.25rem;}
+  .mech .m-tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;display:inline-block;padding:.2rem .5rem;border-radius:2px;margin-bottom:.7rem;}
+  .mech.m1 .m-tag{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .mech.m2 .m-tag{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .mech.m3 .m-tag{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .mech h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .35rem;letter-spacing:-.01em;}
+  .mech .m-eq{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);margin:.3rem 0 .55rem;padding:.4rem .55rem;background:var(--panel);border-radius:2px;border:1px solid var(--hair);}
+  .mech p{font-size:.88rem;line-height:1.52;color:var(--soft1);}
+  .mech .m-mem{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.55;color:var(--faint);margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--hair);}
+  .mech .m-mem b{color:var(--ink);font-weight:500;}
+
+  /* a worked-reduction spec (5-tuple + discharge) */
+  .spec{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:46rem;background:var(--paper);}
+  .spec .sp-h{display:flex;justify-content:space-between;align-items:baseline;gap:.8rem;padding:.85rem 1.15rem;border-bottom:1px solid var(--hair);flex-wrap:wrap;}
+  .spec .sp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;letter-spacing:-.01em;}
+  .spec .sp-name b{color:var(--red-deep);}
+  .spec .sp-mech{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:2px;white-space:nowrap;}
+  .spec .sp-mech.m1{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .spec .sp-mech.m2{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .spec .sp-mech.m3{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .spec .sp-grid{display:grid;grid-template-columns:auto 1fr;gap:.1rem .9rem;padding:.85rem 1.15rem;font-size:.9rem;line-height:1.5;}
+  .spec .sp-grid dt{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--faintest);padding-top:.32rem;}
+  .spec .sp-grid dd{margin:0;padding:.18rem 0;}
+  .spec .sp-grid dd .mono{font-size:.84rem;}
+  .spec .sp-grid dd .h{color:var(--red-deep);font-weight:500;}
+  .spec .sp-disc{padding:.8rem 1.15rem;border-top:1px solid var(--hair);background:var(--panel);font-size:.86rem;line-height:1.55;color:var(--soft1);}
+  .spec .sp-disc .dl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.3rem;}
+  .spec .sp-disc b{color:var(--ink);font-weight:600;}
+  @media(max-width:540px){ .spec .sp-grid{grid-template-columns:1fr;gap:.05rem;} .spec .sp-grid dt{padding-top:.45rem;} }
+
+  /* the cost ledger */
+  .cost{width:100%;border-collapse:collapse;font-size:.88rem;}
+  .cost th{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:500;text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--rule);vertical-align:bottom;}
+  .cost td{padding:.6rem .7rem;border-bottom:1px solid var(--hair);vertical-align:top;line-height:1.45;}
+  .cost td.c-name{font-family:"Spectral",serif;font-style:italic;color:var(--ink);white-space:nowrap;}
+  .cost td.c-cost{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .cost td.c-str{font-family:"IBM Plex Mono",monospace;font-size:.74rem;}
+  .cost .s-none{color:var(--teal-deep);} .cost .s-mid{color:var(--gold-deep);} .cost .s-hi{color:var(--red-deep);}
+  .cost tr:last-child td{border-bottom:none;}
+  @media(max-width:680px){
+    .cost thead{display:none;} .cost,.cost tbody,.cost tr,.cost td{display:block;width:100%;}
+    .cost tr{border:1px solid var(--hair);border-radius:3px;margin-bottom:.55rem;padding:.5rem .7rem;}
+    .cost td{border:none;padding:.16rem 0;}
+    .cost td.c-cost::before{content:"pays — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+    .cost td.c-str::before{content:"strength — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+  }
+
+  /* definition box */
+  .defn{border:1px solid var(--ink);border-radius:3px;padding:1.1rem 1.3rem;margin:1.5rem auto;max-width:44rem;background:var(--panel);}
+  .defn .d-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin-bottom:.6rem;}
+  .defn p{font-size:.96rem;line-height:1.62;margin:0 0 .55rem;}
+  .defn p:last-child{margin-bottom:0;}
+  .defn .term{font-weight:600;font-style:italic;}
+  .defn .mono{font-size:.85rem;color:var(--red-deep);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* derivation chain (modal proofs) */
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;margin:1.1rem auto;max-width:44rem;border-left:2px solid var(--gold-line);padding:.3rem 0 .3rem 0;}
+  .chain .cstep{display:grid;grid-template-columns:1.7rem 1fr;gap:.2rem .7rem;padding:.32rem 1rem .32rem 1.1rem;}
+  .chain .cstep:not(:last-child){border-bottom:1px solid var(--hair);}
+  .chain .cn{color:var(--gold-deep);font-weight:500;}
+  .chain .cf{color:var(--ink);} .chain .cf .hot{color:var(--red-deep);} .chain .cf b{font-weight:600;}
+  .chain .cj{color:var(--faintest);font-size:.72rem;grid-column:2;margin-top:-.1rem;}
+  .chain .qed{color:var(--red-deep);}
+  /* fixed-point ladder (operator -> unique fixed point) */
+  .fp{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.2rem auto;max-width:46rem;}
+  @media(max-width:640px){ .fp{grid-template-columns:1fr;} }
+  .fp .fpc{background:var(--paper);padding:1.05rem 1.2rem;}
+  .fp .fpc .op{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--faint);text-transform:uppercase;margin-bottom:.5rem;}
+  .fp .fpc .opf{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);margin-bottom:.55rem;}
+  .fp .fpc .opf .b{color:var(--red-deep);}
+  .fp .fpc .fpr{font-family:"Spectral",serif;font-size:1.16rem;font-weight:500;letter-spacing:-.01em;margin:.2rem 0 .35rem;}
+  .fp .fpc .fpr .eq{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);font-weight:400;}
+  .fp .fpc p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .fp .fpc p b{color:var(--ink);font-weight:500;}
+
+  /* inverse-limit ladder (SVG host) */
+  .ladder{margin:1.3rem auto;max-width:46rem;}
+  .ladder svg{width:100%;height:auto;display:block;}
+  /* the switch: two regimes compared */
+  .switch{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin:1.4rem auto;max-width:48rem;border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .switch{grid-template-columns:1fr;} }
+  .switch .sw{padding:1.1rem 1.25rem;background:var(--paper);}
+  .switch .sw.left{border-right:1px solid var(--panelhair);}
+  @media(max-width:680px){ .switch .sw.left{border-right:none;border-bottom:1px solid var(--panelhair);} }
+  .switch .sw .sw-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.55rem;}
+  .switch .sw.left .sw-h{color:var(--red-deep);} .switch .sw.right .sw-h{color:var(--teal-deep);}
+  .switch .sw h4{font-family:"Spectral",serif;font-weight:500;font-size:1.08rem;margin:0 0 .4rem;letter-spacing:-.01em;}
+  .switch .sw p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .switch .sw p .mono{font-size:.8rem;}
+  .switch .sw .res{font-family:"IBM Plex Mono",monospace;font-size:.74rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--hair);color:var(--faint);}
+  .switch .sw.left .res b{color:var(--red-deep);} .switch .sw.right .res b{color:var(--teal-deep);}
+  .switch .pivot{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem;background:var(--panel);border-left:1px solid var(--panelhair);border-right:1px solid var(--panelhair);min-width:6.5rem;}
+  @media(max-width:680px){ .switch .pivot{border:none;border-top:1px solid var(--panelhair);border-bottom:1px solid var(--panelhair);flex-direction:row;gap:.6rem;} }
+  .switch .pivot .pq{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faintest);text-align:center;line-height:1.4;}
+  .switch .pivot .pg{font-family:"Spectral",serif;font-style:italic;font-size:1.4rem;color:var(--ink);margin:.3rem 0;}
+
+  /* source-signature row under each source */
+  .sig{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--faint);margin-top:.7rem;padding-top:.55rem;border-top:1px solid var(--hair);}
+  .sig b{color:var(--ink);font-weight:500;}
+  .sig .needs{color:var(--red-deep);} .sig .yields{color:var(--teal-deep);}
+
+  /* the staircase host */
+  .stair{margin:1.4rem auto;max-width:46rem;}
+  .stair svg{width:100%;height:auto;display:block;}
+  /* reach grid */
+  .reach{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.2rem auto;max-width:46rem;}
+  @media(max-width:600px){ .reach{grid-template-columns:1fr;} }
+  .reach .rc{background:var(--paper);padding:.85rem 1.1rem;display:flex;gap:.7rem;align-items:baseline;}
+  .reach .rc .rn{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);letter-spacing:.04em;white-space:nowrap;padding-top:.1rem;min-width:5.2rem;flex-shrink:0;}
+  .reach .rc .rt{font-size:.9rem;line-height:1.45;color:var(--soft1);}
+  .reach .rc .rt b{color:var(--ink);font-weight:500;font-family:"Spectral",serif;font-style:italic;}
+  .reach .rc .rt .mono{font-size:.8rem;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-collected">Collected Studies</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+          <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deepening · the height of self-reference</span></div>
+    <div class="hero-head">
+      <p class="kicker">Incompleteness, measured in ordinals</p>
+      <h1 class="title">The <span class="x">Staircase</span></h1>
+      <p class="standfirst">The diagonal's most famous deed is to draw a line no theory can cross: arithmetic cannot prove its own consistency. The line is real, but it is read wrong. It is not a wall at the edge of mathematics; it is the <em>first step</em> of a staircase that goes up forever. Add to a theory the one thing it cannot prove — its own consistency — and you have climbed exactly one rung; the new theory cannot prove <em>its</em> consistency, and so you climb again, and the rungs are well-ordered, and the height you have reached is an <em>ordinal</em>. This is the other face of the diagonal. Where it draws a ceiling on any single proof, it generates, read upward, the entire vertical of mathematical strength — an endless, exactly-measured ascent, with concrete theorems standing on its steps, climbed without end and, as it turns out, without a canonical route.</p>
+      <p class="ed-mark">the first rung · the ladder · the measure · the concrete steps · the top · the height</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">T ⊊ T+Con(T) ⊊ ⋯ ⊊ Tₐ ⊊ ⋯</span><span class="ln"></span></div>
+
+  <section class="sec" id="where" style="margin-top:clamp(2.5rem,6vh,4rem)">
+    <div class="lede read">
+      <p><i>The Provenance</i> laid the diagonal out sideways — among all the ways a fixed point can arise — and found it alone on the side that asks nothing of the world. This last mathematical descent stands it upright. The question is no longer <i>where</i> the diagonal sits but <i>how high</i> it reaches: granted that it bounds every theory from inside, what is on the other side of the bound, and how is the climb out of it structured? <i>The Box</i> opened the logic of a single provability operator and stopped at one box. Here that box is iterated — past Gödel, past the first failure, up a tower of theories each built from the last — and the surprise is that the climb is not chaos but an <i>ordinal</i>, the cleanest object in mathematics; that the abstract tower has rungs you can hold, ordinary theorems that are true and unprovable for an exactly measurable reason; and that whether the staircase reaches the top has an answer subtler than yes or no.</p>
+    </div>
+  </section>
+
+  <!-- ===== I · THE FIRST RUNG ===== -->
+  <section class="sec" id="rung">
+    <div class="sec-head"><span class="num">I · the first rung</span><h2>Gödel's wall is a step</h2><p class="sub">The second incompleteness theorem is told as an ending — the place arithmetic runs out. Read once more, with the next line attached, it is a beginning: the thing a theory cannot prove is the thing you add to climb.</p></div>
+    <div class="reading">
+      <p>Gödel's second theorem says that a consistent, computably axiomatized theory <span class="mono">T</span> extending arithmetic cannot prove its own consistency: <span class="mono">T ⊬ Con(T)</span>. The collection has met this many times as a limit. But attend to what it does <i>not</i> say. It does not say <span class="mono">Con(T)</span> is false — if <span class="mono">T</span> is consistent, <span class="mono">Con(T)</span> is true. It says only that this particular truth lies just past <span class="mono">T</span>'s reach. And a truth just past reach is an invitation: adjoin it.</p>
+    </div>
+    <div class="thm read">
+      <div class="tl">the step</div>
+      <div class="ts">Let <span class="mono">T₁ = T + Con(T)</span>. Then <span class="mono">T₁</span> proves <span class="mono">Con(T)</span> — trivially, it is now an axiom — and if <span class="mono">T</span> is consistent so is <span class="mono">T₁</span>. So <span class="mono">T₁</span> is strictly stronger than <span class="mono">T</span>: it settles a question <span class="mono">T</span> could not. One rung climbed.</div>
+    </div>
+    <div class="reading">
+      <p>And now the same theorem applies again, one floor up. <span class="mono">T₁</span> is itself consistent, computably axiomatized, and extends arithmetic — so by Gödel, <span class="mono">T₁ ⊬ Con(T₁)</span>. The wall has reappeared, raised by exactly one storey. Adjoin <span class="mono">Con(T₁)</span> to get <span class="mono">T₂</span>; the wall reappears again. There is no theory at which this stops, because the obstacle is not a feature of any particular theory but of the <i>form</i> of self-reference itself — every system rich enough to describe its own provability is blind to its own consistency, and curing the blindness produces a new system with the same blindness, forever. The diagonal does not put up one wall. It puts up a wall on every floor, which is the same as building a staircase. The limit, looked at twice, is a step; and once there is one step there is no last one.</p>
+    </div>
+  </section>
+  <!-- ===== II · THE LADDER ===== -->
+  <section class="sec" id="ladder">
+    <div class="sec-head"><span class="num">II · the ladder</span><h2>Climbing into the transfinite</h2><p class="sub">Finite steps reach only the foothills. To keep climbing past them you must pass to a limit and continue — and indexing the continuation is what drags ordinals, and then ordinal <span class="mono">notations</span>, into the heart of the matter.</p></div>
+    <div class="reading">
+      <p>Iterate the step. From <span class="mono">T</span> build <span class="mono">T₁, T₂, T₃, …</span>, each the last plus its consistency. After all the finite stages, gather them: <span class="mono">T_ω = ⋃ₙ Tₙ</span>, the theory with <i>every</i> finite reflection as an axiom. It too is consistent and computably axiomatized, so Gödel applies and the climb resumes — <span class="mono">T_{ω+1} = T_ω + Con(T_ω)</span>, and onward. To name the rungs past the limit you need the transfinite ordinals; this is the idea, arising the moment Gödel's theorem appeared, of iterating Gödelian extension along the ordinals, made precise by Turing's <i>ordinal logics</i> of 1939 and carried much further in Feferman's 1962 theory of transfinite progressions.</p>
+      <p>Two refinements turn the idea into a theory. First, <i>consistency is only the mildest reflection.</i> The general move is to add not just "<span class="mono">T</span> does not prove a contradiction" but "what <span class="mono">T</span> proves is true," in one of two strengths:</p>
+    </div>
+    <div class="defn read">
+      <div class="dl">reflection, local and uniform</div>
+      <div class="dt"><b>Local:</b> <span class="mono">Rfn(T)</span> — for each sentence, <span class="mono">Prov_T(⌜σ⌝) → σ</span>. <b>Uniform:</b> <span class="mono">RFN(T)</span> — for each formula, <span class="mono">∀x ( Prov_T(⌜φ(ẋ)⌝) → φ(x) )</span>. Consistency <span class="mono">Con(T) = ¬Prov_T(⌜⊥⌝)</span> is the weakest case. Uniform reflection is strictly stronger than local, which is strictly stronger than consistency.</div>
+    </div>
+    <div class="reading">
+      <p>Second, and more delicate: the theory at stage <span class="mono">α</span> must be <i>computably axiomatized</i>, so the climb cannot be indexed by abstract ordinals but only by <i>ordinal notations</i> — concrete codes for ordinals drawn from Kleene's <span class="mono">𝒪</span>, the recursive system of names for the constructive ordinals. A progression is therefore not a single tower but an assignment of theories to notations, from which a sequence is extracted by choosing a <i>path</i> through <span class="mono">𝒪</span>. That distinction — ordinal versus notation, tower versus path — looks like bookkeeping. It is, in fact, where the deepest surprise of the subject will hide, and §V will spring it. For now, the climb is underway and the natural question is how to measure how far it has gone.</p>
+    </div>
+  </section>
+  <!-- ===== III · THE MEASURE ===== -->
+  <section class="sec" id="measure">
+    <div class="sec-head"><span class="num">III · the measure</span><h2>The height of a theory is an ordinal</h2><p class="sub">How far up does a given theory stand? Gentzen answered it for arithmetic, and the answer is the cleanest possible: a single ordinal, <span class="mono">ε₀</span>, below which the theory can climb and at which it cannot.</p></div>
+    <div class="stair">
+      <svg viewBox="0 0 680 214" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" aria-label="an ordinal staircase ascending toward epsilon-zero, the height of Peano arithmetic">
+        <!-- epsilon_0 ceiling -->
+        <line x1="44" y1="40" x2="636" y2="40" stroke="#937234" stroke-width="1.3" stroke-dasharray="5 4"/>
+        <text x="636" y="33" font-size="12" fill="#6f5626" text-anchor="end" font-family="Spectral, serif" font-style="italic">the height of PA :  ε₀</text>
+        <!-- solid steps T, T1, T2, T3, T_omega -->
+        <path d="M 46 184 H 112 V 158 H 178 V 132 H 244 V 106 H 310 V 82 H 372" fill="none" stroke="#2c6e6a" stroke-width="2"/>
+        <!-- dashed continuation, narrowing toward the ceiling -->
+        <path d="M 372 82 V 66 H 426 V 56 H 470 V 50 H 506 V 46 H 536 V 43 H 562" fill="none" stroke="#9bb1ad" stroke-width="1.4" stroke-dasharray="4 3"/>
+        <!-- step dots + labels -->
+        <g fill="#1a1815" font-size="11" text-anchor="middle">
+          <text x="79" y="178">T</text><text x="145" y="152">T₁</text><text x="211" y="126">T₂</text><text x="277" y="100">T₃</text><text x="341" y="76">T_ω</text>
+        </g>
+        <g fill="#a8a193" font-size="9" text-anchor="middle">
+          <text x="79" y="198">0</text><text x="145" y="198">1</text><text x="211" y="198">2</text><text x="277" y="198">3</text><text x="341" y="198">ω</text><text x="470" y="198">⋯</text>
+        </g>
+        <text x="450" y="76" font-size="10.5" fill="#7c766a" text-anchor="middle" font-style="italic" font-family="Spectral, serif">provable below ε₀ …</text>
+        <text x="300" y="32" font-size="10.5" fill="#7c766a" text-anchor="middle" font-style="italic" font-family="Spectral, serif">… never at it</text>
+      </svg>
+    </div>
+    <div class="reading">
+      <p>The measure is Gentzen's, from 1936, and it is the founding act of ordinal proof theory. Recall <span class="mono">ε₀</span>: the least ordinal closed under the tower of exponentials, <span class="mono">ε₀ = sup{ω, ω^ω, ω^{ω^ω}, …}</span>, equivalently the least <span class="mono">α</span> with <span class="mono">ω^α = α</span>. Gentzen showed that the consistency of arithmetic is provable by transfinite induction along <span class="mono">ε₀</span> — and, exactly complementing it, that arithmetic itself can prove transfinite induction up to every <span class="mono">α &lt; ε₀</span> but <i>not</i> up to <span class="mono">ε₀</span>.</p>
+    </div>
+    <div class="thm teal read">
+      <div class="tl">Gentzen — the ordinal of arithmetic</div>
+      <div class="ts"><span class="mono">PRA + TI(ε₀) ⊢ Con(PA)</span>, while <span class="mono">PA ⊢ TI(α)</span> for every <span class="mono">α &lt; ε₀</span> and <span class="mono">PA ⊬ TI(ε₀)</span>. So the proof-theoretic ordinal of arithmetic is exactly <span class="mono">|PA| = ε₀</span>: the precise height it can reach from below and cannot stand upon.</div>
+    </div>
+    <div class="reading">
+      <p>Two things in this deserve to be felt. The first is that the height is a <i>number</i> — an ordinal, the most transparent object mathematics has — so the vague notion "how strong is this theory" is made exact and comparable: stronger theories have larger ordinals, and the ordinal even pins down which functions the theory can prove total (for arithmetic, exactly those eventually dominated by the <span class="mono">ε₀</span>-level of the fast-growing hierarchy). The diagonal's wall has been replaced by a ruler.</p>
+      <p>The second is a correction the collection's honesty discipline insists on. It is often said that a theory's consistency can only be proved in a <i>stronger</i> theory. Gentzen's witnessing system shows this is false as stated. <span class="mono">PRA + TI(ε₀)</span> proves <span class="mono">Con(PA)</span>, yet it does not contain <span class="mono">PA</span> — it lacks full induction for formulas with quantifiers. And <span class="mono">PA</span> does not contain it either, since <span class="mono">PA</span> cannot prove <span class="mono">TI(ε₀)</span>. The two theories are <i>incomparable</i>: one buys reach into the transfinite at the cost of ordinary induction, the other the reverse. Consistency is not bought by sheer strength but by a <i>different</i> strength — more transfinite ladder, less of something else. The staircase is real, but you do not climb it by simply having more; you climb it by reaching further up the ordinals, and that is a specific currency.</p>
+    </div>
+  </section>
+  <!-- ===== IV · THE CONCRETE STEPS ===== -->
+  <section class="sec" id="steps">
+    <div class="sec-head"><span class="num">IV · the concrete steps</span><h2>Rungs you can hold</h2><p class="sub">The staircase is not an abstraction floating above mathematics. It has visible steps — plain, finite, combinatorial theorems that are true and unprovable in arithmetic, and unprovable for the exact reason that their height is <span class="mono">ε₀</span>.</p></div>
+    <div class="reading">
+      <p>Gödel's own unprovable sentence is a coded curiosity, true but artificial — a formula engineered to talk about its own provability. For decades it was possible to believe that incompleteness, while real, never touched <i>ordinary</i> mathematics: that every natural theorem a working mathematician might state was, if true, provable. The 1970s and 80s ended that belief. There are entirely natural finite statements — about sequences of integers, about colorings, about a combinatorial monster — that are true, that mathematicians would state without a thought of logic, and that arithmetic cannot prove. They are the staircase made concrete.</p>
+    </div>
+    <div class="stage">
+      <div class="reach">
+        <div class="rc"><span class="rn">Goodstein 1944</span><span class="rt"><b>every Goodstein sequence reaches 0.</b> Write a number in hereditary base-<span class="mono">n</span>, bump every base, subtract one, repeat; the values explode astronomically, yet always return to zero. <span class="mono">True — and unprovable in PA</span> (Kirby–Paris, 1982).</span></div>
+        <div class="rc"><span class="rn">Hydra 1982</span><span class="rt"><b>Hercules always kills the Hydra.</b> Cut a head, it grows many more; yet every strategy wins in finite time. <span class="mono">True — and unprovable in PA</span>; the proof tracks a descending <span class="mono">ε₀</span>-ordinal.</span></div>
+        <div class="rc"><span class="rn">Paris–Harrington 1977</span><span class="rt"><b>a strengthened finite Ramsey theorem</b> — demanding a homogeneous set "relatively large." <span class="mono">True — and unprovable in PA</span>; the first <i>natural</i> mathematical statement shown independent of arithmetic.</span></div>
+        <div class="rc"><span class="rn">why ε₀</span><span class="rt">each implies the totality of a function growing like the <span class="mono">ε₀</span>-level of the fast-growing hierarchy <span class="mono">F_{ε₀}</span> — past every function PA proves total. The height is the obstruction.</span></div>
+      </div>
+      <figcaption>Three plain theorems standing on the staircase. Each is finite and combinatorial, each is true, each outruns arithmetic — and each does so because its proof secretly counts down an ordinal below <span class="mono">ε₀</span>, encoding a rate of growth past everything PA can certify. Concrete incompleteness <i>is</i> the abstract ordinal, wearing the clothes of ordinary mathematics.</figcaption>
+    </div>
+    <div class="reading">
+      <p>This is the payoff that makes the ordinal measure more than proof-theorists' bookkeeping. The height <span class="mono">ε₀</span> is not a technical artifact of one consistency proof; it is a threshold that ordinary mathematics keeps bumping into from the other side. Goodstein, Hercules, and Paris–Harrington each encode, in innocent finite language, a demand for transfinite induction up to <span class="mono">ε₀</span> — exactly the rung Gentzen identified as the one arithmetic cannot stand upon. The unprovability is not a curiosity grafted on by a logician; it is the staircase showing through the floor of number theory. A statement is unprovable in <span class="mono">PA</span> precisely when its content reaches above <span class="mono">PA</span>'s ordinal, and these reach, demonstrably, to <span class="mono">ε₀</span>.</p>
+    </div>
+  </section>
+  <!-- ===== V · THE TOP ===== -->
+  <section class="sec" id="top">
+    <div class="sec-head"><span class="num">V · the top</span><h2>Does the staircase reach everything?</h2><p class="sub">Climb far enough and can you prove every truth? The answer is the subtlest in the subject: <span class="mono">yes</span> — but only along specially chosen routes, and the choice smuggles the answers in. This is the surprise §II's bookkeeping was hiding.</p></div>
+    <div class="reading">
+      <p>If each rung settles a little more, perhaps the whole climb settles <i>everything</i> — perhaps iterated reflection, pushed far enough up the ordinals, proves every true sentence of arithmetic, and incompleteness is merely the condition of standing on any one step rather than the whole staircase. Astonishingly, in one precise sense this is true. And, just as precisely, it is a trap.</p>
+    </div>
+    <div class="stage">
+      <div class="switch">
+        <div class="sw left">
+          <div class="sw-h">Feferman, 1962</div>
+          <h4>It reaches everything</h4>
+          <p>Iterating <i>uniform</i> reflection along the ordinal notations, <i>every</i> true sentence of arithmetic becomes provable at some stage. The progression of reflections is, in this sense, <b>complete</b> — there is a height in the notations from which any given truth is reached.</p>
+          <div class="res">completeness <b>is</b> reachable by climbing</div>
+        </div>
+        <div class="pivot">
+          <div class="pq">but along<br>which path<br>through 𝒪?</div>
+          <div class="pg">↯</div>
+          <div class="pq">the notation,<br>not the<br>ordinal</div>
+        </div>
+        <div class="sw right">
+          <div class="sw-h">Feferman–Spector, 1962</div>
+          <h4>Only along chosen routes</h4>
+          <p>The completeness is <i>path-dependent</i>. There are paths through the very same notations along which the progression stays <b>incomplete</b> — failing to prove even all true <span class="mono">Π₁</span> sentences. Which truths you reach depends on <i>which path</i> you pick, not on how high you climb.</p>
+          <div class="res">the route, not the height, decides</div>
+        </div>
+      </div>
+      <figcaption>Two 1962 theorems, in tension and both true. Completeness <i>exists</i> (Feferman) but is <i>not canonical</i> (Feferman–Spector): it is bought by a clever choice of <b>ordinal notation</b>, exploiting the gap between an ordinal and its names. The path can be rigged to carry the answers — so the "proof" of a hard truth is really hidden in the choice of how to count to the rung. Climbing honestly, by consistency strength, the ascent is endless; the completeness lives only in the notations.</figcaption>
+    </div>
+    <div class="reading">
+      <p>This is where the distinction flagged in §II — ordinal versus notation, tower versus path — turns out to carry the whole weight. An ordinal is a pure quantity; a <i>notation</i> is a recursive program that names it, and there can be cleverness in the program that the ordinal itself does not contain. Feferman's completeness exploits exactly that slack: it chooses, for each truth to be proved, a path through the notations whose structure already encodes the truth, so that "reaching the rung" and "knowing the answer" become the same act. The staircase does reach the top — but only if you are allowed to decide how to count the steps after you already know where you are going. Feferman would later call such notation-paths, with characteristic precision, the dishonest ones.</p>
+      <p>So the honest verdict is the one that respects the spirit of Gödel's theorem rather than evading it. Measured by genuine strength — by which ordinals a theory can prove well-founded, by which consistency statements it settles — the ascent has no top: every theory stands on a definite rung, and there is always a higher one, and no canonical climb captures all truths. Completeness is reachable only by smuggling, and smuggling is not climbing. Incompleteness is not defeated by the staircase; it is <i>organized</i> by it — turned from a single wall into an endless, well-ordered, ordinal-measured ascent that no honest route ever finishes.</p>
+    </div>
+  </section>
+  <!-- ===== VI · THE HEIGHT OF MATHEMATICS ===== -->
+  <section class="sec" id="height">
+    <div class="sec-head"><span class="num">VI · the height of mathematics</span><h2>The limit, read upward, is the structure</h2><p class="sub">Set this beside <i>The Wall</i> and the diagonal shows its two faces at once. There it was a ceiling — the boundary a method cannot cross. Here it is an engine — the same construction, read upward, building the entire vertical of mathematical strength.</p></div>
+    <div class="lede read">
+      <p>Gather the climb. Incompleteness is not a wall but a staircase: every theory has a strictly stronger successor, got by adjoining the consistency it cannot prove; the successors run on into the transfinite, indexed by ordinal notations; the <i>height</i> a theory reaches is a definite ordinal, its proof-theoretic ordinal, exact and comparable — <span class="mono">ε₀</span> for arithmetic, larger for stronger systems; the steps are not abstractions but ordinary finite theorems, true and unprovable for the precise reason that their content reaches above that ordinal; and the top, though reachable in a technical sense, is reachable only by smuggling truth into the notations, so that the honest ascent — measured by genuine strength — has no end at all. Self-reference, iterated, <i>is</i> the consistency-strength hierarchy of mathematics.</p>
+      <p>Now hold that against the companion descent. <i>The Wall</i> took the diagonal's limitative face to its sharpest point: the construction that draws every classical impossibility is itself bounded as a <i>method</i> — it relativizes, and so cannot cross into the questions that split over oracles. A ceiling on what the diagonal can do. <i>The Staircase</i> is the same construction seen from the opposite side. Read downward, against a single theory, the diagonal draws a wall — Gödel's wall, the limit of that theory's reach. Read upward, across the tower of theories, the <i>very same wall, drawn on every floor</i>, becomes the staircase that organizes all of mathematical strength into a well-ordered ascent measured by the ordinals. The diagonal does not merely bound. By bounding everywhere, it <i>builds</i>.</p>
+      <p>This is the reframing the collection has been climbing toward, and it cuts against the diagonal's reputation. The construction is filed, always, under the negative — the source of paradox, undecidability, incompleteness, the great catalogue of <i>no</i>. <i>The Staircase</i> shows the catalogue of <i>no</i> is, looked at from above, the skeleton of <i>yes</i>: the precise stratification of how much each theory <i>can</i> do, the ruler by which proof theory measures power, the spine along which Gentzen and his successors calibrate the strength of every formal system from arithmetic to large cardinals. The limits, stacked and well-ordered, <i>are</i> the structure. There is no separate positive theory of mathematical strength standing apart from the incompleteness phenomenon; the incompleteness phenomenon, iterated, is that theory. The diagonal draws one boundary, and by drawing it on every floor it constructs the staircase that is the backbone of the subject.</p>
+      <p>So the collection's wager extends one storey higher than it knew. One construction underlies the reach and the boundary of formal reasoning — yes; but the boundary, taken upward and well-ordered, is itself a reach: the diagonal that says <i>no theory is enough</i> is, in the same breath, the diagonal that says <i>here, exactly, is how far each one gets</i> — and the second saying, the ordinal ladder of strength, is the whole positive architecture of proof theory, generated by nothing but the limit, climbed without end and measured to the rung.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the wall on every floor is the staircase</span><span class="ln"></span></div>
+  <div class="coda"><p>Gödel's wall, drawn on every floor, is a staircase; its height is an ordinal; and the climb, honestly made, has no top. <span class="mono">Which is not the failure of mathematics, but the shape of it.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deepening · the staircase</span></div>
+    <p class="colophon"><i>The Staircase</i> opens the vertical that <i>The Box</i> left at a single storey: the iteration of self-reference up the ordinals. It reads Gödel's second theorem as the first rung of an endless climb — adjoin the consistency a theory cannot prove and you ascend one step, forever; follows the climb into the transfinite through the Turing–Feferman reflection progressions, indexed not by ordinals but by their notations; measures the height of arithmetic as Gentzen did, exactly <span class="mono">ε₀</span>, with the honest correction that the witnessing theory is <i>incomparable</i> with PA rather than simply stronger; finds the staircase's concrete steps in the natural independent statements of Goodstein, the Hydra, and Paris–Harrington; and springs the subtlest result in the subject — that the ascent reaches every truth (Feferman) but only along non-canonical notation-paths that smuggle the answers in (Feferman–Spector), so that the honest climb has no end. Its synthesis — that the diagonal's limit, drawn on every floor and read upward, <i>is</i> the positive architecture of mathematical strength — is offered as a reading, argued from the proof theory. <a href="quodlibet.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">↩&nbsp;return to the collection's front door</a>, or to its companion on the diagonal's ceiling, <a href="the-wall.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Wall</a>, and the logic of the single box, <a href="the-box.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Box</a>.</p>
+    <p class="notes"><span class="nl">on method.</span> &nbsp;The step is Gödel's second theorem plus the consistency of <span class="mono">T+Con(T)</span>; the ladder is Turing's ordinal logics (1939) and Feferman's transfinite progressions (1962), with local <span class="mono">Rfn</span> and uniform <span class="mono">RFN</span> reflection (consistency the weakest case), indexed by paths through Kleene's <span class="mono">𝒪</span>. The measure is Gentzen (1936): <span class="mono">PRA+TI(ε₀) ⊢ Con(PA)</span> and <span class="mono">PA ⊢ TI(α)</span> for <span class="mono">α&lt;ε₀</span> but not <span class="mono">TI(ε₀)</span>, so <span class="mono">|PA| = ε₀</span>; the incomparability of the witnessing theory with PA is noted explicitly. The concrete steps are Goodstein (Kirby–Paris 1982), the Hydra (Kirby–Paris 1982), and Paris–Harrington (1977), each of strength <span class="mono">≈ F_{ε₀}</span>. The top is Feferman's completeness theorem (1962) against Feferman–Spector's incompleteness along paths (1962).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Gödel 1931 · Gentzen 1936/1943 · Turing 1939 (ordinal logics) · Feferman 1962 (transfinite progressions; the completeness theorem) · Feferman &amp; Spector 1962 (incompleteness along paths) · Goodstein 1944 · Paris &amp; Harrington 1977 · Kirby &amp; Paris 1982 (Goodstein and the Hydra independent of PA).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">disposition.</span> &nbsp;The limit, read upward, is the structure: one construction draws the wall on every floor and so builds the staircase that measures all of strength. <span class="mono">T ⊊ T+Con(T) ⊊ ⋯</span></p>
+  </footer>
+
+</div>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="the-recurrence.html">← The Recurrence</a><a rel="next" href="the-wall.html">The Wall →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

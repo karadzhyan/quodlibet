@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Measure — the reflection ladder and its ordinal</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout p + p{margin-top:.7rem;}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== goodstein engine ===== */
+  .good-controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .good-seed{display:flex;gap:.35rem;}
+  .good-sbtn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.35rem .7rem;cursor:pointer;transition:all .15s;}
+  .good-sbtn:hover{background:rgba(26,24,21,.05);}
+  .good-sbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .good-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.5rem .9rem;cursor:pointer;transition:opacity .15s;}
+  .good-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .good-btn:hover{opacity:.85;} .good-btn:disabled{opacity:.45;cursor:default;}
+  .good-read{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .good-read b{color:var(--ink);}
+  .good-tracks{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:560px){ .good-tracks{grid-template-columns:1fr;} }
+  .good-col{background:var(--paper);padding:.9rem 1rem 1.1rem;min-height:8rem;}
+  .good-col .gc-h{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+  .good-col.val .gc-h{color:var(--red-deep);} .good-col.ord .gc-h{color:var(--teal-deep);}
+  .good-col .gc-arrow{font-size:.95rem;}
+  .good-rows{display:flex;flex-direction:column;gap:.2rem;}
+  .good-row{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;animation:rise .3s ease;}
+  .good-row .gr-n{font-size:.58rem;color:var(--faintest);}
+  .good-col.val .good-row .gr-v{color:var(--ink);}
+  .good-col.ord .good-row .gr-v{color:var(--teal-deep);}
+  .good-row.zero .gr-v{font-weight:600;}
+  .good-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.03em;padding:.6rem;border-radius:3px;margin-top:.9rem;}
+  .good-banner.done{color:var(--teal-deep);border:1px dashed var(--teal-line);background:var(--teal-soft);}
+  .good-banner.cap{color:var(--gold-deep);border:1px dashed var(--gold-line);background:var(--gold-soft);}
+
+  /* ===== modal engine — Löb box, fixed-point ledger, GLP tower ===== */
+  .loeb{border:1px dashed var(--ink);border-radius:3px;padding:1.1rem 1.1rem;margin:1.5rem auto;max-width:42rem;text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .loeb .ll{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem;}
+  .loeb .lr{font-size:1.02rem;color:var(--ink);line-height:2;}
+  .loeb .lr .hot{color:var(--red-deep);}
+  .loeb .lr .gr{color:var(--faintest);}
+  .loeb .sub{font-family:"Spectral",serif;font-style:italic;font-size:.94rem;color:var(--soft1);margin-top:.8rem;line-height:1.5;}
+
+  .glp{display:flex;flex-direction:column-reverse;gap:.3rem;margin:.2rem auto 0;max-width:27rem;}
+  .glp-row{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.42rem .75rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .glp-row .gm{color:var(--teal-deep);} .glp-row .gt{color:var(--ink);} .glp-row .go{color:var(--gold-deep);white-space:nowrap;}
+  .glp-row.cap{border-style:dashed;border-color:var(--gold-line);}
+
+  /* ===== bridge-assumptions (Scholia idiom) ===== */
+  .bridge{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.1rem;}
+  .bridge-row{background:var(--paper);padding:.82rem 1rem;display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:start;}
+  .bridge-row .br-main{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .bridge-row .br-main b{color:var(--ink);font-weight:600;}
+  .bridge-row .br-main .mono{font-size:.82rem;color:var(--red-deep);}
+  .bridge-pill{font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;padding:.24em .55em;border-radius:10px;white-space:nowrap;align-self:start;}
+  .bridge-pill.hold{background:var(--teal-soft);color:var(--teal-deep);}
+  .bridge-pill.thm{background:var(--gold-soft);color:var(--gold-deep);}
+  .bridge-verdict{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .bridge-verdict b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side.left.tealhead .hs-lab{color:var(--teal-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .hinge-side p + p{margin-top:.55rem;}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);} .chain .tl{color:var(--teal-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+  .granted{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--teal-deep);margin:.6rem 0;text-align:left;padding:.7rem .8rem;border:1px dashed var(--teal-line);border-radius:3px;line-height:1.85;}
+  .granted .ok{color:var(--teal-deep);font-weight:600;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-cell .tc-tax{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);margin-top:.5rem;display:block;}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== fast-growing hierarchy explorer (deep-dive addition) ===== */
+  .fgh-controls{display:flex;flex-wrap:wrap;gap:.7rem 1.2rem;align-items:center;justify-content:center;margin-bottom:1.1rem;}
+  .fgh-group{display:flex;gap:.32rem;align-items:center;flex-wrap:wrap;justify-content:center;}
+  .fgh-lab{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-right:.25rem;}
+  .fgh-pill{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.32rem .72rem;cursor:pointer;transition:all .15s;}
+  .fgh-pill:hover{background:rgba(26,24,21,.05);} .fgh-pill.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .fgh-out{text-align:center;font-family:"IBM Plex Mono",monospace;padding:1.15rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .fgh-expr{font-size:1.0rem;color:var(--ink);margin-bottom:.55rem;letter-spacing:-.01em;}
+  .fgh-expr .hot{color:var(--teal-deep);} .fgh-expr .gr{color:var(--faintest);}
+  .fgh-val{font-size:1.55rem;color:var(--red-deep);line-height:1.18;word-break:break-all;}
+  .fgh-val.big{font-size:1.0rem;color:var(--gold-deep);}
+  .fgh-note{font-size:.84rem;font-family:"Spectral",serif;font-style:italic;color:var(--faint);margin-top:.75rem;line-height:1.5;text-wrap:pretty;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-ascent">The Ascent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">A deep study · The Ascent · §II</span></div>
+    <div class="hero-head">
+      <p class="kicker">The climb has no top — but it has an exact height</p>
+      <h1 class="title">The <span class="x">Measure</span></h1>
+      <p class="standfirst"><em>The Ascent</em> proved the reflection ladder has no top. That is only half the result. The climb has a precise <em>height</em> — a single ordinal — and that ordinal is the most informative invariant a theory owns: it measures at once what the theory can <em>prove</em> and how fast a function it can prove to <em>halt</em>. This study makes the measure exact — where it comes from, what it means, how it is computed, and how measuring it became the central positive science the impossibility founded.</p>
+      <p class="ed-mark">the rungs · the ordinal · Gentzen · growth · the ghost · the ruler</p>
+    </div>
+  </header>
+
+  <div class="lede">
+    <p>Tell me a consistent, effectively axiomatized theory of arithmetic and I cannot tell you everything it proves — Gödel forbids it. But I can tell you one number that says more about the theory than any list of its theorems would: its <i>proof-theoretic ordinal</i>. For Peano Arithmetic that number is <span class="mono">ε₀</span>. It is the exact amount of well-ordering the theory can certify, the exact height to which its reflection ladder climbs, and — read in a second register — the exact rate of growth of the fastest function it can prove total. One ordinal, and it pins down the strength of a theory from three sides at once.</p>
+    <p>This is the deep content of the middle movement of <em>The Ascent</em>, drawn out in full. We begin with the operator that builds the ladder and the subtlety that you cannot climb it without first writing down its rungs as <i>notations</i>. We define the ordinal that measures the climb, and we watch Gentzen earn it — a consistency proof whose only infinitary ingredient is the well-foundedness of <span class="mono">ε₀</span>. We then turn the ordinal on its side and read it as growth, where the same threshold reappears as the boundary of the provably terminating. We follow the transfinite climb to its vanishing point, where the deficit changes logical type rather than disappearing. And we end with the science the whole picture became: <i>reverse mathematics</i>, which weighs ordinary theorems against the ladder and finds them clustered at a handful of its rungs. The ladder cannot be finished. Measuring it is what there is to do instead.</p>
+  </div>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(3rem,7vh,5rem)"><span class="ln"></span><span class="g mono">R(T) = T + Rfn(T)</span><span class="ln"></span></div>
+
+  <!-- ===== §I THE RUNGS ===== -->
+  <section class="sec" id="rungs">
+    <div class="sec-head"><span class="num">I · the rungs</span><h2>The operator, and the price of climbing it</h2><p class="sub">The ladder is the orbit of one operator — add the soundness the theory lacks. It is strictly progressive, so it never stops; but to iterate it into the transfinite you must first write its rungs down as notations, and that requirement is where the whole story will eventually turn.</p></div>
+    <div class="reading">
+      <p>Fix a consistent theory <span class="mono">T</span> that is recursively axiomatized and strong enough to formalize its own syntax — at minimum <span class="mono">EA</span> (elementary arithmetic, <span class="mono">I∆₀+exp</span>), so that the provability predicate <span class="mono">Prov_T</span> satisfies the Hilbert–Bernays–Löb derivability conditions. The operator that drives everything is reflection:</p>
+    </div>
+    <div class="thm">
+      <div class="tl">the repair operator</div>
+      <div class="ts"><span class="mono">R(T) = T + { Prov_T(⌜φ⌝) → φ : φ a sentence }</span>. &nbsp;In words: adjoin to <span class="mono">T</span> the claim, for each sentence, that <i>what T proves is true</i>. This is the <b>local reflection schema</b> <span class="mono">Rfn(T)</span> — the fragment of soundness the theory was missing.</div>
+    </div>
+    <div class="reading">
+      <p>Its weakest single instance, taking <span class="mono">φ = ⊥</span>, is <span class="mono">¬Prov_T(⌜⊥⌝)</span> — exactly <span class="mono">Con(T)</span>. So <span class="mono">R(T)</span> contains <span class="mono">Con(T)</span>, and Gödel's second theorem does the rest:</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">strict progress</div>
+      <div class="ts"><b>For consistent r.e. <span class="mono">T</span>, <span class="mono">R(T) ⊋ T</span> — strictly.</b> Since <span class="mono">R(T) ⊢ Con(T)</span> while <span class="mono">T ⊬ Con(T)</span> (Gödel-2), the inclusion is proper. The operator can never reach a fixed point: a theory with <span class="mono">R(T)=T</span> would prove its own consistency. <i>The ladder has no top because <span class="mono">R</span> is strictly inflationary, and it is strictly inflationary because of one diagonal argument run inside <span class="mono">T</span>.</i></div>
+    </div>
+    <div class="reading">
+      <p>So we iterate. <span class="mono">R(T), R²(T), R³(T), …</span> is a strictly increasing chain, and at the limit we take the union <span class="mono">R^ω(T) = ⋃ₙ Rⁿ(T)</span>, then continue: <span class="mono">R^{ω+1}, …, R^{ω·2}, …</span>. The climb runs through the ordinals. But here is the subtlety on which this entire study will turn, and which the casual phrase &ldquo;iterate through the ordinals&rdquo; hides.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the price of climbing — ordinal notations</div>
+      <p>To define <span class="mono">R^α(T)</span> <i>effectively</i> — so that the result is again a recursively axiomatized theory the way every rung must be — you cannot index by an abstract ordinal. An abstract ordinal is a set; a theory's axioms must be a decidable list. You must index by an <b>ordinal notation</b>: a concrete natural number coding a position in a primitive-recursive well-ordering <span class="mono">≺</span>. The iteration is really a recursion <i>along a notation system</i>, <span class="mono">R^a(T)</span> for <span class="mono">a</span> a notation, defined by <span class="mono">R^a(T) = T + {Con(R^b(T)) : b ≺ a}</span> at limits.</p>
+      <p>This is no mere formality. The notation carries information the bare ordinal does not — and two notations for the <i>same</i> ordinal can give the climb different powers. The whole drama of the transfinite ascent (§V) is that the one thing the climber must assume — that the notation it is climbing is <i>genuinely well-founded</i> — is precisely the thing no arithmetical means can verify.</p>
+    </div>
+    <div class="reading">
+      <p>Two strengths of reflection will matter. <b>Local</b> reflection, above, adds <span class="mono">Prov_T(⌜φ⌝)→φ</span> for each fixed <span class="mono">φ</span>. <b>Uniform</b> reflection <span class="mono">RFN(T)</span> adds the quantified <span class="mono">∀x (Prov_T(⌜φ(ẋ)⌝) → φ(x))</span> — soundness asserted once, for all numerical instances at a stroke. Uniform reflection is strictly stronger, and it is the variant whose iteration yields the clean ordinal arithmetic of the next sections. Local reflection suffices for the bare fact of no-top; uniform reflection is the one that <i>measures</i>. The distinction is small to state and decisive in consequence: it is the difference between knowing the ladder is endless and knowing exactly how its rungs are spaced.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">ε₀ = sup{ ω, ω^ω, ω^(ω^ω), … }</span><span class="ln"></span></div>
+
+  <!-- ===== §II THE ORDINAL ===== -->
+  <section class="sec" id="ordinal">
+    <div class="sec-head"><span class="num">II · the ordinal</span><h2>What the height is</h2><p class="sub">The proof-theoretic ordinal of a theory is the exact supremum of the well-orderings it can certify. It is a genuine invariant — coarse-grained on theories, fine-grained where it counts — and for Peano Arithmetic it is <span class="mono">ε₀</span>, the first ordinal arithmetic cannot reach past.</p></div>
+    <div class="reading">
+      <p>How do we attach a number to a theory's strength? Not by counting its theorems, which are infinite and uncomputable, but by asking how far it can prove <i>induction</i> to reach. Transfinite induction along a well-ordering <span class="mono">≺</span> — <span class="mono">TI(≺)</span> — is the principle that if a property has no <span class="mono">≺</span>-least counterexample then it holds everywhere. A theory that can prove <span class="mono">TI(≺)</span> &ldquo;understands&rdquo; the ordinal <span class="mono">≺</span> orders. The strength of the theory is how high those orderings go.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">proof-theoretic ordinal</div>
+      <div class="ts">The <b>proof-theoretic ordinal</b> <span class="mono">|T|</span> is the supremum of the order-types of the primitive-recursive well-orderings <span class="mono">≺</span> for which <span class="mono">T ⊢ TI(≺)</span>. Equivalently, the least <span class="mono">α</span> such that <span class="mono">T</span> does <i>not</i> prove transfinite induction up to <span class="mono">α</span> (for a canonical notation). <b><span class="mono">|PA| = ε₀</span></b> (Gentzen).</div>
+    </div>
+    <div class="reading">
+      <p>One honest caution, in the spirit of the parent corpus. There is not <i>one</i> proof-theoretic ordinal but a small family — the <span class="mono">Π⁰₂</span>-ordinal (tied to provably-total functions), the <span class="mono">Π¹₁</span>-ordinal (tied to provable well-foundedness), the consistency-strength ordinal. For tame, natural theories these coincide, and for <span class="mono">PA</span> they all equal <span class="mono">ε₀</span>; for artificial theories they can be prised apart. We mean throughout the value they share on the theories that occur in practice. The robustness of that shared value — that <span class="mono">PA</span> has a single canonical ordinal at all — is itself a deep empirical fact about natural theories, not a triviality.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">what ε₀ is&nbsp;&nbsp;</span><span class="mono">ε₀</span> is the least ordinal closed under <span class="mono">α ↦ ω^α</span> — the limit of <span class="mono">ω, ω^ω, ω^(ω^ω), …</span>, the first solution of the equation <span class="mono">ε = ω^ε</span>. It is countable, far below the first uncountable ordinal, and entirely concrete. Its concreteness is the technical engine of everything here: every ordinal below <span class="mono">ε₀</span> has a unique <i>Cantor normal form</i></p>
+    </div>
+    <div class="thm">
+      <div class="tl">Cantor normal form — the notation</div>
+      <div class="ts"><span class="mono">α = ω^{β₁}·c₁ + ω^{β₂}·c₂ + ⋯ + ω^{βₖ}·cₖ</span>, &nbsp;with <span class="mono">α &gt; β₁ &gt; ⋯ &gt; βₖ</span> and finite <span class="mono">cᵢ ≥ 1</span>. Below <span class="mono">ε₀</span> the exponents <span class="mono">βᵢ</span> are themselves <span class="mono">&lt; α</span>, so writing each in normal form too <i>terminates</i>: every <span class="mono">α &lt; ε₀</span> is a finite tree of <span class="mono">ω</span>'s and integers. <b>That hereditary finiteness is why <span class="mono">ε₀</span> has a primitive-recursive notation system</b> — and why a finitary base can manipulate its ordinals at all.</div>
+    </div>
+    <div class="reading">
+      <p>The ordinal is the spine of a whole hierarchy of strengths. A few landmarks, each the proof-theoretic ordinal of a natural theory:</p>
+    </div>
+    <div class="stage narrow">
+      <div class="panel">
+        <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.8rem;">the lower ordinal hierarchy — strength increasing upward</div>
+        <div class="glp">
+          <div class="glp-row"><span class="gm">ω^ω</span><span class="gt">primitive recursive arithmetic (PRA), IΣ₁, RCA₀, WKL₀</span><span class="go">finitism</span></div>
+          <div class="glp-row"><span class="gm">ε₀</span><span class="gt">Peano arithmetic — and ACA₀</span><span class="go">|PA|</span></div>
+          <div class="glp-row"><span class="gm">Γ₀</span><span class="gt">predicative analysis (ATR₀) — the Feferman–Schütte ordinal</span><span class="go">predicativity</span></div>
+          <div class="glp-row cap"><span class="gm">ψ(Ω<sub>ω</sub>)…</span><span class="gt">impredicative systems (Π¹₁-CA₀ and beyond) — Bachmann–Howard and up</span><span class="go">no top</span></div>
+        </div>
+        <figcaption>Each rung is the exact ordinal a natural theory can certify and no more. The notations grow elaborate — past <span class="mono">ε₀</span> one needs the Veblen functions, then collapsing functions <span class="mono">ψ</span> that name large countable ordinals using uncountable ones as scaffolding — but each is a primitive-recursive ordering, and a theory's strength is precisely the height it reaches.</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">Con(PA) ⟺ TI(ε₀)</span><span class="ln"></span></div>
+
+  <!-- ===== §III GENTZEN ===== -->
+  <section class="sec" id="gentzen">
+    <div class="sec-head"><span class="num">III · Gentzen</span><h2>Earning the ordinal</h2><p class="sub">Gentzen's consistency proof is not an oracle pronouncement; it is a construction. Assign ordinals to proofs, show that a proof of contradiction could always be reduced to one of strictly smaller ordinal, and let the well-foundedness of <span class="mono">ε₀</span> finish the argument. The ordinal is not decreed. It is the exact height the reduction needs.</p></div>
+    <div class="reading">
+      <p>Gödel-2 says <span class="mono">PA</span> cannot prove <span class="mono">Con(PA)</span> by means it contains. It does not say consistency is unprovable <i>full stop</i>. Gentzen (1936, 1938) proved <span class="mono">Con(PA)</span> outright — from a finitary base (<span class="mono">PRA</span>) plus a single transfinite principle: induction up to <span class="mono">ε₀</span>. That one added principle is exactly what <span class="mono">PA</span> lacks, so the proof respects Gödel while defeating the naïve reading of him. Here is its architecture, which is more illuminating than its conclusion.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">step one — ordinals to proofs&nbsp;&nbsp;</span>Work in a sequent calculus for <span class="mono">PA</span>. To each derivation <span class="mono">d</span> assign an ordinal <span class="mono">o(d) &lt; ε₀</span> that measures its logical complexity — built from the nesting of cuts (uses of lemmas) and the depth of the induction inferences, combined by ordinal addition and exponentiation. A direct, cut-free proof gets a small ordinal; a proof leaning on deep lemmas and iterated induction gets a large one. The assignment is finitary and explicit.</p>
+      <p><span class="lead-in">step two — reduction lowers the ordinal&nbsp;&nbsp;</span>Now suppose, for contradiction, that <span class="mono">PA</span> proves <span class="mono">⊥</span> — a derivation <span class="mono">d</span> of the empty sequent. Gentzen gives reduction steps — local rewritings that eliminate the topmost essential cut, unfold an induction one layer — each producing a new derivation <span class="mono">d'</span> of the empty sequent with <span class="mono">o(d') &lt; o(d)</span>, <i>strictly smaller</i>. A proof of contradiction can always be made structurally simpler at the cost of nothing but its ordinal.</p>
+      <p><span class="lead-in">step three — well-foundedness closes it&nbsp;&nbsp;</span>Iterating reduction would produce <span class="mono">o(d) &gt; o(d') &gt; o(d'') &gt; ⋯</span>, an infinite strictly descending sequence of ordinals below <span class="mono">ε₀</span>. But <span class="mono">ε₀</span> is well-ordered: no such sequence exists. The supposed proof of <span class="mono">⊥</span> is therefore impossible. <span class="mono">PA</span> is consistent.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">what the proof actually used</div>
+      <div class="ts">The reduction steps and the ordinal assignment are <i>finitary</i> — formalizable in <span class="mono">PRA</span>. The single non-finitary ingredient is step three: the well-foundedness of <span class="mono">ε₀</span>, i.e. <span class="mono">TI(ε₀)</span>. Hence <b><span class="mono">Con(PA)</span> is equivalent, over <span class="mono">PRA</span>, to <span class="mono">TI(ε₀)</span></b> — and the equivalence is tight from below: <span class="mono">PA</span> proves <span class="mono">TI(α)</span> for every <span class="mono">α &lt; ε₀</span> (Gentzen 1943), but not for <span class="mono">ε₀</span> itself. The ordinal was not chosen; it is the precise threshold of induction that consistency costs.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the modern form&nbsp;&nbsp;</span>Schütte recast the argument so the ordinals fall out by themselves. Replace <span class="mono">PA</span>'s induction rule by the <i>infinitary</i> <span class="mono">ω</span>-rule — to conclude <span class="mono">∀x φ(x)</span>, take as premises all of <span class="mono">φ(0), φ(1), φ(2), …</span>. Proofs become well-founded infinite trees, each with an ordinal <i>height</i>. Every <span class="mono">PA</span>-proof embeds into an <span class="mono">ω</span>-proof of height <span class="mono">&lt; ε₀</span>; cut-elimination on these infinite trees raises the height but keeps it below <span class="mono">ε₀</span> for arithmetic conclusions; and a cut-free <span class="mono">ω</span>-proof of the empty sequent is impossible by a one-line induction on its height. The bound <span class="mono">ε₀</span> emerges as the supremum of the heights — the same number, now visibly the ceiling of the cut-elimination process.</p>
+    </div>
+
+    <div class="reading">
+      <p><span class="lead-in">the same idea, made watchable&nbsp;&nbsp;</span>The whole engine — <i>a strictly descending ordinal proves termination, and the ordinal is below <span class="mono">ε₀</span></i> — can be run on a concrete sequence of ordinary integers. Write a number in <b>hereditary base 2</b>: in base 2, then rewrite the exponents in base 2, and so on. Now repeatedly (i) bump the base by one everywhere, and (ii) subtract one. The integers can balloon astronomically. Yet the sequence always reaches zero — and it does so for exactly Gentzen's reason.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="good-controls">
+          <div class="good-seed">
+            <span class="fgh-lab" style="align-self:center">seed</span>
+            <button class="good-sbtn on" data-seed="3">3</button>
+            <button class="good-sbtn" data-seed="4">4</button>
+            <button class="good-sbtn" data-seed="5">5</button>
+            <button class="good-sbtn" data-seed="7">7</button>
+            <button class="good-sbtn" data-seed="16">16</button>
+          </div>
+          <button class="good-btn" id="gStep">step ▸</button>
+          <button class="good-btn" id="gRun">run ▸▸</button>
+          <button class="good-btn ghost" id="gReset">reset</button>
+          <span class="good-read" id="gRead">base <b>2</b> · step <b>0</b></span>
+        </div>
+        <div class="good-tracks">
+          <div class="good-col val">
+            <div class="gc-h"><span class="gc-arrow">↗</span> the integer — <span style="text-transform:none;letter-spacing:0">may explode</span></div>
+            <div class="good-rows" id="gValRows"></div>
+          </div>
+          <div class="good-col ord">
+            <div class="gc-h"><span class="gc-arrow">↘</span> its ordinal — <span style="text-transform:none;letter-spacing:0">strictly descends</span></div>
+            <div class="good-rows" id="gOrdRows"></div>
+          </div>
+        </div>
+        <div class="good-banner" id="gBanner" style="display:none"></div>
+        <figcaption>Replace every base with <span class="mono">ω</span> in the hereditary representation and the integer becomes an ordinal below <span class="mono">ε₀</span>. Bumping the base does nothing to that ordinal — <span class="mono">ω</span> is already past every base — while the &ldquo;minus one&rdquo; strictly lowers it. So the left column may climb for an astronomically long time, but the right column is a descending sequence of ordinals, which must hit <span class="mono">0</span>. Seed 4 peaks near <span class="mono">3·2⁴⁰²⁶⁵³²¹¹</span> before it falls.</figcaption>
+      </div>
+    </div>
+
+    <div class="thm red">
+      <div class="tl">Goodstein, and why PA cannot see it</div>
+      <div class="ts"><b>Every Goodstein sequence reaches 0</b> (Goodstein 1944) — the ordinal shadow descends, and descent below <span class="mono">ε₀</span> must terminate. <b>But <span class="mono">PA</span> cannot prove this</b> (Kirby–Paris 1982), for the now-familiar reason: the termination proof <i>is</i> a descent through the ordinals below <span class="mono">ε₀</span>, and to run it you must know <span class="mono">ε₀</span> is well-founded — the one induction <span class="mono">PA</span> lacks. Goodstein's theorem is <span class="mono">TI(ε₀)</span> wearing the clothes of elementary number theory.</div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">f_{α+1}(n) = f_α(f_α(…f_α(n))) , n times</span><span class="ln"></span></div>
+
+  <!-- ===== §IV GROWTH ===== -->
+  <section class="sec" id="growth">
+    <div class="sec-head"><span class="num">IV · growth</span><h2>The height, turned on its side</h2><p class="sub">Read upright, the ordinal measures proof. Read sideways, the same ordinal measures speed. A theory proves a function total exactly when the function grows no faster than the ordinals it can certify — so logical strength and rate of growth are one number, met twice.</p></div>
+    <div class="reading">
+      <p>Index a family of functions by the ordinals, each one iterating the last. This is the <b>fast-growing hierarchy</b>:</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the fast-growing hierarchy</div>
+      <div class="ts"><span class="mono">f₀(n) = n+1</span>; &nbsp;<span class="mono">f_{α+1}(n) = f_α^{(n)}(n)</span> &nbsp;(apply <span class="mono">f_α</span> to <span class="mono">n</span>, <span class="mono">n</span> times); &nbsp;<span class="mono">f_λ(n) = f_{λ[n]}(n)</span> at a limit <span class="mono">λ</span>, using its fundamental sequence <span class="mono">λ[n] → λ</span>. &nbsp;Then <span class="mono">f₁(n)=2n</span>, &nbsp;<span class="mono">f₂(n)=n·2ⁿ</span>, &nbsp;<span class="mono">f₃</span> is a tower of exponentials, and <span class="mono">f_ω(n)=f_n(n)</span> already grows like the Ackermann function.</div>
+    </div>
+    <div class="reading">
+      <p>Each successor level applies the previous one a number of times equal to its own input — diagonal self-feeding, the recursion theorem's constructive face. The growth is staggering almost at once: <span class="mono">f₃(3)</span> is already a number with more than a hundred million digits, and <span class="mono">f₃(4)</span> leaves every magnitude with a physical meaning far behind. Try it — and watch how few rungs it takes to outrun every nameable number.</p>
+    </div>
+
+    <div class="stage narrow">
+      <div class="panel">
+        <div class="fgh-controls">
+          <div class="fgh-group"><span class="fgh-lab">level α</span>
+            <button class="fgh-pill on" data-a="0">0</button>
+            <button class="fgh-pill" data-a="1">1</button>
+            <button class="fgh-pill" data-a="2">2</button>
+            <button class="fgh-pill" data-a="3">3</button>
+            <button class="fgh-pill" data-a="w">ω</button>
+          </div>
+          <div class="fgh-group"><span class="fgh-lab">input n</span>
+            <button class="fgh-pill" data-n="2">2</button>
+            <button class="fgh-pill on" data-n="3">3</button>
+            <button class="fgh-pill" data-n="4">4</button>
+            <button class="fgh-pill" data-n="5">5</button>
+            <button class="fgh-pill" data-n="8">8</button>
+          </div>
+        </div>
+        <div class="fgh-out">
+          <div class="fgh-expr" id="fghExpr">f<sub>0</sub>(3)</div>
+          <div class="fgh-val" id="fghVal">4</div>
+          <div class="fgh-note" id="fghNote">The successor function, iterated.</div>
+        </div>
+        <figcaption>Every function here is <span class="mono">PA</span>-provably total — each lives below <span class="mono">ε₀</span> in the hierarchy. The point is not that they are uncomputable (they are perfectly computable) but how violently they grow, which is what makes proving them total a measure of real strength. The ceiling is one rung higher than any shown.</figcaption>
+      </div>
+    </div>
+
+    <div class="reading">
+      <p><span class="lead-in">the theorem that fuses the two readings&nbsp;&nbsp;</span>A close cousin, the <b>Hardy hierarchy</b> <span class="mono">H_α</span> — <span class="mono">H₀(n)=n</span>, <span class="mono">H_{α+1}(n)=H_α(n+1)</span>, <span class="mono">H_λ(n)=H_{λ[n]}(n)</span> — counts <i>steps</i> rather than iterating, and satisfies <span class="mono">H_{ω^α} ≈ f_α</span>: the two hierarchies are the same growth, indexed differently. With them the central identity becomes exact.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">Wainer's theorem — strength is growth</div>
+      <div class="ts"><b>The provably total recursive functions of <span class="mono">PA</span> are exactly the functions eventually dominated by <span class="mono">f_α</span> for some <span class="mono">α &lt; ε₀</span></b> (Wainer; Buchholz–Wainer). Below the ordinal of the theory, provably total; at it, not. So <span class="mono">f_{ε₀}</span> — the diagonal function <span class="mono">n ↦ f_{ε₀[n]}(n)</span> running over the whole hierarchy — is the first total computable function <span class="mono">PA</span> cannot prove total. <i>The proof-theoretic ordinal is simultaneously the height of provable induction and the threshold of provable growth.</i></div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">why the two readings coincide&nbsp;&nbsp;</span>This identity is not a numerical coincidence awaiting an explanation; it has a structural one. To prove a function total is to prove that a certain recursion halts, and a proof's own architecture — by the Curry–Howard correspondence, a proof <i>is</i> a program — is itself a recursion whose nesting is bounded by the ordinals the theory can certify well-founded. Strength and growth are therefore the <i>same resource</i> read off the same object: the ordinal that bounds how deeply a theory's proofs may recurse is exactly the ordinal that bounds how fast the functions those proofs certify may grow. Consistency, in this light, is a conservation law — it says precisely that the recursion never escapes the well-founded ordinals. That is why proving a function total just past the boundary, as Goodstein's rate <span class="mono">f_{ε₀}</span> demands, is equivalent to proving the very consistency the theory cannot reach: to certify the growth is to certify the well-foundedness, and they are one ordinal because proof and computation are one act.</p>
+    </div>
+    <div class="reading">
+      <p>And now Goodstein closes its own circle. Cichoń (1983) computed its rate: the number of steps a Goodstein sequence takes to terminate grows like <span class="mono">H_{ε₀}</span> — that is, like <span class="mono">f_{ε₀}</span>. So &ldquo;every Goodstein sequence terminates&rdquo; is, in function form, &ldquo;<span class="mono">f_{ε₀}</span> is total&rdquo; — one notch past the last rate <span class="mono">PA</span> can certify. The independence of §III and the growth boundary of §IV are not two facts. They are the same threshold, <span class="mono">ε₀</span>, named once as an ordinal and once as a speed.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">Π⁰₁ deficit ↦ Π¹₁ well-foundedness</span><span class="ln"></span></div>
+
+  <!-- ===== §V THE GHOST ===== -->
+  <section class="sec" id="ghost">
+    <div class="sec-head"><span class="num">V · the ghost</span><h2>The climb to the vanishing point</h2><p class="sub">Push the iteration all the way along the ordinals and something startling happens: completeness appears. But it is a ghost — path-dependent, and bought only by assuming a well-foundedness that is itself the hardest kind of unprovable. The deficit does not vanish. It changes logical type.</p></div>
+    <div class="reading">
+      <p>If one round of reflection helps, why not iterate to the end? This was Turing's thesis (1939). His <i>ordinal logics</i> attach to each notation <span class="mono">a</span> for an ordinal a theory <span class="mono">T_a</span>, obtained by iterating consistency or reflection along the notation. The question is whether, climbing far enough, the tower becomes <i>complete</i> — whether every truth eventually gets proved at some height.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the startling half&nbsp;&nbsp;</span>Feferman (1962) proved it can. A progression by <i>uniform</i> reflection, pursued along a suitable path through the ordinal notations, proves <b>every true <span class="mono">Π⁰₁</span> sentence</b> — and with more care, with transfinitely iterated reflection of higher type, every true arithmetical sentence whatsoever. On its face this is a completeness theorem for arithmetic, recovered at the transfinite limit of self-trust. The ladder, climbed forever, seems to reach the top after all.</p>
+    </div>
+    <div class="thm red">
+      <div class="tl">why the completeness is a ghost</div>
+      <div class="ts"><b>The completeness is path-dependent</b> (Feferman–Spector 1962): <i>which</i> truths get proved depends on which route through the notations you take, and the routes that succeed are not effectively distinguishable from those that fail. Worse, they demand notations whose <b>well-foundedness is not arithmetical</b>. The set of notations for genuine well-orderings — Kleene's <span class="mono">O</span> — is <span class="mono">Π¹₁</span>-complete: the canonical hardest set at that level, undecidable by <i>any</i> arithmetical means.</div>
+    </div>
+    <div class="reading">
+      <p>So the bookkeeping is exact, and merciless. To collect the promised completeness you must first certify &ldquo;the path I am climbing is well-founded.&rdquo; That certification is a <span class="mono">Π¹₁</span> statement, and no amount of arithmetic delivers it. You have not removed the incompleteness. You have <i>relocated</i> it — out of the object theory, where it was a single unprovable <span class="mono">Π⁰₁</span> sentence, and up into the well-foundedness of the ladder itself, where it is a <span class="mono">Π¹₁</span> one. This is the literal sense in which the diagonal recurs &ldquo;one level up&rdquo;: the deficit climbs a quantifier. The measure of the climb has become the obstacle to the climb.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">RCA₀ ⊂ WKL₀ ⊂ ACA₀ ⊂ ATR₀ ⊂ Π¹₁-CA₀</span><span class="ln"></span></div>
+
+  <!-- ===== §VI THE RULER ===== -->
+  <section class="sec" id="ruler">
+    <div class="sec-head"><span class="num">VI · the ruler</span><h2>The science the measure became</h2><p class="sub">If the ladder cannot be finished, it can be used. Reverse mathematics turns the proof-theoretic ordinal into a working instrument — weighing each theorem against the rungs — and discovers that almost all of ordinary mathematics lives at just five of them. The negative result founded a classifying science.</p></div>
+    <div class="reading">
+      <p>The deepest response to a permanent limit is to make it productive. Take the limit's own instrument — the calibration of strength — and apply it not to artificial Gödel sentences but to the working theorems of analysis, algebra, and combinatorics. Ask, for each: <i>exactly which axioms does this theorem need?</i> This is <b>reverse mathematics</b> (Friedman, Simpson): prove the theorem from a weak base, then prove the axiom <i>back</i> from the theorem, pinning its strength precisely.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the big five&nbsp;&nbsp;</span>The base is <span class="mono">RCA₀</span> — recursive comprehension, roughly &ldquo;computable sets exist.&rdquo; Above it, five subsystems of second-order arithmetic recur with astonishing regularity, and the bulk of ordinary mathematics turns out equivalent, over the base, to one of exactly these five:</p>
+    </div>
+    <div class="stage">
+      <div class="bridge">
+        <div class="bridge-row"><div class="br-main"><b>RCA₀</b> &nbsp;— computable mathematics. <i>The intermediate value theorem, the Baire category theorem, countable completeness.</i></div><span class="bridge-pill hold">ω^ω · base</span></div>
+        <div class="bridge-row"><div class="br-main"><b>WKL₀</b> &nbsp;— weak König's lemma (every infinite binary tree has a path). <i>Heine–Borel compactness of <span class="mono">[0,1]</span>, the Gödel completeness theorem, Brouwer's fixed point, prime ideals in countable rings.</i></div><span class="bridge-pill hold">ω^ω</span></div>
+        <div class="bridge-row"><div class="br-main"><b>ACA₀</b> &nbsp;— arithmetical comprehension. <i>Bolzano–Weierstrass, König's lemma, the range of a function, a basis for every countable vector space.</i></div><span class="bridge-pill thm">ε₀</span></div>
+        <div class="bridge-row"><div class="br-main"><b>ATR₀</b> &nbsp;— arithmetical transfinite recursion. <i>Comparability of countable well-orderings, the perfect set theorem, open (<span class="mono">Σ⁰₁</span>) determinacy.</i></div><span class="bridge-pill thm">Γ₀</span></div>
+        <div class="bridge-row"><div class="br-main"><b>Π¹₁-CA₀</b> &nbsp;— <span class="mono">Π¹₁</span> comprehension. <i>The Cantor–Bendixson theorem, the structure theorem for countable abelian groups, <span class="mono">Σ⁰₁∧Π⁰₁</span> determinacy.</i></div><span class="bridge-pill thm">Bachmann–Howard</span></div>
+      </div>
+      <div class="bridge-verdict">The pill on each row is that subsystem's proof-theoretic ordinal. <b>The big five are rungs of the very ladder of §II</b> — and ordinary mathematics, asked where it lives, answers: at these five heights and almost nowhere between.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the wall reaches ordinary mathematics&nbsp;&nbsp;</span>Nor is the boundary only artificial. Past the big five, Harvey Friedman's program exhibits <i>natural</i> theorems that demand still more: Kruskal's tree theorem is impredicative — it proves well-foundedness past <span class="mono">Γ₀</span>, to the small Veblen ordinal — so it outruns <span class="mono">ATR₀</span>; the Robertson–Seymour graph-minor theorem outruns even <span class="mono">Π¹₁-CA₀</span>; and Friedman's finite Boolean relation theory cannot be proved without large cardinals. These are statements a combinatorialist might prove on any given Tuesday, each pinned to an exact, and sometimes enormous, height on the ladder.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">Hilbert's program, transformed not buried</div>
+      <div class="ts">Hilbert wanted a finitary consistency proof for all of mathematics. Gödel-2 killed the literal program; Gentzen's <span class="mono">ε₀</span> proof <i>relocated</i> it, and reverse mathematics realizes a precise fragment of it: <b><span class="mono">WKL₀</span> is <span class="mono">Π⁰₂</span>-conservative over <span class="mono">PRA</span></b> (Friedman). Every <span class="mono">Π⁰₂</span> theorem provable using the considerable apparatus of <span class="mono">WKL₀</span> — much of classical analysis — is already provable by strictly finitary means. The reduction Hilbert sought exists, exactly, for everything that lives at that rung.</div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the height is the meaning</span><span class="ln"></span></div>
+  <div class="coda"><p>The ladder has no top — but a theory's height upon it is the truest single thing one can say about its strength, because that height is three things at once: the induction it can certify, the growth it can guarantee, and the theorems it can reach. Gentzen earned the number; Wainer showed it was also a speed; reverse mathematics made it a ruler that measures the working world. The diagonal forbids the summit. The ordinal weighs the climb — and the weighing, not the summit, is the science.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">A deep study · The Measure</span></div>
+    <p class="colophon">A component study of <i>The Ascent</i>, drawing out its second movement: the reflection ladder and its ordinal. The load-bearing results are theorems of proof theory — <span class="mono">|PA|=ε₀</span> and <span class="mono">Con(PA)⟺TI(ε₀)</span> (Gentzen 1936/1938/1943); the characterization of provably total functions by the fast-growing hierarchy (Wainer); the Goodstein rate <span class="mono">≈ H_{ε₀}</span> (Cichoń 1983) and its <span class="mono">PA</span>-independence (Kirby–Paris 1982); transfinite-progression completeness and its path-dependence (Turing 1939; Feferman 1962; Feferman–Spector 1962); the <span class="mono">Π¹₁</span>-completeness of well-foundedness (Kleene–Spector); and the reverse-mathematics calibration of ordinary theorems (Friedman; Simpson). The framing — that the proof-theoretic ordinal is the single most informative invariant of a theory, fusing proof and computation, and that measuring it is the positive science the diagonal's limit founded — is the corpus's synthesis, laid over the theorems and, it holds, true to them.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;&ldquo;Proof-theoretic ordinal&rdquo; names a family — the <span class="mono">Π⁰₂</span>-, <span class="mono">Π¹₁</span>-, and consistency-strength ordinals — which coincide for natural theories and equal <span class="mono">ε₀</span> for <span class="mono">PA</span> but can be separated for artificial ones; we mean the shared value. The derivability conditions require <span class="mono">T ⊇ EA</span> (or <span class="mono">IΣ₁</span>), not <span class="mono">Q</span> alone. <span class="mono">ε₀</span> is the least fixed point of <span class="mono">α=ω^α</span>; Cantor normal form gives every <span class="mono">α&lt;ε₀</span> a hereditarily finite notation, hence a primitive-recursive ordering. Gentzen's ordinal assignment is to sequent derivations, with reduction strictly decreasing the assigned ordinal; the modern <span class="mono">ω</span>-rule form is Schütte's, with cut-elimination bounding the height of arithmetic <span class="mono">ω</span>-proofs below <span class="mono">ε₀</span>. The fast-growing convention here is <span class="mono">f_{α+1}(n)=f_α^{(n)}(n)</span> with fundamental sequences fixed by the standard assignment on Cantor normal forms (e.g. <span class="mono">ε₀[n]</span> the tower of height <span class="mono">n</span>); other conventions shift constants but not the <span class="mono">ε₀</span> boundary. Wainer's characterization is of the <span class="mono">&lt;ε₀</span>-recursive functions; the Hardy–fast-growing relation <span class="mono">H_{ω^α}≈f_α</span> holds up to the usual finite-difference fuzz. Reverse-mathematics equivalences are over <span class="mono">RCA₀</span> (Simpson, <i>Subsystems of Second Order Arithmetic</i>); the ordinals of the big five are <span class="mono">ω^ω, ω^ω, ε₀, Γ₀,</span> and the Bachmann–Howard ordinal respectively. Kruskal's theorem's strength is the small Veblen ordinal; the graph-minor theorem exceeds <span class="mono">Π¹₁-CA₀</span>; Boolean relation theory's large-cardinal demands are Friedman's. &ldquo;Ordinal notation&rdquo; means an index in a primitive-recursive well-ordering; the transfinite progressions of §V are indexed in Kleene's <span class="mono">O</span>, whose well-founded part is <span class="mono">Π¹₁</span>-complete. The parent essay, <i>The Ascent</i>, carries the wider argument; <i>The Diagonal</i> carries the construction these ordinals measure the escape from.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Gentzen 1936 · 1938 · 1943 · Turing 1939 · Goodstein 1944 · Schütte (infinitary proof theory) · Feferman 1962 · Feferman–Spector 1962 · Kleene / Spector (Π¹₁-completeness) · Wainer 1970 · Buchholz–Wainer · Cichoń 1983 · Kirby–Paris 1982 · Paris–Harrington 1977 · Friedman (reverse mathematics, natural independence) · Simpson, <i>SOSOA</i> · Rathjen (ordinal analysis) · Veblen · Bachmann–Howard · Beklemishev 2004 (reflection and ordinals).</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ GOODSTEIN ENGINE ============ */
+  var MAX_STEPS = 12, DIGIT_CAP = 1200;
+  var gSeed = 3n, gVal = 3n, gBase = 2n, gStep = 0;
+
+  function heredOrdStr(n, b){
+    if(n === 0n) return "0";
+    var digits = [], m = n;
+    while(m > 0n){ digits.push(m % b); m = m / b; }
+    var terms = [];
+    for(var i = digits.length - 1; i >= 0; i--){
+      var c = digits[i];
+      if(c === 0n) continue;
+      var expStr = heredOrdStr(BigInt(i), b);
+      var term;
+      if(expStr === "0"){ term = c.toString(); }
+      else {
+        var base;
+        if(expStr === "1") base = "\u03c9";
+        else if(expStr.length === 1) base = "\u03c9^" + expStr;
+        else base = "\u03c9^(" + expStr + ")";
+        term = (c === 1n) ? base : base + "\u00b7" + c.toString();
+      }
+      terms.push(term);
+    }
+    return terms.join(" + ");
+  }
+
+  function goodsteinNext(n, b){
+    if(n === 0n) return 0n;
+    function val(n, b, nb){
+      if(n === 0n) return 0n;
+      var digits = [], m = n;
+      while(m > 0n){ digits.push(m % b); m = m / b; }
+      var s = 0n;
+      for(var i = 0; i < digits.length; i++){
+        var c = digits[i];
+        if(c === 0n) continue;
+        s += c * (nb ** val(BigInt(i), b, nb));
+      }
+      return s;
+    }
+    return val(n, b, b + 1n) - 1n;
+  }
+
+  function valDisplay(n){
+    var s = n.toString();
+    if(s.length > 12) return "\u2248 10^" + (s.length - 1) + " (" + s.length + " digits)";
+    return s;
+  }
+
+  function gAddRow(){
+    var os = heredOrdStr(gVal, gBase);
+    var vr = document.getElementById("gValRows");
+    var or = document.getElementById("gOrdRows");
+    var rv = document.createElement("div"); rv.className = "good-row" + (gVal === 0n ? " zero" : "");
+    rv.innerHTML = "<span class='gr-n'>" + gStep + "</span><span class='gr-v'>" + valDisplay(gVal) + "</span>";
+    vr.appendChild(rv);
+    var ro = document.createElement("div"); ro.className = "good-row" + (gVal === 0n ? " zero" : "");
+    ro.innerHTML = "<span class='gr-n'>b=" + gBase + "</span><span class='gr-v'>" + os + "</span>";
+    or.appendChild(ro);
+    document.getElementById("gRead").innerHTML = "base <b>" + gBase + "</b> \u00b7 step <b>" + gStep + "</b>";
+  }
+
+  function gBannerShow(cls, txt){
+    var b = document.getElementById("gBanner");
+    b.style.display = "block"; b.className = "good-banner " + cls; b.textContent = txt;
+  }
+
+  function gReset(){
+    gVal = gSeed; gBase = 2n; gStep = 0;
+    document.getElementById("gValRows").innerHTML = "";
+    document.getElementById("gOrdRows").innerHTML = "";
+    document.getElementById("gBanner").style.display = "none";
+    document.getElementById("gStep").disabled = false;
+    document.getElementById("gRun").disabled = false;
+    gAddRow();
+  }
+
+  function gDoStep(){
+    if(gVal === 0n) return false;
+    if(gStep >= MAX_STEPS){
+      gBannerShow("cap", "step cap reached \u2014 the ordinal is still strictly descending; termination is guaranteed but astronomically far");
+      document.getElementById("gStep").disabled = true;
+      document.getElementById("gRun").disabled = true;
+      return false;
+    }
+    var next = goodsteinNext(gVal, gBase);
+    gVal = next; gBase += 1n; gStep += 1;
+    if(gVal.toString().length > DIGIT_CAP){
+      gAddRow();
+      gBannerShow("cap", "value beyond display \u2014 the ordinal continues its strict descent below \u03b5\u2080");
+      document.getElementById("gStep").disabled = true;
+      document.getElementById("gRun").disabled = true;
+      return false;
+    }
+    gAddRow();
+    if(gVal === 0n){
+      gBannerShow("done", "reached 0 \u2014 the sequence terminates, as the descending ordinal forced it to");
+      document.getElementById("gStep").disabled = true;
+      document.getElementById("gRun").disabled = true;
+      return false;
+    }
+    return true;
+  }
+
+  function gWire(){
+    var seeds = document.querySelectorAll(".good-sbtn");
+    seeds.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        seeds.forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on");
+        gSeed = BigInt(btn.getAttribute("data-seed"));
+        gReset();
+      });
+    });
+    document.getElementById("gStep").addEventListener("click", function(){ gDoStep(); });
+    document.getElementById("gReset").addEventListener("click", gReset);
+    document.getElementById("gRun").addEventListener("click", function(){
+      var guard = 0;
+      while(gDoStep() && guard < 200){ guard++; }
+    });
+    gReset();
+  }
+
+  /* ============ FAST-GROWING HIERARCHY EXPLORER ============ */
+  var fAlpha = "0", fN = 3;
+  var FCAP = 10n ** 18n;
+
+  function fgh(a, n){
+    var bn = BigInt(n);
+    if(a === "0") return { v: bn + 1n };
+    if(a === "1") return { v: 2n * bn };
+    if(a === "2") return { v: bn * (2n ** bn) };
+    if(a === "3"){
+      var x = bn;
+      for(var i = 0; i < n; i++){
+        x = x * (2n ** x);
+        if(x > FCAP) return { over: true, kind: "tower", n: n };
+      }
+      return { v: x };
+    }
+    if(a === "w"){
+      if(n <= 2) return fgh(String(n), n);
+      return { over: true, kind: "ack", n: n };
+    }
+    return { v: 0n };
+  }
+
+  function fNote(a, n, r){
+    var tail = "  Still PA-provably total \u2014 the wall is one rung higher, at f_{\u03b5\u2080}.";
+    if(a === "0") return "The successor function. f\u2080(n)=n+1." + tail;
+    if(a === "1") return "Doubling. f\u2081(n)=2n \u2014 f\u2080 applied n times." + tail;
+    if(a === "2") return "f\u2082(n)=n\u00b72\u207f \u2014 exponential, from iterating the doubling." + tail;
+    if(a === "3") return "Iterated exponentials \u2014 a power tower whose height grows with n. f\u2083(3) already has more than a hundred million digits." + tail;
+    return "f_\u03c9(n)=f_n(n) \u2014 the diagonal over the finite levels, Ackermann-scale." + tail;
+  }
+
+  function fShow(){
+    var aLabel = (fAlpha === "w") ? "\u03c9" : fAlpha;
+    document.getElementById("fghExpr").innerHTML = "f<sub>" + aLabel + "</sub>(" + fN + ")";
+    var r = fgh(fAlpha, fN);
+    var valEl = document.getElementById("fghVal");
+    if(r.v !== undefined){
+      var s = r.v.toString();
+      if(s.length > 15){ valEl.className = "fgh-val"; valEl.textContent = "\u2248 10^" + (s.length - 1) + "   (" + s.length + " digits)"; }
+      else { valEl.className = "fgh-val"; valEl.textContent = s; }
+    } else {
+      valEl.className = "fgh-val big";
+      if(r.kind === "tower"){ valEl.textContent = "a power tower of exponentials \u2014 astronomically beyond display"; }
+      else { valEl.textContent = "f_n(n) \u2014 Ackermann-scale, beyond display"; }
+    }
+    document.getElementById("fghNote").textContent = fNote(fAlpha, fN, r);
+  }
+
+  function fWire(){
+    document.querySelectorAll(".fgh-pill[data-a]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll(".fgh-pill[data-a]").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on");
+        fAlpha = btn.getAttribute("data-a");
+        fShow();
+      });
+    });
+    document.querySelectorAll(".fgh-pill[data-n]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.querySelectorAll(".fgh-pill[data-n]").forEach(function(b){ b.classList.remove("on"); });
+        btn.classList.add("on");
+        fN = parseInt(btn.getAttribute("data-n"), 10);
+        fShow();
+      });
+    });
+    fShow();
+  }
+
+  function init(){ gWire(); fWire(); }
+  if(document.readyState === "loading"){ document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-ascent.html">← The Ascent</a><a rel="next" href="quodlibet-the-law.html">The Law →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

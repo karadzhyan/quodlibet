@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Box — provability as its own logic</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup,sub{font-size:.7em;line-height:0;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(2.9rem,10vw,7.2rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.24rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:46rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:42rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:44rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem / derivation */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:44rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.02rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.9rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+  .pf{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.8;color:var(--soft1);margin-top:.7rem;}
+  .pf .hot{color:var(--red-deep);} .pf b{color:var(--ink);font-weight:600;} .pf .q{color:var(--faintest);}
+
+  .bigeq{text-align:center;font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.7rem,3vw,2.3rem);margin:1.4rem 0;letter-spacing:.01em;}
+  .bigeq .v{font-style:italic;} .bigeq .r{color:var(--red);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:44rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+  .callout.ink{border-left-color:var(--ink);background:var(--panel);} .callout.ink .cl-lab{color:var(--ink);}
+
+  /* the three mechanism cards */
+  .mechs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:780px){ .mechs{grid-template-columns:1fr;} }
+  .mech{background:var(--paper);padding:1.2rem 1.25rem;}
+  .mech .m-tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;display:inline-block;padding:.2rem .5rem;border-radius:2px;margin-bottom:.7rem;}
+  .mech.m1 .m-tag{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .mech.m2 .m-tag{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .mech.m3 .m-tag{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .mech h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .35rem;letter-spacing:-.01em;}
+  .mech .m-eq{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);margin:.3rem 0 .55rem;padding:.4rem .55rem;background:var(--panel);border-radius:2px;border:1px solid var(--hair);}
+  .mech p{font-size:.88rem;line-height:1.52;color:var(--soft1);}
+  .mech .m-mem{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.55;color:var(--faint);margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--hair);}
+  .mech .m-mem b{color:var(--ink);font-weight:500;}
+
+  /* a worked-reduction spec (5-tuple + discharge) */
+  .spec{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:46rem;background:var(--paper);}
+  .spec .sp-h{display:flex;justify-content:space-between;align-items:baseline;gap:.8rem;padding:.85rem 1.15rem;border-bottom:1px solid var(--hair);flex-wrap:wrap;}
+  .spec .sp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;letter-spacing:-.01em;}
+  .spec .sp-name b{color:var(--red-deep);}
+  .spec .sp-mech{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:2px;white-space:nowrap;}
+  .spec .sp-mech.m1{color:var(--red-deep);background:var(--red-soft);border:1px solid var(--red-line);}
+  .spec .sp-mech.m2{color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .spec .sp-mech.m3{color:var(--teal-deep);background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .spec .sp-grid{display:grid;grid-template-columns:auto 1fr;gap:.1rem .9rem;padding:.85rem 1.15rem;font-size:.9rem;line-height:1.5;}
+  .spec .sp-grid dt{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--faintest);padding-top:.32rem;}
+  .spec .sp-grid dd{margin:0;padding:.18rem 0;}
+  .spec .sp-grid dd .mono{font-size:.84rem;}
+  .spec .sp-grid dd .h{color:var(--red-deep);font-weight:500;}
+  .spec .sp-disc{padding:.8rem 1.15rem;border-top:1px solid var(--hair);background:var(--panel);font-size:.86rem;line-height:1.55;color:var(--soft1);}
+  .spec .sp-disc .dl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.3rem;}
+  .spec .sp-disc b{color:var(--ink);font-weight:600;}
+  @media(max-width:540px){ .spec .sp-grid{grid-template-columns:1fr;gap:.05rem;} .spec .sp-grid dt{padding-top:.45rem;} }
+
+  /* the cost ledger */
+  .cost{width:100%;border-collapse:collapse;font-size:.88rem;}
+  .cost th{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:500;text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--rule);vertical-align:bottom;}
+  .cost td{padding:.6rem .7rem;border-bottom:1px solid var(--hair);vertical-align:top;line-height:1.45;}
+  .cost td.c-name{font-family:"Spectral",serif;font-style:italic;color:var(--ink);white-space:nowrap;}
+  .cost td.c-cost{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .cost td.c-str{font-family:"IBM Plex Mono",monospace;font-size:.74rem;}
+  .cost .s-none{color:var(--teal-deep);} .cost .s-mid{color:var(--gold-deep);} .cost .s-hi{color:var(--red-deep);}
+  .cost tr:last-child td{border-bottom:none;}
+  @media(max-width:680px){
+    .cost thead{display:none;} .cost,.cost tbody,.cost tr,.cost td{display:block;width:100%;}
+    .cost tr{border:1px solid var(--hair);border-radius:3px;margin-bottom:.55rem;padding:.5rem .7rem;}
+    .cost td{border:none;padding:.16rem 0;}
+    .cost td.c-cost::before{content:"pays — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+    .cost td.c-str::before{content:"strength — ";color:var(--faintest);font-family:'IBM Plex Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;}
+  }
+
+  /* definition box */
+  .defn{border:1px solid var(--ink);border-radius:3px;padding:1.1rem 1.3rem;margin:1.5rem auto;max-width:44rem;background:var(--panel);}
+  .defn .d-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin-bottom:.6rem;}
+  .defn p{font-size:.96rem;line-height:1.62;margin:0 0 .55rem;}
+  .defn p:last-child{margin-bottom:0;}
+  .defn .term{font-weight:600;font-style:italic;}
+  .defn .mono{font-size:.85rem;color:var(--red-deep);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* derivation chain (modal proofs) */
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;margin:1.1rem auto;max-width:44rem;border-left:2px solid var(--gold-line);padding:.3rem 0 .3rem 0;}
+  .chain .cstep{display:grid;grid-template-columns:1.7rem 1fr;gap:.2rem .7rem;padding:.32rem 1rem .32rem 1.1rem;}
+  .chain .cstep:not(:last-child){border-bottom:1px solid var(--hair);}
+  .chain .cn{color:var(--gold-deep);font-weight:500;}
+  .chain .cf{color:var(--ink);} .chain .cf .hot{color:var(--red-deep);} .chain .cf b{font-weight:600;}
+  .chain .cj{color:var(--faintest);font-size:.72rem;grid-column:2;margin-top:-.1rem;}
+  .chain .qed{color:var(--red-deep);}
+  /* fixed-point ladder (operator -> unique fixed point) */
+  .fp{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.2rem auto;max-width:46rem;}
+  @media(max-width:640px){ .fp{grid-template-columns:1fr;} }
+  .fp .fpc{background:var(--paper);padding:1.05rem 1.2rem;}
+  .fp .fpc .op{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--faint);text-transform:uppercase;margin-bottom:.5rem;}
+  .fp .fpc .opf{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);margin-bottom:.55rem;}
+  .fp .fpc .opf .b{color:var(--red-deep);}
+  .fp .fpc .fpr{font-family:"Spectral",serif;font-size:1.16rem;font-weight:500;letter-spacing:-.01em;margin:.2rem 0 .35rem;}
+  .fp .fpc .fpr .eq{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);font-weight:400;}
+  .fp .fpc p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .fp .fpc p b{color:var(--ink);font-weight:500;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-collected">Collected Studies</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+    <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deepening² · the anatomy of M2</span></div>
+    <div class="hero-head">
+      <p class="kicker">The second mechanism, opened</p>
+      <h1 class="title">The <span class="x">Box</span></h1>
+      <p class="standfirst">The dissection of the reductions found three mechanisms where the collection saw two, and put Gödel in the second: a fixed point that <em>exists</em>, made limitative not by any refusal but by a separate fact about the framework. That second mechanism was named only by what it is not. It has a positive theory, and the theory is exact — the meta-asymmetry is governed by a <em>logic</em>, the modal logic <span class="mono">GL</span> of the provability box, which is sound <em>and complete</em> for what arithmetic can prove about its own proofs. And that logic contains its own fixed-point theorem. The diagonal does not stop at the sentences; it recurs into the logic that governs them.</p>
+      <p class="ed-mark">three laws · Löb &amp; GL · the fixed point, again · the second theorem in one line · completeness · the recursion</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">□(□p → p) → □p</span><span class="ln"></span></div>
+
+  <section class="sec" id="where" style="margin-top:clamp(2.5rem,6vh,4rem)">
+    <div class="lede read">
+      <p>This goes one level below the last. The Anatomy took the collection's reductions and split them by mechanism: <i>refusal</i> (a free twist forbids the naming), <i>asymmetry</i> (the fixed point exists; the meta-level convicts it), <i>construction</i> (the fixed point is built with). The middle one, <span class="mono">M2</span>, is where Gödel was relocated — out of the negation-and-limit column and into the company of Löb, Rosser, and Curry, on the grounds that its sentence is a perfectly good fixed point whose <i>limitative</i> force comes from somewhere else: consistency, the derivability conditions, contraction. The Anatomy left it there, characterized by a lack. But "the meta-level convicts the fixed point" is not a shrug — it is a precise, complete, decidable theory, and unfolding it is the natural next cut. What does the framework's reasoning about its own provability actually obey? The answer is a logic with four laws and one shocking consequence: it proves its own incompleteness as a one-line corollary, and it has, sitting inside it, a second copy of the very fixed-point theorem that produced the sentences in the first place.</p>
+    </div>
+  </section>
+
+  <!-- ===== I · THE THREE LAWS ===== -->
+  <section class="sec" id="laws">
+    <div class="sec-head"><span class="num">I · the box and its laws</span><h2>Provability is a modal operator</h2><p class="sub">Read <span class="mono">□σ</span> as "<span class="mono">σ</span> is provable in <span class="mono">T</span>." It is not an arbitrary predicate: it obeys three laws, and those three laws are a modal logic already named.</p></div>
+    <div class="reading">
+      <p>Fix a consistent, recursively axiomatized <span class="mono">T ⊇ PA</span> and write <span class="mono">□σ</span> for the arithmetized sentence <span class="mono">Prov<sub>T</sub>(⌜σ⌝)</span>. The whole of the second mechanism rides on three facts about <span class="mono">□</span> — the Hilbert–Bernays–Löb derivability conditions — discovered in the course of making Gödel's proof rigorous, and each is a sentence <span class="mono">T</span> can prove about itself.</p>
+    </div>
+    <div class="stage">
+      <div class="mechs">
+        <div class="mech m2">
+          <span class="m-tag">D1 · necessitation</span>
+          <h4>What is proved is provably proved</h4>
+          <div class="m-eq">⊢ σ &nbsp;⟹&nbsp; ⊢ □σ</div>
+          <p>If <span class="mono">T</span> proves <span class="mono">σ</span>, then <span class="mono">T</span> proves that it proves <span class="mono">σ</span> — a proof can be exhibited and checked, and that check is itself a proof. The bridge from truth-of-proof to provability-of-proof.</p>
+        </div>
+        <div class="mech m2">
+          <span class="m-tag">D2 · distribution</span>
+          <h4>Provability respects modus ponens</h4>
+          <div class="m-eq">⊢ □(σ→τ) → (□σ → □τ)</div>
+          <p>If a conditional is provable and its hypothesis is provable, so is its conclusion — concatenate the two proofs. This is the modal axiom <span class="mono">K</span>; with it, <span class="mono">□</span> is a normal modal operator.</p>
+        </div>
+        <div class="mech m2">
+          <span class="m-tag">D3 · the fourth law</span>
+          <h4>Provability is provably transitive</h4>
+          <div class="m-eq">⊢ □σ → □□σ</div>
+          <p>Provability is provably <span class="mono">Σ₁</span>-complete: if <span class="mono">σ</span> is provable, that fact — itself a <span class="mono">Σ₁</span> truth — is provable. This is the modal axiom <span class="mono">4</span>. The box can iterate inside itself.</p>
+        </div>
+      </div>
+      <figcaption>Necessitation, distribution, and the fourth law are exactly the principles of the modal logic <b>K4</b>, read with <span class="mono">□</span> = "provable." Provability is not metaphorically modal; it <i>is</i> a modal operator, and its first three laws name a logic off the shelf. One law is still missing — the one that makes the box about <i>itself</i>.</figcaption>
+    </div>
+  </section>
+  <!-- ===== II · LÖB & GL ===== -->
+  <section class="sec" id="lob">
+    <div class="sec-head"><span class="num">II · Löb's law</span><h2>The box turned on itself</h2><p class="sub">The fourth law is Löb's, and it is the strangest principle in logic: a system can only prove a thing is true-if-provable by proving it outright. Adding it to <span class="mono">K4</span> gives the logic <span class="mono">GL</span>.</p></div>
+    <div class="reading">
+      <p>Henkin asked in 1952: a sentence that asserts <i>its own provability</i>, <span class="mono">H ↔ □H</span> — is it true? Is it provable? The diagonal lemma guarantees such an <span class="mono">H</span> exists, but says nothing about its status. Löb answered in 1955, and the answer is a law about the box that no amount of staring at <span class="mono">□</span> in isolation would suggest.</p>
+    </div>
+    <div class="thm gold read">
+      <div class="tl">Löb 1955</div>
+      <div class="ts">For every sentence <span class="mono">σ</span>: &nbsp;if <span class="mono">T ⊢ □σ → σ</span>, then <span class="mono">T ⊢ σ</span>. &nbsp;Equivalently, the schema <b><span class="mono">□(□σ → σ) → □σ</span></b> is a theorem of <span class="mono">T</span>.</div>
+    </div>
+    <div class="reading">
+      <p>Read it slowly. <span class="mono">□σ → σ</span> is a <i>reflection</i> instance — "if <span class="mono">σ</span> is provable, then <span class="mono">σ</span>" — the soundness one would think any honest system could grant itself for free. Löb says it cannot: the only sentences whose reflection instance <span class="mono">T</span> proves are the ones <span class="mono">T</span> already proves. Soundness is never free; to assert it for <span class="mono">σ</span> is to assert <span class="mono">σ</span>. The proof is the diagonal lemma again, now aimed at the box.</p>
+    </div>
+    <div class="chain">
+      <div class="cstep"><span class="cn">1</span><span class="cf">fix <span class="hot">ψ</span> with &nbsp;⊢ ψ ↔ (□ψ → σ) &nbsp;<span class="cj">— the diagonal lemma, the Henkin–Löb fixed point</span></span></div>
+      <div class="cstep"><span class="cn">2</span><span class="cf">⊢ ψ → (□ψ → σ) &nbsp;<span class="cj">— from 1</span></span></div>
+      <div class="cstep"><span class="cn">3</span><span class="cf">⊢ □ψ → □(□ψ → σ) &nbsp;<span class="cj">— necessitate (D1), distribute (D2)</span></span></div>
+      <div class="cstep"><span class="cn">4</span><span class="cf">⊢ □ψ → (□□ψ → □σ) &nbsp;<span class="cj">— distribute the inner box (D2)</span></span></div>
+      <div class="cstep"><span class="cn">5</span><span class="cf">⊢ □ψ → □□ψ &nbsp;<span class="cj">— the fourth law (D3)</span></span></div>
+      <div class="cstep"><span class="cn">6</span><span class="cf"><b>⊢ □ψ → □σ</b> &nbsp;<span class="cj">— chain 4 and 5</span></span></div>
+      <div class="cstep"><span class="cn">7</span><span class="cf">assume ⊢ □σ → σ; &nbsp;with 6: &nbsp;⊢ □ψ → σ, &nbsp;i.e. &nbsp;⊢ (□ψ → σ)</span></div>
+      <div class="cstep"><span class="cn">8</span><span class="cf">⊢ (□ψ → σ) → ψ &nbsp;(from 1); &nbsp;with 7: &nbsp;<b>⊢ ψ</b></span></div>
+      <div class="cstep"><span class="cn">9</span><span class="cf">⊢ □ψ &nbsp;(necessitate 8); &nbsp;with 6: &nbsp;⊢ □σ; &nbsp;with the assumption: &nbsp;<span class="hot">⊢ σ</span>. &nbsp;<span class="qed">∎</span></span></div>
+    </div>
+    <div class="reading">
+      <p>Now the missing law is in hand. Add Löb's schema to <span class="mono">K</span> and the result — call it <span class="mono">GL</span>, for Gödel and Löb — is a complete modal logic. The fourth law <span class="mono">4</span> is not even needed as a separate axiom; it follows from Löb's. And here is the feature that makes <span class="mono">GL</span> the right object: its defining axiom is <i>itself</i> self-referential. <span class="mono">□(□p → p) → □p</span> is a statement about the box applied to a statement about the box. The logic of self-reference is, in its single distinguishing law, self-referential. That is not decoration; it is the reason the next section's theorem exists.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout">
+        <div class="cl-lab">the logic, fixed</div>
+        <p><span class="mono">GL = K + □(□p→p)→□p</span>. &nbsp;Sound for provability: the three laws give <span class="mono">K4</span>, Löb's theorem gives the Löb axiom, so every <span class="mono">GL</span>-theorem is a provable schema about <span class="mono">Prov<sub>T</sub></span>. The interesting direction — that it captures <i>everything</i> provable about the box — is Solovay's, and it waits in §V.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ===== III · THE FIXED POINT, AGAIN ===== -->
+  <section class="sec" id="fixedpoint">
+    <div class="sec-head"><span class="num">III · the fixed point, again</span><h2>Lawvere, one level up</h2><p class="sub">The mechanism that produced the self-referential sentences has a logic; and that logic, astonishingly, contains the same theorem that produced them — a fixed-point theorem, now with uniqueness the original could not give.</p></div>
+    <div class="reading">
+      <p>The diagonal lemma is Lawvere's power direction in the syntactic category: every operation on sentences has a fixed point. One would not expect that structure to reappear <i>inside</i> the modal logic of the box. It does — and in a sharper form.</p>
+    </div>
+    <div class="thm read">
+      <div class="tl">de Jongh &amp; Sambin 1975 — the fixed-point theorem of provability logic</div>
+      <div class="ts">Let <span class="mono">A(p, q⃗)</span> be a modal formula in which every occurrence of <span class="mono">p</span> lies within the scope of a <span class="mono">□</span> (<span class="mono">p</span> is <b>modalized</b>). Then there is a formula <span class="mono">F(q⃗)</span>, not containing <span class="mono">p</span>, with <b><span class="mono">GL ⊢ F ↔ A(F)</span></b> — and it is <b>unique</b> up to <span class="mono">GL</span>-equivalence, and <b>explicitly computable</b> from <span class="mono">A</span>.</div>
+    </div>
+    <div class="reading">
+      <p>This is a fixed-point theorem internal to the logic: every <i>boxed</i> operator on the algebra of formulas has a fixed point, and the box pays for two things the bare Lawvere theorem leaves open. <i>Well-definedness:</i> modalization is the guardedness that keeps the recursion from spinning — <span class="mono">p</span> may only be consulted "through a proof," never raw. <i>Uniqueness:</i> Lawvere hands back <i>a</i> fixed point; <span class="mono">GL</span> hands back <i>the</i> fixed point, the same one up to provable equivalence, and an algorithm to write it down. The shadow is not just present; it is improved.</p>
+      <p>And the two most famous sentences in logic are simply its two simplest cases — no longer mysterious self-referential constructions, but the unique computable fixed points of the two one-symbol boxed operators.</p>
+    </div>
+    <div class="fp">
+      <div class="fpc">
+        <div class="op">operator &nbsp;A(p) = ¬□p</div>
+        <div class="opf">"I am <span class="b">not</span> provable"</div>
+        <div class="fpr">fixed point: <span class="eq">¬□⊥ = Con(T)</span></div>
+        <p><b>Gödel's sentence is consistency.</b> The unique fixed point of <span class="mono">¬□p</span> computes to <span class="mono">¬□⊥</span> — the statement that <span class="mono">⊥</span> is unprovable. So <span class="mono">T ⊢ G ↔ Con(T)</span>: the sentence that says "I am unprovable" is provably equivalent to "this system is consistent." Gödel's first theorem and his second are the same sentence, read two ways.</p>
+      </div>
+      <div class="fpc">
+        <div class="op">operator &nbsp;A(p) = □p</div>
+        <div class="opf">"I <span class="b">am</span> provable"</div>
+        <div class="fpr">fixed point: <span class="eq">⊤</span></div>
+        <p><b>Henkin's sentence is just true.</b> The unique fixed point of <span class="mono">□p</span> computes to <span class="mono">⊤</span> — so the Henkin sentence is provable, <span class="mono">⊢ H</span>. This <i>is</i> Löb's theorem in fixed-point form: a sentence asserting its own provability is provable, because the fixed point of "provable" is truth itself. The question Henkin asked and the law Löb found are one fact.</p>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Look at what the table says. The collection's first mechanism gives the self-referential sentence; this theorem <i>identifies</i> it — strips the self-reference and returns a plain formula in the base language (<span class="mono">Con(T)</span>, or <span class="mono">⊤</span>). The fixed-point structure that the Anatomy traced through Cantor, Gödel, and the Y-combinator does not terminate at the sentence level. It runs again, one storey up, in the logic that adjudicates those sentences — and there it is even better behaved, because the box enforces the discipline that makes fixed points unique. Self-reference is not a feature of the sentences; it is a feature of the box, and the box is a fixed-point operator.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout teal">
+        <div class="cl-lab">why this is the deepening of M2</div>
+        <p>The Anatomy could only say M2 was "existence plus a meta-fact." Now the meta-fact has a name and a shape: it is membership in <span class="mono">GL</span>, and <span class="mono">GL</span>'s own organizing theorem is a fixed-point theorem. M2 is not the absence of M1's freeness; it is the presence of a <i>second</i> diagonal — the one the box draws on itself.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ===== IV · THE SECOND THEOREM, IN ONE LINE ===== -->
+  <section class="sec" id="g2">
+    <div class="sec-head"><span class="num">IV · the second theorem</span><h2>Incompleteness, again, for free</h2><p class="sub">Gödel's second theorem — that a consistent system cannot prove its own consistency — is not a separate result. It is Löb's law at a single substitution.</p></div>
+    <div class="reading">
+      <p>Once the box obeys <span class="mono">GL</span>, the second incompleteness theorem requires no further machinery — no new diagonalization, nothing about arithmetic beyond the three laws. Take Löb's schema and set <span class="mono">σ = ⊥</span>.</p>
+    </div>
+    <div class="chain">
+      <div class="cstep"><span class="cn">·</span><span class="cf">Löb at σ = ⊥: &nbsp;⊢ □(□⊥ → ⊥) → □⊥</span></div>
+      <div class="cstep"><span class="cn">·</span><span class="cf">in T: &nbsp;<span class="hot">□⊥ ≡ ¬Con(T)</span> &nbsp;<span class="cj">— "⊥ is provable" ⟺ T is inconsistent</span></span></div>
+      <div class="cstep"><span class="cn">·</span><span class="cf">in T: &nbsp;<span class="hot">□⊥ → ⊥ ≡ ¬□⊥ ≡ Con(T)</span> &nbsp;<span class="cj">— classically (A→⊥) ↔ ¬A</span></span></div>
+      <div class="cstep"><span class="cn">·</span><span class="cf">so the schema becomes &nbsp;<b>⊢ □Con(T) → □⊥</b></span></div>
+      <div class="cstep"><span class="cn">·</span><span class="cf">suppose ⊢ Con(T); &nbsp;necessitate (D1): ⊢ □Con(T); &nbsp;so ⊢ □⊥, i.e. ⊢ ¬Con(T)</span></div>
+      <div class="cstep"><span class="cn">·</span><span class="cf">⊢ Con(T) and ⊢ ¬Con(T) ⟹ ⊢ ⊥ &nbsp;<span class="cj">— T inconsistent</span></span></div>
+      <div class="cstep"><span class="cn">⟹</span><span class="cf"><span class="hot">T consistent &nbsp;⟹&nbsp; T ⊬ Con(T)</span> &nbsp;<span class="qed">— Gödel II ∎</span></span></div>
+    </div>
+    <div class="reading">
+      <p>That is the whole proof. The second theorem is the Henkin sentence's law evaluated at falsehood: the one reflection instance a system would most like to prove about itself — that it will never prove a contradiction — is exactly the one Löb forbids, because proving it <i>would be</i> proving the contradiction. Note what was <i>not</i> used: no second appeal to the diagonal lemma, no <span class="mono">ω</span>-consistency, no detail of the arithmetic. Everything happened inside <span class="mono">GL</span>. The second incompleteness theorem is a modal triviality once the modal law is in place — which is the strongest possible evidence that the law, not the arithmetic, is where the content lives.</p>
+    </div>
+  </section>
+
+  <!-- ===== V · COMPLETENESS ===== -->
+  <section class="sec" id="solovay">
+    <div class="sec-head"><span class="num">V · completeness</span><h2>The whole truth about the box</h2><p class="sub">Soundness says <span class="mono">GL</span> proves only true things about provability. Solovay's theorem says it proves <span class="mono">them all</span> — and is decidable. The second mechanism is not just lawful; its law is complete.</p></div>
+    <div class="reading">
+      <p>A logic sound for provability is useful; a logic <i>complete</i> for it is final. The question is whether <span class="mono">GL</span> captures every schematic principle the provability box obeys, or merely some. Solovay settled it, and the answer is the strongest available.</p>
+    </div>
+    <div class="thm teal read">
+      <div class="tl">Solovay 1976 — arithmetical completeness</div>
+      <div class="ts">For every modal formula <span class="mono">A</span>: &nbsp;<b><span class="mono">GL ⊢ A</span></b> &nbsp;if and only if &nbsp;for <i>every</i> arithmetical realization <span class="mono">∗</span> (variables to sentences, <span class="mono">□</span> to <span class="mono">Prov<sub>PA</sub></span>), &nbsp;<span class="mono">PA ⊢ A<sup>∗</sup></span>.</div>
+    </div>
+    <div class="reading">
+      <p>So <span class="mono">GL</span> is precisely the propositional logic of provability — not a model of it, not an approximation, but its complete theory. Every schema <span class="mono">PA</span> validates about its own provability predicate is a <span class="mono">GL</span>-theorem, and every non-theorem of <span class="mono">GL</span> fails under some interpretation. And <span class="mono">GL</span> is <i>decidable</i>: there is an algorithm that, given a schematic claim about provability, settles whether <span class="mono">PA</span> proves all its instances. The second mechanism — the one the Anatomy could name only by what it lacked — turns out to have a complete, decidable, finitely axiomatized logic. The asymmetry that distinguishes Gödel from Cantor is not a vague "meta-fact." It is <span class="mono">GL</span>, in full, and we possess it entirely.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="callout gold" style="border-left-color:var(--gold-line);background:var(--gold-soft)">
+        <div class="cl-lab">what completeness buys the taxonomy</div>
+        <p>M1's freeness is a one-line phenomenon; M3's construction is a feat of category theory. M2 sat between them, defined by a negation. Solovay closes the account: M2 has the richest theory of the three — an entire complete modal logic, with its own fixed-point theorem and the second incompleteness theorem as a corollary. The middle mechanism is not the dull one. It is the one with a logic.</p>
+      </div>
+    </div>
+  </section>
+  <!-- ===== VI · THE RECURSION ===== -->
+  <section class="sec" id="recursion">
+    <div class="sec-head"><span class="num">VI · the recursion</span><h2>The diagonal does not bottom out</h2><p class="sub">What the descent into M2 finally shows is that the collection's thesis is truer than it states: self-reference is not a property of the sentences. It is a property of the operator, and it recurs.</p></div>
+    <div class="lede read">
+      <p>Stand back from the three sections. The first mechanism produces a self-referential sentence by feeding a name to itself — the diagonal, Lawvere's construction, the one organ the Anatomy isolated. Descend into the second mechanism and the same structure is waiting: the logic that governs those sentences, <span class="mono">GL</span>, has its own fixed-point theorem, by which each self-referential sentence is the unique fixed point of a boxed operator and is computed back down to a plain formula — <span class="mono">G</span> to <span class="mono">Con(T)</span>, <span class="mono">H</span> to <span class="mono">⊤</span>. The diagonal at the level of sentences is governed by a diagonal at the level of the logic. And the logic's single distinguishing axiom, <span class="mono">□(□p→p)→□p</span>, is itself a sentence about the box turned on the box. There is self-reference in the objects, and self-reference in the law that governs the objects, and the law is the reason the objects behave.</p>
+      <p>This is the collection's own wager, returned with interest. <i>Quodlibet</i> holds that one construction underlies the reach and the boundary of formal reasoning, and that a map of self-reference must, being self-referential, contain itself. The descent into the second mechanism makes the second half literal. The map contains itself not once but at every level: the construction that draws the boundary is the construction that the boundary's own logic is built from. Pull the thread marked "Gödel is not a refusal but an asymmetry," follow it down past the three laws and Löb's law into the fixed-point theorem of the box, and you arrive back at Lawvere — one storey up, sharper, with uniqueness. The diagonal has no floor either. It has a recurrence.</p>
+      <p>One organ, dissected; then one tissue of that organ, dissected again. Each cut found the same figure waiting at the bottom — which is, after all, exactly what a theorem about self-reference should predict about the study of itself.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">G ↔ Con(T)</span><span class="ln"></span></div>
+  <div class="coda"><p>The first mechanism draws the diagonal. The second mechanism has a <em>logic</em> — and the logic draws the diagonal again, on itself, with a steadier hand. <span class="mono">The box is a mirror, and it is provably so.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deepening² · the box</span></div>
+    <p class="colophon"><i>The Box</i> is a deepening of a deepening — it takes the single most load-bearing claim of <i>The Anatomy</i>, that Gödel belongs to a second mechanism of pure existence rather than to the refusal that drives Cantor, and supplies that mechanism's positive theory: the modal logic <span class="mono">GL</span> of the provability box, sound and complete for arithmetic by Solovay's theorem, carrying its own fixed-point theorem by de Jongh and Sambin, with Gödel's <span class="mono">G ↔ Con(T)</span> and Henkin's provable <span class="mono">H</span> as its two simplest fixed points and the second incompleteness theorem as Löb's law at <span class="mono">⊥</span>. The thesis it returns to the collection — that the diagonal recurs into the very logic that governs it, so the map of self-reference contains itself at every level — is offered as a reading, argued from the theorems. <a href="quodlibet.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">↩&nbsp;return to the collection's front door</a>, or back to <a href="the-anatomy.html" style="color:var(--red-deep);border-bottom:1px solid var(--red-line);text-decoration:none;">The Anatomy</a>.</p>
+    <p class="notes"><span class="nl">on method.</span> &nbsp;<span class="mono">□σ</span> abbreviates the standard <span class="mono">Σ₁</span> provability predicate for a consistent r.e. <span class="mono">T ⊇ PA</span>. Löb's theorem is proved from the diagonal lemma and the three derivability conditions; <span class="mono">GL = K + □(□p→p)→□p</span>, with axiom 4 derivable. The fixed-point theorem is stated for modalized formulas; the second incompleteness theorem is derived as Löb at <span class="mono">⊥</span>. The framing — <span class="mono">GL</span> as the complete theory of mechanism M2, its fixed-point theorem as Lawvere's construction recurring one level up, and the resulting "self-reference at every level" — is this page's reading.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Hilbert &amp; Bernays 1939 (the derivability conditions) · Henkin 1952 · Löb 1955 · de Jongh and Sambin 1975 (the fixed-point theorem of provability logic) · Solovay 1976 (arithmetical completeness of <span class="mono">GL</span>) · Boolos 1993, <i>The Logic of Provability</i> · Smoryński 1985 · and beneath all of it, Lawvere 1969.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">disposition.</span> &nbsp;The second mechanism is not a lack. It is a complete, decidable logic with a fixed-point theorem of its own. <span class="mono">□(□p→p)→□p.</span></p>
+  </footer>
+
+</div>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="the-atlas.html">← The Atlas</a><a rel="next" href="the-coil.html">The Coil →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Operator — the fixed point as a mathematical object</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== code runner ===== */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner .rn-head{display:flex;justify-content:space-between;align-items:center;padding:.5rem .85rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner .rn-title{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner .rn-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--paper);background:var(--teal-deep);border:none;border-radius:3px;padding:.35rem .85rem;cursor:pointer;transition:opacity .15s;}
+  .runner .rn-btn:hover{opacity:.85;}
+  .runner pre{margin:0;padding:.85rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.62;color:var(--ink);overflow-x:auto;white-space:pre;tab-size:2;}
+  .runner .rn-out{border-top:1px dashed var(--panelhair);padding:.7rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.6;color:var(--teal-deep);min-height:1.4rem;white-space:pre-wrap;}
+  .runner .rn-out .ol{color:var(--faintest);}
+  .runner .rn-out.match{background:var(--teal-soft);}
+
+  /* ===== denotational iteration ===== */
+  .denot-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .dn-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .dn-btn:hover{opacity:.85;} .dn-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .dn-func{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;}
+  .dn-func .hl{color:var(--red-deep);}
+  .dn-chain{display:flex;flex-direction:column;gap:.4rem;}
+  .dn-row{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:baseline;padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .dn-row .dn-lab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--gold-deep);white-space:nowrap;}
+  .dn-row .dn-map{display:flex;flex-wrap:wrap;gap:.3rem;}
+  .dn-pair{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.12rem .4rem;border-radius:2px;background:rgba(26,24,21,.05);color:var(--ink);}
+  .dn-pair.fresh{background:var(--teal-soft);color:var(--teal-deep);font-weight:500;}
+  .dn-pair.undef{background:transparent;color:var(--faintest);}
+  .dn-converge{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);padding:.7rem;border:1px solid var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.4rem;}
+  .dn-miss{text-align:center;font-size:.84rem;color:var(--faint);font-style:italic;margin-top:.3rem;}
+
+  /* ===== von Neumann schematic ===== */
+  .vn{display:grid;grid-template-columns:1fr;gap:1.1rem;margin-top:.3rem;}
+  #vnSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .vn-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:640px){ .vn-legend{grid-template-columns:1fr;} }
+  .vn-cell{background:var(--paper);padding:.85rem 1rem;}
+  .vn-cell .vc-k{font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;margin-bottom:.25rem;}
+  .vn-cell.u .vc-k{color:var(--teal-deep);} .vn-cell.c .vc-k{color:var(--gold-deep);} .vn-cell.d .vc-k{color:var(--red-deep);}
+  .vn-cell p{font-size:.84rem;line-height:1.5;color:var(--soft1);margin:0;}
+
+  /* ===== β-reduction tracer ===== */
+  .beta{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.012);}
+  .beta-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.5rem .85rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);flex-wrap:wrap;}
+  .beta-head .bh-t{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .beta-where{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faintest);}
+  .beta-body{padding:.4rem .4rem .8rem;}
+  .beta-line{display:grid;grid-template-columns:auto 1fr;gap:.7rem;align-items:baseline;padding:.5rem .8rem;border-radius:3px;animation:rise .3s ease;}
+  .beta-line + .beta-line{margin-top:.18rem;}
+  .beta-line .bl-rule{font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:var(--faintest);white-space:nowrap;padding-top:.15rem;}
+  .beta-line .bl-term{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.5;color:var(--ink);overflow-x:auto;}
+  .beta-line.knot{background:var(--teal-soft);}
+  .beta-line .knot-w{color:var(--teal-deep);font-weight:500;}
+  .beta-redex{background:rgba(178,58,46,.13);border-radius:2px;padding:0 .12em;}
+  .beta-new{color:var(--teal-deep);font-weight:500;}
+  .beta-gr{color:var(--faintest);}
+  .beta-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;padding:.8rem;border-top:1px dashed var(--panelhair);}
+  .beta-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);text-align:center;}
+  .beta-readout b{color:var(--ink);}
+
+  /* ===== corecursion / greatest-fixed-point stream ===== */
+  .stream-head{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;}
+  .stream-head .hl{color:var(--teal-deep);}
+  .stream-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin-bottom:.9rem;}
+  .stream-pick{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;}
+  .strm-opt{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.32rem .7rem;cursor:pointer;transition:all .15s;}
+  .strm-opt:hover{background:rgba(26,24,21,.05);}
+  .strm-opt.on{background:var(--teal-deep);color:var(--paper);border-color:var(--teal-deep);}
+  .stream-belt{display:flex;align-items:stretch;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:3.2rem;padding:.3rem 0;}
+  .strm-cell{font-family:"IBM Plex Mono",monospace;font-size:.8rem;min-width:2.4rem;text-align:center;padding:.5rem .55rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);display:flex;flex-direction:column;gap:.15rem;animation:rise .3s ease;}
+  .strm-cell .si{font-size:.56rem;color:var(--faintest);}
+  .strm-cell.fresh{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);font-weight:500;}
+  .strm-cell.tail{border-style:dashed;color:var(--faintest);background:transparent;justify-content:center;}
+  .strm-readout{text-align:center;font-size:.84rem;color:var(--faint);font-style:italic;margin-top:.7rem;}
+  .strm-readout b{font-style:normal;color:var(--teal-deep);font-weight:600;}
+
+  /* ===== Banach cobweb ===== */
+  .cob-head{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--soft1);margin-bottom:.9rem;}
+  .cob-maps{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.9rem;}
+  .cob-map{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.32rem .72rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.4rem;}
+  .cob-map:hover{background:rgba(26,24,21,.05);}
+  .cob-map.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .cob-map .cm-dot{width:7px;height:7px;border-radius:50%;}
+  .cob-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(1rem,2.5vw,1.8rem);align-items:start;}
+  @media(max-width:720px){ .cob-grid{grid-template-columns:1fr;} }
+  #cobSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cob-side{display:flex;flex-direction:column;gap:.9rem;}
+  .cob-controls{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;}
+  .cob-readout{font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.7;color:var(--ink);border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:.7rem .85rem;}
+  .cob-readout .ck{color:var(--faint);}
+  .cob-readout .cv{color:var(--teal-deep);font-weight:500;}
+  .cob-readout .cv.warn{color:var(--red-deep);}
+  .cob-verdict{font-size:.88rem;line-height:1.5;padding:.8rem 1rem;border-radius:3px;}
+  .cob-verdict.ok{background:var(--teal-soft);color:var(--teal-deep);}
+  .cob-verdict.no{background:var(--red-soft);color:var(--red-deep);}
+  .cob-verdict b{font-weight:600;}
+
+  /* ===== the power face — spectrum of givenness ===== */
+  .spectrum{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:880px){ .spectrum{grid-template-columns:1fr 1fr;} }
+  @media(max-width:520px){ .spectrum{grid-template-columns:1fr;} }
+  .sp-cell{background:var(--paper);padding:1.05rem 1.1rem;display:flex;flex-direction:column;gap:.45rem;}
+  .sp-cell .sp-tag{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);}
+  .sp-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.06rem;margin:0;color:var(--ink);}
+  .sp-cell .sp-form{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);}
+  .sp-cell .sp-how{font-size:.84rem;line-height:1.45;color:var(--soft1);}
+  .sp-cell .sp-grade{margin-top:auto;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;padding-top:.5rem;border-top:1px solid var(--hair);}
+  .sp-cell.g-imm{box-shadow:inset 4px 0 0 var(--teal-line);} .sp-cell.g-imm h4,.sp-cell.g-imm .sp-grade{color:var(--teal-deep);}
+  .sp-cell.g-asc{box-shadow:inset 4px 0 0 var(--gold-line);} .sp-cell.g-asc h4,.sp-cell.g-asc .sp-grade{color:var(--gold-deep);}
+  .sp-cell.g-met{box-shadow:inset 4px 0 0 var(--teal-line);} .sp-cell.g-met h4,.sp-cell.g-met .sp-grade{color:var(--teal-deep);}
+  .sp-cell.g-non{box-shadow:inset 4px 0 0 var(--red-line);} .sp-cell.g-non h4,.sp-cell.g-non .sp-grade{color:var(--red-deep);}
+  .sp-arrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.05em;color:var(--faint);text-align:center;margin-top:.9rem;}
+  .sp-arrow .gd{color:var(--teal-deep);} .sp-arrow .rd{color:var(--red-deep);}
+
+  /* quiet cross-volume tie */
+  .tieback{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.05em;color:var(--faintest);text-align:center;max-width:40rem;margin:1.2rem auto 0;line-height:1.7;}
+  .tieback b{color:var(--faint);font-weight:500;}
+
+  /* intra-page contents / wayfinding */
+  .contents{max-width:var(--read);margin:clamp(2.6rem,6vh,4.2rem) auto 0;padding:1.5rem 1.7rem 1.6rem;border:1px solid var(--rule);border-radius:3px;}
+  .contents .ct-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:0 0 1.2rem;}
+  .contents ol{list-style:none;margin:0;padding:0;}
+  .contents li{margin:0 0 .85rem;padding-left:2.7rem;position:relative;}
+  .contents li:last-child{margin-bottom:0;}
+  .contents .ct-n{position:absolute;left:0;top:.08rem;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faintest);letter-spacing:.05em;}
+  .contents a.ct-t{color:var(--ink);text-decoration:none;font-weight:500;font-size:1.02rem;border-bottom:1px solid transparent;transition:border-color .15s;}
+  .contents a.ct-t:hover{border-bottom-color:var(--ink);}
+  .contents .ct-d{display:block;font-size:.83rem;line-height:1.5;color:var(--faint);margin-top:.2rem;font-style:italic;}
+  .contents .ct-dives{margin-top:1.35rem;padding-top:1.15rem;border-top:1px solid var(--rule);font-size:.82rem;line-height:1.75;color:var(--faint);}
+  .contents .ct-dives .ct-lab{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faintest);display:block;margin-bottom:.55rem;}
+  .contents .ct-dives a{color:var(--soft1);text-decoration:none;border-bottom:1px solid var(--rule);transition:border-color .15s;}
+  .contents .ct-dives a:hover{border-bottom-color:var(--soft1);}
+  .reading[id],.thm[id],.spectrum[id]{scroll-margin-top:2rem;}
+</style>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-engine">The Engine</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">a deep-dive companion · drawn from The Combinators, §V</span></div>
+    <div class="hero-head">
+      <p class="kicker">One operation, four faces — and they are one</p>
+      <h1 class="title">The <span class="x">Operator</span></h1>
+      <p class="standfirst">Set aside the combinator as a string of symbols and ask what it <em>does</em> as mathematics. &ldquo;Take the fixed point&rdquo; is a precise operation with a precise meaning, and the meaning wears several faces. It is the <em>least</em> fixed point, assembled from below by iterating out of undefinedness. It is the operational combinator, joined to that least solution by a theorem of adequacy. It is Lawvere's <em>diagonal</em>, the fixed point a self-referential object cannot help but have — the very move beneath Cantor and Gödel. And it is the <em>trace</em> of a feedback loop, the universal shape of recursion in any category with cycles. This companion shows these four to be one operator, pinned together, and in doing so returns the whole combinator project to the diagonal it was always about.</p>
+      <p class="ed-mark">the least fixed point · adequacy · the diagonal · the trace · one operator</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">lfp&#8202;f = ⊔<sub>n</sub> f<sup>n</sup>(⊥)</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p><i>The Combinators</i> took the fixed point as a <i>term</i>; <i>The Clock</i> took it as a <i>family</i>; <i>The Toll</i> took it under <i>types</i>. This companion takes it as an <i>operation</i> and asks the plainest question that can be asked of one: what does it mean? The combinator <span class="mono">Y</span> turns a function <span class="mono">f</span> into a solution of <span class="mono">x = f(x)</span> — but <span class="mono">f</span> may have many fixed points, or none in any naïve sense, so the question of <i>which</i> solution, and in what space it lives, is not idle. It has a complete answer, and the answer is the subject of this volume: the fixed-point operation is a single mathematical object seen from four sides, and the sides agree.</p>
+    <p>The first side is denotational, and it is where meaning is pinned down. Computation lives not in a set of values but in a <i>partial order</i> of them, ranked by how defined they are, with a bottom element <span class="mono">⊥</span> standing for &ldquo;no information yet.&rdquo; On such an order a computable function is <i>continuous</i>, and Kleene's theorem says it has a <b>least</b> fixed point, built from below by iteration: <span class="mono">⊥ ⊑ f(⊥) ⊑ f(f(⊥)) ⊑ ⋯</span>, climbing to their supremum <span class="mono">⊔<sub>n</sub> f<sup>n</sup>(⊥)</span>. This is exactly the fixed point <span class="mono">Y</span> computes — <i>least</i> in the precise sense that it asserts only what the equation forces and leaves everything else undefined. That the operational combinator and this least solution coincide is a theorem, <b>adequacy</b>, and it is what makes the denotational picture <i>correct</i> rather than merely suggestive.</p>
+    <p>The remaining sides lift the operation off the page entirely. The categorical side is the corpus's own thesis: <span class="mono">Y</span> is <b>Lawvere's diagonal</b>, the fixed point that any sufficiently self-referential object — a reflexive <span class="mono">D ≅ D<sup>D</sup></span> — is forced to possess, the same diagonal that, turned against itself, drives Cantor and Gödel and the Liar to their walls, here run forward into a solution instead. And the diagrammatic side reveals the operation as a <b>trace</b> — the mathematics of feeding an output back as an input — so that recursion, iteration, and feedback are one structure, axiomatized by a short list of equations and appearing in every category with a loop. Five movements carry it: the least fixed point, adequacy, the diagonal, the trace, and the synthesis in which the four faces are shown to be one operator.</p>
+  </div>
+
+  <nav class="contents" aria-label="Contents">
+    <p class="ct-h">the fixed point as a mathematical object · five movements</p>
+    <ol>
+      <li><span class="ct-n">I</span><a class="ct-t" href="#least">The least fixed point</a><span class="ct-d">computation on partial orders; Kleene's theorem <span class="mono">lfp&#8202;f = ⊔ f<sup>n</sup>(⊥)</span>; the meaning of &ldquo;least,&rdquo; and the iterates assembling it from below</span></li>
+      <li><span class="ct-n">II</span><a class="ct-t" href="#adequacy">Adequacy</a><span class="ct-d">the operational combinator and the least fixed point coincide — soundness and computational adequacy make the denotational meaning correct</span></li>
+      <li><span class="ct-n">III</span><a class="ct-t" href="#diagonal">The diagonal</a><span class="ct-d">Lawvere's positive direction: a reflexive object forces a fixed point, and <span class="mono">Y</span> is the diagonal that constructs it — the corpus's central move, run forward</span></li>
+      <li><span class="ct-n">IV</span><a class="ct-t" href="#trace">The trace</a><span class="ct-d">traced monoidal categories; feedback as fixed point; the Conway identities that axiomatize the operator; Bekić's lemma and the vector combinator</span></li>
+      <li><span class="ct-n">V</span><a class="ct-t" href="#oneop">One operator</a><span class="ct-d">least, operational, diagonal, diagrammatic — four descriptions of a single universal, and the loop that closes the corpus</span></li>
+    </ol>
+    <div class="ct-dives"><span class="ct-lab">live excursions within</span>The <a href="#kleene">Kleene iterates</a> building the factorial from below, <span class="mono">⊥, f(⊥), f²(⊥), …</span> (I); the <a href="#lawvere">diagonal construction</a> assembling <span class="mono">Y&#8202;f</span> from <span class="mono">x ↦ x&#8202;x</span> (III); and the <a href="#vector">vector combinator</a> solving mutual recursion at a single stroke (IV).</div>
+  </nav>
+
+  <!-- ===== §I THE LEAST FIXED POINT ===== -->
+  <section class="sec" id="least">
+    <div class="sec-head"><span class="num">I · the least fixed point</span><h2>The solution built from undefinedness</h2><p class="sub">A function can have many fixed points, or none among ordinary values. To pin down <span class="mono">which</span> one recursion computes, move from a set of values to a partial order of them — ranked by how defined they are — where every computable function has a single distinguished solution: the least fixed point, climbed to from below by iterating out of <span class="mono">⊥</span>.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">information, ordered&nbsp;&nbsp;</span>The trouble with &ldquo;<span class="mono">x = f(x)</span>&rdquo; is that it may have no solution in a bare set — the equation <span class="mono">fact = F(fact)</span> for the factorial functional is solved by the factorial function, but the functional itself is just a transformation, and nothing in set theory <i>hands</i> you the solution. Scott's insight was to enrich the space. Let values be ordered by <i>information</i>: a partial function is below another when the second agrees with the first wherever the first is defined and possibly says more, and at the bottom sits <span class="mono">⊥</span>, the wholly undefined value that asserts nothing. This order is a <i>complete partial order</i> — every ascending chain has a least upper bound — and on it a computable function is <i>continuous</i>, meaning it commutes with those suprema: <span class="mono">f(⊔ x<sub>n</sub>) = ⊔ f(x<sub>n</sub>)</span>. Continuity is the mathematical residue of finiteness — a computation that demands a finite amount of its input cannot tell a limit from its approximations — and it is exactly the hypothesis that makes fixed points constructible.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">Kleene's fixed-point theorem — <span class="mono">lfp&#8202;f = ⊔<sub>n</sub> f<sup>n</sup>(⊥)</span></div>
+      <div class="ts">A continuous endofunction <span class="mono">f</span> on a pointed complete partial order has a least fixed point, and it is the supremum of the iterates from <span class="mono">⊥</span>. The proof is the construction. Since <span class="mono">⊥</span> is least, <span class="mono">⊥ ⊑ f(⊥)</span>, and applying the monotone <span class="mono">f</span> repeatedly gives an ascending chain <span class="mono">⊥ ⊑ f(⊥) ⊑ f²(⊥) ⊑ ⋯</span>; let <span class="mono">x = ⊔<sub>n</sub> f<sup>n</sup>(⊥)</span> be its supremum, which the order guarantees. It is a fixed point: <span class="mono">f(x) = f(⊔ f<sup>n</sup>(⊥)) = ⊔ f<sup>n+1</sup>(⊥) = x</span>, by continuity. And it is the <i>least</i> one: for any fixed point <span class="mono">d</span>, induction gives <span class="mono">f<sup>n</sup>(⊥) ⊑ d</span> at every stage (<span class="mono">⊥ ⊑ d</span>, and <span class="mono">f<sup>n</sup>(⊥) ⊑ d ⇒ f<sup>n+1</sup>(⊥) ⊑ f(d) = d</span>), so <span class="mono">x ⊑ d</span>. The fixed point is not chosen; it is forced, the smallest object the equation can stand on.</div>
+    </div>
+    <div class="stage">
+      <div class="panel" id="kleene">
+        <div class="dn-func">the iterates of the factorial functional — <span class="mono">F(g)(n) = n=0 ? 1 : n·g(n−1)</span><br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">each step applies <span class="mono">F</span> once more; the partial function gains one point and pins the next factorial value</span></div>
+        <div id="klGrid" style="padding:.6rem .1rem .2rem"></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="klNext">apply F once more ↓</button>
+          <button class="dn-btn ghost" id="klReset">reset to ⊥</button>
+        </div>
+        <div class="dn-miss" id="klReadout"></div>
+        <figcaption><span class="mono">a dot is &ldquo;undefined here&rdquo;; a number is the value fixed at this stage — </span>the iterate <span class="mono">F<sup>k</sup>(⊥)</span> is the factorial on <span class="mono">{0,…,k−1}</span> and undefined beyond. No single iterate is the factorial; their supremum is, and that supremum is what <span class="mono">Y&#8202;F</span> computes.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">why the least, and not another&nbsp;&nbsp;</span>That <span class="mono">Y</span> delivers the <i>least</i> fixed point is not a technicality but the whole point of it being correct. Take the identity functional, <span class="mono">F(g) = g</span>: <i>every</i> function whatever is a fixed point, so the equation by itself determines nothing. The iterates from <span class="mono">⊥</span> stay at <span class="mono">⊥</span>, so the least fixed point is <span class="mono">⊥</span> — and indeed <span class="mono">Y</span> applied to this functional diverges on every input, computing exactly the undefined function, not the identity, not the successor, not any of the infinitely many other solutions it might have invented. This is the operational meaning of &ldquo;least&rdquo;: the combinator asserts only what its argument <i>forces</i> and leaves everything else undefined, which is the only honest thing a computation can do. And it is why recursion <i>is</i> least-fixed-point-finding: a recursive definition is a functional, the function it defines is the least fixed point of that functional, and <span class="mono">Y</span> is the operator that extracts it — the factorial function from the factorial functional, the undefined function from a definition that loops, each the smallest solution its equation will bear.</p>
+    </div>
+  </section>
+
+  <!-- ===== §II ADEQUACY ===== -->
+  <section class="sec" id="adequacy">
+    <div class="sec-head"><span class="num">II · adequacy</span><h2>The meaning is the computation</h2><p class="sub">A denotational meaning is only worth having if it is faithful to what programs actually do. Two theorems certify that the least-fixed-point reading is: soundness, that reduction never changes a denotation, and computational adequacy, that the denotation predicts termination exactly. Together they identify the operational combinator with the least fixed point it was claimed to compute.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">two accounts of one combinator&nbsp;&nbsp;</span>There are now two stories about <span class="mono">Y</span>. The <i>operational</i> one is mechanical: <span class="mono">Y&#8202;F</span> reduces, step by <span class="mono">β</span>-step, and for the factorial functional those steps compute the factorial of whatever numeral they are handed. The <i>denotational</i> one is mathematical: in the partial-order model of §I, <span class="mono">F</span> denotes a continuous function, and <span class="mono">Y</span> denotes the operator that sends it to its least fixed point, <span class="mono">⊔ F<sup>n</sup>(⊥)</span>. These are descriptions in different registers — a process and an element of a domain — and there is no <i>a priori</i> reason they should match. That they match, exactly, is the content of two theorems, and the matching is what licenses every use of the denotational picture to reason about the operational one.</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">soundness and computational adequacy</div>
+      <div class="ts"><b>Soundness</b> says the model is invariant under computation: if <span class="mono">M</span> reduces to <span class="mono">N</span>, then <span class="mono">[[M]] = [[N]]</span>. In particular reduction can never alter a meaning, so the denotation of <span class="mono">Y&#8202;f</span> already <i>is</i> a fixed point of <span class="mono">[[f]]</span>, and the model — interpreting <span class="mono">Y</span> as the <i>least</i>-fixed-point operator — gives <span class="mono">[[Y&#8202;f]] = ⊔<sub>n</sub> [[f]]<sup>n</sup>(⊥)</span>. Soundness alone, though, cannot see termination: it relates denotations to denotations, not to halting. That is the work of <b>computational adequacy</b>: for a closed program <span class="mono">M</span> of base type, <span class="mono">M</span> evaluates to a value if and only if <span class="mono">[[M]] ≠ ⊥</span> — undefinedness in the model is divergence in the machine, precisely. Adequacy is proved by a logical relation linking syntax to semantics at every type, and it is the harder, decisive half. With both in hand the two stories collapse into one: the least fixed point of §I is <i>exactly</i> what the combinator computes, value for value and divergence for divergence.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">what adequacy is worth, and where it stops&nbsp;&nbsp;</span>Adequacy is the permission slip for denotational reasoning. Because it holds, one may compute a program's meaning as a least fixed point — climb Kleene's chain, take the supremum — and be certain the answer describes what the program does when run, including <i>whether</i> it runs at all. Termination proofs, program logics, abstract interpretations, the entire practice of reasoning about code by reasoning about its denotation, rest on this single guarantee that meaning tracks behaviour. But it is worth marking exactly how far the guarantee reaches, because <i>The Toll</i> already met its limit. Adequacy equates denotation with <i>termination behaviour</i>; it does not equate denotation with <i>observational equivalence</i>, the finer relation that asks whether two programs are interchangeable in every context. That stronger agreement is <b>full abstraction</b>, and the standard model fails it — the model can tell apart programs no context can, because it contains functions like parallel-or that the language cannot express. So the operator is <i>adequately</i> modelled — its least fixed point is its true computational content — while the subtler question of when two fixed-point programs are truly the same belongs to the games and strategies that close the gap. The meaning is the computation; the puzzle was always the equivalence.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III THE DIAGONAL ===== -->
+  <section class="sec" id="diagonal">
+    <div class="sec-head"><span class="num">III · the diagonal</span><h2>Lawvere's positive direction, and what built the corpus</h2><p class="sub">Lift the operator into category theory and it becomes a single arrow. Where an object is rich enough to name its own functions — a reflexive <span class="mono">D ≅ D<sup>D</sup></span> — every endomap is forced to have a fixed point, by a construction that is nothing but the diagonal. That construction <span class="mono">is</span> <span class="mono">Y</span>; and its diagonal is the very one that, turned against itself, drives Cantor, Gödel, and the Liar to their walls.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">when naming forces a fixed point&nbsp;&nbsp;</span>Lawvere's 1969 theorem isolates the structure beneath the fixed point. In a cartesian closed category, call a map <span class="mono">φ : A → B<sup>A</sup></span> <i>point-surjective</i> when every function from <span class="mono">A</span> to <span class="mono">B</span> is named by some point of <span class="mono">A</span> — when the object <span class="mono">A</span> is rich enough to index its own maps into <span class="mono">B</span>. The theorem: if such a <span class="mono">φ</span> exists, then <i>every</i> endomap <span class="mono">g : B → B</span> has a fixed point. The untyped <span class="mono">λ</span>-calculus is the paradigm case, for its reflexive object <span class="mono">D ≅ D<sup>D</sup></span> makes <i>application itself</i> the point-surjection — every definable function is already an element — and so every definable endomap must have a fixed point. The combinator is what makes that &ldquo;must&rdquo; constructive.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the proof is the diagonal, and the diagonal is <span class="mono">Y</span></div>
+      <div class="ts">Lawvere's proof, written in the <span class="mono">λ</span>-calculus, is the combinator itself. Given <span class="mono">g</span>, form the <i>diagonal</i> — self-application composed with <span class="mono">g</span>: <span class="mono">h = λx.\,g(x\,x)</span>. Since the object names its own functions, <span class="mono">h</span> is itself a point; apply it to that point, and the isomorphism does the rest:<br><span class="mono" style="display:inline-block;margin:.35rem 0">h&#8202;h = (λx.g(x&#8202;x))(λx.g(x&#8202;x)) &nbsp;→<sub>β</sub>&nbsp; g(h&#8202;h),</span><br>so <span class="mono">h&#8202;h</span> is a fixed point of <span class="mono">g</span> (verified by direct reduction). And <span class="mono">h&#8202;h</span> is, on the nose, <span class="mono">Y&#8202;g</span> — the body of Curry's combinator. The combinator is not <i>like</i> Lawvere's construction; it <i>is</i> Lawvere's construction, the diagonal <span class="mono">x ↦ x&#8202;x</span> applied to its own <span class="mono">g</span>-twist. Every fixed point <span class="mono">Y</span> has ever produced was this one argument, run once.</div>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="lawvere">
+        <div class="dn-func">the diagonal construction — assembling <span class="mono">Y&#8202;f</span> from <span class="mono">x ↦ x&#8202;x</span><br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">post-compose self-application with f, name it by itself, reduce — the fixed point falls out</span></div>
+        <div class="dn-chain" id="lawList" style="font-size:1.0rem"></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="lawNext">next step ↓</button>
+          <button class="dn-btn ghost" id="lawReset">reset</button>
+        </div>
+        <div class="dn-miss" id="lawReadout"></div>
+        <figcaption><span class="mono">the last step is computed, not asserted — </span><span class="mono">h&#8202;h</span> really does <span class="mono">β</span>-reduce to <span class="mono">f(h&#8202;h)</span>, exhibiting a fixed point. The single move the construction turns on, the self-application <span class="mono">x&#8202;x</span>, is the diagonal — the same one the corpus runs throughout.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the move the whole corpus turns on&nbsp;&nbsp;</span>This is where the combinator rejoins everything else. Lawvere's theorem has a contrapositive: if some object <span class="mono">B</span> carries a <i>fixed-point-free</i> endomap — a <span class="mono">g</span> with <span class="mono">g(b) ≠ b</span> everywhere — then <i>no</i> point-surjection <span class="mono">A → B<sup>A</sup></span> can exist, no object can name all its own maps into <span class="mono">B</span>. That single negative statement, instantiated, is the entire limitative canon. Take <span class="mono">B = </span>the two-element set with its swap (a fixed-point-free map) and it is <b>Cantor's theorem</b>: no set surjects onto its powerset. Take <span class="mono">B</span> the propositions with negation, and naming-all-predicates becomes a truth definition, forbidden — <b>Tarski</b> and the diagonal lemma behind <b>Gödel</b>. Take <span class="mono">B</span> the booleans with logical flip and the would-be namer a halting decider — <b>Turing</b>. The six walls of <i>The Diagonal</i> are one theorem read in the negative; <span class="mono">Y</span> is the same theorem read in the positive, on the one kind of object — the reflexive one — where the fixed point is a gift rather than a contradiction. The self-application that here yields <span class="mono">Y&#8202;f</span> is, letter for letter, the self-reference that elsewhere yields the Liar. <i>The Operator</i> is the corpus's thesis made constructive: not that these results <i>resemble</i> one another, but that one diagonal, pointed forward, <i>is</i> them all.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV THE TRACE ===== -->
+  <section class="sec" id="trace">
+    <div class="sec-head"><span class="num">IV · the trace</span><h2>Recursion is feedback</h2><p class="sub">The most abstract face of the operator is a wire bent back on itself. A traced monoidal category has an operation that loops an output into an input, and in the category where computation lives, that loop <span class="mono">is</span> the fixed-point operator. Recursion, iteration, and feedback are one structure — governed by a short list of equations, and decomposable, by Bekić, one wire at a time.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">the loop as an operation&nbsp;&nbsp;</span>Draw a morphism as a box with input and output wires. A <i>traced</i> monoidal category (Joyal, Street and Verity) equips the boxes with a single further operation: given a map <span class="mono">A ⊗ U → B ⊗ U</span> — one whose output carries an extra <span class="mono">U</span>-wire alongside an input <span class="mono">U</span>-wire — the <i>trace</i> connects the two <span class="mono">U</span>-wires, feeding the output back as the input, and returns a map <span class="mono">A → B</span> with the loop hidden inside. It is feedback, made algebra, subject to a handful of geometric axioms about sliding boxes along the loop and yanking the wire straight. And in the category of complete partial orders and continuous functions, this trace is not an analogy for recursion — it is recursion: the loop on the <span class="mono">U</span>-wire is computed by the <i>least fixed point</i> of §I. The Hasegawa–Hyland theorem makes the identity exact: to give a category a well-behaved fixed-point operator is the same as to give it a trace. The combinator, the least fixed point, and the bent wire are three names for one arrow.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the Conway identities — the equational laws of feedback</div>
+      <div class="ts">A fixed-point operator <span class="mono">(−)<sup>†</sup></span> is not an unconstrained gadget; it obeys laws, and the laws are complete. The <b>Conway identities</b> (after Conway's algebra of regular events, axiomatized as <i>iteration theories</i> by Bloom and Ésik) are four: the <i>fixpoint</i> identity <span class="mono">f<sup>†</sup> = f ∘ ⟨id, f<sup>†</sup>⟩</span> — unfolding, the categorical <span class="mono">Y&#8202;f = f(Y&#8202;f)</span>; the <i>parameter</i> identity, that substituting into the non-recursive inputs commutes with taking the fixed point; the <i>composition</i> identity, relating the fixed point of a composite to its parts; and the <i>double-dagger</i> (diagonal) identity, that iterating two wires together equals iterating through the diagonal. Together with a family of <i>group</i> identities these axiomatize the entire equational theory of the least-fixed-point operator over continuous functions — every law that holds of recursion follows from them. Feedback has a complete logic, and it is short.</div>
+    </div>
+    <div class="stage narrow">
+      <div class="panel" id="vector">
+        <div class="dn-func">the vector combinator — mutual recursion solved at one stroke<br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em"><span class="mono">even(n) = n=0 ? T : odd(n−1)</span> &nbsp;and&nbsp; <span class="mono">odd(n) = n=0 ? F : even(n−1)</span>, a single simultaneous fixed point</span></div>
+        <div id="vecGrid" style="padding:.5rem .1rem .2rem"></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="vecMore">extend the range →</button>
+          <button class="dn-btn ghost" id="vecReset">reset</button>
+        </div>
+        <div class="dn-miss" id="vecReadout"></div>
+        <figcaption><span class="mono">two functions defined in terms of each other, computed together — </span>the vector combinator takes a tuple of mutually recursive equations and returns their simultaneous least fixed point. Bekić's lemma guarantees it reduces to ordinary recursion: fix one component in terms of the other, then the other.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">Bekić, and the shape of cyclic computation&nbsp;&nbsp;</span>That a <i>simultaneous</i> fixed point is no more than nested single ones is <b>Bekić's lemma</b>, and it is the algebra behind the widget. To solve <span class="mono">x = F(x,y)</span> and <span class="mono">y = G(x,y)</span> at once, fix the first in terms of the second — <span class="mono">x = X(y)</span>, a fixed point in <span class="mono">x</span> alone — substitute, and fix the second — <span class="mono">y = </span>lfp of <span class="mono">G(X(y),y)</span> — then recover <span class="mono">x</span>. A system of mutual recursions collapses to a sequence of ordinary ones, which is exactly the composition (Bekić) identity above, and exactly what the vector combinator performs in syntax. The same decomposition is, diagrammatically, the statement that a feedback loop over two wires can be unwound into loops over one wire at a time. This is why the trace is the right level of abstraction: it is the structure of <i>cyclic information flow</i> as such. Read computationally it is recursion; read in the geometry of interaction it is the path a token takes through a network of cuts; read through the Int construction it generates bidirectional, message-passing computation from one-way maps. The fixed-point operator was the engine of <i>The Combinators</i>; seen from here it is the universal form of the loop — and every loop, however drawn, is the same bent wire.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V ONE OPERATOR ===== -->
+  <section class="sec" id="oneop">
+    <div class="sec-head"><span class="num">V · one operator</span><h2>Four descriptions, one universal</h2><p class="sub">The volume has approached the fixed point from four directions — least, operational, diagonal, traced — and found the same object at the end of each. They are not four operators that agree by coincidence. They are one operator, and the agreement is a theorem: the operation that solves <span class="mono">x = f(x)</span> is a single mathematical universal wearing four faces.</p></div>
+    <div class="reading">
+      <p><span class="lead-in">gathering the faces&nbsp;&nbsp;</span>Each movement named the same thing in a different language. Denotationally it is the <i>least fixed point</i>, <span class="mono">⊔ f<sup>n</sup>(⊥)</span>, the solution assembled from undefinedness. Operationally it is the <i>combinator</i> <span class="mono">Y</span>, the term that reduces a specification to its solution, and these two are not merely compatible but identical — adequacy equates them value for value, divergence for divergence. Categorically it is <i>Lawvere's diagonal</i>, the construction <span class="mono">h&#8202;h = Y&#8202;f</span> that a reflexive object is forced to admit. Diagrammatically it is the <i>trace</i>, the feedback loop whose complete equational theory is the Conway identities. And the threads are tied: the trace and the least-fixed-point operator are interdefinable (Hasegawa–Hyland), the operational combinator computes the denotational least fixed point (adequacy), and the operational combinator <i>is</i> the categorical diagonal (by the reduction of §III).</p>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the four readings coincide</div>
+      <div class="ts">There are not four fixed-point operators. There is one, and here is the certificate. The <i>least fixed point</i> <span class="mono">⊔ f<sup>n</sup>(⊥)</span> (§I) equals what the <i>combinator</i> <span class="mono">Y</span> computes (<i>The Combinators</i>), by <b>adequacy</b> (§II). What the combinator computes is the <i>diagonal</i> construction <span class="mono">(λx.f(x&#8202;x))(λx.f(x&#8202;x))</span> (§III), since that is literally <span class="mono">Y&#8202;f</span>. And the operator so defined is a <i>trace</i> (§IV), since fixed-point operators and traces are the same structure (Hasegawa–Hyland) — its laws exactly the Conway identities. Each face satisfies the same equations; each yields the same fixed point on every input; each is provably the others. The fixed-point operator is a universal of the same standing as the natural numbers or the disjoint union — an object that arises independently in domain theory, in the <span class="mono">λ</span>-calculus, in category theory, and in the algebra of feedback, and is, in all four, one thing.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the loop that closes the corpus&nbsp;&nbsp;</span>And so the combinator project rejoins the whole of <i>Quodlibet</i>. The thesis the corpus argues is Lawvere's: that one diagonal underlies Cantor and Russell and Gödel and Tarski and Turing — that the limitative results are a single theorem, read in the negative, about objects with fixed-point-free maps. <i>The Operator</i> is that theorem read in the positive. The fixed-point operator, in all four of its faces, is Lawvere's construction on the one kind of object — the reflexive one — where the diagonal yields a solution rather than a contradiction. The very self-application that builds <span class="mono">Y&#8202;f</span> is the self-reference that elsewhere builds the Liar; the difference is only the direction it is run. Cantor's diagonal walks <i>out</i> of a set; the combinator's diagonal walks <i>into</i> a fixed point; they are the same step, taken two ways. To have understood the fixed-point operator as least, as adequate, as diagonal, and as trace is therefore to have understood the engine of <i>The Combinators</i> as the constructive heart of the corpus's one idea — the diagonal, run forward, made to compute.</p>
+    </div>
+
+    <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(3.5rem,8vh,5.5rem)"><span class="ln"></span><span class="g mono">Y&#8202;f = f(Y&#8202;f)</span><span class="ln"></span></div>
+
+    <div class="coda"><p>The fixed-point operator began, in <i>The Combinators</i>, as a piece of cleverness — a term that ties recursion's knot. Pursued as mathematics it turns out to be one of the load-bearing universals. It is Kleene's least fixed point, climbed to from <span class="mono">⊥</span> by a chain of approximations; it is the meaning the running combinator computes, certified by adequacy; it is Lawvere's diagonal, the fixed point a self-naming object cannot escape; it is the trace, the bent wire whose algebra is feedback itself. These are not analogies. They are one operator, established in four mathematics and proven the same. And that one operator is the corpus's one idea, taken in its generative direction: where Cantor and Gödel and Turing run the diagonal against an object and find a wall, the combinator runs the very same diagonal on a reflexive object and finds a solution. The wall and the solution are the one construction, facing two ways. The fixed point was never only a trick. It was the diagonal, learning to build. <span class="mono">To solve x = f(x) is to run the diagonal forward.</span></p></div>
+
+  </section>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">a deep-dive companion · the fixed point as a mathematical object</span></div>
+    <p class="colophon">A tier-three companion, drawn from the fifth movement of <i>The Combinators</i>. Where that volume read the combinator three ways in passing, this one is the full mathematics of the fixed-point <i>operator</i>: the least fixed point of Kleene and Scott and the iterates that build it (§I); the soundness and adequacy that make the denotational reading faithful to computation (§II); Lawvere's diagonal, which forces the fixed point on a reflexive object and which the limitative canon negates (§III); the trace of traced monoidal categories, with its Conway equational theory and Bekić decomposition (§IV); and the synthesis in which all four are shown to be one operator (§V). The mathematics is classical and the computational claims are hand-verified: the Kleene iterates of the factorial functional were computed and seen to converge, the diagonal's reduction <span class="mono">h&#8202;h →β f(h&#8202;h)</span> checked directly, and Bekić's simultaneous even/odd solved by iteration to its fixed point.</p>
+    <p class="notes"><span class="nl">on the least fixed point.</span> &nbsp;Computation is modelled on a pointed complete partial order — values ranked by information, with <span class="mono">⊥</span> the undefined element — where computable maps are <i>continuous</i> (preserve suprema of chains). The Knaster–Tarski theorem gives least fixed points for monotone maps on complete lattices; Kleene's sharpens this for continuous maps on CPOs to the <i>constructive</i> form <span class="mono">lfp&#8202;f = ⊔<sub>n</sub> f<sup>n</sup>(⊥)</span> — the iterates from <span class="mono">⊥</span> form an ascending chain whose supremum is a fixed point (by continuity) and is least (by induction). The iterates of the factorial functional are <span class="mono">F<sup>k</sup>(⊥) = </span> factorial on <span class="mono">{0,…,k−1}</span>, verified, converging to the factorial. That <span class="mono">Y</span> yields the <i>least</i> fixed point is shown by the identity functional, whose every function is a fixed point yet whose least is <span class="mono">⊥</span> — and <span class="mono">Y</span> computes <span class="mono">⊥</span>, asserting only what is forced.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on adequacy.</span> &nbsp;<i>Soundness</i> — reduction preserves denotation — makes <span class="mono">[[Y&#8202;f]]</span> the least fixed point of <span class="mono">[[f]]</span>. <i>Computational adequacy</i> — a closed base-type program evaluates to a value iff its denotation is not <span class="mono">⊥</span> — is proved by a logical relation between syntax and semantics and is the decisive half, equating the operational combinator with the least fixed point value-for-value (Plotkin, 1977). Adequacy equates denotation with termination behaviour but not with observational equivalence; the latter is <i>full abstraction</i>, which the Scott model fails (parallel-or), the matter of <i>The Toll</i>.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on the diagonal.</span> &nbsp;Lawvere's theorem (1969): in a cartesian closed category, a point-surjective <span class="mono">A → B<sup>A</sup></span> forces every endomap of <span class="mono">B</span> to have a fixed point. In the <span class="mono">λ</span>-calculus the reflexive <span class="mono">D ≅ D<sup>D</sup></span> makes application the point-surjection, and the proof's diagonal <span class="mono">h = λx.f(x&#8202;x)</span> gives <span class="mono">h&#8202;h →β f(h&#8202;h) = Y&#8202;f</span> (verified). The contrapositive — a fixed-point-free endomap forbids point-surjection — is Cantor's theorem (swap on <span class="mono">2</span>), Tarski's undefinability and Gödel's diagonal lemma (negation on propositions), and Turing's halting result (flip on booleans). The six limitative results of <i>The Diagonal</i> are this one theorem in the negative; <span class="mono">Y</span> is it in the positive (Lambek &amp; Scott).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on the trace.</span> &nbsp;A traced monoidal category (Joyal, Street &amp; Verity, 1996) has an operation looping a <span class="mono">U</span>-output back to a <span class="mono">U</span>-input; in CPO it computes the least fixed point. The Hasegawa–Hyland correspondence identifies trace with a Conway fixed-point operator. The <b>Conway identities</b> — fixpoint, parameter, composition, double-dagger — with group identities axiomatize the equational theory of iteration (Bloom &amp; Ésik, <i>Iteration Theories</i>, 1993; after Conway, 1971). <b>Bekić's lemma</b> (1969) reduces a simultaneous fixed point to nested single ones — verified on the mutual recursion <span class="mono">even/odd</span> — and is the vector combinator's mathematics; diagrammatically, unwinding a two-wire loop into one-wire loops. The trace is cyclic information flow as such — recursion, the geometry of interaction, the Int construction.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Kleene (the first recursion theorem; <span class="mono">⊔ f<sup>n</sup>(⊥)</span>) · Knaster &amp; Tarski 1955 (least fixed points on lattices) · Scott 1970 (<span class="mono">D<sub>∞</sub></span>; continuous semantics; domains) · Plotkin 1977 (adequacy; PCF) · Lawvere 1969 (diagonal arguments and cartesian closed categories) · Lambek &amp; Scott (the categorical fixed-point reading) · Joyal, Street &amp; Verity 1996 (traced monoidal categories) · Hasegawa 1997; Hyland (trace = fixed-point operator) · Bloom &amp; Ésik 1993 (iteration theories); Conway 1971 · Bekić 1969 (simultaneous fixed points) · Girard; Abramsky (geometry of interaction; the Int construction) · Barendregt, <i>The Lambda Calculus</i>.</p>
+  </footer>
+
+</div>
+  <script>
+  "use strict";
+  function E(t,c){ const e=document.createElement(t); if(c) e.className=c; return e; }
+  function sup(n){ const m={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"}; return String(n).split("").map(function(d){return m[d];}).join(""); }
+
+  /* ===== WIDGET I — Kleene iterates of the factorial functional ===== */
+  const KL_N=8;
+  function Ffact(g){ const h={}; for(let n=0;n<KL_N;n++){ if(n===0) h[0]=1; else if(g[n-1]!==undefined) h[n]=n*g[n-1]; } return h; }
+  let klIters=[{}];
+  function klCols(label){ return '<span style="text-align:center;font:600 .66rem/1 \'IBM Plex Mono\',monospace;color:var(--faintest)">'+label+'</span>'; }
+  function klRender(){
+    const box=document.getElementById("klGrid"); if(!box) return; box.innerHTML="";
+    const gt="display:grid;grid-template-columns:3.6rem repeat("+KL_N+",1fr);gap:3px;align-items:center;";
+    const head=document.createElement("div"); head.style.cssText=gt+"padding:0 0 .3rem"; let hh="<span></span>"; for(let n=0;n<KL_N;n++) hh+=klCols("n="+n); head.innerHTML=hh; box.appendChild(head);
+    klIters.forEach(function(g,k){
+      const row=document.createElement("div"); row.style.cssText=gt+"padding:2px 0";
+      let cells='<span style="font:600 .72rem/1 \'IBM Plex Mono\',monospace;color:var(--soft1)">F'+sup(k)+'(⊥)</span>';
+      for(let n=0;n<KL_N;n++){ const def=g[n]!==undefined;
+        cells+='<span style="text-align:center;font:'+(def?"600":"400")+' .82rem/1.7 \'IBM Plex Mono\',monospace;border-radius:3px;'+(def?"background:rgba(44,110,106,.14);color:var(--teal-deep)":"color:var(--faintest)")+'">'+(def?g[n]:"·")+'</span>';
+      }
+      row.innerHTML=cells; box.appendChild(row);
+    });
+  }
+  function klReadoutUpd(){ const ro=document.getElementById("klReadout"); if(!ro) return; const k=klIters.length-1;
+    ro.innerHTML = (k>=KL_N-1) ? "The chain has climbed past the visible range; its supremum is the factorial, defined everywhere — the least fixed point that <span class='mono'>Y&#8202;F</span> computes." : (k===0 ? "<span class='mono'>F⁰(⊥) = ⊥</span>, the empty function, defined nowhere. Apply <span class='mono'>F</span> to pin the first value." : "<span class='mono'>F"+sup(k)+"(⊥)</span> is the factorial on <span class='mono'>{0,…,"+(k-1)+"}</span>; each application of <span class='mono'>F</span> fixes one more value. The least fixed point is their supremum."); }
+  function klNext(){ if(klIters.length<KL_N){ klIters.push(Ffact(klIters[klIters.length-1])); klRender(); klReadoutUpd(); } }
+  function klReset(){ klIters=[{}]; klRender(); klReadoutUpd(); }
+
+  /* ===== WIDGET II — the Lawvere diagonal construction ===== */
+  const V=function(n){return {v:n};}, L=function(b){return {l:b};}, A=function(s,t){return {a:[s,t]};}, C=function(n){return {c:n};};
+  const shift=function(d,c,t){return "v"in t?(t.v>=c?V(t.v+d):t):"c"in t?t:"l"in t?L(shift(d,c+1,t.l)):A(shift(d,c,t.a[0]),shift(d,c,t.a[1]));};
+  const subst=function(j,s,t){return "v"in t?(t.v===j?s:t):"c"in t?t:"l"in t?L(subst(j+1,shift(1,0,s),t.l)):A(subst(j,s,t.a[0]),subst(j,s,t.a[1]));};
+  function step(t){ if("a"in t){ if("l"in t.a[0]) return shift(-1,0,subst(0,shift(1,0,t.a[1]),t.a[0].l)); const s=step(t.a[0]); if(s)return A(s,t.a[1]); const u=step(t.a[1]); if(u)return A(t.a[0],u); return null; } if("l"in t){ const b=step(t.l); return b?L(b):null; } return null; }
+  const POOL=["x","y","z","u","v","w"];
+  function showT(t,d,ns){ d=d||0; ns=ns||[]; if("c"in t) return t.c; if("v"in t){ const m=ns[ns.length-1-t.v]; return m!==undefined?m:"#"+t.v; } if("l"in t){ const nm=POOL[d%POOL.length]; return "λ"+nm+"."+showT(t.l,d+1,ns.concat(nm)); } const Lx=t.a[0],Rx=t.a[1]; const ls=("l"in Lx)?"("+showT(Lx,d,ns)+")":showT(Lx,d,ns); const rs=("a"in Rx||"l"in Rx)?"("+showT(Rx,d,ns)+")":showT(Rx,d,ns); return ls+" "+rs; }
+  const f=C("f"), hDiag=L(A(f,A(V(0),V(0)))), hh=A(hDiag,hDiag), hhRed=step(hh);
+  const lawData=[
+    "<b>The function.</b>&nbsp; Start with any <span class='mono'>f</span> — we seek a point <span class='mono'>z</span> with <span class='mono'>f(z) = z</span>.",
+    "<b>The diagonal.</b>&nbsp; Form <span class='mono'>h = λx.&#8202;f(x&#8202;x)</span> — the self-application <span class='mono'>x&#8202;x</span>, post-composed with <span class='mono'>f</span>. On a reflexive object this <span class='mono'>h</span> is itself a point.",
+    "<b>Name it by itself.</b>&nbsp; Apply <span class='mono'>h</span> to the point <span class='mono'>h</span>: &nbsp;<span class='mono'>h&#8202;h = "+showT(hh)+"</span>.",
+    "<b>Reduce.</b>&nbsp; one <span class='mono'>β</span>-step gives <span class='mono'>"+showT(hhRed)+"</span> — that is <span class='mono'>f(h&#8202;h)</span>, so <span class='mono'>h&#8202;h</span> is a fixed point of <span class='mono'>f</span>. And <span class='mono'>h&#8202;h</span> is exactly <span class='mono'>Y&#8202;f</span>."
+  ];
+  let lawN=0;
+  function lawRender(){
+    const box=document.getElementById("lawList"); if(!box) return; box.innerHTML="";
+    if(lawN===0){ const d=E("div"); d.style.cssText="color:var(--faintest);font-family:Spectral;font-style:italic"; d.textContent="— press “next step” to build Y f from the diagonal —"; box.appendChild(d); }
+    for(let k=0;k<lawN;k++){ const row=E("div","dn-row"); const n=E("div","dn-lab"); n.textContent=(k+1); n.style.minWidth="1.4rem"; const p=E("div"); p.style.cssText="flex:1;font-family:Spectral;line-height:1.5"; p.innerHTML=lawData[k]; row.appendChild(n); row.appendChild(p); box.appendChild(row); }
+    const ro=document.getElementById("lawReadout");
+    if(ro) ro.innerHTML = lawN>=4 ? "The construction is complete, and the final reduction was <i>computed</i>, not asserted. The diagonal <span class='mono'>x ↦ x&#8202;x</span> is the corpus's one move — here it builds a fixed point rather than a wall." : (lawN===0?"":"step "+lawN+" of 4.");
+  }
+  function lawNext(){ if(lawN<4){ lawN++; lawRender(); } }
+  function lawReset(){ lawN=0; lawRender(); }
+
+  /* ===== WIDGET III — the vector combinator (simultaneous recursion) ===== */
+  function vecBuild(N){
+    let even={}, odd={};
+    for(let it=0; it<N+4; it++){
+      const e2={}, o2={};
+      for(let n=0;n<=N;n++){ e2[n]=(n===0)?true:(odd[n-1]!==undefined?odd[n-1]:undefined); o2[n]=(n===0)?false:(even[n-1]!==undefined?even[n-1]:undefined); }
+      even={}; odd={};
+      for(let n=0;n<=N;n++){ if(e2[n]!==undefined) even[n]=e2[n]; if(o2[n]!==undefined) odd[n]=o2[n]; }
+    }
+    return {even:even, odd:odd};
+  }
+  let vecN=6;
+  function vecRow(name,g,N){
+    const gt="display:grid;grid-template-columns:3.4rem repeat("+(N+1)+",1fr);gap:3px;align-items:center;padding:2px 0;";
+    let cells='<span style="font:600 .72rem/1 \'IBM Plex Mono\',monospace;color:var(--soft1)">'+name+'</span>';
+    for(let n=0;n<=N;n++){ const v=g[n]; const t=v===true?"T":v===false?"F":"·"; const col=v===true?"var(--teal-deep)":v===false?"var(--gold-deep)":"var(--faintest)";
+      cells+='<span style="text-align:center;font:600 .82rem/1.7 \'IBM Plex Mono\',monospace;color:'+col+'">'+t+'</span>'; }
+    return gt+"|"+cells;
+  }
+  function vecRender(){
+    const box=document.getElementById("vecGrid"); if(!box) return; box.innerHTML="";
+    const r=vecBuild(vecN);
+    const gt="display:grid;grid-template-columns:3.4rem repeat("+(vecN+1)+",1fr);gap:3px;align-items:center;";
+    const head=document.createElement("div"); head.style.cssText=gt+"padding:0 0 .3rem"; let hh="<span></span>"; for(let n=0;n<=vecN;n++) hh+='<span style="text-align:center;font:600 .66rem/1 \'IBM Plex Mono\',monospace;color:var(--faintest)">'+n+'</span>'; head.innerHTML=hh; box.appendChild(head);
+    [["even",r.even],["odd",r.odd]].forEach(function(pr){
+      const row=document.createElement("div"); const spec=vecRow(pr[0],pr[1],vecN).split("|"); row.style.cssText=spec[0]; row.innerHTML=spec[1]; box.appendChild(row);
+    });
+  }
+  function vecMore(){ if(vecN<10){ vecN+=2; vecRender(); } }
+  function vecReset(){ vecN=6; vecRender(); }
+
+  /* ===== init ===== */
+  function init(){
+    try{ klRender(); klReadoutUpd(); document.getElementById("klNext").onclick=klNext; document.getElementById("klReset").onclick=klReset; }catch(e){ console.error("kleene",e); }
+    try{ lawRender(); document.getElementById("lawNext").onclick=lawNext; document.getElementById("lawReset").onclick=lawReset; }catch(e){ console.error("lawvere",e); }
+    try{ vecRender();
+      const ro=document.getElementById("vecReadout"); if(ro) ro.innerHTML="<span class='mono'>even</span> and <span class='mono'>odd</span> are defined in terms of each other, yet solved together — the vector combinator returns their <i>simultaneous</i> least fixed point. By Bekić's lemma this is no more than nested ordinary recursion, and diagrammatically it is a two-wire feedback loop unwound one wire at a time.";
+      document.getElementById("vecMore").onclick=vecMore; document.getElementById("vecReset").onclick=vecReset;
+    }catch(e){ console.error("vector",e); }
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+  </script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-toll.html">← The Toll</a><a href="../library.html#edition-contents">Return to complete contents →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

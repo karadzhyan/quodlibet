@@ -1,0 +1,15 @@
+T H E F A C E T H A T B O U N D S
+Give the twist no fixed point — let α be ¬, the
+swap of true and false, which agrees with nothing
+— and the theorem runs in reverse: no map can
+name them all. There is always one it misses, and
+the one it misses is the diagonal itself —
+{ x : x ∉ φ(x) }
+That missing element is Cantor's uncountable
+subset. It is Russell's set, the one no consistent
+theory may hold. It is Gödel's true-but-unprovable
+sentence, Tarski's undefinable truth, Turing's
+undecidable halt. One construction, one twist with
+no fixed point — and every wall that formal
+reasoning meets.
+5

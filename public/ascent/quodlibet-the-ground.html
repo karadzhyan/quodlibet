@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ground — Kripke's fixed point, revision, and the truth a language can hold of itself</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout p + p{margin-top:.7rem;}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== goodstein engine ===== */
+  .good-controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .good-seed{display:flex;gap:.35rem;}
+  .good-sbtn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:14px;padding:.35rem .7rem;cursor:pointer;transition:all .15s;}
+  .good-sbtn:hover{background:rgba(26,24,21,.05);}
+  .good-sbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .good-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.5rem .9rem;cursor:pointer;transition:opacity .15s;}
+  .good-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .good-btn:hover{opacity:.85;} .good-btn:disabled{opacity:.45;cursor:default;}
+  .good-read{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .good-read b{color:var(--ink);}
+  .good-tracks{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:560px){ .good-tracks{grid-template-columns:1fr;} }
+  .good-col{background:var(--paper);padding:.9rem 1rem 1.1rem;min-height:8rem;}
+  .good-col .gc-h{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+  .good-col.val .gc-h{color:var(--red-deep);} .good-col.ord .gc-h{color:var(--teal-deep);}
+  .good-col .gc-arrow{font-size:.95rem;}
+  .good-rows{display:flex;flex-direction:column;gap:.2rem;}
+  .good-row{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;animation:rise .3s ease;}
+  .good-row .gr-n{font-size:.58rem;color:var(--faintest);}
+  .good-col.val .good-row .gr-v{color:var(--ink);}
+  .good-col.ord .good-row .gr-v{color:var(--teal-deep);}
+  .good-row.zero .gr-v{font-weight:600;}
+  .good-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.03em;padding:.6rem;border-radius:3px;margin-top:.9rem;}
+  .good-banner.done{color:var(--teal-deep);border:1px dashed var(--teal-line);background:var(--teal-soft);}
+  .good-banner.cap{color:var(--gold-deep);border:1px dashed var(--gold-line);background:var(--gold-soft);}
+
+  /* ===== modal engine — Löb box, fixed-point ledger, GLP tower ===== */
+  .loeb{border:1px dashed var(--ink);border-radius:3px;padding:1.1rem 1.1rem;margin:1.5rem auto;max-width:42rem;text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .loeb .ll{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem;}
+  .loeb .lr{font-size:1.02rem;color:var(--ink);line-height:2;}
+  .loeb .lr .hot{color:var(--red-deep);}
+  .loeb .lr .gr{color:var(--faintest);}
+  .loeb .sub{font-family:"Spectral",serif;font-style:italic;font-size:.94rem;color:var(--soft1);margin-top:.8rem;line-height:1.5;}
+
+  .glp{display:flex;flex-direction:column-reverse;gap:.3rem;margin:.2rem auto 0;max-width:27rem;}
+  .glp-row{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.76rem;padding:.42rem .75rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);}
+  .glp-row .gm{color:var(--teal-deep);} .glp-row .gt{color:var(--ink);} .glp-row .go{color:var(--gold-deep);white-space:nowrap;}
+  .glp-row.cap{border-style:dashed;border-color:var(--gold-line);}
+
+  /* ===== bridge-assumptions (Scholia idiom) ===== */
+  .bridge{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.1rem;}
+  .bridge-row{background:var(--paper);padding:.82rem 1rem;display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:start;}
+  .bridge-row .br-main{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .bridge-row .br-main b{color:var(--ink);font-weight:600;}
+  .bridge-row .br-main .mono{font-size:.82rem;color:var(--red-deep);}
+  .bridge-pill{font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;padding:.24em .55em;border-radius:10px;white-space:nowrap;align-self:start;}
+  .bridge-pill.hold{background:var(--teal-soft);color:var(--teal-deep);}
+  .bridge-pill.thm{background:var(--gold-soft);color:var(--gold-deep);}
+  .bridge-verdict{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .bridge-verdict b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side.left.tealhead .hs-lab{color:var(--teal-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .hinge-side p + p{margin-top:.55rem;}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);} .chain .tl{color:var(--teal-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+  .granted{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--teal-deep);margin:.6rem 0;text-align:left;padding:.7rem .8rem;border:1px dashed var(--teal-line);border-radius:3px;line-height:1.85;}
+  .granted .ok{color:var(--teal-deep);font-weight:600;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-cell .tc-tax{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);margin-top:.5rem;display:block;}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== truth-value engines: Kripke iteration + revision sequence ===== */
+  .rec-sel{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1rem;}
+  .rec-panel{border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);padding:1.1rem 1.2rem;}
+  .rec-row{display:grid;grid-template-columns:6.6rem 1fr;gap:.8rem;align-items:baseline;padding:.42rem 0;border-top:1px solid var(--hair);}
+  .rec-row:first-of-type{border-top:none;}
+  .rec-lab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faintest);padding-top:.2rem;}
+  .rec-txt{font-size:.92rem;line-height:1.55;color:var(--soft1);text-wrap:pretty;}
+  .rec-txt .mono{font-size:.82rem;color:var(--ink);}
+  /* value cells */
+  .tv{display:inline-flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;min-width:2.1rem;padding:.22em .5em;border-radius:3px;border:1px solid transparent;letter-spacing:.03em;}
+  .tv-t{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .tv-f{background:rgba(26,24,21,.055);color:var(--soft1);border-color:var(--hair);}
+  .tv-u{background:transparent;color:var(--faintest);border:1px dashed var(--panelhair);}
+  /* kripke iteration */
+  .kt-key{display:flex;gap:1rem;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:var(--faintest);margin-bottom:.9rem;flex-wrap:wrap;letter-spacing:.03em;align-items:center;}
+  .kt-rows{display:flex;flex-direction:column;gap:.32rem;}
+  .kt-row{display:grid;grid-template-columns:8.5rem 2.4rem 1fr;gap:.7rem;align-items:center;}
+  .kt-name{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink);}
+  .kt-gloss{color:var(--faintest);font-size:.78rem;line-height:1.4;text-wrap:pretty;}
+  .kt-cap{margin-top:.8rem;font-size:.86rem;color:var(--soft1);line-height:1.5;border-top:1px solid var(--hair);padding-top:.7rem;}
+  .kt-cap b.gr{color:var(--teal-deep);} .kt-cap b.ug{color:var(--gold-deep);}
+  /* revision strip */
+  .rv-two{display:flex;flex-wrap:wrap;gap:1.4rem;justify-content:center;margin-bottom:1rem;}
+  .rv-grp{display:flex;flex-direction:column;gap:.4rem;align-items:center;}
+  .rv-glab{font-family:"IBM Plex Mono",monospace;font-size:.55rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);}
+  .rv-pills{display:flex;gap:.34rem;flex-wrap:wrap;justify-content:center;}
+  .rv-strip{display:flex;gap:.3rem;flex-wrap:wrap;align-items:flex-end;margin:.2rem 0 .7rem;}
+  .rv-cell{display:flex;flex-direction:column;align-items:center;gap:.2rem;}
+  .rv-n{font-family:"IBM Plex Mono",monospace;font-size:.54rem;color:var(--faintest);}
+  .rv-verdict{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.55rem .75rem;border-radius:3px;letter-spacing:.02em;line-height:1.45;}
+  .rv-verdict.stable{background:var(--teal-soft);color:var(--teal-deep);}
+  .rv-verdict.unstable{background:var(--red-soft);color:var(--red-deep);}
+  .rv-verdict.depends{background:var(--gold-soft);color:var(--gold-deep);}
+</style>
+
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-ascent">The Ascent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">A deep study · the theory of truth</span></div>
+    <div class="hero-head">
+      <p class="kicker">Tarski forbade the fixed point — here it is recovered, twice</p>
+      <h1 class="title">The <span class="x">Ground</span></h1>
+      <p class="standfirst">A consistent language cannot contain a total, two-valued predicate that disquotes every one of its sentences: the Liar makes the fixed point <span class="mono">Tr(⌜φ⌝) ↔ φ</span> impossible to attain in full. But <em>impossible in full</em> is not impossible. Relax the demand that every sentence be true or false, and a language <em>can</em> hold its own truth predicate — as the least fixed point of a monotone operator, with the paradoxical sentences resting quietly in a gap. Relax instead the demand for a fixed point at all, and truth becomes a process of revision whose settled verdicts are the grounded sentences and whose eternal oscillation is the Liar. This study builds both, runs both, and reads them as the corpus's fixed-point construction recovered from the far side of its own impossibility.</p>
+      <p class="ed-mark">after Tarski · the monotone operator · the least fixed point · the lattice · revenge · revision · the ground recovered</p>
+    </div>
+  </header>
+
+  <div class="lede">
+    <p><em>The Endorsement</em> ended at a wall. A theory that would define its own truth runs into the Liar, and Tarski's theorem turns the collision into a proof: no consistent language has a predicate satisfying every instance of <span class="mono">Tr(⌜φ⌝) ↔ φ</span>. The classical response was to give up self-application — to stratify truth into a tower of languages, each speaking only of the one below. This study is about the other responses, the ones that keep a single self-applicable truth predicate and pay for it somewhere subtler than the hierarchy.</p>
+    <p>There are two, and each is a way of loosening what the fixed point demands. Kripke's, in 1975, loosens <i>bivalence</i>: it admits sentences that are neither true nor false, and shows that the truth predicate can then be built as an honest fixed point — the least fixed point of a monotone operator on partial interpretations, whose existence is the Knaster–Tarski theorem the corpus meets again and again. The paradoxical sentences do not break it; they fall into the gap it leaves, ungrounded. The revision theory of Gupta and Belnap loosens instead the demand for a <i>fixed point</i>: it keeps classical two-valued logic and the full biconditional, but reads the biconditional as a rule for <i>revising</i> a hypothesis about truth, iterated into the transfinite, and takes truth to be the pattern of what the revision stabilizes. We build the monotone operator and iterate it to its least fixed point; we survey the lattice of fixed points above it; we meet the revenge the gap invites; we run the revision sequence and watch the Liar flip forever while the grounded sentences settle. Two engines run live throughout, and on the sentences we examine both come to rest at the same verdict — the grounded truths settle, the Liar is left without one. The fixed point Tarski forbade is here — not whole, and not for free, but really, and in two independent hands.</p>
+  </div>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(3rem,7vh,5rem)"><span class="ln"></span><span class="g mono">keep the predicate — pay elsewhere</span><span class="ln"></span></div>
+
+  <!-- ===== §I AFTER TARSKI ===== -->
+  <section class="sec" id="after-tarski">
+    <div class="sec-head"><span class="num">I · after Tarski</span><h2>Two ways to keep the word</h2><p class="sub">Tarski's theorem is a prohibition with a precise shape: no consistent language holds a <i>total, two-valued</i> predicate disquoting all its sentences. The prohibition has exactly two joints, and loosening either — dropping totality-with-bivalence, or dropping the demand for a fixed point — lets the predicate back in, self-application and all.</p></div>
+    <div class="reading">
+      <p>Recall the wall. The diagonal lemma builds a sentence <span class="mono">L</span> with <span class="mono">L ↔ ¬Tr(⌜L⌝)</span>; the disquotational schema <span class="mono">Tr(⌜φ⌝) ↔ φ</span> at <span class="mono">φ = L</span> gives <span class="mono">Tr(⌜L⌝) ↔ L</span>; and the two together force <span class="mono">L ↔ ¬L</span>. The proof uses three things at once — the schema holds of <i>every</i> sentence, every sentence is <i>true or false</i>, and the result must be <i>consistent</i>. Tarski's hierarchy keeps bivalence and consistency by surrendering the first: truth becomes level-indexed, and no predicate speaks of its own level. The theories of this study keep the predicate self-applicable and surrender one of the other two — silently, and only for the paradoxical sentences.</p>
+    </div>
+    <div class="hinge">
+      <div class="hinge-side left tealhead">
+        <div class="hs-lab">loosen bivalence</div>
+        <h4>Kripke, 1975</h4>
+        <p>Admit sentences that are neither true nor false. The truth predicate becomes the <i>least fixed point</i> of a monotone operator; the Liar falls into the gap it leaves, neither in the extension nor the anti-extension.</p>
+        <div class="granted"><span class="ok">Tr(⌜φ⌝)</span> &nbsp;a genuine fixed point — with gaps</div>
+      </div>
+      <div class="hinge-side right tealhead">
+        <div class="hs-lab">loosen the fixed point</div>
+        <h4>Gupta–Belnap</h4>
+        <p>Keep two-valued logic and the full biconditional, but read it as a rule for <i>revising</i> a hypothesis about truth. Iterate; truth is what the revision stabilizes. The Liar never stabilizes.</p>
+        <div class="granted"><span class="ok">δ(h)</span> &nbsp;a stable pattern — no fixed point</div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Both keep the one thing Tarski's tower could not: a single predicate that applies to the sentences of its own language, itself included. What each gives up is confined to where the paradox actually lives. We build the first now.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">more information in — more information out</span><span class="ln"></span></div>
+
+  <!-- ===== §II THE MONOTONE OPERATOR ===== -->
+  <section class="sec" id="operator">
+    <div class="sec-head"><span class="num">II · the monotone operator</span><h2>Truth as a fixed point that exists</h2><p class="sub">Kripke's move is to interpret the truth predicate <i>partially</i> — a set of sentences declared true, a set declared false, and the rest left open — and to close that interpretation under the obvious rule: a sentence is in the extension of truth exactly when it <i>is</i> true. That rule is a monotone operator, and monotone operators have least fixed points.</p></div>
+    <div class="reading">
+      <p>A <b>partial interpretation</b> of the truth predicate is a pair <span class="mono">(E⁺, E⁻)</span> of disjoint sets of sentences — the extension, declared true, and the anti-extension, declared false — with everything outside both left <i>undefined</i>. Order these by information: <span class="mono">(E⁺,E⁻) ⊑ (F⁺,F⁻)</span> when <span class="mono">E⁺ ⊆ F⁺</span> and <span class="mono">E⁻ ⊆ F⁻</span> — the second interpretation decides everything the first did, and perhaps more. Under this ordering the partial interpretations form a complete lattice.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the jump — Kripke's operator Φ</div>
+      <p>Given a partial interpretation, evaluate every sentence by the <b>Strong Kleene</b> scheme — a conjunction is true if both conjuncts are true, false if either is false, undefined otherwise; a negation swaps true and false and fixes the undefined; and <span class="mono">Tr(⌜φ⌝)</span> takes the value the current interpretation gives <span class="mono">φ</span>. Then form the new interpretation <div class="rec-formula" style="margin:.55rem auto;font-family:'IBM Plex Mono',monospace;font-size:.86rem;color:var(--ink);text-align:center;padding:.65rem;border:1px dashed var(--panelhair);border-radius:3px;background:var(--paper);line-height:1.7"><span class="mono">Φ(E⁺,E⁻)  =  ( sentences evaluated true ,  sentences evaluated false )</span></div> putting <span class="mono">φ</span> into the new extension exactly when <span class="mono">φ</span> came out true. <span class="mono">Φ</span> makes the interpretation say of each sentence what that sentence, under the current interpretation, actually is.</p>
+    </div>
+    <div class="reading">
+      <p>The decisive property is that adding information never retracts it. If <span class="mono">(E⁺,E⁻) ⊑ (F⁺,F⁻)</span>, then anything the smaller interpretation evaluated true or false, the larger one evaluates the same way — the Strong Kleene scheme is monotone, undefined values only ever resolving, never flipping. So <span class="mono">Φ</span> is <b>monotone</b>: <span class="mono">(E⁺,E⁻) ⊑ (F⁺,F⁻)</span> implies <span class="mono">Φ(E⁺,E⁻) ⊑ Φ(F⁺,F⁻)</span>. And that is all it takes.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">Knaster–Tarski, and Kripke's theorem (1975)</div>
+      <div class="ts">A monotone operator on a complete lattice has a <b>least fixed point</b> — the intersection of all its pre-fixed points. Applied to <span class="mono">Φ</span>: there is a smallest partial interpretation with <span class="mono">Φ(E⁺,E⁻) = (E⁺,E⁻)</span>, an interpretation at which <span class="mono">Tr(⌜φ⌝)</span> and <span class="mono">φ</span> have <i>the same</i> value for every sentence. A language can contain its own truth predicate consistently — the fixed point Tarski's theorem said could not be had <i>in full</i> exists in this partial form, with the difference absorbed by the sentences left undefined.</div>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the grounded settle · the Liar stays open</span><span class="ln"></span></div>
+
+  <!-- ===== §III THE LEAST FIXED POINT ===== -->
+  <section class="sec" id="least">
+    <div class="sec-head"><span class="num">III · the least fixed point</span><h2>Grounding, stage by stage</h2><p class="sub">The least fixed point is reached by iteration: start with the empty interpretation, apply <span class="mono">Φ</span>, and repeat. Sentences that bottom out in non-semantic fact acquire values and keep them — these are the <i>grounded</i> sentences. The Liar and its kin never acquire a value at all. Watch the construction run.</p></div>
+    <div class="reading">
+      <p>Begin with total ignorance — <span class="mono">(∅, ∅)</span>, every sentence undefined — and apply <span class="mono">Φ</span>. Non-semantic facts resolve at once; a sentence asserting the truth of something already settled resolves at the next stage; and so the definedness spreads outward from the ground of fact. By monotonicity each stage extends the last, and the increasing sequence closes, at some ordinal, on the least fixed point. A sentence is <b>grounded</b> if it has a value there, <b>ungrounded</b> if it remains in the gap.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="rec-sel" id="ktSel">
+          <button class="fgh-pill" data-kt="0">stage 0</button>
+          <button class="fgh-pill" data-kt="1">stage 1</button>
+          <button class="fgh-pill" data-kt="2">stage 2</button>
+          <button class="fgh-pill on" data-kt="3">stage 3 · fixed point</button>
+        </div>
+        <div class="kt-key">
+          <span><span class="tv tv-t" style="min-width:auto;padding:.12em .45em">T</span> true</span>
+          <span><span class="tv tv-f" style="min-width:auto;padding:.12em .45em">F</span> false</span>
+          <span><span class="tv tv-u" style="min-width:auto;padding:.12em .45em">·</span> gap</span>
+        </div>
+        <div class="rec-panel"><div class="kt-rows" id="ktRows"></div><div class="kt-cap" id="ktCap"></div></div>
+        <figcaption>The Strong Kleene jump, iterated from the empty interpretation. Step from stage 0 to the fixed point and watch the grounded sentences — the settled facts and the truths built on them — acquire values, while the Liar, the truth-teller, and the sentence that quotes the Liar never leave the gap. The computation reaches its fixed point at stage 3.</figcaption>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="cl-lab">what grounding is</div>
+      <p>Grounding is well-foundedness of semantic dependence. A grounded sentence's truth traces back, in finitely or transfinitely many steps, to facts that do not mention truth at all — <span class="mono">Tr(⌜0=0⌝)</span> rests on <span class="mono">0=0</span>, and <span class="mono">Tr(⌜Tr(⌜0=0⌝)⌝)</span> rests on that. The Liar rests on nothing but itself: to evaluate <span class="mono">¬Tr(⌜L⌝)</span> one must already have evaluated <span class="mono">Tr(⌜L⌝)</span>, which is <span class="mono">L</span> again. The iteration never gives it a first value to build on, so it stays undefined at every stage and in the fixed point. The paradox is not resolved and not suppressed; it is <i>quarantined</i> in the gap, where it can do no harm — and, as the next sections show, can still be pointed at from outside.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the ungrounded need not be paradoxical</span><span class="ln"></span></div>
+
+  <!-- ===== §IV THE LATTICE ===== -->
+  <section class="sec" id="lattice">
+    <div class="sec-head"><span class="num">IV · the lattice</span><h2>Least among many</h2><p class="sub">The least fixed point is one of many. The fixed points of a monotone operator themselves form a complete lattice, and the least one — grounded truth — is distinguished by deciding nothing that fact does not force. The structure separates two kinds of ungrounded sentence the single word &ldquo;gap&rdquo; had run together.</p></div>
+    <div class="reading">
+      <p>Knaster and Tarski proved more than the existence of a least fixed point: the fixed points of a monotone operator on a complete lattice <i>themselves</i> form a complete lattice, with a least and a greatest member. So <span class="mono">Φ</span> has a whole ordered family of fixed points — consistent interpretations at which truth and value coincide — and the least, the grounded one, sits at the bottom.</p>
+    </div>
+    <div class="bridge">
+      <div class="bridge-row"><div class="br-main"><b>The least fixed point.</b> Grounded truth: a sentence gets a value only if the ground of fact forces it. Everything merely optional is left in the gap. This is the interpretation of minimal commitment.</div><span class="rec-badge thm">grounded</span></div>
+      <div class="bridge-row"><div class="br-main"><b>The greatest fixed point.</b> The most generous consistent interpretation: it decides everything it consistently can, including matters fact leaves open. Larger, but arbitrary where the least is silent.</div><span class="rec-badge syn">maximal</span></div>
+      <div class="bridge-row"><div class="br-main"><b>Intrinsic fixed points.</b> Those compatible with every other — assigning no value any other fixed point contradicts. Their union is the largest <i>intrinsic</i> fixed point, the objectively settled truths beyond the merely grounded.</div><span class="rec-badge syn">intrinsic</span></div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">two kinds of gap</div>
+      <p>The lattice draws a line the least fixed point alone could not. The <b>truth-teller</b> <span class="mono">τ</span>, saying only <span class="mono">Tr(⌜τ⌝)</span> — <i>this sentence is true</i> — is undefined in the least fixed point, exactly as the Liar is. But <span class="mono">τ</span> is not paradoxical: there is a fixed point in which it is true and another in which it is false, each perfectly consistent. It is merely <i>unfounded</i> — nothing settles it, so grounded truth declines to, but either choice would cohere. The <b>Liar</b> is different in kind: it is in the gap of <i>every</i> fixed point, for no consistent interpretation can place it in the extension or the anti-extension. Groundlessness and paradox are not the same defect — the truth-teller floats free of fact; the Liar is at war with it — and only the lattice of fixed points, not the least point by itself, tells them apart.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the gap cannot name itself</span><span class="ln"></span></div>
+
+  <!-- ===== §V REVENGE ===== -->
+  <section class="sec" id="revenge">
+    <div class="sec-head"><span class="num">V · revenge</span><h2>What the gapped language cannot say</h2><p class="sub">Kripke's language keeps consistency by admitting gaps — and pays in expressive power. Its negation reaches only as far as <i>falsity</i>; the notion it most needs, <i>not true</i> in the sense that includes the gap, is precisely the notion it cannot express of itself. Say that notion, and the Liar returns.</p></div>
+    <div class="reading">
+      <p>In the Strong Kleene scheme, <span class="mono">¬Tr(⌜φ⌝)</span> is true when <span class="mono">φ</span> is <i>false</i> and undefined when <span class="mono">φ</span> is undefined. So the object language's &ldquo;not true&rdquo; means &ldquo;false,&rdquo; not &ldquo;untrue,&rdquo; and there is no predicate in it for the third status — no way to say, inside the language, that a sentence is <i>gapped</i>, or equivalently that it is <i>not true</i> in the wider sense of &ldquo;false-or-gapped.&rdquo; That predicate belongs to the classical metalanguage that surveys the fixed point from outside.</p>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">the strengthened Liar</div>
+      <p>Now form the sentence that uses exactly the missing notion: <i>this sentence is not true</i>, with &ldquo;not true&rdquo; read as &ldquo;false or gapped.&rdquo; If it is true, it is not true; if it is false or gapped, then it is not true, so it is true. The contradiction is back — written in the one word the repair had to step outside the language to obtain. Kripke's construction is genuinely consistent, but its consistency is bought by an expressive gap, and Tarski's hierarchy reappears at the level of that gap: to talk about <i>which sentences are gapped</i> is already to have climbed to a metalanguage the object language cannot contain. The deficit of <em>The Endorsement</em> is conserved; the gap is only its new address.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">truth as the pattern a revision settles</span><span class="ln"></span></div>
+
+  <!-- ===== §VI REVISION ===== -->
+  <section class="sec" id="revision">
+    <div class="sec-head"><span class="num">VI · revision</span><h2>Truth without a fixed point</h2><p class="sub">The other route refuses the gap. It keeps classical two-valued logic and the whole biconditional, and pays the price on the opposite side of the ledger — by giving up the fixed point. The biconditional becomes a rule for <i>revising</i> a guess about truth, and truth is taken to be whatever the revision settles down to. The grounded sentences settle; the Liar oscillates forever.</p></div>
+    <div class="reading">
+      <p>Start from a <b>hypothesis</b> <span class="mono">h</span> — a complete, two-valued guess at the extension of the truth predicate, right or wrong. Use it to evaluate every sentence classically, and then <i>revise</i> the guess by the disquotational rule: in the next hypothesis, <span class="mono">Tr(⌜φ⌝)</span> holds exactly when <span class="mono">φ</span> held under the old one. The revised hypothesis <span class="mono">δ(h)</span> is a better guess — it has corrected the truth predicate to agree with the biconditional one step further out. Iterate <span class="mono">δ</span>, into the transfinite, and watch what stabilizes.</p>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="rv-two">
+          <div class="rv-grp"><span class="rv-glab">sentence</span><div class="rv-pills" id="rvSent">
+            <button class="fgh-pill on" data-rv="L">the Liar</button>
+            <button class="fgh-pill" data-rv="Tt">truth-teller</button>
+            <button class="fgh-pill" data-rv="Tp">Tr(⌜0=0⌝)</button>
+            <button class="fgh-pill" data-rv="X">Tr(p) ∧ Tr(L)</button>
+          </div></div>
+          <div class="rv-grp"><span class="rv-glab">starting hypothesis</span><div class="rv-pills" id="rvHyp">
+            <button class="fgh-pill on" data-hyp="F">all false</button>
+            <button class="fgh-pill" data-hyp="T">all true</button>
+          </div></div>
+        </div>
+        <div class="rec-panel"><div class="rv-strip" id="rvStrip"></div><div class="rv-verdict" id="rvVerdict"></div></div>
+        <figcaption>The revision rule <span class="mono">δ</span> iterated from a starting hypothesis. Grounded sentences settle to a value and stay there, the same under every hypothesis — <i>categorically stable</i>. The Liar flips with period two under every hypothesis: never stable, so never true. The truth-teller stays wherever it started, stable under each hypothesis but different across them — stable, but not <i>categorically</i> so, and therefore also without a settled truth value.</figcaption>
+      </div>
+    </div>
+
+    <div class="callout teal">
+      <div class="cl-lab">stability is truth</div>
+      <p>The verdict of revision is read off the pattern. A sentence is <b>categorically true</b> if, from <i>every</i> starting hypothesis, the revision stabilizes it at true after some stage — and these categorically stable sentences are what the theory calls true. Every grounded sentence of Kripke's construction is categorically stable in revision, and on the sentences in play here — the settled facts, the truths raised upon them, the Liar, the truth-teller — the two theories, built from opposite materials, a partial fixed point against a classical process with no fixed point, return the <i>same</i> verdict. Where they diverge is only on the ungrounded: Kripke gives them a single verdict, the gap, while revision distinguishes the merely unstable from the periodic, and the transfinite limit rules of Herzberger and Belnap fix what happens at limit stages, where a sentence stable below the limit keeps its value and an unstable one is reset. Truth, on this account, is not a state a language is in but a pattern a process falls into — and the Liar's pattern is to have none.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the fixed point, held or denied</span><span class="ln"></span></div>
+
+  <!-- ===== §VII SYNTHESIS ===== -->
+  <section class="sec" id="synthesis">
+    <div class="sec-head"><span class="num">VII · the ground recovered</span><h2>Where truth rejoins the diagonal</h2><p class="sub">The corpus reads every limitative result as a diagonal forbidding a fixed point. Truth is the semantic case: Tarski's theorem forbids the fixed point of the truth operator in full. This study has watched that fixed point recovered — once by holding it in a weaker logic, once by denying it and keeping the pattern of its pursuit — and both recoveries turn on the same machinery the corpus finds everywhere.</p></div>
+    <div class="reading">
+      <p>Set the two constructions against the impossibility they answer. Tarski: no total, bivalent <span class="mono">Tr</span> with <span class="mono">Tr(⌜φ⌝) ↔ φ</span> everywhere. The two escapes each keep the biconditional and self-application, and each relaxes one further thing.</p>
+    </div>
+    <div class="hinge">
+      <div class="hinge-side left tealhead">
+        <div class="hs-lab">the fixed point held</div>
+        <h4>Kripke — a partial fixed point</h4>
+        <p>Drop bivalence. <span class="mono">Tr</span> is the least fixed point of a monotone operator — the Knaster–Tarski fixed point the corpus meets in every guise. The paradox rests in the gap; grounded truth is what fact forces.</p>
+        <div class="granted"><span class="ok">Φ(E⁺,E⁻) = (E⁺,E⁻)</span> &nbsp;— a genuine fixed point</div>
+      </div>
+      <div class="hinge-side right tealhead">
+        <div class="hs-lab">the fixed point denied</div>
+        <h4>Revision — a stable pattern</h4>
+        <p>Drop the fixed point. <span class="mono">Tr</span> is revised, not solved; classical logic is kept throughout, and truth is the categorically stable pattern of the revision. The Liar's pattern is to oscillate.</p>
+        <div class="granted"><span class="ok">δ(h), δ²(h), …</span> &nbsp;— stability in place of a fixed point</div>
+      </div>
+    </div>
+    <div class="bridge-verdict" style="margin-top:1.4rem"><b>The fixed point Tarski forbade is held in one hand and denied in the other, and the two hands agree on what truth is.</b> Kripke's construction is a Lawvere–Knaster–Tarski fixed point outright — the monotone truth operator, closed to the least interpretation that says of each sentence what it is. Revision is that fixed point refused: where the operator has no fixed point reachable in classical logic, it is iterated instead, and every sentence the fixed-point construction grounds is one the iteration categorically settles — the two agreeing on the truths raised upon fact, and on the Liar’s homelessness. (Revision, keeping classical logic, in fact validates more — the excluded middle for the Liar among it — so the grounded truths are contained in the categorically stable ones, not identical to them.) The Liar is the invariant across both: the sentence with no grounded value and no stable one — the ungrounded fixed point the diagonal forbids, quarantined here as a gap or as an eternal flip rather than exploded into contradiction. And the quarantine is never quite sealed. Kripke keeps consistency by surrendering the expressive power to name its own gaps, and the strengthened Liar walks in through that door; revision keeps every classical law by surrendering the fixed point, and the Liar's revenge is simply that the process never ends. The deficit <em>The Endorsement</em> proved conserved is conserved here too — paid, this time, not in a tower of languages but in a truth-value gap or an unending revision, the same obstruction wearing the two faces a language has left once it insists on holding its own truth.</div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">grounded, or forever revised</span><span class="ln"></span></div>
+  <div class="coda"><p>Tarski's theorem is usually read as a closed door: a language cannot hold its own truth. It is better read as a door that opens only sideways. Insist that every sentence be true or false and the door stays shut; loosen that, and truth walks back in as the least fixed point of a monotone operator, the paradoxes resting in the gap it leaves, grounded truth resolving outward from the ground of fact. Insist instead on a fixed point and the door stays shut; loosen <i>that</i>, keep classical logic entire, and truth walks back in as the settled pattern of an endless revision, the grounded sentences coming to rest and the Liar flipping without end. The two constructions share their materials with the rest of the corpus — a monotone operator and its least fixed point, a diagonal sentence that no assignment can satisfy — and they share their verdict on the sentence that matters: the truths that the ground of fact reaches are held, and the one sentence that reaches only for itself is not. What the language cannot hold, on either account, is the Liar. That sentence is not destroyed and not admitted. It is left where the fixed point leaves it — in the gap, or in the oscillation — the diagonal's refusal made survivable at last.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">A deep study · The Ground</span></div>
+    <p class="colophon">A study of the fixed-point and revision theories of truth, set within the corpus's reading of the diagonal, and a companion to <em>The Endorsement</em>. The load-bearing results are theorems — the monotonicity of the Strong Kleene jump on the lattice of partial interpretations; the Knaster–Tarski least-fixed-point theorem and Kripke's construction of a self-applicable truth predicate as its least fixed point; the lattice structure of the fixed points, with least, greatest, and intrinsic members, and the separation of the merely ungrounded (the truth-teller, gap in the least fixed point but consistently either-valued in others) from the genuinely paradoxical (the Liar, gap in every fixed point); the internal inexpressibility of the gap and the resulting strengthened Liar; and the revision-theoretic account on which truth is the categorically stable pattern of an iterated revision, with the grounded sentences categorically stable and the two theories agreeing on the sentences examined. The framing — that Kripke's truth is the corpus's Lawvere–Knaster–Tarski fixed point of the truth operator, that revision is that fixed point denied and replaced by dynamical stability, and that the Liar is the ungrounded fixed point the diagonal forbids, quarantined rather than exploded — is interpretation, marked as such and faithful to the theorems beneath it.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;Kripke's construction is relative to a ground model (here arithmetic) and to an evaluation scheme; the Strong Kleene scheme is used throughout, but Kripke also treated the <i>supervaluational</i> scheme (after van Fraassen), whose fixed points validate more — excluded middle for grounded sentences, for instance — so &ldquo;grounded&rdquo; is scheme-relative, though the existence of a least fixed point holds for any monotone scheme. The closure ordinal of the least fixed point depends on the language; for the arithmetical language it is a large recursive ordinal. &ldquo;Greatest&rdquo; and &ldquo;intrinsic&rdquo; fixed points are Kripke's (1975); the largest intrinsic fixed point is the sense in which some ungrounded sentences are nonetheless objectively valued. The strengthened-Liar argument turns on the fact that exclusion negation — &ldquo;not true&rdquo; in the sense &ldquo;false or gapped&rdquo; — is not expressible in the Strong Kleene object language; supervaluational and other schemes shift the revenge without removing it. In the revision theory (Gupta 1982; Herzberger 1982; Belnap 1982; Gupta–Belnap 1993) the revision rule is the disquotational operator on total hypotheses; a sentence is categorically valid when stably true in every revision sequence, and the transfinite construction requires a <i>limit rule</i> — Herzberger's, Belnap's, and the Gupta–Belnap variants differ, and the resulting notions of stable and categorical truth are provably not arithmetically axiomatizable (Kremer). The claim here is the safe one: every grounded sentence is categorically stable, and the paradigm sentences receive matching verdicts; the general relationship between the least Kripke fixed point and categorical validity is more delicate and scheme- and limit-rule-dependent. The two engines shown compute the Strong Kleene least fixed point and finite revision sequences over a fixed seven-sentence language; the values displayed are computed, not staged. <em>The Endorsement</em> carries Tarski's undefinability theorem and the impasse this study answers; <em>The Web</em> carries the reference-graph face of groundlessness, Yablo's non-self-referential paradox among it; <em>The Knot</em> carries the diagonal's self-limiting behaviour; <em>The Recurrence</em> carries the fixed-point machinery in its arithmetical form.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Kripke 1975 (<i>Outline of a Theory of Truth</i>) · Knaster 1928 / Tarski 1955 (the lattice-theoretical fixed-point theorem) · Martin &amp; Woodin; Feferman (on Kripke's theory) · Gupta 1982 (<i>Truth and paradox</i>) · Herzberger 1982 · Belnap 1982 · Gupta &amp; Belnap 1993 (<i>The Revision Theory of Truth</i>) · Kremer · Halbach (<i>Axiomatic Theories of Truth</i>) · McGee (<i>Truth, Vagueness, and Paradox</i>).</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- shared evaluation (verified) ---------- */
+  var SENT = ['p','q','Tp','TTp','L','Tt','X'];
+  function sk_not(a){ return a==='T'?'F':a==='F'?'T':'U'; }
+  function sk_and(a,b){ if(a==='F'||b==='F') return 'F'; if(a==='T'&&b==='T') return 'T'; return 'U'; }
+  function cl_not(a){ return a==='T'?'F':'T'; }
+  function cl_and(a,b){ return (a==='T'&&b==='T')?'T':'F'; }
+  function val(name, I, biv){
+    var NOT = biv?cl_not:sk_not, AND = biv?cl_and:sk_and;
+    switch(name){
+      case 'p': return 'T';
+      case 'q': return 'F';
+      case 'Tp': return I['p'];
+      case 'TTp': return I['Tp'];
+      case 'L': return NOT(I['L']);
+      case 'Tt': return I['Tt'];
+      case 'X': return AND(I['p'], I['L']);
+    }
+  }
+  function jump(I, biv){ var J={}; for(var i=0;i<SENT.length;i++){ var s=SENT[i]; J[s]=val(s,I,biv); } return J; }
+
+  function vcell(v){ var c = v==='T'?'tv-t':v==='F'?'tv-f':'tv-u'; var t = v==='U'?'\u00b7':v; return "<span class='tv "+c+"'>"+t+"</span>"; }
+
+  /* ---------- KRIPKE least-fixed-point iteration ---------- */
+  var KSENT = [
+    {k:'p',   nm:"p",                                  gl:"the fact 0 = 0"},
+    {k:'q',   nm:"q",                                  gl:"the falsehood 0 = 1"},
+    {k:'Tp',  nm:"Tr(\u231cp\u231d)",                   gl:"\u2018 0 = 0 \u2019 is true"},
+    {k:'TTp', nm:"Tr(\u231cTr\u2009p\u231d)",           gl:"nested one level up"},
+    {k:'L',   nm:"\u00acTr(\u231cL\u231d)",             gl:"the Liar"},
+    {k:'Tt',  nm:"Tr(\u231cTt\u231d)",                  gl:"the truth-teller"},
+    {k:'X',   nm:"Tr(\u231cp\u231d) \u2227 Tr(\u231cL\u231d)", gl:"quotes the Liar"}
+  ];
+  var KSTAGES = (function(){
+    var I={}; SENT.forEach(function(s){ I[s]='U'; });
+    var out=[Object.assign({},I)];
+    for(var i=0;i<3;i++){ I=jump(I,false); out.push(Object.assign({},I)); }
+    return out; // stages 0,1,2,3 (3 = fixed point)
+  })();
+  var ktStage=3;
+  function ktRender(){
+    var I=KSTAGES[ktStage], rows="";
+    for(var i=0;i<KSENT.length;i++){ var s=KSENT[i];
+      rows += "<div class='kt-row'><span class='kt-name'>"+s.nm+"</span>"+vcell(I[s.k])+"<span class='kt-gloss'>"+s.gl+"</span></div>";
+    }
+    document.getElementById("ktRows").innerHTML = rows;
+    var gr=[], ug=[];
+    for(var i=0;i<SENT.length;i++){ var s=SENT[i]; if(I[s]==='U') ug.push(s); else gr.push(s); }
+    var cap;
+    if(ktStage===0){ cap="Stage 0 is total ignorance \u2014 every sentence undefined. Nothing yet rests on fact."; }
+    else if(ktStage===3){ cap="The fixed point. <b class='gr'>Grounded</b> (settled by fact): the facts and the truths raised on them. <b class='ug'>Ungrounded</b> (in the gap forever): the Liar, the truth-teller, and the sentence quoting the Liar \u2014 none of which rests on anything but itself."; }
+    else { cap="Stage "+ktStage+": definedness has spread "+ktStage+" step"+(ktStage===1?"":"s")+" out from the ground of fact. The Liar and truth-teller remain in the gap, with no first value to build on."; }
+    document.getElementById("ktCap").innerHTML = cap;
+  }
+
+  /* ---------- GUPTA-BELNAP revision sequence ---------- */
+  function revSeq(h0val){
+    var h={}; SENT.forEach(function(s){ h[s]=h0val; });
+    var out=[Object.assign({},h)];
+    for(var i=0;i<7;i++){ h=jump(h,true); out.push(Object.assign({},h)); }
+    return out; // δ^0 .. δ^7
+  }
+  function tail(seq,key){ var v=[]; for(var i=0;i<seq.length;i++) v.push(seq[i][key]); return v; }
+  function stableVal(vals){ var n=vals.length; if(n<3) return null; return (vals[n-1]===vals[n-2] && vals[n-2]===vals[n-3]) ? vals[n-1] : null; }
+  var rvSentKey='L', rvHyp='F';
+  var RVGLOSS = {
+    L:"the Liar, \u00acTr(\u231cL\u231d)", Tt:"the truth-teller, Tr(\u231cTt\u231d)",
+    Tp:"Tr(\u231c0=0\u231d), a grounded truth", X:"Tr(p) \u2227 Tr(L), which quotes the Liar"
+  };
+  function rvRender(){
+    var seq=revSeq(rvHyp), vals=tail(seq, rvSentKey), strip="";
+    for(var i=0;i<vals.length;i++){ strip += "<div class='rv-cell'><span class='rv-n'>\u03b4"+i+"</span>"+vcell(vals[i])+"</div>"; }
+    document.getElementById("rvStrip").innerHTML = strip;
+    var sF=stableVal(tail(revSeq('F'), rvSentKey)), sT=stableVal(tail(revSeq('T'), rvSentKey));
+    var cls, txt;
+    if(sF===null){
+      cls="unstable";
+      txt="Unstable \u2014 "+RVGLOSS[rvSentKey]+" flips with period two under every hypothesis and never settles. No stable value, so on the revision account it is not true.";
+    } else if(sF===sT){
+      cls="stable";
+      txt="Categorically "+(sF==='T'?"true":"false")+" \u2014 the revision stabilizes to "+(sF==='T'?"true":"false")+" from every starting hypothesis. This is a grounded sentence, and revision and Kripke agree on it.";
+    } else {
+      cls="depends";
+      txt="Stable under each hypothesis, but hypothesis-dependent \u2014 it settles to "+(sF==='T'?"true":"false")+" from \u2018all false\u2019 and to "+(sT==='T'?"true":"false")+" from \u2018all true\u2019. Not categorically stable, so it has no settled truth value \u2014 matching its gap in Kripke's least fixed point.";
+    }
+    var el=document.getElementById("rvVerdict"); el.className="rv-verdict "+cls; el.innerHTML=txt;
+  }
+
+  function wire(sel, cb){
+    document.querySelectorAll(sel).forEach(function(b){
+      b.addEventListener("click", function(){
+        var sib=b.parentNode.querySelectorAll(".fgh-pill");
+        sib.forEach(function(x){ x.classList.remove("on"); });
+        b.classList.add("on"); cb(b);
+      });
+    });
+  }
+  function init(){
+    wire("#ktSel .fgh-pill", function(b){ ktStage=parseInt(b.getAttribute("data-kt"),10); ktRender(); });
+    wire("#rvSent .fgh-pill", function(b){ rvSentKey=b.getAttribute("data-rv"); rvRender(); });
+    wire("#rvHyp .fgh-pill", function(b){ rvHyp=b.getAttribute("data-hyp"); rvRender(); });
+    ktRender(); rvRender();
+  }
+  if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-order.html">← The Order</a><a rel="next" href="quodlibet-the-continuum.html">The Continuum →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

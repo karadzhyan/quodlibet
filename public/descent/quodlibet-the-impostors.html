@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Impostors — the anatomy of the nonstandard</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);margin:0 0 .6rem;}
+  .callout p:last-child{margin-bottom:0;}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* two-origins faces */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.76rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* stepper (order-type zoom) */
+  .step-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.2rem;}
+  .step-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .9rem;cursor:pointer;transition:all .15s;}
+  .step-tab:hover{background:rgba(26,24,21,.05);}
+  .step-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .step-stage{display:none;}
+  .step-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .otz{display:block;width:100%;height:auto;overflow:visible;}
+  .step-cap{text-align:center;font-size:.88rem;line-height:1.55;color:var(--soft1);margin-top:1rem;max-width:40rem;margin-left:auto;margin-right:auto;text-wrap:pretty;}
+  .step-cap b{color:var(--ink);font-weight:600;}
+
+  /* three-column property grid */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .grid3{grid-template-columns:1fr;} }
+  .g3{background:var(--paper);padding:1.05rem 1.1rem;}
+  .g3 .g3-n{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .g3 h4{font-family:"Spectral",serif;font-weight:500;font-size:1.06rem;margin:0 0 .35rem;color:var(--ink);}
+  .g3 p{font-size:.84rem;line-height:1.5;color:var(--soft1);}
+
+  .codesvg,.anatsvg{display:block;width:100%;height:auto;overflow:visible;}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-descent">The Descent</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the impostors · a dissection from The Descent</span></div>
+    <div class="hero-head">
+      <p class="kicker">What the nonstandard models actually are</p>
+      <h1 class="title">The <span class="x">Impostors</span></h1>
+      <p class="standfirst"><em>The Descent</em> proved they exist: by compactness, first-order arithmetic has models full of infinite numbers, and <span class="mono">ℕ</span> cannot be singled out. But existence is not anatomy. The impostors are not a formless swarm — they have a <em>forced</em> shape, a <em>coded</em> interior, a recursion-theoretic <em>floor</em>, and a richness that lets them do what <span class="mono">ℕ</span> provably cannot. This is their dissection.</p>
+      <p class="ed-mark">two origins · the forced shape · overspill · the coded interior · saturation · the self-modelling model</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">ℕ ⊊ ℕ + ℤ·ℚ</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>An impostor is a model of arithmetic that is not <span class="mono">ℕ</span>. <em>The Descent</em> showed that first-order arithmetic cannot keep them out: adjoin to the axioms a new constant <span class="mono">c</span> together with <span class="mono">c &gt; 0, c &gt; 1, c &gt; 2, …</span>, and every finite subset is satisfiable in <span class="mono">ℕ</span> itself — so by compactness the whole is satisfiable, in a model with an element above every numeral. The intended structure cannot be fixed from inside. That was a proof of <i>presence</i>. It said nothing about <i>form</i>.</p>
+    <p>It would be natural to imagine the impostors as featureless — <span class="mono">ℕ</span> with some vague cloud of extra junk bolted on, too lawless to describe. The opposite is true. A nonstandard model of <span class="mono">PA</span> is one of the most rigidly organized objects in logic. Its order has a single forced shape. Its elements code an entire family of sets of standard numbers, and that family obeys precise closure laws. Its arithmetic cannot be carried out by any machine. And if it is countable, it is so saturated with realized possibilities that it can build, inside itself, a notion of truth for its own sentences — a feat <span class="mono">ℕ</span>'s definable resources are forbidden by Tarski.</p>
+    <p>This panel dissects the impostor. We trace it from its two births, through its forced skeleton, into the coded organs of its interior, and out to the strange capacities of its richest specimens. The thesis of <em>The Descent</em> — that <span class="mono">ℕ</span> is unreachable yet, in deeper senses, anchored — is not a paradox once the anatomy is on the table. It is a description of an organism. We proceed in six movements.</p>
+  </div>
+
+  <!-- ===== §I TWO ORIGINS ===== -->
+  <section class="sec" id="origins">
+    <div class="sec-head"><span class="num">I · two origins</span><h2>How an impostor is born</h2><p class="sub">There are two ways to manufacture a nonstandard model, and the difference between them is the difference between agreeing with ℕ and contradicting it.</p></div>
+    <div class="reading">
+      <p>Not every impostor is born the same way, and the distinction governs everything downstream. One lineage descends from <i>compactness</i>: take true arithmetic <span class="mono">Th(ℕ)</span> — the complete theory of the standard numbers, which already decides every sentence — and force a model to contain an infinite element. The result agrees with <span class="mono">ℕ</span> on every first-order sentence and is still not isomorphic to it. The other lineage descends from <i>incompleteness</i>: take <span class="mono">PA + ¬Con(PA)</span>, consistent by Gödel's second theorem, and any model of it must <i>disagree</i> with <span class="mono">ℕ</span> — it satisfies a false arithmetic sentence, harbouring a coded "proof of <span class="mono">0=1</span>" of nonstandard length. The first kind is an elementary extension of nothing it betrays; the second is a defector.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="faces">
+          <div class="face std">
+            <div class="f-h">lineage one — born of compactness</div>
+            <h4>The loyal impostor</h4>
+            <div class="frow"><span class="fl">theory it models</span><span class="fv t">Th(ℕ)</span></div>
+            <div class="frow"><span class="fl">agrees with ℕ on every sentence</span><span class="fv t">✓ yes</span></div>
+            <div class="frow"><span class="fl">isomorphic to ℕ</span><span class="fv f">✗ no</span></div>
+            <div class="frow"><span class="fl">owes its existence to</span><span class="fv t">expressive weakness</span></div>
+            <p>A model of true arithmetic with an infinite number. It cannot be told from <span class="mono">ℕ</span> by any first-order question; only its <i>shape</i> gives it away. No incompleteness is used — the complete theory has these models anyway.</p>
+          </div>
+          <div class="face non">
+            <div class="f-h">lineage two — born of incompleteness</div>
+            <h4>The defector</h4>
+            <div class="frow"><span class="fl">theory it models</span><span class="fv f">PA + ¬Con(PA)</span></div>
+            <div class="frow"><span class="fl">agrees with ℕ on every sentence</span><span class="fv f">✗ no</span></div>
+            <div class="frow"><span class="fl">isomorphic to ℕ</span><span class="fv f">✗ no</span></div>
+            <div class="frow"><span class="fl">owes its existence to</span><span class="fv f">the diagonal (Gödel II)</span></div>
+            <p>A model that proves its own theory inconsistent — by exhibiting a nonstandard derivation of contradiction. It believes a falsehood about the numbers. The diagonal put it there; <span class="mono">PA ⊬ Con(PA)</span> is what makes it consistent.</p>
+          </div>
+        </div>
+        <figcaption>The two manufacturing routes. <b>The Descent</b> insisted on keeping them apart, because they answer to the corpus's two different obstructions — the loyal impostor to expressive weakness alone, the defector to the diagonal. The anatomy that follows is shared; the diagnosis of <i>why</i> each exists is not.</figcaption>
+      </div>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the canonical loyal impostor — the ultrapower</div>
+      <div class="ts">Compactness proves the loyal impostor <i>exists</i>; the ultrapower writes one down. Fix a nonprincipal ultrafilter <span class="mono">U</span> on <span class="mono">ℕ</span> — a coherent rule deeming each set of indices "large" or not, with every cofinite set large. Form <span class="mono">*ℕ = ℕ<sup>ℕ</sup>/U</span>: sequences of naturals, identified when they agree on a large set. By <b>Łoś's theorem</b>, a first-order sentence holds in <span class="mono">*ℕ</span> exactly when it holds in <span class="mono">ℕ</span> on a large set of coordinates — so <span class="mono">*ℕ ≡ ℕ</span>, a model of <span class="mono">Th(ℕ)</span>. Its canonical infinite element is the <i>diagonal sequence</i> <span class="mono">δ = [(0, 1, 2, 3, …)]</span>: for each standard <span class="mono">k</span>, the coordinates with <span class="mono">n &gt; k</span> are cofinite, hence large, so <span class="mono">δ &gt; k</span>. The loyal impostor is no abstraction — it is the diagonal of the integers, read through a choice of "large."</div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">how many impostors — the spectrum</div>
+      <p>Neither lineage is rare. Already <span class="mono">Th(ℕ)</span>, complete as it is, has <span class="mono">2<sup>ℵ₀</sup></span> pairwise non-isomorphic countable models; <span class="mono">PA</span> has continuum-many too. And the count is never small for a structural reason: by <b>Vaught's theorem</b> no first-order theory has exactly two countable models up to isomorphism — the number is <span class="mono">1</span>, or <span class="mono">ℵ₀</span>, or <span class="mono">2<sup>ℵ₀</sup></span>, and for arithmetic it is the largest. The impostors are not exceptions slipped past the axioms. They are a continuum, and <span class="mono">ℕ</span> is one point in it, distinguished by nothing first-order logic can state.</p>
+    </div>
+    <div class="reading">
+      <p class="cont">The vocabulary matters for what follows. A <i>nonstandard element</i> is one larger than every numeral; the <i>standard part</i> is the initial segment of numerals, an isomorphic copy of <span class="mono">ℕ</span> sitting at the bottom of every impostor. The loyal impostors are exactly the <i>elementary</i> extensions of the standard part — they extend it without disturbing a single first-order truth; the defectors are extensions that break one. Both share the skeleton we turn to now, because the skeleton is forced by <span class="mono">PA</span> alone, and both lineages obey <span class="mono">PA</span>.</p>
+    </div>
+  </section>
+  <!-- ===== §II THE FORCED SHAPE ===== -->
+  <section class="sec" id="shape">
+    <div class="sec-head"><span class="num">II · the forced shape</span><h2>One skeleton, no choice</h2><p class="sub">Every countable impostor has the same order type — ℕ followed by ℚ-many copies of ℤ. The shape is not chosen; it is forced by the axioms.</p></div>
+    <div class="reading">
+      <p>Begin with the bones. Ask not what an impostor contains but how its elements are <i>ordered</i>, and the answer is astonishingly rigid: up to order-isomorphism there is exactly one possibility for a countable nonstandard model. The standard part <span class="mono">ℕ</span> sits at the bottom as an initial ray of type <span class="mono">ω</span>. Above it, the nonstandard elements arrange themselves into two-way-infinite chains — copies of <span class="mono">ℤ</span> — and those chains are packed together as densely as the rationals, with no first chain and no last. The whole order is <span class="mono">ℕ + ℤ·ℚ</span>. Zoom in by stages and watch each feature become unavoidable.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="step-tabs" role="tablist">
+          <button class="step-tab on" data-stage="0">the whole line</button>
+          <button class="step-tab" data-stage="1">inside one ℤ-chain</button>
+          <button class="step-tab" data-stage="2">between two chains</button>
+        </div>
+
+        <div class="step-stage show" data-stage="0">
+          <svg class="otz" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The order type: the standard ray omega, then a dense body of integer chains.">
+            <line x1="40" y1="125" x2="600" y2="125" stroke="var(--panelhair)" stroke-width="1"/>
+            <g fill="var(--teal-deep)">
+              <circle cx="70" cy="125" r="3.4"/><circle cx="108" cy="125" r="3.4"/><circle cx="146" cy="125" r="3.4"/><circle cx="184" cy="125" r="3.4"/><circle cx="222" cy="125" r="3.4"/>
+            </g>
+            <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--faint)" text-anchor="middle">
+              <text x="70" y="146">0</text><text x="108" y="146">1</text><text x="146" y="146">2</text><text x="184" y="146">3</text><text x="222" y="146">4</text><text x="258" y="146">⋯</text>
+            </g>
+            <path d="M70 162 Q146 174 222 162" fill="none" stroke="var(--teal-line)" stroke-width="1"/>
+            <text x="146" y="190" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--teal-deep)">ω — the standard part</text>
+            <line x1="300" y1="40" x2="300" y2="150" stroke="var(--red-line)" stroke-width="1" stroke-dasharray="2 5"/>
+            <text x="300" y="32" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--red-deep)">the horizon</text>
+            <rect x="322" y="100" width="276" height="50" rx="3" fill="var(--gold-soft)" stroke="var(--gold-line)" stroke-width="1.2"/>
+            <text x="460" y="122" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="15" fill="var(--gold-deep)">ℤ · ℚ</text>
+            <text x="460" y="139" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="11" fill="var(--soft1)">densely many ℤ-chains</text>
+            <text x="320" y="190" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="11" fill="var(--faint)">no greatest standard · no least nonstandard</text>
+          </svg>
+          <p class="step-cap">The shape at full scale: a discrete ray, then — past the horizon no numeral reaches — a continuum-dense body. There is <b>no largest standard number</b> and <b>no smallest nonstandard one</b>; the two regions meet across a gap, not a seam.</p>
+        </div>
+
+        <div class="step-stage" data-stage="1">
+          <svg class="otz" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One integer chain: an element a with predecessors and successors running both ways forever.">
+            <line x1="60" y1="110" x2="580" y2="110" stroke="var(--panelhair)" stroke-width="1"/>
+            <path d="M70 110 L52 110 M58 104 L48 110 L58 116" fill="none" stroke="var(--faintest)" stroke-width="1.2"/>
+            <path d="M570 110 L588 110 M582 104 L592 110 L582 116" fill="none" stroke="var(--faintest)" stroke-width="1.2"/>
+            <g fill="var(--gold-deep)">
+              <circle cx="180" cy="110" r="3.6"/><circle cx="260" cy="110" r="3.6"/><circle cx="320" cy="110" r="4.6"/><circle cx="380" cy="110" r="3.6"/><circle cx="460" cy="110" r="3.6"/>
+            </g>
+            <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--soft1)" text-anchor="middle">
+              <text x="120" y="132">⋯</text><text x="180" y="132">a−2</text><text x="260" y="132">a−1</text><text x="320" y="132">a</text><text x="380" y="132">a+1</text><text x="460" y="132">a+2</text><text x="520" y="132">⋯</text>
+            </g>
+            <text x="320" y="98" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--gold-deep)">one ℤ-chain</text>
+            <text x="320" y="172" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--faint)">±1 from a nonstandard element stays nonstandard — the chain never lands back in ℕ</text>
+          </svg>
+          <p class="step-cap"><span class="mono">PA</span> proves every nonzero element has a unique predecessor, so <span class="mono">a−1, a−2, …</span> all exist; and each stays nonstandard, since if <span class="mono">a−k</span> were standard then <span class="mono">a = (a−k)+k</span> would be too. Going up and down by one, <span class="mono">a</span> generates a full copy of <b>ℤ</b> that never touches the standard ray.</p>
+        </div>
+
+        <div class="step-stage" data-stage="2">
+          <svg class="otz" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Between two integer chains a third chain appears, given by the midpoint construction.">
+            <line x1="40" y1="120" x2="600" y2="120" stroke="var(--panelhair)" stroke-width="1"/>
+            <g stroke="var(--gold-line)" stroke-width="1.3" fill="none">
+              <path d="M70 104 L70 136 M70 104 L80 104 M70 136 L80 136"/>
+              <path d="M150 104 L150 136 M150 104 L140 104 M150 136 L140 136"/>
+              <path d="M490 104 L490 136 M490 104 L500 104 M490 136 L500 136"/>
+              <path d="M570 104 L570 136 M570 104 L560 104 M570 136 L560 136"/>
+            </g>
+            <g fill="var(--gold-deep)"><circle cx="98" cy="120" r="3"/><circle cx="110" cy="120" r="3"/><circle cx="122" cy="120" r="3"/><circle cx="518" cy="120" r="3"/><circle cx="530" cy="120" r="3"/><circle cx="542" cy="120" r="3"/></g>
+            <text x="110" y="152" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--gold-deep)">chain(a)</text>
+            <text x="530" y="152" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--gold-deep)">chain(b)</text>
+            <g stroke="var(--teal-line)" stroke-width="1.4" fill="none">
+              <path d="M298 100 L298 140 M298 100 L308 100 M298 140 L308 140"/>
+              <path d="M362 100 L362 140 M362 100 L352 100 M362 140 L352 140"/>
+            </g>
+            <g fill="var(--teal-deep)"><circle cx="320" cy="120" r="3.2"/><circle cx="332" cy="120" r="3.2"/><circle cx="344" cy="120" r="3.2"/></g>
+            <text x="330" y="90" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--teal-deep)">chain(m)</text>
+            <text x="330" y="166" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--teal-deep)">m = a + ⌊(b−a)/2⌋</text>
+            <text x="320" y="196" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="11.5" fill="var(--faint)">a nonstandard distance from each — so a third chain, strictly between</text>
+          </svg>
+          <p class="step-cap">Given chains below <span class="mono">a &lt; b</span>, the difference <span class="mono">b−a</span> is nonstandard, and <span class="mono">PA</span>'s division by two yields a midpoint <span class="mono">m</span> a nonstandard distance from both — hence in a <b>new chain between them</b>. Between any two chains lies a third: the chains are <b>densely ordered</b>, with no endpoints, which for a countable order means a copy of <b>ℚ</b>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="thm">
+      <div class="tl">the order-type theorem — ℕ + ℤ·ℚ</div>
+      <div class="ts">The three pictures are a proof. In any countable nonstandard <span class="mono">M ⊨ PA</span>: the standard numbers form an initial segment of type <span class="mono">ω</span>; each nonstandard element lies in a <span class="mono">ℤ</span>-chain (predecessors and successors exist and stay nonstandard); the chains are densely ordered (the midpoint <span class="mono">a + ⌊(b−a)/2⌋</span> falls strictly between any two) with no first or last (<span class="mono">2a</span> lies above, <span class="mono">⌊a/2⌋</span> below, both nonstandard). By <b>Cantor's theorem</b> a countable dense linear order without endpoints is order-isomorphic to <span class="mono">ℚ</span>. Hence the nonstandard part is <span class="mono">ℤ</span>-chains indexed by <span class="mono">ℚ</span>, and <span class="mono">M ≅ ℕ + ℤ·ℚ</span> as orders. <b>Every</b> countable impostor wears this skeleton — loyal and defector alike.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the skeleton is only the skeleton&nbsp;&nbsp;</span>Order, though, is the cheap part. The shape <span class="mono">ℕ + ℤ·ℚ</span> is shared by continuum-many models that are <i>not</i> isomorphic <i>as models of arithmetic</i> — they agree on how their elements line up while disagreeing on the sums and products laid over that line. Two impostors can carry the identical order and still satisfy different theories, because addition and multiplication add structure the ordering does not see. The order type is forced and uniform; the arithmetic on top is where the impostors become individuals. To see how much they hide, we stop looking at the line and start asking what their elements <i>encode</i>.</p>
+    </div>
+  </section>
+  <!-- ===== §III OVERSPILL ===== -->
+  <section class="sec" id="overspill">
+    <div class="sec-head"><span class="num">III · overspill</span><h2>The standard cannot be named</h2><p class="sub">Inside an impostor, no formula picks out exactly the standard numbers. Any property that catches them all overshoots — into the nonstandard.</p></div>
+    <div class="reading">
+      <p>The standard part <span class="mono">ℕ</span> is plainly <i>there</i> inside every impostor, sitting at the bottom of the order. The question is whether <span class="mono">M</span> can <i>see</i> it — whether any formula <span class="mono">φ(x)</span>, with parameters from <span class="mono">M</span>, holds of exactly the standard elements. It cannot, and the reason is a one-line consequence of induction. Suppose <span class="mono">φ</span> defined precisely <span class="mono">ℕ</span>. Then its negation would define the nonstandard elements <span class="mono">M ∖ ℕ</span> — a nonempty set. <span class="mono">PA</span> proves the least-number principle for every definable set, so <span class="mono">M ∖ ℕ</span> would have a <i>least</i> member. But it has none: if <span class="mono">a</span> is nonstandard, so is <span class="mono">a−1</span>, which is smaller. Contradiction. The standard cut is invisible to the model's own language.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">overspill</div>
+      <div class="ts"><b>If a formula <span class="mono">φ(x)</span> (with parameters in <span class="mono">M</span>) holds for arbitrarily large standard numbers, it holds for some nonstandard element.</b> For otherwise <span class="mono">φ</span> would hold of cofinally many standard numbers and of no nonstandard one; intersected with an initial segment this isolates an upper portion of <span class="mono">ℕ</span> inside <span class="mono">M</span>, and chasing the least-number principle delivers a least nonstandard element — which cannot exist. Equivalently: <b>no definable set is exactly <span class="mono">ℕ</span></b>, and no definable cut is the standard cut. The light of any first-order searchlight that reaches every numeral spills past the horizon into the infinite numbers.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">a familiar shape&nbsp;&nbsp;</span>This is <i>The Descent</i>'s Tarski, refracted through a single model. There, no first-order formula defined arithmetic truth, on pain of the Liar; here, no first-order formula defines the standard cut, on pain of a least infinite number. Both are the same impossibility — a structure cannot, from inside its own definable resources, draw the line between itself and the standard core it contains. The impostor cannot point to its own standard part any more than <span class="mono">ℕ</span> can point to its own truth. Undefinability is not a property of <span class="mono">ℕ</span> alone; it is a property of the relation between a model and the standardness it cannot articulate.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">overspill as an instrument</div>
+      <p>Far from a mere obstruction, overspill is the workhorse of the subject. Want to show some standard fact holds? Show its definable version holds of all standard numbers; overspill hands you a nonstandard witness, and you reason where infinite resources are available, then pull the conclusion back down. It is the engine behind constructions of satisfaction classes, behind conservativity proofs, behind the coding we turn to next: because the standard cut is invisible, anything <span class="mono">M</span> can define that <i>looks</i> bounded by the standard numbers must already extend beyond them — and that overhang is where the impostor stores its secrets.</p>
+    </div>
+  </section>
+  <!-- ===== §IV THE CODED INTERIOR ===== -->
+  <section class="sec" id="coded">
+    <div class="sec-head"><span class="num">IV · the coded interior</span><h2>Every element is a library</h2><p class="sub">A single element of an impostor codes a whole set of standard numbers. The family of all such sets obeys exact closure laws — and one of them must be uncomputable.</p></div>
+    <div class="reading">
+      <p>Here the impostor stops being a line and becomes a library. In <span class="mono">PA</span> one can code finite sets and sequences by single numbers — the <span class="mono">n</span>-th bit of <span class="mono">a</span>, written <span class="mono">(a)<sub>n</sub></span>, is a definable function. Run that decoding on a <i>nonstandard</i> element and read off only the <i>standard</i> positions, and <span class="mono">a</span> names a set of ordinary natural numbers: <span class="mono">{ n ∈ ℕ : M ⊨ (a)<sub>n</sub> = 1 }</span>. A nonstandard <span class="mono">a</span> has nonstandardly many bits, so it can code an <i>infinite</i> subset of <span class="mono">ℕ</span> — one of genuinely unbounded complexity. The collection of all sets coded this way is the <b>standard system</b> of the model, written <span class="mono">SSy(M)</span>. It is the impostor's interior catalogue: every set of standard numbers it is able to hold in a single element.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <svg class="codesvg" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A nonstandard element a, its bit register, and the standard set it codes.">
+          <text x="40" y="40" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--soft1)">a =</text>
+          <g>
+            <rect x="78" y="26" width="22" height="22" rx="2" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+            <rect x="104" y="26" width="22" height="22" rx="2" fill="var(--paper)" stroke="var(--panelhair)"/>
+            <rect x="130" y="26" width="22" height="22" rx="2" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+            <rect x="156" y="26" width="22" height="22" rx="2" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+            <rect x="182" y="26" width="22" height="22" rx="2" fill="var(--paper)" stroke="var(--panelhair)"/>
+            <rect x="208" y="26" width="22" height="22" rx="2" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+            <rect x="234" y="26" width="22" height="22" rx="2" fill="var(--paper)" stroke="var(--panelhair)"/>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--gold-deep)" text-anchor="middle">
+            <text x="89" y="42">1</text><text x="115" y="42">0</text><text x="141" y="42">1</text><text x="167" y="42">1</text><text x="193" y="42">0</text><text x="219" y="42">1</text><text x="245" y="42">0</text>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--faintest)" text-anchor="middle">
+            <text x="89" y="64">0</text><text x="115" y="64">1</text><text x="141" y="64">2</text><text x="167" y="64">3</text><text x="193" y="64">4</text><text x="219" y="64">5</text><text x="245" y="64">6</text>
+          </g>
+          <line x1="270" y1="20" x2="270" y2="74" stroke="var(--red-line)" stroke-width="1" stroke-dasharray="2 5"/>
+          <g>
+            <rect x="280" y="26" width="22" height="22" rx="2" fill="rgba(26,24,21,.05)" stroke="var(--panelhair)"/>
+            <rect x="306" y="26" width="22" height="22" rx="2" fill="rgba(26,24,21,.05)" stroke="var(--panelhair)"/>
+            <rect x="332" y="26" width="22" height="22" rx="2" fill="rgba(26,24,21,.05)" stroke="var(--panelhair)"/>
+          </g>
+          <text x="372" y="42" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--faintest)">⋯ (nonstandard positions)</text>
+          <text x="270" y="92" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--red-deep)">horizon</text>
+          <path d="M89 104 L89 120 M141 104 L141 120 M167 104 L167 120 M219 104 L219 120" stroke="var(--gold-line)" stroke-width="1.2"/>
+          <text x="320" y="140" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="var(--ink)">{ 0, 2, 3, 5, … }  ∈  SSy(M)</text>
+          <text x="320" y="162" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="12" fill="var(--soft1)">the standard positions where a's bit is 1 — a set of ordinary naturals,</text>
+          <text x="320" y="180" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="12" fill="var(--soft1)">coded by the single element a, and as complex as a's nonstandard bits allow</text>
+        </svg>
+        <figcaption>Reading a set out of an element. Only the <b>standard</b> bit-positions count toward the coded set; the nonstandard bits, past the horizon, give the element room to encode infinite sets of arbitrary complexity. The catalogue of all such sets is <span class="mono">SSy(M)</span>.</figcaption>
+      </div>
+    </div>
+    <div class="thm">
+      <div class="tl">the catalogue is a Scott set</div>
+      <div class="ts"><span class="mono">SSy(M)</span> is not an arbitrary family — it obeys three closure laws, the defining laws of a <b>Scott set</b>. It is closed under <i>relative computability</i>: if <span class="mono">A ∈ SSy(M)</span> and <span class="mono">B</span> is Turing-reducible to <span class="mono">A</span>, then <span class="mono">B ∈ SSy(M)</span>. It is closed under <i>Boolean combination</i>. And it satisfies <i>weak König's lemma</i>: if an infinite binary tree is coded in <span class="mono">SSy(M)</span>, a branch through it is too. Coding inside <span class="mono">M</span> respects all three, because the operations are themselves arithmetic and the model is closed under its own definable functions. The interior of an impostor is a model of the subsystem <span class="mono">WKL₀</span> in miniature — a self-consistent little universe of sets.</div>
+    </div>
+    <div class="thm red">
+      <div class="tl">Tennenbaum, 1959 — the floor under the impostors</div>
+      <div class="ts">A Scott set is not free of consequences. Take two disjoint r.e. sets that are <i>effectively inseparable</i> — say <span class="mono">A = {e : φ<sub>e</sub>(e)↓=0}</span> and <span class="mono">B = {e : φ<sub>e</sub>(e)↓=1}</span> — no recursive set separates them. Both are definable in <span class="mono">M</span>; overspill supplies a nonstandard stage by which their enumerations are complete, coded by an element whose standard set <i>separates</i> <span class="mono">A</span> from <span class="mono">B</span>. So <span class="mono">SSy(M)</span> contains a separator — which is <b>not recursive</b>. But if the impostor's universe were <span class="mono">ℕ</span> with computable <span class="mono">+</span> and <span class="mono">×</span>, decoding <span class="mono">(a)<sub>n</sub></span> would be computable, and every coded set would be recursive. Contradiction. Hence <b>no nonstandard model of <span class="mono">PA</span> is computable</b> — and the sharper truth is that <i>neither addition nor multiplication alone</i> can be computable on one. <span class="mono">ℕ</span> is the <b>unique</b> computable model of arithmetic. The impostors are everywhere, but not one of them can be run on a machine.</div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">which catalogues are possible — and where truth sits</div>
+      <p>The constraint is tight but not total: by a theorem of <b>Scott</b> (and Knight–Nadel), <i>every</i> countable Scott set is the standard system of some nonstandard model of <span class="mono">PA</span>. The interior can be any self-consistent little set-universe — but always one containing the uncomputable. And the loyal impostors mark the ceiling of arithmetic's own complexity: the theory they share, true arithmetic <span class="mono">Th(ℕ)</span>, sits at Turing degree <span class="mono">0<sup>(ω)</sup></span> — above every finite level of the arithmetical hierarchy, the join of them all. To decide what is true in <span class="mono">ℕ</span> is to climb past <i>every</i> arithmetically definable question at once.</p>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">the floor, recovered&nbsp;&nbsp;</span>This is where <i>The Descent</i>'s second sense of "floor" comes from. The impostors deny <span class="mono">ℕ</span> a <i>definitional</i> floor — no first-order theory pins it. But Tennenbaum hands back a <i>recursion-theoretic</i> one: among all the models of <span class="mono">PA</span>, exactly one is computable, and it is <span class="mono">ℕ</span>. The very coding that fills the impostor's interior with uncomputable sets is what forbids the impostor from being computable itself. Unreachable by theory, <span class="mono">ℕ</span> is nonetheless singled out by computation — and the proof is not soft. It runs straight through the catalogue we have just read out of a single nonstandard bit-string.</p>
+    </div>
+  </section>
+  <!-- ===== §V SATURATION ===== -->
+  <section class="sec" id="saturation">
+    <div class="sec-head"><span class="num">V · saturation</span><h2>The impostor that knows itself</h2><p class="sub">The richest impostors realize every consistent possibility — and can carry, inside themselves, a notion of truth for their own sentences, including ones too long to be standard.</p></div>
+    <div class="reading">
+      <p>The deepest property an impostor can have is not size but <i>saturation</i>: the habit of realizing whatever it consistently could. A <i>type</i> over <span class="mono">M</span> is a set of conditions <span class="mono">p(x)</span> — formulas with parameters from <span class="mono">M</span> — that is finitely satisfiable, each finite part met by some element. <span class="mono">M</span> <i>realizes</i> <span class="mono">p</span> if a single element meets all of it at once. A model is <b>recursively saturated</b> when it realizes every <i>recursive</i> finitely-satisfiable type. Such models are not exotic — every consistent completion of <span class="mono">PA</span> has countable recursively saturated models, and every countable model has a recursively saturated elementary extension. These are the impostors filled to capacity: every possibility their theory permits is already present in some element.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">resplendency — the generous model</div>
+      <div class="ts">Saturation buys an astonishing flexibility. A countable recursively saturated model is <b>resplendent</b>: given any consistent recursive theory <span class="mono">T(R)</span> in the language of <span class="mono">M</span> augmented by a new predicate <span class="mono">R</span> (with parameters from <span class="mono">M</span>), the predicate <span class="mono">R</span> can be interpreted on <span class="mono">M</span> itself so as to make <span class="mono">T(R)</span> true — <i>without changing <span class="mono">M</span></i>. Whatever new structure can consistently be demanded of it, the model already has room to supply. The impostor does not merely contain its types; it can be expanded, in place, to satisfy any consistent recursive description in fresh vocabulary. Richness has become a universal fitting-room.</div>
+    </div>
+    <div class="thm">
+      <div class="tl">Kotlarski–Krajewski–Lachlan, 1981 — truth from the inside</div>
+      <div class="ts">Now the jewel. <b>Every countable recursively saturated model of <span class="mono">PA</span> carries a full satisfaction class</b> — a subset <span class="mono">S ⊆ M</span> that decides the truth or falsity of <i>every</i> sentence coded in <span class="mono">M</span>, including sentences of <i>nonstandard length</i>, while obeying Tarski's compositional clauses (a conjunction is in <span class="mono">S</span> iff both conjuncts are, a negation iff its target is not, and so on). The impostor, in other words, can be equipped with an internal <i>truth predicate</i> for its own language — the very thing Tarski's theorem forbids <span class="mono">ℕ</span> to define. The escape is exact and instructive: <span class="mono">S</span> is <b>not first-order definable</b> in <span class="mono">M</span>, and <span class="mono">(M, S)</span> does <b>not</b> satisfy induction in the expanded language. Truth is added as one more non-definable object, not defined; and because there is no induction over it, no contradiction with Tarski, and no proof of <span class="mono">Con(PA)</span>, follows.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">how the bound is slipped&nbsp;&nbsp;</span>Hold this against <i>The Descent</i>'s Tarski. There, arithmetic truth was undefinable: no formula of <span class="mono">ℕ</span> captures the true sentences, on pain of the Liar. The impostor does not refute that — it <i>circumvents</i> it. It does not <i>define</i> its truth; it is saturated enough to <i>carry</i> truth as an external attachment, living among its nonstandard objects, outside the reach of its own definitions. What <span class="mono">ℕ</span> cannot do with its definable resources, a rich enough impostor can do by accepting an undefinable gift. The undefinability theorem closes one door — definition — and the saturated model walks through another.</p>
+    </div>
+    <div class="callout red">
+      <div class="cl-lab">the honest catch — this truth can lie</div>
+      <p>The gift is not canonical, and the discipline that would make it so is exactly what is missing. Because the satisfaction class obeys no induction, it can be <i>pathological</i>: one can build a full satisfaction class that declares <i>true</i> a disjunction <span class="mono">(0≠0 ∨ 0≠0 ∨ ⋯ ∨ 0≠0)</span> of nonstandard length <span class="mono">a</span> — every disjunct false, the disjunction "true" — violating the plainest principle that a disjunction holds only if some disjunct does. The impostor's internal truth is compositional but need not be <i>correct</i>; truth without induction over truth is truth that can drift. So the impostor "knows itself" only in a loosened sense. It carries a Tarskian predicate <span class="mono">ℕ</span> is denied — and pays for the privilege in the coin of reliability. The bound was slipped, not broken.</p>
+    </div>
+  </section>
+  <!-- ===== §VI THE SELF-MODELLING MODEL ===== -->
+  <section class="sec" id="selfmodel">
+    <div class="sec-head"><span class="num">VI · the self-modelling model</span><h2>Impostors all the way</h2><p class="sub">An impostor begets impostors — both above itself, by conservative extension, and within itself, by building models of every theory it believes consistent.</p></div>
+    <div class="reading">
+      <p>The last organ is reproductive. An impostor is not a terminus; it generates further impostors in two directions at once. <i>Upward</i>, it can always be extended: a fresh layer of infinite numbers can be stacked above every element it has, with no first-order truth disturbed. <i>Inward</i>, it builds models itself: because <span class="mono">PA</span> proves the completeness theorem in arithmetized form, any impostor that believes a theory consistent contains a <i>definable copy</i> of a model of that theory. The impostor is at once a rung in an endless tower of models and a workshop assembling models on its own interior. There is no ground floor to the tower and no top — the same double absence <i>The Descent</i> found, here made concrete in the breeding of structures.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">MacDowell–Specker, 1961 — there is always a floor above</div>
+      <div class="ts"><b>Every model of <span class="mono">PA</span> has a proper elementary end extension.</b> Given any <span class="mono">M ⊨ PA</span>, there is <span class="mono">N ≻ M</span> whose new elements all lie <i>above</i> every element of <span class="mono">M</span> — an <i>end</i> extension — with <span class="mono">M</span> an elementary submodel, so not one first-order truth changes. You can always pile a new stratum of nonstandard numbers on top of an impostor without betraying its theory. The loyal impostors, in particular, sit inside ever-taller loyal impostors, each an initial segment of the next, the tower rising without end and without cost. Whatever the model, there is more model above it, conservatively.</div>
+    </div>
+    <div class="thm gold">
+      <div class="tl">the arithmetized completeness theorem — the workshop within</div>
+      <div class="ts"><span class="mono">PA</span> can prove the completeness theorem about its own coded syntax: <i>every consistent r.e. theory has a model.</i> Internalized, this is a trapdoor. If <span class="mono">M ⊨ PA + Con(T)</span> for a coded theory <span class="mono">T</span>, then <span class="mono">M</span> contains a model of <span class="mono">T</span> whose domain and relations are <b>definable in <span class="mono">M</span></b> — a Henkin model built from a definable complete consistent extension. So an impostor that thinks <span class="mono">PA + ¬Con(PA)</span> consistent literally <i>constructs</i>, in its own definable interior, one of the defectors of <span class="mono">§I</span>. Consistency strength is model-building power: <span class="mono">M ⊨ Con(T)</span> means <span class="mono">M</span> carries a <span class="mono">T</span>-model inside it. The impostor manufactures its own company.</div>
+    </div>
+    <div class="reading">
+      <p><span class="lead-in">no ground floor, no top floor&nbsp;&nbsp;</span>Put the two together and the breeding never settles. By MacDowell–Specker the model is never the tallest — there is always a conservative storey above. By arithmetized completeness the model is never the simplest — it codes models of theories within. The tower of impostors has no maximal rung and no minimal one; it is dense with structures that contain and are contained, each believing the next impossible or building it definably. <span class="mono">ℕ</span> is the unique <i>well-founded</i> point of this tower — the one model with no infinite descending chain of "numbers" — and exactly that well-foundedness is what no first-order axiom can demand. The impostors are the price of speaking about <span class="mono">ℕ</span> in a logic that cannot say <i>well-founded</i>.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VII THE ANATOMY ===== -->
+  <section class="sec" id="anatomy">
+    <div class="sec-head"><span class="num">VII · the anatomy</span><h2>What the dissection shows</h2><p class="sub">The impostor is not chaos. It is a rigidly organized organism — and its organization is exactly why ℕ is unreachable yet anchored.</p></div>
+    <div class="stage">
+      <div class="panel">
+        <svg class="anatsvg" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The anatomy of an impostor: standard ray, dense integer-chain body, coded interior, saturation, and end extension above.">
+          <line x1="320" y1="20" x2="320" y2="40" stroke="var(--gold-line)" stroke-width="1.4" stroke-dasharray="3 4"/>
+          <text x="320" y="16" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--gold-deep)">⋯ an elementary end extension above (MacDowell–Specker)</text>
+          <rect x="120" y="48" width="400" height="250" rx="4" fill="rgba(26,24,21,.012)" stroke="var(--panelhair)" stroke-width="1.2"/>
+          <text x="140" y="70" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing=".1em" fill="var(--faint)">AN IMPOSTOR  M ⊨ PA</text>
+
+          <rect x="140" y="86" width="360" height="44" rx="3" fill="var(--gold-soft)" stroke="var(--gold-line)"/>
+          <text x="156" y="104" font-family="Spectral, serif" font-style="italic" font-size="12.5" fill="var(--gold-deep)">the body — order type ℕ + ℤ·ℚ</text>
+          <text x="156" y="121" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--soft1)">forced · dense ℤ-chains · §II</text>
+
+          <rect x="140" y="138" width="360" height="44" rx="3" fill="rgba(26,24,21,.03)" stroke="var(--panelhair)"/>
+          <text x="156" y="156" font-family="Spectral, serif" font-style="italic" font-size="12.5" fill="var(--ink)">the interior — SSy(M), a Scott set</text>
+          <text x="156" y="173" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--soft1)">codes the uncomputable · forces non-computability · §IV</text>
+
+          <rect x="140" y="190" width="360" height="44" rx="3" fill="var(--teal-soft)" stroke="var(--teal-line)"/>
+          <text x="156" y="208" font-family="Spectral, serif" font-style="italic" font-size="12.5" fill="var(--teal-deep)">the faculty — saturation &amp; a truth class</text>
+          <text x="156" y="225" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--soft1)">carries truth ℕ cannot define · §V</text>
+
+          <line x1="140" y1="258" x2="500" y2="258" stroke="var(--teal-line)" stroke-width="1"/>
+          <g fill="var(--teal-deep)"><circle cx="160" cy="270" r="2.6"/><circle cx="180" cy="270" r="2.6"/><circle cx="200" cy="270" r="2.6"/><circle cx="220" cy="270" r="2.6"/></g>
+          <text x="280" y="274" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--teal-deep)">⋯  the standard ray ℕ — ω, well-founded, the unique base</text>
+          <text x="320" y="292" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="10.5" fill="var(--faint)">the one organ every impostor shares — and the one no axiom can isolate (§III overspill)</text>
+
+          <text x="320" y="326" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--gold-deep)">↓ and inside, a definable model of any theory M thinks consistent (§VI)</text>
+          <text x="320" y="344" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--faintest)">impostors all the way up, and all the way in</text>
+        </svg>
+        <figcaption>The dissected impostor. A forced skeleton, a coded interior obeying Scott-set law, a saturated faculty that can host truth, a unique well-founded base it cannot point to, and a reproductive capacity in both directions. <b>Organization, not chaos.</b></figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Step back from the table. The impostor that looked, at the start, like <span class="mono">ℕ</span> with formless junk attached has turned out to be one of the most lawful objects in mathematics: a single forced order, an interior that must obey the three Scott-set closures and must contain something uncomputable, a richness that can host truth, and a well-founded base it provably cannot name. Every feature is determined, and several are determined to be strange.</p>
+      <p class="cont">And this is precisely why <i>The Descent</i>'s two verdicts are not in tension. <span class="mono">ℕ</span> is <b>unreachable</b> — the impostors are a continuum, first-order indistinguishable in the loyal case, and no theory or definable cut can fence them out; that is the missing <i>definitional</i> floor. Yet <span class="mono">ℕ</span> is <b>anchored</b> — it is the unique computable model, by the same coding that makes the impostors uncomputable, and the unique well-founded one, sitting inside every impostor as a base none of them can isolate; those are the <i>recursion-theoretic</i> and <i>order-theoretic</i> floors that remain. The anatomy of the impostor is the explanation of the paradox. The thing cannot be cornered by description because its rivals are everywhere — and it cannot be mistaken for any of them, because every rival carries, in its forced and coded body, the proof that it is not <span class="mono">ℕ</span>.</p>
+    </div>
+  </section>
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">δ = [(0,1,2,…)]</span><span class="ln"></span></div>
+  <div class="coda"><p>The impostor was meant to be the flaw — the proof that <span class="mono">ℕ</span> cannot be pinned. It is the flaw. But laid open, it is also the proof that <span class="mono">ℕ</span> survives the failure to pin it: organized to the last bit, every counterfeit carries the watermark that betrays it, and the genuine article is the one structure no description reaches and no rival resembles. <span class="mono">No theory catches ℕ. Nothing else is ℕ.</span> The impostors are how both stay true.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the impostors · a dissection from The Descent</span></div>
+    <p class="colophon">A standalone dissection of <i>The Descent</i>'s second movement: where that panel proved nonstandard models <i>exist</i> and so deny <span class="mono">ℕ</span> a first-order definition, this one anatomizes what they are. The load-bearing results are classical model theory of arithmetic — the order type <span class="mono">ℕ + ℤ·ℚ</span>, overspill, the standard system as a Scott set, Tennenbaum's theorem, recursive saturation and resplendency, the Kotlarski–Krajewski–Lachlan construction of full satisfaction classes, MacDowell–Specker, the arithmetized completeness theorem. The framing that runs them together — the impostor as an <i>organism</i> with skeleton, interior, faculty, and reproductive capacity, and the claim that this anatomy <i>explains</i> why <span class="mono">ℕ</span> is at once unreachable and anchored — is the author's, and is offered as exposition, not theorem. The two senses in which <span class="mono">ℕ</span> remains anchored (unique computable model; unique well-founded model) are precise; the suggestion that they jointly "rescue" realism is a reading <i>The Descent</i> deliberately leaves open.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;The loyal impostors are models of true arithmetic <span class="mono">Th(ℕ)</span> with infinite elements; the ultrapower <span class="mono">ℕ<sup>ℕ</sup>/U</span> for a nonprincipal <span class="mono">U</span> is one, elementarily equivalent to <span class="mono">ℕ</span> by Łoś's theorem (1955), with diagonal element <span class="mono">[(0,1,2,…)]</span> nonstandard. That a complete theory still has continuum-many countable models, and that no theory has exactly two, is Vaught. The order type of any countable nonstandard model of <span class="mono">PA</span> is <span class="mono">ℕ + ℤ·ℚ</span>, proved from the existence of predecessors and division by two together with Cantor's characterization of <span class="mono">ℚ</span> as the countable dense order without endpoints; the order does not determine the model, since <span class="mono">+</span> and <span class="mono">×</span> add structure the ordering omits. Overspill and the non-definability of the standard cut follow from the least-number principle for definable sets. The standard system <span class="mono">SSy(M)</span> is a Scott set — a Turing ideal closed under weak König's lemma; every countable Scott set is realized as some <span class="mono">SSy(M)</span> (Scott 1962; Knight–Nadel 1982). Tennenbaum's theorem (1959) — no nonstandard model of <span class="mono">PA</span> has computable <span class="mono">+</span> or computable <span class="mono">×</span>, so <span class="mono">ℕ</span> is the unique computable model — runs through <span class="mono">SSy(M)</span> containing a non-recursive separator of an effectively inseparable r.e. pair. True arithmetic <span class="mono">Th(ℕ)</span> has Turing degree <span class="mono">0<sup>(ω)</sup></span>. Recursive saturation, and the resplendency of countable recursively saturated models, are due to Barwise and Schlipf (1976); the existence of a full satisfaction class for every countable recursively saturated model of <span class="mono">PA</span> is Kotlarski–Krajewski–Lachlan (1981). That this does not contradict Tarski's undefinability theorem, nor prove <span class="mono">Con(PA)</span>, is because the satisfaction class is not first-order definable and the expanded model has no induction in the language with the truth predicate; such classes can be disjunctively incorrect, declaring a nonstandard-length disjunction of falsehoods true. MacDowell–Specker (1961): every model of <span class="mono">PA</span> has a proper elementary end extension. The arithmetized completeness theorem (Hilbert–Bernays 1939) yields, inside any <span class="mono">M ⊨ PA + Con(T)</span>, a definable model of <span class="mono">T</span>. <span class="mono">ℕ</span> is the unique well-founded model of <span class="mono">PA</span>; well-foundedness is not first-order expressible, which is the root of the whole phenomenon. Standard references for the subject are Kaye, <i>Models of Peano Arithmetic</i> (1991), and Kossak–Schmerl, <i>The Structure of Models of Peano Arithmetic</i> (2006).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Skolem 1934 · Hilbert–Bernays 1939 · Łoś 1955 · Tennenbaum 1959 · Vaught 1961 · MacDowell–Specker 1961 · Scott 1962 · Barwise–Schlipf 1976 · Kotlarski–Krajewski–Lachlan 1981 · Knight–Nadel 1982 · Kaye 1991 · Kossak–Schmerl 2006.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+(function(){
+  var tabs = document.querySelectorAll(".step-tab");
+  var stages = document.querySelectorAll(".step-stage");
+  function show(s){
+    tabs.forEach(function(t){ t.classList.toggle("on", t.getAttribute("data-stage") === s); });
+    stages.forEach(function(st){ st.classList.toggle("show", st.getAttribute("data-stage") === s); });
+  }
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){ show(t.getAttribute("data-stage")); });
+  });
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-original.html">← The Original</a><a rel="next" href="quodlibet-the-relativity.html">The Relativity →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

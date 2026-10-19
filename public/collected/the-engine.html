@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Engine — the diagonal read forwards</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== code runner ===== */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner .rn-head{display:flex;justify-content:space-between;align-items:center;padding:.5rem .85rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner .rn-title{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner .rn-btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--paper);background:var(--teal-deep);border:none;border-radius:3px;padding:.35rem .85rem;cursor:pointer;transition:opacity .15s;}
+  .runner .rn-btn:hover{opacity:.85;}
+  .runner pre{margin:0;padding:.85rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.62;color:var(--ink);overflow-x:auto;white-space:pre;tab-size:2;}
+  .runner .rn-out{border-top:1px dashed var(--panelhair);padding:.7rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.6;color:var(--teal-deep);min-height:1.4rem;white-space:pre-wrap;}
+  .runner .rn-out .ol{color:var(--faintest);}
+  .runner .rn-out.match{background:var(--teal-soft);}
+
+  /* ===== denotational iteration ===== */
+  .denot-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .dn-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .dn-btn:hover{opacity:.85;} .dn-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .dn-func{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);padding:.7rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;}
+  .dn-func .hl{color:var(--red-deep);}
+  .dn-chain{display:flex;flex-direction:column;gap:.4rem;}
+  .dn-row{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:baseline;padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .dn-row .dn-lab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--gold-deep);white-space:nowrap;}
+  .dn-row .dn-map{display:flex;flex-wrap:wrap;gap:.3rem;}
+  .dn-pair{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.12rem .4rem;border-radius:2px;background:rgba(26,24,21,.05);color:var(--ink);}
+  .dn-pair.fresh{background:var(--teal-soft);color:var(--teal-deep);font-weight:500;}
+  .dn-pair.undef{background:transparent;color:var(--faintest);}
+  .dn-converge{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);padding:.7rem;border:1px solid var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.4rem;}
+  .dn-miss{text-align:center;font-size:.84rem;color:var(--faint);font-style:italic;margin-top:.3rem;}
+
+  /* ===== von Neumann schematic ===== */
+  .vn{display:grid;grid-template-columns:1fr;gap:1.1rem;margin-top:.3rem;}
+  #vnSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .vn-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:640px){ .vn-legend{grid-template-columns:1fr;} }
+  .vn-cell{background:var(--paper);padding:.85rem 1rem;}
+  .vn-cell .vc-k{font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;margin-bottom:.25rem;}
+  .vn-cell.u .vc-k{color:var(--teal-deep);} .vn-cell.c .vc-k{color:var(--gold-deep);} .vn-cell.d .vc-k{color:var(--red-deep);}
+  .vn-cell p{font-size:.84rem;line-height:1.5;color:var(--soft1);margin:0;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-collected">Collected Studies</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">the power volume · opposite The Ascent &amp; The Descent</span></div>
+    <div class="hero-head">
+      <p class="kicker">The diagonal, read forwards</p>
+      <h1 class="title">The <span class="x">Engine</span></h1>
+      <p class="standfirst"><em>The Ascent</em> found no roof and <em>The Descent</em> no floor — the diagonal as the wall every formal system meets. But the wall has a far side. The same construction, when the twist admits a fixed point, does not <em>forbid</em> self-reference; it <em>generates</em> it. Recursion built from nothing, programs that reproduce themselves, the exact meaning of a function defined in terms of itself — all are the diagonal read forwards. This is the engine the limits left untold: self-reference as power.</p>
+      <p class="ed-mark">bootstrapping · self-reproduction · the meaning of recursion</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">Y F = F(Y F)</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>The Mirror's dial turned on a single bit: does the twist have a fixed point? When it does not — negation, the swap of <i>halt</i> and <i>loop</i> — the construction demands an impossible object and the system meets a wall. <i>The Ascent</i> and <i>The Descent</i> are two long studies of that wall, in proof and in meaning. But the dial has another setting, and the corpus has spent its length near the first. This volume crosses to the second.</p>
+    <p>When the twist <i>does</i> have a fixed point — when the answers form a reflexive object, a domain where every map can be named by application — the very same construction <span class="mono">g(x)=α(φ(x)(x))</span> does not forbid the fixed point; it <i>hands</i> it to you. And that handed-over fixed point is no curiosity. It is recursion itself: the program that calls itself, the function defined in terms of itself, the machine that builds itself. Every act of generative self-reference in mathematics and computation is this one construction, run forwards.</p>
+    <p>So the power and the limit are, exactly as <i>The Mirror</i> claimed, one purchase — and here is the half of the purchase the limits did not show. We follow it in three movements: first, recursion bootstrapped from nothing but abstraction and application; then, the fixed point that builds a copy of itself; and last, the rigorous meaning of "defined in terms of itself" as a least fixed point, constructed by ascent. The diagonal that bounds is the diagonal that builds.</p>
+  </div>
+
+  <!-- ===== §I BOOTSTRAPPING ===== -->
+  <section class="sec" id="bootstrap">
+    <div class="sec-head"><span class="num">I · bootstrapping</span><h2>Recursion from nothing</h2><p class="sub">With no primitive recursion — only the ability to name and apply — the fixed-point combinator manufactures self-reference. <span class="mono">Y F = F(Y F)</span>.</p></div>
+    <div class="reading">
+      <p>Start with a language that has no looping, no recursion, no self-reference built in: only functions, abstraction, and application — the untyped λ-calculus, or any reflexive object <span class="mono">D ≅ Dᴰ</span> where naming <i>is</i> application <span class="mono">(φ = id)</span>. The construction of <i>The Mirror</i>, at <span class="mono">φ = id</span>, reads <span class="mono">g = λx.F(x&#8202;x)</span>. Apply it to itself, and watch recursion appear from nothing.</p>
+    </div>
+    <div class="thm teal">
+      <div class="tl">the fixed-point combinator</div>
+      <div class="ts">Set <span class="mono">g = λx.F(x&#8202;x)</span>. Then <span class="mono">g&#8202;g = F(g&#8202;g)</span>. Writing <span class="mono">Y F = g&#8202;g</span>, we have <b><span class="mono">Y F = F(Y F)</span></b>: the term <span class="mono">Y F</span> is a fixed point of <span class="mono">F</span> — and <span class="mono">Y</span> used no recursion, only abstraction and application. Feed <span class="mono">F = λf.λn. n≤1 ? 1 : n·f(n−1)</span>, and <span class="mono">Y F</span> is the factorial — recursion conjured from a language that has none.</div>
+    </div>
+    <div class="stage">
+      <div class="runner" id="yRunner">
+        <div class="rn-head"><span class="rn-title">recursion built with only Y — no named recursion anywhere</span><button class="rn-btn" id="yRun">run ▶</button></div>
+        <pre id="yCode"></pre>
+        <div class="rn-out" id="yOut"></div>
+      </div>
+      <figcaption><span class="mono">the function never refers to itself by name — </span>it is passed to <span class="mono">Y</span>, which ties the knot. The output is genuine recursion, bootstrapped from abstraction and application alone.</figcaption>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">Kleene's recursion theorem — the same fact, in computation</div>
+      <p>For any transformation on programs, some program behaves <i>exactly as if it had been handed its own source code</i>. Self-reference is not a special construct to be added to a language; it is freely, unavoidably available in anything rich enough to compute. The <b>diagonal lemma</b> is its twin in logic — for any property <span class="mono">ψ</span>, a sentence <span class="mono">S</span> with <span class="mono">S ↔ ψ(⌜S⌝)</span>, <i>built</i>, not assumed. The construction that forbids a fixed point to <span class="mono">¬</span> grants one to everything else.</p>
+    </div>
+  </section>
+  <!-- ===== §II SELF-REPRODUCTION ===== -->
+  <section class="sec" id="reproduce">
+    <div class="sec-head"><span class="num">II · self-reproduction</span><h2>The fixed point that builds itself</h2><p class="sub">A program whose output is its own source; a machine that constructs a copy of itself. The recursion theorem made flesh.</p></div>
+    <div class="reading">
+      <p>The starkest form of generative self-reference is a thing that makes a copy of itself. In code it is a <i>quine</i> — a program whose output is exactly its own source. It sounds paradoxical: how can a program contain itself? The naive attempt regresses forever — a program holding a copy of a program holding a copy of… The recursion theorem dissolves the regress. The program does not <i>contain</i> itself; it <i>reconstructs</i> itself, from a description it both reads and copies.</p>
+    </div>
+    <div class="stage">
+      <div class="runner" id="qRunner">
+        <div class="rn-head"><span class="rn-title">a quine — its output is its own source</span><button class="rn-btn" id="qRun">run ▶</button></div>
+        <pre id="qCode"></pre>
+        <div class="rn-out" id="qOut"></div>
+      </div>
+      <figcaption><span class="mono">run it, and the output is the program, character for character — </span>verified against the source. The fixed point is the source text itself: the value the program returns when applied to nothing but its own structure.</figcaption>
+    </div>
+    <div class="reading">
+      <p>The same structure, scaled to a machine that builds machines, is von Neumann's <i>universal constructor</i> — designed in 1948, before the molecular mechanism of heredity was known, to settle whether self-reproduction was even logically possible. It is. The machine carries a description of itself and puts that description to two distinct uses.</p>
+    </div>
+    <div class="stage">
+      <div class="vn">
+        <svg id="vnSvg" viewBox="0 0 700 270" role="img" aria-label="Von Neumann's self-reproducing machine: a description D is interpreted by the universal constructor U to build new machinery, and copied by the copier C, the two outputs together forming a complete copy.">
+          <defs><marker id="va" markerWidth="10" markerHeight="10" refX="8" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#7c766a"/></marker></defs>
+          <!-- D -->
+          <rect x="28" y="104" width="120" height="62" rx="4" fill="none" stroke="#8f2d23" stroke-width="1.6"/>
+          <text x="88" y="130" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="26" fill="#8f2d23">D</text>
+          <text x="88" y="150" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#7c766a">the description</text>
+          <!-- U -->
+          <rect x="270" y="22" width="150" height="60" rx="4" fill="none" stroke="#225552" stroke-width="1.6"/>
+          <text x="345" y="47" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="22" fill="#225552">U</text>
+          <text x="345" y="66" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7c766a">universal constructor</text>
+          <!-- C -->
+          <rect x="270" y="188" width="150" height="60" rx="4" fill="none" stroke="#6f5626" stroke-width="1.6"/>
+          <text x="345" y="213" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="22" fill="#6f5626">C</text>
+          <text x="345" y="232" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7c766a">the copier</text>
+          <!-- arrows from D -->
+          <path d="M150,128 C 210,110 220,70 268,55" fill="none" stroke="#7c766a" stroke-width="1.4" marker-end="url(#va)"/>
+          <text x="206" y="84" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#225552">interprets</text>
+          <path d="M150,142 C 210,160 220,200 268,215" fill="none" stroke="#7c766a" stroke-width="1.4" marker-end="url(#va)"/>
+          <text x="206" y="190" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#6f5626">copies</text>
+          <!-- outputs -->
+          <line x1="420" y1="52" x2="520" y2="52" stroke="#7c766a" stroke-width="1.4" marker-end="url(#va)"/>
+          <text x="600" y="48" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#1a1815">new machinery</text>
+          <text x="600" y="63" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7c766a">a fresh U + C</text>
+          <line x1="420" y1="218" x2="520" y2="218" stroke="#7c766a" stroke-width="1.4" marker-end="url(#va)"/>
+          <text x="600" y="214" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#1a1815">new description</text>
+          <text x="600" y="229" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7c766a">a copy of D</text>
+          <!-- brace -->
+          <path d="M664,42 q8,0 8,10 v62 q0,10 8,10 q-8,0 -8,10 v62 q0,10 -8,10" fill="none" stroke="#ddd6c7" stroke-width="1.4"/>
+          <text x="690" y="139" text-anchor="middle" font-family="Spectral, serif" font-style="italic" font-size="13" fill="#565147" transform="rotate(90 690 139)">a complete copy</text>
+        </svg>
+        <div class="vn-legend">
+          <div class="vn-cell d"><div class="vc-k">D — the description</div><p>A blueprint of the whole machine, carried along as data. By itself it does nothing; its power is in being used two ways at once.</p></div>
+          <div class="vn-cell u"><div class="vc-k">U — interprets it</div><p>The universal constructor reads <span class="mono">D</span> and builds the machinery it specifies — a fresh <span class="mono">U + C</span>.</p></div>
+          <div class="vn-cell c"><div class="vc-k">C — copies it</div><p>The copier duplicates <span class="mono">D</span> verbatim, <i>without</i> reading it, and attaches it to the new machine.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the two roles of the description — and why life works this way</div>
+      <p>The trick is the split. A description that were <i>only</i> interpreted could not be passed on; a description that were <i>only</i> copied could not be built from. Self-reproduction needs both — the same text read once and transcribed once. Which is exactly why, within a generation of von Neumann's design, the genetic code turned out to be both <b>translated</b> (interpreted into proteins) and <b>replicated</b> (copied into DNA). The recursion theorem is the logic of life: a description that constructs the machine that copies the description.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III THE MEANING ===== -->
+  <section class="sec" id="meaning">
+    <div class="sec-head"><span class="num">III · the meaning</span><h2>Defined in terms of itself</h2><p class="sub">A recursive definition is the least fixed point of a functional, built by ascent: <span class="mono">⊥ ⊑ F(⊥) ⊑ F²(⊥) ⊑ … ⊔ Fⁿ(⊥)</span>.</p></div>
+    <div class="reading">
+      <p>The first two movements built self-reference; the third gives it rigorous meaning. When we write <span class="mono">fact(n) = if n≤1 then 1 else n·fact(n−1)</span>, the symbol <span class="mono">fact</span> appears on both sides — a definition that presupposes the thing defined. What does it <i>mean</i>? The answer — Scott's, the theory of domains — is the corpus's <i>other</i> genus of fixed point, turned to construction. Read the definition not as a statement about <span class="mono">fact</span> but as a transformation <span class="mono">F</span> on partial functions: <span class="mono">F</span> takes any partial function <span class="mono">f</span> and returns <span class="mono">λn. n≤1 ? 1 : n·f(n−1)</span>. The factorial is the <i>least fixed point</i> of <span class="mono">F</span> — and it is built, not posited, by iteration from the empty function.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="dn-func">F(f) = λn.&nbsp; n ≤ 1 ? <span class="hl">1</span> : n · f(n−1)<br><span style="color:var(--faintest);font-size:.7rem;letter-spacing:.04em">the recursive clause, read as a transformation on partial functions · ⊥ = the empty function</span></div>
+        <div class="denot-controls">
+          <button class="dn-btn" id="dnNext">apply F — one more step ↑</button>
+          <button class="dn-btn ghost" id="dnReset">reset to ⊥</button>
+        </div>
+        <div class="dn-chain" id="dnChain"></div>
+        <div class="dn-converge" id="dnConverge" style="display:none"></div>
+        <div class="dn-miss" id="dnMiss"></div>
+        <figcaption><span class="mono">each application of F defines the function on one more input — </span>the empty function knows nothing, <span class="mono">F(⊥)</span> knows the base case, and the ascending chain climbs to its supremum, the total factorial.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Watch what the iteration does. <span class="mono">⊥</span> is defined nowhere; <span class="mono">F(⊥)</span> is defined only where the recursion bottoms out, at the base case; <span class="mono">F²(⊥)</span> knows one step more; and the chain <span class="mono">⊥ ⊑ F(⊥) ⊑ F²(⊥) ⊑ …</span> climbs, each rung extending the last, to its supremum — the total factorial. The recursion that looked circular is a <i>limit</i>. "Defined in terms of itself" means: the least fixed point, reached by ascent.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the order genus, building</div>
+      <p><i>The Atlas</i>'s three genera were one schema — <i>richness + regularity ⟹ a fixed point</i>. The diagonal genus, read backwards, sets the limits of <i>The Ascent</i> and <i>The Descent</i>. The order genus, read forwards, is <i>this</i>: every monotone functional on a domain has a <b>least</b> fixed point, reached by ascent, and that fixed point is the meaning of a recursive definition. The very theorem that, in one genus, says no system completes itself says, in another, exactly how a function completes itself. Same schema; opposite use.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">⊔ₙ Fⁿ(⊥)</span><span class="ln"></span></div>
+  <div class="coda"><p><em>The Ascent</em> climbed toward a roof that was not there; <em>The Descent</em> fell toward a floor that was not there; both are the diagonal, telling a system what it cannot do. <em>The Engine</em> is the diagonal telling a system what it <em>can</em>: name yourself, and recursion is yours — the program that calls itself, the machine that builds itself, the definition that means itself. The wall and the engine are one construction, and the only difference between them is whether the twist has a fixed point. <span class="mono">The diagonal that bounds is the diagonal that builds.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">the power volume · the generative face of self-reference</span></div>
+    <p class="colophon">The counterweight to <i>The Ascent</i> and <i>The Descent</i>: where those volumes follow the diagonal to the walls it builds (no roof, no floor), this one follows it to the power it generates. <i>The Diagonal</i> gave the construction; <i>The Atlas</i> its territory; <i>The Mirror</i> the theorem and the dial. The constructions here are classical — Curry's combinator, Kleene's recursion theorem, von Neumann's constructor, Scott's domains; the reading of them as the corpus's single "power" face, opposite the two "limit" faces, is the collection's synthesis.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;The <span class="mono">Y</span> shown is the call-by-name combinator <span class="mono">λf.(λx.f(x&#8202;x))(λx.f(x&#8202;x))</span>; the runnable code uses its applicative-order variant so it terminates under eager evaluation. Kleene's second recursion theorem is the precise "access to own index" statement; the diagonal lemma is its logical twin. Von Neumann's constructor is schematic here — the essential content is the two-role split of the description, which is genuinely the abstract structure shared with DNA's translation/replication. The denotational construction is Kleene's first-recursion / fixed-point theorem on the domain of partial functions ordered by graph inclusion; <span class="mono">Fⁿ(⊥)</span> equals factorial restricted to <span class="mono">{0,…,n}</span>, with supremum the total function.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Curry &amp; Church (the Y-combinator) · Kleene 1938, 1952 · Gödel 1931 (the diagonal lemma) · von Neumann 1948–1951 · Scott 1969–1976 (domain theory) · Tarski 1955 / Knaster–Tarski · Lawvere 1969.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+function sup(n){const m={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};return String(n).replace(/\d/g,d=>m[d]);}
+
+/* ===== code runners ===== */
+const yCodeSrc =
+"const Y = f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y)));\n\n"+
+"// neither function refers to itself by name — Y ties the knot\n"+
+"const fact = Y(f => n => n <= 1 ? 1 : n * f(n - 1));\n"+
+"const fib  = Y(f => n => n < 2 ? n : f(n - 1) + f(n - 2));\n\n"+
+"console.log(\"fact 0..6 :\", [0,1,2,3,4,5,6].map(fact).join(\"  \"));\n"+
+"console.log(\"fib  0..9 :\", [0,1,2,3,4,5,6,7,8,9].map(fib).join(\"  \"));";
+
+const qCodeSrc = "(function f(){console.log('('+f+')()')})()";
+
+function runCode(src, outEl, isQuine){
+  let out=""; const orig=console.log;
+  console.log=function(){ out += Array.prototype.slice.call(arguments).map(function(x){return typeof x==="string"?x:String(x);}).join(" ")+"\n"; };
+  try{ (0,eval)(src); }catch(e){ out="error: "+e.message; }
+  console.log=orig; out=out.replace(/\n+$/,"");
+  outEl.textContent=out; outEl.classList.remove("match");
+  if(isQuine && out===src){ outEl.classList.add("match"); const n=E("div"); n.style.cssText="color:var(--teal-deep);margin-top:.5rem;font-weight:500;"; n.textContent="✓ output === source — the program reproduced itself"; outEl.appendChild(n); }
+}
+
+/* ===== denotational iteration ===== */
+const NMAX=11;
+function applyF(f){ const g=new Map(); for(let n=0;n<=NMAX;n++){ if(n<=1) g.set(n,1); else if(f.has(n-1)) g.set(n, n*f.get(n-1)); } return g; }
+let dnApprox=[new Map()];
+const DN_CAP=8;
+function dnRender(){
+  const host=document.getElementById("dnChain"); host.innerHTML="";
+  dnApprox.forEach((f,i)=>{
+    const row=E("div","dn-row");
+    const lab=E("div","dn-lab"); lab.textContent = i===0 ? "⊥" : (i===1 ? "F(⊥)" : "F"+sup(i)+"(⊥)"); row.appendChild(lab);
+    const map=E("div","dn-map");
+    if(f.size===0){ const p=E("span","dn-pair undef"); p.textContent="the empty function — defined nowhere"; map.appendChild(p); }
+    else {
+      const keys=[...f.keys()].sort((a,b)=>a-b); const maxk=keys[keys.length-1];
+      keys.forEach(k=>{ const p=E("span","dn-pair"+(i>0 && k===maxk ? " fresh":"")); p.textContent=k+" ↦ "+f.get(k); map.appendChild(p); });
+      const u=E("span","dn-pair undef"); u.textContent="undefined ≥ "+(maxk+1); map.appendChild(u);
+    }
+    row.appendChild(map); host.appendChild(row);
+  });
+}
+function dnUpdate(){
+  const steps=dnApprox.length-1; const conv=document.getElementById("dnConverge"), miss=document.getElementById("dnMiss"), btn=document.getElementById("dnNext");
+  const last=dnApprox[dnApprox.length-1]; const def = last.size===0 ? "nothing" : "{0,…,"+(last.size-1)+"}";
+  if(steps>=DN_CAP){
+    conv.style.display="block"; conv.innerHTML="⊔ₙ Fⁿ(⊥) = fact — the least fixed point, defined on all of ℕ. The recursion is a limit.";
+    miss.textContent=""; btn.disabled=true; btn.style.opacity=".45"; btn.textContent="the chain converges — ⊔ Fⁿ(⊥) = fact";
+  } else {
+    conv.style.display="none"; btn.disabled=false; btn.style.opacity="1"; btn.textContent="apply F — one more step ↑";
+    miss.innerHTML = steps===0 ? "⊥ knows nothing. Apply F to learn the base case." : "F"+(steps>1?sup(steps):"")+"(⊥) is defined on "+def+" — each step extends the function by one argument.";
+  }
+}
+function dnNext(){ if(dnApprox.length-1>=DN_CAP) return; dnApprox.push(applyF(dnApprox[dnApprox.length-1])); dnRender(); dnUpdate(); }
+function dnReset(){ dnApprox=[new Map()]; dnRender(); dnUpdate(); }
+
+function init(){
+  try{
+    document.getElementById("yCode").textContent=yCodeSrc;
+    document.getElementById("qCode").textContent=qCodeSrc;
+    document.getElementById("yRun").addEventListener("click",function(){ runCode(yCodeSrc, document.getElementById("yOut"), false); });
+    document.getElementById("qRun").addEventListener("click",function(){ runCode(qCodeSrc, document.getElementById("qOut"), true); });
+  }catch(e){ console.error("runners",e); }
+  try{ dnRender(); dnUpdate();
+    document.getElementById("dnNext").addEventListener("click",dnNext);
+    document.getElementById("dnReset").addEventListener("click",dnReset);
+  }catch(e){ console.error("denot",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="the-diagonal.html">← The Diagonal</a><a rel="next" href="the-horizon.html">The Horizon →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Annals — a history of the discovery</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the timeline ===== */
+  .tl-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.12fr);gap:1.7rem;align-items:start;}
+  @media(max-width:780px){ .tl-grid{grid-template-columns:1fr;gap:1.1rem;} }
+  .tl-spine{position:relative;padding-left:.2rem;}
+  .tl-spine::before{content:"";position:absolute;left:.34rem;top:.7rem;bottom:.7rem;width:1.5px;background:var(--rule);}
+  .tl-node{position:relative;padding:.5rem .6rem .5rem 1.2rem;cursor:pointer;border-radius:4px;transition:background .14s;}
+  .tl-node:hover{background:rgba(26,24,21,.035);}
+  .tl-node::before{content:"";position:absolute;left:.04rem;top:.86rem;width:10px;height:10px;border-radius:50%;background:var(--paper);border:1.7px solid var(--faintest);transition:all .15s;z-index:1;}
+  .tl-node.on::before{background:var(--ink);border-color:var(--ink);transform:scale(1.12);}
+  .tl-node.keystone::before{border-color:var(--red);} .tl-node.keystone.on::before{background:var(--red-deep);border-color:var(--red-deep);}
+  .tl-node .ty{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:500;letter-spacing:.04em;color:var(--faint);}
+  .tl-node.on .ty{color:var(--ink);} .tl-node.keystone .ty{color:var(--red-deep);}
+  .tl-node .tw{font-family:"Spectral",serif;font-size:1.12rem;font-weight:500;letter-spacing:-.01em;color:var(--ink);margin:.02rem 0;}
+  .tl-node.keystone .tw{color:var(--red-deep);}
+  .tl-node .trow{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+  .dom{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;padding:.1rem .4rem;border-radius:2px;}
+  .dom.set{background:rgba(147,114,52,.12);color:var(--gold-deep);}
+  .dom.logic{background:var(--teal-soft);color:var(--teal-deep);}
+  .dom.comp{background:var(--red-soft);color:var(--red-deep);}
+  .dom.cat{background:rgba(26,24,21,.08);color:var(--ink);}
+  .dom.expo{background:rgba(26,24,21,.04);color:var(--faint);}
+  .tl-node .ta{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faintest);}
+  .tl-node .ta b{color:var(--soft1);font-weight:500;}
+
+  /* the detail panel */
+  .tl-detail{position:sticky;top:1rem;border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);}
+  @media(max-width:780px){ .tl-detail{position:static;} }
+  .tld-head{padding:1.05rem 1.2rem .9rem;border-bottom:1px solid var(--panelhair);}
+  .tld-head.keystone{background:var(--red-soft);}
+  .tld-year{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.14em;color:var(--faint);}
+  .tld-head.keystone .tld-year{color:var(--red-deep);}
+  .tld-who{font-family:"Spectral",serif;font-size:1.65rem;font-weight:500;letter-spacing:-.015em;color:var(--ink);margin:.06rem 0 .35rem;line-height:1.05;}
+  .tld-head.keystone .tld-who{color:var(--red-deep);}
+  .tld-found{padding:1.05rem 1.2rem;font-family:"Spectral",serif;font-size:1rem;line-height:1.62;color:var(--soft1);}
+  .tld-found b{color:var(--ink);font-weight:600;}
+  .costume{margin:0 1.2rem 1.2rem;border:1px dashed var(--panelhair);border-radius:4px;padding:1rem .9rem;text-align:center;background:var(--paper);}
+  .costume.keystone{border:1.5px solid var(--red-line);background:var(--red-soft);}
+  .costume .clab{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .costume .cm{font-family:"IBM Plex Mono",monospace;font-size:1.18rem;color:var(--ink);letter-spacing:.01em;overflow-wrap:anywhere;}
+  .costume .cm .ca{color:var(--red-deep);font-weight:500;}
+  .costume.keystone .cm{font-size:1.32rem;}
+  .costume .cset{font-family:"Spectral",serif;font-style:italic;font-size:.86rem;line-height:1.45;color:var(--faint);margin-top:.6rem;}
+
+  /* the twist register strip */
+  .twist-strip{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.3rem;margin:1.5rem 0 .3rem;font-family:"IBM Plex Mono",monospace;font-size:.78rem;}
+  .twist-strip .tk{padding:.2rem .5rem;border:1px solid var(--panelhair);border-radius:3px;color:var(--soft1);background:rgba(26,24,21,.02);}
+  .twist-strip .tk.cap{color:var(--red-deep);border-color:var(--red-line);}
+  .twist-strip .ar{color:var(--faintest);}
+  .twist-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.06em;color:var(--faintest);margin-top:.5rem;}
+
+  /* ===== timeline detail: historical aspects (debt / near-miss / gap) ===== */
+  .tld-aspects{margin:0 1.2rem 1rem;display:flex;flex-direction:column;gap:.7rem;}
+  .tld-asp{border-left:1.5px solid var(--hair);padding:.1rem 0 .1rem .8rem;}
+  .tld-asp .al{font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faintest);margin-bottom:.25rem;}
+  .tld-asp .at{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .tld-asp .at b{color:var(--ink);font-weight:600;}
+  .tld-asp.debt{border-left-color:var(--gold-line);} .tld-asp.debt .al{color:var(--gold-deep);}
+  .tld-asp.near{border-left-color:var(--red-line);} .tld-asp.near .al{color:var(--red-deep);}
+  .tld-asp.gap{border-left-color:var(--teal-line);} .tld-asp.gap .al{color:var(--teal-deep);}
+
+  /* ===== the rediscovery inspector (independent finders) ===== */
+  .redis-panel{border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);margin-top:.3rem;}
+  .redis-head{padding:1rem 1.2rem .85rem;border-bottom:1px solid var(--panelhair);}
+  .redis-head .rh-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.4rem;}
+  .redis-head h4{font-family:"Spectral",serif;font-weight:500;font-size:1.28rem;letter-spacing:-.01em;margin:0;color:var(--ink);line-height:1.18;}
+  .redis-finds{padding:.35rem 1.2rem .3rem;}
+  .redis-find{display:grid;grid-template-columns:auto 1fr;gap:.18rem .95rem;align-items:baseline;padding:.7rem 0;border-bottom:1px solid var(--hair);}
+  .redis-find:last-child{border-bottom:none;}
+  .redis-find .rf-yr{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:500;color:var(--soft1);white-space:nowrap;}
+  .redis-find .rf-who{grid-column:2;font-family:"Spectral",serif;font-size:1.06rem;font-weight:500;color:var(--ink);}
+  .redis-find .rf-what{grid-column:2;font-size:.9rem;line-height:1.45;color:var(--soft1);}
+  .redis-find .rf-pub{grid-column:2;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.03em;color:var(--teal-deep);margin-top:.12rem;}
+  .redis-find.unpub .rf-yr,.redis-find.unpub .rf-who,.redis-find.unpub .rf-pub{color:var(--red-deep);}
+  @media(max-width:560px){ .redis-find{grid-template-columns:1fr;gap:.12rem;} .redis-find .rf-who,.redis-find .rf-what,.redis-find .rf-pub{grid-column:1;} }
+  .redis-note{margin:.2rem 1.2rem 1.2rem;padding:.85rem 1rem;border-left:2px solid var(--red-line);background:var(--red-soft);border-radius:0 3px 3px 0;font-size:.92rem;line-height:1.55;color:var(--soft1);}
+  .redis-note b{color:var(--ink);font-weight:600;}
+
+  /* ===== the four ranks ledger (the boundary of the unification) ===== */
+  .ranks{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:1.2rem;}
+  .rank-row{display:grid;grid-template-columns:auto minmax(0,1.45fr) minmax(0,1fr);gap:1.1rem;align-items:center;background:var(--paper);padding:.85rem 1.1rem;}
+  .rank-row .rk-name{font-family:"Spectral",serif;font-weight:600;font-size:1.04rem;letter-spacing:-.01em;display:flex;align-items:center;gap:.55rem;}
+  .rank-row .rk-name::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;background:var(--faintest);}
+  .rank-row .rk-what{font-size:.88rem;line-height:1.45;color:var(--soft1);}
+  .rank-row .rk-ex{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--faint);}
+  .rank-row.r1 .rk-name{color:var(--teal-deep);} .rank-row.r1 .rk-name::before{background:var(--teal-deep);}
+  .rank-row.r2 .rk-name{color:var(--gold-deep);} .rank-row.r2 .rk-name::before{background:var(--gold-deep);}
+  .rank-row.r3 .rk-name{color:var(--gold-deep);} .rank-row.r3 .rk-name::before{background:var(--gold-line);}
+  .rank-row.r4 .rk-name{color:var(--red-deep);} .rank-row.r4 .rk-name::before{background:var(--red-deep);}
+  @media(max-width:680px){ .rank-row{grid-template-columns:1fr;gap:.3rem;} }
+  .rank-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;color:var(--faintest);margin-top:.6rem;line-height:1.5;}
+
+  /* ===== aftershocks grid ===== */
+  .after-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .after-grid{grid-template-columns:1fr;} }
+  .after-card{background:var(--paper);padding:1.1rem 1.2rem;}
+  .after-card .ac-when{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;color:var(--red-deep);margin-bottom:.3rem;}
+  .after-card h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .35rem;letter-spacing:-.01em;color:var(--ink);}
+  .after-card h4 .ac-kind{font-family:"IBM Plex Mono",monospace;font-size:.58rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:var(--faintest);margin-left:.5rem;vertical-align:middle;}
+  .after-card p{font-size:.89rem;line-height:1.52;color:var(--soft1);}
+  .after-card p b{color:var(--ink);font-weight:600;}
+
+  /* ===== the 4-tuple comparator (one skeleton, four slots, many fillings) ===== */
+  .ft-skel{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.04rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1rem;letter-spacing:-.01em;line-height:1.7;}
+  .ft-skel .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .ft-skel .slot{color:var(--red-deep);font-weight:600;padding:0 .08em;border-bottom:1.5px solid var(--red-line);}
+  .ft-panel{border:1px solid var(--panelhair);border-radius:5px;overflow:hidden;background:rgba(26,24,21,.012);}
+  .ft-phead{padding:.85rem 1.2rem .7rem;border-bottom:1px solid var(--panelhair);display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;}
+  .ft-phead .fp-who{font-family:"Spectral",serif;font-weight:600;font-size:1.16rem;color:var(--ink);letter-spacing:-.01em;}
+  .ft-phead .fp-yr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .ft-phead .dom{margin-left:auto;}
+  .ft-rows{padding:.3rem 1.2rem;}
+  .ft-row{display:grid;grid-template-columns:6.2rem 1fr;gap:.9rem;align-items:baseline;padding:.6rem 0;border-bottom:1px solid var(--hair);}
+  .ft-row:last-of-type{border-bottom:none;}
+  .ft-row .ftk{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--red-deep);font-weight:500;}
+  .ft-row .ftk .ftk-sub{display:block;font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);font-weight:400;margin-top:.12rem;}
+  .ft-row .ftv{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--ink);line-height:1.45;overflow-wrap:anywhere;}
+  .ft-result{margin:.2rem 1.2rem 1.1rem;padding:.85rem 1rem;background:var(--teal-soft);border-left:2px solid var(--teal-line);border-radius:0 3px 3px 0;}
+  .ft-result .ftr-g{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--teal-deep);margin-bottom:.3rem;overflow-wrap:anywhere;}
+  .ft-result .ftr-up{font-family:"Spectral",serif;font-style:italic;font-size:.92rem;color:var(--soft1);line-height:1.45;}
+  .ft-result.limit{background:var(--red-soft);border-left-color:var(--red-line);}
+  .ft-result.limit .ftr-g{color:var(--red-deep);}
+
+  /* ===== rediscovery taxonomy tags + legend ===== */
+  .rf-kind{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.54rem;letter-spacing:.09em;text-transform:uppercase;padding:.14em .5em;border-radius:2px;border:1px solid var(--red-line);color:var(--red-deep);background:var(--red-soft);margin-left:.55rem;vertical-align:middle;white-space:nowrap;}
+  .redis-legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;justify-content:center;margin-top:.8rem;font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--faint);line-height:1.5;}
+  .redis-legend .rl-item{white-space:nowrap;}
+  .redis-legend .rl-item b{color:var(--red-deep);font-weight:600;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-annals">The Annals</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">the chronicle · a history of the discovery</span></div>
+    <div class="hero-head">
+      <p class="kicker">How one idea was found</p>
+      <h1 class="title">The <span class="x">Annals</span></h1>
+      <p class="standfirst">The six volumes show that the famous limits are one construction. They do not say how we came to know it — and that story is stranger than the result. Across eighty years, in set theory, then logic, then computation, thinker after thinker found the same diagonal, each in a different costume, and none saw it was the others'. The unity was discovered <em>last</em>, in retrospect, by a single paper. This is the construction announcing itself through history — piece by piece, twist by twist — until the costumes drop and it stands revealed as one.</p>
+      <p class="ed-mark">before 1891 · the paradox waits — 1891 · the method born — 1969 · the costumes drop — 2003 · made plain</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">1891 → 1969</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>There is a way of telling the history of logic in the twentieth century as a single sentence, discovered too slowly. In 1891 Cantor found a trick — vary the diagonal — that proved one infinity larger than another. He did not know he had found the deepest structural fact about formal systems. Nor did Russell, a decade later, when the same trick toppled the foundations of mathematics; nor Gödel, nor Tarski, nor Turing, nor Kleene, each of whom found it again, in a new field, wearing new clothes.</p>
+    <p>What none of them saw — what no one saw until 1969 — is that these were not six discoveries but one, repeated. The diagonal that makes the reals uncountable, the diagonal that makes arithmetic incomplete, the diagonal that makes halting undecidable: the same construction, the same single line of proof, the same twist applied in a different category. The history of the idea is the history of a unity hidden in plain sight — found in pieces, recognized only looking back.</p>
+    <p>Move through the record below, and watch the one thing that does not change. The <i>setting</i> changes — sets, then formal theories, then programs. The <i>twist</i> changes — negation, then unprovability, then the swap of halt and loop. But the skeleton, <span class="mono">g(x) = α(φ(x)(x))</span>, is constant. Each thinker handed it a new costume. Lawvere, in 1969, took the costumes off.</p>
+    <p>What follows reads that delay as a case study in something larger: the gap between two registers in which a mathematical truth exists. In the <i>logical</i> register — the space of reasons — the diagonal is one object, timeless and forced; Lawvere's theorem is its portrait, and in it Cantor, Gödel, and Turing are not similar but <i>identical</i>. In the <i>historical</i> register — the space of causes — the same object is a scatter of episodes, sequential and contingent, shaped by which mathematics existed yet, by what language a result was written in, by who emigrated, who fell ill, who chose not to publish. This chronicle is the study of how far, and why, these two registers diverge — and of what their eventual convergence, in 1969, reveals. The recurring discovery is the proof that came before the proof; the eighty-year delay is the measure of the distance between being true and being known.</p>
+  </div>
+
+  <!-- ===== §I THE PREHISTORY ===== -->
+  <section class="sec" id="prehistory">
+    <div class="sec-head"><span class="num">I · the prehistory</span><h2>The paradox that waited</h2><p class="sub">The diagonal's oldest ancestor is the Liar, twenty-three centuries old. For most of that time it was a curiosity. It became a theorem only when a system learned to name itself.</p></div>
+    <div class="reading">
+      <p>Long before there was a method there was a sentence that could be neither true nor false. <i>This sentence is false.</i> The Liar — ascribed to Epimenides the Cretan, pared to its pure form by Eubulides in the fourth century BC — is the diagonal's oldest ancestor, and for most of its long life it was treated as exactly what it appears to be: a verbal trick, a sophism to be dissolved, a knot in ordinary language with no bearing on mathematics. Twenty-three centuries passed with the Liar filed under <i>curiosity</i>.</p>
+      <p>What the twentieth century discovered is subtler than “the Liar is secretly a theorem.” It is that the Liar's fate turns entirely on <i>which predicate it is aimed at</i> — and that this is the whole game. Aim the self-referential construction at <i>truth</i> — a sentence saying of itself “I am false” — and you get a pure impossibility: Tarski's theorem, that no formula of arithmetic can define the true sentences of arithmetic. Formalized, the Liar does not become a theorem; it <i>destroys the predicate it speaks of</i>. Truth cannot be internalized. But aim the very same construction at <i>provability</i> — a sentence saying “I am unprovable” — and something else happens. Provability, unlike truth, <i>can</i> be internalized: it is a definable arithmetical predicate, because a proof is a finite object a machine can check. The self-referential sentence aimed at provability does not destroy provability; it <i>survives</i>, true and unprovable, and that survival is Gödel's theorem. The difference between a paradox that dissolves and a theorem that proves is exactly the difference between a predicate too rich to be defined inside the system and one just tame enough to be.</p>
+      <p>The hinge that makes any of this possible is a single technical act — Gödel numbering, the coding of a system's own sentences as numbers it can compute with — and it does precisely one thing: it lets the system <i>name</i> its own expressions. From naming, one lemma follows, the <i>diagonal lemma</i>: for any predicate the system can write, there is a sentence asserting that the predicate holds of <i>its own</i> code. That lemma is the engine that builds every self-referential sentence below. And it has a quiet, vertiginous property — it is <i>itself</i> an instance of the construction it is used to study: with <span class="mono">φ</span> the substitution function, the diagonal lemma is a fixed point of substitution, <span class="mono">g(x) = α(φ(x)(x))</span> in yet another costume. The tool that manufactures every instance of the diagonal is built out of the diagonal. The method does not stand outside its subject; it is made of it.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="faces">
+        <div class="face non">
+          <div class="f-h">the construction, aimed at truth</div>
+          <h4>the predicate is destroyed</h4>
+          <div class="frow"><span class="fl">the sentence</span><span class="fv f">“I am false”</span></div>
+          <div class="frow"><span class="fl">the predicate</span><span class="fv f">truth</span></div>
+          <div class="frow"><span class="fl">definable inside?</span><span class="fv f">no — Tarski</span></div>
+          <div class="frow"><span class="fl">the result</span><span class="fv f">no truth predicate exists</span></div>
+          <p>Truth is too rich to define inside the system. The Liar, aimed at it, proves a pure impossibility — there is no arithmetical formula for “true.” The paradox does not survive; it forbids.</p>
+        </div>
+        <div class="face std">
+          <div class="f-h">the construction, aimed at provability</div>
+          <h4>the sentence survives</h4>
+          <div class="frow"><span class="fl">the sentence</span><span class="fv t mono">G ↔ ¬Prov(⌜G⌝)</span></div>
+          <div class="frow"><span class="fl">the predicate</span><span class="fv t">provability</span></div>
+          <div class="frow"><span class="fl">definable inside?</span><span class="fv t">yes — a proof is checkable</span></div>
+          <div class="frow"><span class="fl">the result</span><span class="fv t">true, and unprovable</span></div>
+          <p>Provability is tame enough to define — a proof is a finite thing a machine can verify. The same self-reference, aimed here, does not destroy but <i>survives</i>: a true sentence the system cannot reach. The joke becomes incompleteness.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">what the prehistory teaches</div>
+      <p>The idea was available for two millennia and inert for all of them, because the act it needs — a system naming its own sentences — did not exist until arithmetization supplied it. And once supplied, the construction's whole reach was fixed by a single boundary: the line between predicates a system can define about itself (provability, the checkable) and those it cannot (truth, the merely real). The diagonal lives <i>exactly on that line</i>. Self-reference is the engine; the line between the definable and the undefinable is where it bites. Everything after 1891 is the discovery of where, in field after field, that line falls.</p>
+    </div>
+    <div class="reading">
+      <p>The semantic paradoxes — the Liar, and the turn-of-the-century wave that renewed it, Richard's, Berry's, Grelling's — were the ore; arithmetization was the smelting; the definable/undefinable line is the seam. But the first to strike the vein was not hunting paradox at all. He was counting.</p>
+    </div>
+  </section>
+
+  <!-- ===== §II THE RECORD ===== -->
+  <section class="sec" id="record">
+    <div class="sec-head"><span class="num">II · the record</span><h2>Found in pieces</h2><p class="sub">Eight findings, three fields, eighty years — and the one construction beneath them all. Select a year: not only the costume it wore, but the paradox it drew on, the rival who nearly had it, and the gap between what was found and what it meant.</p></div>
+    <div class="stage">
+      <div class="tl-grid">
+        <div class="tl-spine" id="tlSpine"></div>
+        <div class="tl-detail" id="tlDetail"></div>
+      </div>
+      <div class="twist-strip">
+        <span class="tk">¬</span><span class="ar">→</span>
+        <span class="tk">¬</span><span class="ar">→</span>
+        <span class="tk">¬Prov</span><span class="ar">→</span>
+        <span class="tk">¬</span><span class="ar">→</span>
+        <span class="tk">swap</span><span class="ar">→</span>
+        <span class="tk">id</span><span class="ar">→</span>
+        <span class="tk cap">any&nbsp;α</span>
+      </div>
+      <div class="twist-cap">the twist α, through time — the only thing that changes in&nbsp; g(x) = α(φ(x)(x))</div>
+    </div>
+    <div class="reading">
+      <p>Read the strip above from left to right and the whole argument of the collection is there in miniature. Six times the same skeleton is handed a new twist — Cantor's negation, Gödel's unprovability, Turing's swap of halt and loop, Kleene's identity that turns the construction from trap to tool — and six times it does exactly what the skeleton says it must. Then, at the right, the twist becomes <i>any</i> twist, and the setting becomes <i>any</i> setting closed under naming. That last step is not a seventh discovery. It is the recognition that the first six were never separate.</p>
+      <p>But the record carries a second message, quieter than the first and stranger. Look again at the near-misses in the panels above — Zermelo with Russell's paradox, Post with Gödel's, von Neumann with the second theorem, three independent formalizations of computability in a single year — and a pattern shows through the costumes. The construction was not found once and copied outward. It was struck, over and over, by people who had never heard of one another. That is the next thing the history has to teach.</p>
+    </div>
+  </section>
+  <!-- ===== §III THE PATTERN ===== -->
+  <section class="sec" id="pattern">
+    <div class="sec-head"><span class="num">III · the pattern</span><h2>Found again, and again</h2><p class="sub">The construction was struck independently, repeatedly, across sealed fields. The naïve reading — that this alone proves a hidden unity — is too quick; multiple discovery is common and usually proves nothing. The real argument is narrower, and stronger.</p></div>
+    <div class="reading">
+      <p>Run back over the record and a second pattern surfaces, stranger than the first. Within each field the construction was found more than once — independently, by people who did not know of one another, often within a year or two. The paradox that broke Frege was already in Zermelo's hands; the theorem that broke Hilbert's program was anticipated by Post a decade early and re-derived by von Neumann a month late; computability was defined three separate ways in 1936; Tarski's theorem was Gödel's too, held in silence. The diagonal does not get discovered once and propagate outward. It gets <i>struck</i>, again and again, by anyone who digs deep enough in the right place.</p>
+      <p>It is tempting to read this as proof of a hidden unity: so many hands finding one thing, surely the thing was always one. But that inference is too quick, and the history of science is the reason. Multiple, independent, near-simultaneous discovery is <i>common</i> — calculus (Newton and Leibniz), natural selection (Darwin and Wallace), non-Euclidean geometry (Gauss, Bolyai, Lobachevsky), the telephone (Bell and Gray, filed the same day). In none of these does the coincidence reveal a deep structural identity beneath the surface. It reveals something more ordinary: that a result was <i>ripe</i> — the surrounding work had made it the obvious next step, so whoever reached the frontier reached it together. Frequency of rediscovery, by itself, is evidence of ripeness, not of unity. To claim more, the diagonal's case must differ from these in a way that <i>earns</i> the stronger conclusion.</p>
+    </div>
+    <div class="stage narrow">
+      <div class="faces">
+        <div class="face non">
+          <div class="f-h">ordinary multiple discovery</div>
+          <h4>a ripe result</h4>
+          <div class="frow"><span class="fl">the cause</span><span class="fv f">a shared public frontier</span></div>
+          <div class="frow"><span class="fl">what recurs</span><span class="fv f">the same <i>result</i></span></div>
+          <div class="frow"><span class="fl">the finders</span><span class="fv f">working one literature</span></div>
+          <div class="frow"><span class="fl">the trigger</span><span class="fv f">the field's momentum</span></div>
+          <div class="frow"><span class="fl">what it shows</span><span class="fv f">the result was <i>due</i></span></div>
+          <p>Newton and Leibniz, Darwin and Wallace: the surrounding work made the result the obvious next step, so whoever reached the edge reached it at once. The coincidence is social — a shared frontier — and reveals ripeness, not hidden depth.</p>
+        </div>
+        <div class="face std">
+          <div class="f-h">the diagonal's case</div>
+          <h4>a forced object</h4>
+          <div class="frow"><span class="fl">the cause</span><span class="fv t">a structural obstruction</span></div>
+          <div class="frow"><span class="fl">what recurs</span><span class="fv t">the same <i>construction</i></span></div>
+          <div class="frow"><span class="fl">the finders</span><span class="fv t"><i>sealed</i> fields, no contact</span></div>
+          <div class="frow"><span class="fl">the trigger</span><span class="fv t">a contradiction, not chosen</span></div>
+          <div class="frow"><span class="fl">what it shows</span><span class="fv t">a real object, <i>later proven</i></span></div>
+          <p>Cantor, Post, Gödel shared no frontier — set theory, proof theory, computation were separate worlds. What recurs is not a theorem re-proved but one construction, filled differently; each finder was driven in by a contradiction; and the unity was <i>afterwards proven</i> by Lawvere. That is what earns the stronger reading.</p>
+        </div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>So the argument is not “rediscovered often, therefore one.” It is narrower, and it rests on four things at once — two of which carry most of the weight. <i>First,</i> the fields were sealed: Cantor, Post, and Gödel were not reading one another. This is decisive in a way that mere absence of copying is not. A connection transmitted through a community requires its discoverers to be near each other; so a connection that surfaces across non-communicating fields, with no path of transmission between them, <i>cannot</i> be a socially propagated result. Logical identity at maximal historical separation has only one available explanation — the connection is forced by the terrain, not carried by a conversation. <i>Second,</i> what recurs is not the same theorem by different proofs but the same <i>construction</i> — the identical diagonal, verified instance by instance and later proven identical by Lawvere; the costumes differ, the skeleton does not. <i>Third,</i> the forcing has a precise location, and naming it is what turns “inevitable” from a mood into a mechanism. Each field met the diagonal at a definite threshold: the moment it grew expressive enough to <i>name its own operations</i> while still containing a twist with no fixed point — negation. At that threshold Lawvere's theorem becomes a tripwire: a system that can name itself and still negate cannot be consistent, so something must give. Set theory crossed the line when sets could be measured against their own powersets; logic, when arithmetic could encode its own proofs; computation, when one machine could simulate every machine. Each field met the wall at the instant it learned to turn on itself — which is why the encounters were independent, and why their timing was set by each field's internal ripening and not by any shared frontier. The diagonal is the <i>price of self-reference</i>, charged on contact. And <i>fourth</i> — the step that closes the argument — the unity the rediscoveries pointed at was, decades later, <i>proven</i>. The history is not evidence standing alone; it is evidence whose verdict was independently confirmed. Read forward, the scatter of findings is a clue. Read backward from Lawvere, it is a clue that came true.</p>
+      <p>This is an <i>abductive</i> claim — an inference to the best explanation — not a deductive one, and the collection's discipline is to say so plainly. The rediscoveries do not <i>entail</i> the unity; they are explained by it better than by any rival, and the explanation was later checked. One can imagine the pattern surviving even with no unification behind it — which is why the <i>proof</i>, not the pattern, is the collection's ground. But the pattern is not nothing. It is the rare case where the history of a result and the structure of the result tell the same story: a connection too tight to be coincidence appearing between minds too far apart to have shared it. Select a result to see how many hands found it, how nearly at once, and by what mechanism each near-miss failed to register.</p>
+    </div>
+    <div class="stage">
+      <div class="rev-tabs" id="redisTabs"></div>
+      <div class="redis-panel" id="redisPanel"></div>
+      <div class="redis-legend" id="redisLegend"></div>
+      <figcaption><span class="mono">independent finders, by result — </span><span style="color:var(--red-deep)">red marks the unpublished</span>, and each near-miss is tagged by the <i>way</i> it failed to enter the record. The terrain forces the find; circumstance decides whose name it keeps.</figcaption>
+    </div>
+    <div class="reading">
+      <p>There is one last structure in the scatter, and it lives in the failures. A discovery can fail to enter the record in distinct ways, and the diagonal's history exhibits all of them. Post's was an <span class="red">anticipation</span> — found, written, unpublished for twenty years. Von Neumann's second theorem was a <span class="red">simultaneity</span> — found at once, and ceded. Gödel's undefinability of truth was a <span class="red">withholding</span> — found, and deliberately not published. Cantor's reading of his own diagonal was a <span class="red">misreading</span> — found, and mistaken for something smaller. Lawvere's unification was an <span class="red">overlooking</span> — found, published, and ignored for decades. Five mechanisms, one moral: the logical object is single and forced, but the <i>record</i> of it is shaped by illness, modesty, judgment, blindness, and neglect. The gap between what was true and what was known has a structure, and the structure is human.</p>
+      <p>If the construction is one forced object, though, a hard question follows. It has two faces — the wall and the engine, limit and power. Why was one found in 1891 and the other not until 1938 — a gap of forty-five years <i>inside a single construction?</i> The answer is not that the engine was harder to see. It is that, for forty-five years, the engine had nowhere to run.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV THE TURN ===== -->
+  <section class="sec" id="turn">
+    <div class="sec-head"><span class="num">IV · the turn</span><h2>When the sign flipped</h2><p class="sub">For forty-five years the construction was known only as a wall. The reason the engine came so late is not psychological but mathematical: the object the engine needs is one the diagonal itself forbids — until 1969, when it was finally built, the same year the unification was proved.</p></div>
+    <div class="reading">
+      <p>From Cantor in 1891 to Turing in 1936 the diagonal was known exclusively as a prohibition — negation with no fixed point, a demand for an object that cannot exist, a wall. The thought that the very same construction might <i>produce</i> a fixed point rather than forbid one did not arrive until Kleene, in 1938. It is tempting to explain the delay psychologically: a wall stops you and so announces itself, while an engine must be recognized. But that is too soft. The real reason is exact, and it is the diagonal turning on itself.</p>
+      <p>The engine — recursion, the fixed point that builds rather than blocks — needs a specific object to run on: a <i>reflexive</i> object, a domain <span class="mono">D</span> isomorphic to its own space of functions, <span class="mono">D ≅ Dᴰ</span>. Self-application has to be total — every element usable both as a function and as its own argument — or the construction <span class="mono">g(x) = φ(x)(x)</span> cannot even be written. And here is the trap: <i>no such object exists in the world of sets.</i> Cantor's diagonal — the very first instance of the construction — proves that <span class="mono">Dᴰ</span> is strictly larger than <span class="mono">D</span>, so <span class="mono">D</span> can never equal <span class="mono">Dᴰ</span> for any <span class="mono">D</span> with more than one element. The negative face of the construction <i>forbids the object the positive face requires.</i> For forty-five years the engine had nowhere to run — not because no one thought to look, but because the only mathematics anyone had, set-theoretic and well-founded, structurally excludes the ground it needs.</p>
+    </div>
+    <div class="stage">
+      <div class="dial-construction">
+        <span class="lab">the construction — one skeleton, two fates, decided by the universe it runs in</span>
+        g(x) = <span class="av">α</span>(&#8201;φ(x)(x)&#8201;)&nbsp;&nbsp;⟶&nbsp;&nbsp;a names g&nbsp;&nbsp;⟶&nbsp;&nbsp;s = φ(a)(a) = <span class="av">α</span>(s)
+      </div>
+      <div class="faces">
+        <div class="face non">
+          <div class="f-h">in Set · 1891–1936 · the engine is forbidden</div>
+          <h4>no reflexive object</h4>
+          <div class="frow"><span class="fl">the need</span><span class="fv f mono">D ≅ Dᴰ</span></div>
+          <div class="frow"><span class="fl">the obstruction</span><span class="fv f mono">|Dᴰ| &gt; |D| — Cantor</span></div>
+          <div class="frow"><span class="fl">the only fit</span><span class="fv f mono">D ≅ 1, all terms equal</span></div>
+          <div class="frow"><span class="fl">the verdict</span><span class="fv f">self-application can't be total</span></div>
+          <p>Cantor's diagonal forbids it directly: a set is always strictly smaller than its function space, so <span class="mono">D ≅ Dᴰ</span> collapses to the trivial one-point <span class="mono">D</span>. The positive face is uninstantiable in the universe that hosts the negative one.</p>
+        </div>
+        <div class="face std">
+          <div class="f-h">in D∞ · 1969– · the engine runs</div>
+          <h4>a reflexive object, at last</h4>
+          <div class="frow"><span class="fl">the move</span><span class="fv t">leave Set for domains</span></div>
+          <div class="frow"><span class="fl">the object</span><span class="fv t mono">Scott's D∞ ≅ [D∞→D∞]</span></div>
+          <div class="frow"><span class="fl">why it's safe</span><span class="fv t">no explosive twist is a map</span></div>
+          <div class="frow"><span class="fl">the verdict</span><span class="fv t mono">Y f exists for every f</span></div>
+          <p>Scott built D∞ in November 1969 by abandoning sets for <i>continuous</i> maps on a domain — a category where the dangerous twists that would explode (a fixed-point-free negation) simply are not morphisms. With the explosive twist gone, reflexivity is safe, and every map has a fixed point: recursion.</p>
+        </div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The reconciliation is exact, and one of the deepest things in the whole history. Lawvere's theorem (1969) says a reflexive object forces <i>every</i> twist to have a fixed point — including negation. But negation with a fixed point is a contradiction. So any category containing a fixed-point-free twist (Set contains <span class="mono">¬</span>) can have <i>no</i> reflexive object; and any category that <i>does</i> host one (Scott's domains, where every continuous map already has a least fixed point) must be one where the explosive twists are not even available to derive a contradiction from. The diagonal does not merely forbid the engine in Set and permit it in <span class="mono">D∞</span> — it explains, in a single theorem, <i>why</i> the engine can live only where the wall's most dangerous twist cannot. And the two halves of this picture were supplied the same year, by two people who were not collaborating: Lawvere proved the abstract law that reflexivity forces fixed points everywhere; Scott, months later in Oxford, built the first concrete reflexive object by stepping into a category where that law is survivable. Nineteen sixty-nine is the year the construction's two faces were finally understood as one — and, fittingly for this history, it took two independent discoveries to do it.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">why limit had to come first</div>
+      <p>So the forty-five-year gap was never a failure of imagination. The positive face was <i>logically present</i> in Cantor's argument from the start — it is the same construction — but <i>mathematically uninstantiable</i> until a universe was built that could hold a reflexive object without exploding. Limit came before power because limit needs only a contradiction, which any rich system supplies, while power needs a model, which the obvious systems forbid. The dial was always there; one of its settings simply had nowhere to turn until 1969.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V THE AFTERSHOCKS ===== -->
+  <section class="sec" id="aftershocks">
+    <div class="sec-head"><span class="num">V · the aftershocks</span><h2>The lineage did not close</h2><p class="sub">Unification is not termination. After each milestone — and after 1969 itself — the construction kept generating new limits and new tools. A living engine, not a finished monument.</p></div>
+    <div class="reading">
+      <p>It would be tidy to end the history at Lawvere, with the costumes off and the unity proved. But a construction this fundamental does not stop producing once it is understood; if anything it produces faster. Both before and after the unification, the diagonal kept throwing off descendants — strengthenings that closed the gaps in the originals, generalizations that widened them, new tools that ran the engine forwards. A sample of the lineage, to show it is alive:</p>
+    </div>
+    <div class="stage">
+      <div class="after-grid">
+        <div class="after-card">
+          <div class="ac-when">1936 · Rosser</div>
+          <h4>The repair <span class="ac-kind">strengthening</span></h4>
+          <p>Gödel's original proof needed the system to be <i>ω-consistent</i> — a hypothesis stronger than mere consistency. Rosser rebuilt the self-referential sentence — “for every proof of me, a shorter proof of my negation” — so that bare consistency suffices. <b>The diagonal honed until it cuts with the minimum assumption.</b></p>
+        </div>
+        <div class="after-card">
+          <div class="ac-when">1948 / 1966 · von Neumann</div>
+          <h4>The biological face <span class="ac-kind">new tool</span></h4>
+          <p>Self-reproducing automata: a machine that builds a copy of itself — the recursion theorem made physical, the quine before the quine. <b>The diagonal's forward face, run not in logic but in the theory of life</b>, and the blueprint for how reproduction can be a fixed point.</p>
+        </div>
+        <div class="after-card">
+          <div class="ac-when">1953 · Rice</div>
+          <h4>The generalization <span class="ac-kind">widening</span></h4>
+          <p>Not merely halting: <i>no</i> non-trivial property of a program's behaviour is decidable. One diagonal argument, lifted to its widest form, swallows an infinite family of undecidability results at once. <b>The halting problem was only the first of them.</b></p>
+        </div>
+        <div class="after-card">
+          <div class="ac-when">1955 · Löb</div>
+          <h4>The provability face <span class="ac-kind">new tool</span></h4>
+          <p>Löb's theorem — if a system proves “provable(P) → P,” it already proves P — is the diagonal worn as a <i>positive</i> modal principle, and the seed of provability logic (GL), where Gödel's two theorems fall out in a line. <b>The wall, turned into an axiom.</b></p>
+        </div>
+        <div class="after-card">
+          <div class="ac-when">1961– · Smullyan</div>
+          <h4>The systematizer <span class="ac-kind">distillation</span></h4>
+          <p>In <i>Theory of Formal Systems</i> and a lifetime of books, Smullyan reduced Gödel, Tarski, and Church to pure diagonalization — dual machines, self-reference without arithmetic — making the mechanics visible decades before the categorical unification reached most readers. <b>The technique, stripped to its gears.</b></p>
+        </div>
+        <div class="after-card">
+          <div class="ac-when">1989 · Boolos</div>
+          <h4>The other paradox <span class="ac-kind">rediscovery</span></h4>
+          <p>A proof of incompleteness built not on the Liar but on <i>Berry's</i> paradox — “the least number not nameable in fewer than nineteen syllables” — and re-derived independently by Kripke. <b>The same theorem through a different antinomy</b>: even the route to the diagonal is multiply discoverable.</p>
+        </div>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Read forward from any milestone and the same thing happens: the construction is understood, and then it pays out again. Rosser tightens Gödel; Rice widens Turing; Löb turns the wall into an axiom; von Neumann runs the engine in biology; Smullyan strips it to its gears; Boolos reaches the same summit by another path. The unity Lawvere proved is no tombstone over a closed subject. It is the floor plan of a building still going up — which is exactly what one should expect of a fixed point that every rich enough system is forced to contain.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VI THE RETROSPECT ===== -->
+  <section class="sec" id="retrospect">
+    <div class="sec-head"><span class="num">VI · the retrospect</span><h2>The unity, found last</h2><p class="sub">Why a fact this fundamental was discovered a dozen times before it was understood once — and why the obstacles were not only intellectual.</p></div>
+    <div class="reading">
+      <p>Why did it take eighty years? The first answer is that the fields were sealed. Cantor's diagonal was a fact about infinite sets; Gödel's, a fact about formal proof; Turing's, a fact about machines. Each lived in its own literature, its own vocabulary, its own community of readers. The likeness was visible only from a vantage <i>above</i> all three — and that vantage, category theory, did not yet exist when the pieces were found. The unification waited not for a cleverer proof but for a new altitude.</p>
+      <p>Lawvere's 1969 paper supplied it. “Diagonal arguments and cartesian closed categories” gives a single theorem — a point-surjective map forces a fixed point — of which Cantor, Gödel, Tarski, and Turing fall out as instances, each by a choice of category and twist. The argument is the same few lines every time. Yanofsky, in 2003, made the instances explicit, writing out the reductions one by one for a generation that had inherited the pieces without the whole.</p>
+      <p>And the altitude was not waiting to be climbed; it had to be built. The concept of a category did not exist before 1945, when Eilenberg and Mac Lane introduced it — at first, in Mac Lane's own description, as little more than a convenient system of notation, nothing anyone took to be foundational. The specific apparatus the unification needs, the <i>cartesian closed</i> category, crystallized only across the 1960s, and largely in Lawvere's own hands: his 1963 thesis on functorial semantics, the categorical logic of the years after, the diagonal paper of 1968. So the unification was not merely found late; for most of the century it was <i>unstatable</i> — there was no language in which “these three constructions are the same arrow” was even a sentence. It arrived almost as soon as the language to express it did, and from the very person who had built that language. The counterfactual is clean: incompleteness could have come on a slow Tuesday in 1931, but its <i>unification</i> with Cantor and Turing could not have come before 1945, because before 1945 there was no altitude to occupy — only the separate valleys.</p>
+      <p>Why category theory, and no other vantage? Because it is the mathematics of <i>same shape, different stuff</i>. A category remembers only objects and the arrows between them — and, in a cartesian closed category, products, function-spaces, and evaluation. It forgets entirely what the objects are <i>made of</i>. To such an eye, two constructions are not merely analogous but <i>the same arrow</i> when they trace the same diagram — and the diagonal in set theory, in formal arithmetic, and in computation all trace the identical composite, <span class="mono">g = α ∘ ev ∘ ⟨φ, id⟩</span>. The differences that kept them apart for eighty years — sets versus sentences versus programs — are differences in what fills four slots, and nothing else. Fix the slots one way and the arrow is Cantor; fix them another and it is Gödel; another, Turing. Turn the slots below and watch the costumes change over a skeleton that does not.</p>
+    </div>
+    <div class="stage">
+      <div class="ft-skel">
+        <span class="lab">one categorical skeleton — four slots to fill</span>
+        g(a) = <span class="slot">α</span>(&#8201;<span class="slot">φ</span>(a)(a)&#8201;) ,&nbsp;&nbsp; <span class="slot">φ</span> : <span class="slot">A</span> → <span class="slot">B</span><sup><span class="slot">A</span></sup> ,&nbsp;&nbsp; <span class="slot">α</span> : <span class="slot">B</span> → <span class="slot">B</span>
+      </div>
+      <div class="rev-tabs" id="ftTabs"></div>
+      <div class="ft-panel" id="ftPanel"></div>
+      <figcaption><span class="mono">the same diagram, filled four ways — </span>each independent discovery is one assignment of the slots <span class="mono">A, B, φ, α</span>. The arrow <span class="mono">g</span> never changes; only what flows through it does. This is what “the construction is one” means, shown rather than asserted.</figcaption>
+    </div>
+    <div class="reading">
+      <p>A skeptic should pause here, because the exhibit proves less than it seems to until one more thing is said. Category theory unifies by forgetting content — and forgetting content is cheap. Almost anything can be made to share a skeleton if the skeleton is drawn abstractly enough; that a dozen constructions all “trace one diagram” might be a triviality of the language rather than a discovery about the world. (Everything is a monoid, if you squint.) So is this unity deep, or a formal trick? Three things answer it. It is <i>load-bearing</i>: the shared arrow transfers theorems — establish a new limitative result in one slot-filling and it holds in all of them, which a merely verbal abstraction can never do. It is <i>predictive</i>: the skeleton says where unfound instances must lie, and they are duly found — Rice's theorem, Löb's, the rest of the aftershocks were not surprises to anyone holding the construction. And it is <i>falsifiable</i>: most resemblances to the diagonal turn out, on inspection, <i>not</i> to be instances — the hierarchy theorems, the fixed-point theorems of analysis, the Gödelian arguments about minds each fail the test in a different way — so being an instance is a substantive, refutable property, not a free lunch the formalism hands out. A unification you can <i>fail</i> is a unification that means something. The shadow that closes this volume is the catalogue of those failures.</p>
+      <p>One honesty remains, and it cuts the other way. The unification works by forgetting content — and that forgetting, the very thing that makes the transfer of theorems possible, is also a real loss. The costumes were not arbitrary. Cantor's reading in terms of the sizes of infinity, Gödel's in terms of truth set against proof, Turing's in terms of what a machine can do — each held something about its own field that the bare arrow does not: <i>why</i> the powerset, or provability, or halting, mattered where it was found. The skeleton certifies that the three are one construction; it is silent on why each landed with such force in its own world. So the genuine unification carries the same double edge the cheap one was accused of: its power and its cost are one act of forgetting. To hold both at once — the structural identity and the irreducible local meaning — is the whole of seeing the thing clearly, and the reason this volume keeps the costumes in view even while insisting there is one body beneath them.</p>
+    </div>
+    <div class="reading">
+      <p>There is a second answer to “why so long,” and it has nothing to do with altitude. The logical object is timeless, but the people who found it were not: they worked inside a history that actively scattered them. The fields were sealed <i>institutionally</i> — set theory, proof theory, and computability had separate journals, vocabularies, and readers, and almost no one stood in more than one. They were sealed <i>linguistically</i> — Tarski's theorem appeared in Polish in 1933 and reached the wider world only through its German translation in 1936, its full English form later still. And they were sealed by <i>catastrophe</i> — the same decade that produced incompleteness and computability produced the emigrations that broke the European schools: Gödel and Tarski to America, the Vienna Circle dispersed, von Neumann already gone, Turing soon to vanish into wartime cryptanalysis. Post, who had the earliest and most complete vision of all, was kept from a research career until 1935 by recurring mental illness and from publication for twenty years. The unity was not only hard to <i>see</i>; the conditions for seeing it — a single mind, or a single conversation, spanning all three fields — were being destroyed in real time.</p>
+      <p>And yet the history had been signalling that unity all along, to anyone disposed to read the signal. A construction struck independently a dozen times, across sealed fields, inside a few decades, is — abductively, not deductively — strong evidence that the fields are touching one object; and this time the evidence was, decades later, confirmed by proof. The clue came true. There is a last turn of the screw. Lawvere's note, having finally seen the pattern whole, was <i>itself</i> overlooked for the better part of three decades — a unification nearly lost the way the unity it described had been lost — and had to be rediscovered and made legible, by Yanofsky in 2003, in its turn. Even the act of seeing the diagonal whole obeys the diagonal's own historical law. The two registers, logical and historical, are not the same shape; the whole subject of this volume is the distance between them, and 1969 — through two independent discoveries, Lawvere's and Scott's — is the year that distance was at last closed.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">what the history teaches</div>
+      <p>The lesson is not only mathematical. A structural fact can be true, provable, and rediscovered for the better part of a century before anyone has the language to see it was one thing — and the obstacles are rarely only intellectual; they are linguistic, institutional, and sometimes catastrophic. The unification was not a new result; it was a new pair of eyes, arriving in a field finally peaceful and connected enough to keep them open. The surest <i>sign</i> that a difficulty is single is that it keeps being found, independently, by everyone who comes near — but the surest <i>proof</i> is the proof, and the discipline of the collection is to want both and confuse neither.</p>
+    </div>
+  </section>
+
+  <!-- ===== §VII THE SHADOW ===== -->
+  <section class="sec" id="shadow">
+    <div class="sec-head"><span class="num">VII · the shadow</span><h2>The false unification</h2><p class="sub">The same likeness that joins the theorems also tempts a leap the theorems do not license. The history includes the overreach — and the discipline that contains it.</p></div>
+    <div class="reading">
+      <p>A construction this general invites overreach, and the history includes that too — but to judge the overreach fairly, one must first state the careful version it distorts. Gödel himself drew a consequence about minds and machines from incompleteness, in his 1951 Gibbs lecture, and what he claimed is precise and <i>disjunctive</i>: <i>either</i> the human mind “infinitely surpasses the powers of any finite machine,” <i>or</i> there exist absolutely unsolvable mathematical problems — or both. He could prove the disjunction; he could prove <i>neither disjunct</i>. He privately believed the first, but knew belief was not proof — and, fittingly for this history, he withheld even the disjunction: the Gibbs lecture went unpublished until 1995. And even the disjunction, as Feferman has shown, leans on terms with no mathematical definition — “the human mind,” “evident axioms,” “infinitely surpasses” — so it is theorem-<i>adjacent</i>, not a theorem.</p>
+      <p>What Lucas argued in 1961, and Penrose revived in 1989 with a gloss from physics, is the <i>collapse</i> of Gödel's disjunction into its first half alone, the second half silently dropped: because we can “see” the truth of a Gödel sentence no formal system proves, we <i>must</i> exceed every formal system — full stop, the mind is not a machine. The deletion of the second disjunct is the whole error, and it conceals a precise self-undermining step. To “see” that the Gödel sentence of a system is true, one must first know the system is <i>consistent</i> — and Gödel's <i>second</i> theorem says no system can establish its own consistency from inside. So the argument, to reach its conclusion, must assume that the mind knows the consistency of the very system it is alleged to be — exactly what the second theorem forbids that system to know. The inference does not merely overreach; it assumes the negation of the theorem it invokes. (The debate is not closed — Penrose has pressed subtler, second-order forms, and Feferman, Shapiro, and others have mapped precisely which idealizing assumptions each needs — but every version turns on an unpaid bridge of the same kind.) The diagonal is itself the standing warning against exactly this: a thing that looks, from outside, as though it can survey its own consistency, and provably cannot.</p>
+      <p>The Annals records this not to settle the philosophy but because it belongs to the history of the construction — its most persistent misuse, and the sharpest test of the collection's discipline. For a unification of this scope owes its reader a <i>graded</i> verdict, on each claim that some result <i>is</i> the diagonal, about how far the resemblance actually reaches. The history occupies all four ranks at once.</p>
+    </div>
+    <div class="stage">
+      <div class="ranks">
+        <div class="rank-row r1">
+          <div class="rk-name">genuine instance</div>
+          <div class="rk-what">The result <i>is</i> the construction — the same arrow <span class="mono">g = α ∘ ev ∘ ⟨φ, id⟩</span> — once a few <i>proven</i> bridge-assumptions are named. Not analogy: Lawvere's theorem, instantiated.</div>
+          <div class="rk-ex">Cantor · Russell · Gödel · Tarski · halting · recursion</div>
+        </div>
+        <div class="rank-row r2">
+          <div class="rk-name">transferred technique</div>
+          <div class="rk-what">Diagonalization reused as a <i>method</i> — build an object differing from every row — but with no fixed-point structure: the conclusion is “these classes differ,” not “a twist has no fixed point.”</div>
+          <div class="rk-ex">the time / space hierarchy theorems</div>
+        </div>
+        <div class="rank-row r3">
+          <div class="rk-name">shared engine</div>
+          <div class="rk-what">A genuine common <i>schema</i> — completeness or contraction yields a fixed point — but a <i>different</i> construction, reducing neither way: they share the conclusion that a fixed point exists, not the diagonal that builds it.</div>
+          <div class="rk-ex">Knaster–Tarski · Brouwer · Banach</div>
+        </div>
+        <div class="rank-row r4">
+          <div class="rk-name">mere suggestion</div>
+          <div class="rk-what">A real but informal resonance — sometimes a fertile heuristic, sometimes a fallacy in a proof's costume. The bridge-assumption, once named, fails.</div>
+          <div class="rk-ex">Lucas–Penrose · loose invocations in the human sciences</div>
+        </div>
+      </div>
+      <div class="rank-cap">descending strength — teal: a theorem · gold: a method, then a merely shared schema · red: a resonance only. the unification is exact at the top and a temptation at the bottom; the labor is telling which row a given claim is in.</div>
+    </div>
+    <div class="reading">
+      <p>Every misuse has the same shape, and now it can be stated exactly: a <i>proven</i> isomorphism, valid in its native setting, is carried into a domain where only a suggestion holds — and the bridge-assumption that would have failed the transfer is left unnamed, because naming it would expose the failure. Lucas and Penrose carry Gödel's theorem, genuine and precise about formal systems, across to the mind, and never name the proposition the crossing needs — that the mind <i>is</i> a particular consistent formal system whose consistency it can establish from within — because, named, it is exactly what Gödel forbids. This is the discipline the whole collection turns on, and the Annals is its historical face. To tell the history honestly is the same act as drawing the boundary honestly: the bright unification — Cantor, Gödel, Turing, recursion, genuinely one line of proof — casts behind it a shadow of false unifications, and the record of where people forgot to name the bridge is part of the history too. The construction reaches exactly as far as a named and checked bridge will carry it, and not one inference further. A likeness this beautiful is the easiest of all to mistake for an identity; the whole labor of the collection is the refusal to.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">found in pieces · understood whole</span><span class="ln"></span></div>
+  <div class="coda"><p>Eighty years of finding the same thing, and a single year of seeing it whole. In the space of reasons the diagonal was always one construction, timeless and forced; in the space of causes it was a scatter of episodes, and the distance between the two is measured in sealed journals, lost languages, withheld papers, and one long war. The pieces were never separate — only the eyes that found them were, and the world that kept those eyes apart. <span class="mono">Found in pieces; understood whole.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">the chronicle · the diachronic axis</span></div>
+    <p class="colophon">The history behind the collection. Where the six volumes give the construction <i>structurally</i> — atemporally, as one theorem with many faces — this chronicle gives it <i>in time</i>: the long prehistory in which the Liar waited for the means to become a theorem; the eighty-year sequence of independent rediscoveries, in set theory, logic, and computation, that were recognized as one only in retrospect; and the lineage that kept generating from the construction long after it was understood. The dates and attributions are the standard ones; the readings — the sequence as a single construction announcing itself piecemeal, independent rediscovery as the signature of structural necessity, and limit before power as the order of the two faces — are the collection's framing, and the historical face of the same thesis the apparatus, <i>Scholia</i>, proves.</p>
+    <p class="notes"><span class="nl">the prehistory.</span> &nbsp;The Liar — Epimenides; Eubulides of Miletus, 4th c. BC — and the turn-of-the-century semantic paradoxes that renewed it: Richard 1905, Berry (pub. Russell 1906–08), Grelling–Nelson 1908. Gödel names the Richard antinomy and the Liar as the models for his own construction. The self-referential sentence is built by the <i>diagonal (fixed-point) lemma</i> — used by Gödel in 1931, stated generally by Carnap (1934) — itself an instance of the construction, with <span class="mono">φ</span> the substitution function. The truth/provability split is Tarski's undefinability versus Gödel's incompleteness: truth is not arithmetically definable; provability is.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">the record.</span> &nbsp;Cantor 1891 (the diagonal argument; sharpening his own 1874 proof) · Russell 1901, pub. 1903 (the paradox) · Gödel 1931 (incompleteness) · Tarski, obtained 1933, pub. 1936 (undefinability of truth) · Turing 1936 and Church 1936 (the halting problem; the λ-calculus) · Kleene 1938 (the second recursion theorem) · Scott, Nov. 1969 (D∞, the first reflexive object <span class="mono">D ≅ [D→D]</span> — a model of the untyped λ-calculus, necessarily outside Set, where Cantor's diagonal forbids it) · Lawvere 1969 (the categorical unification — “Diagonal arguments and cartesian closed categories,” Battelle Conference, Seattle 1968, Springer LNM 92; fittingly, overlooked for decades) · Yanofsky 2003 (the explicit instances).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">the near-misses &amp; the lineage.</span> &nbsp;Zermelo (Russell's paradox independently, c. 1899) · Post (the diagonal on formal systems ⟹ incompleteness, 1920–21; unpublished until 1941, the full “Account of an Anticipation” posthumous, 1965) · von Neumann (the second theorem independently, by letter, Nov. 1930; ceded to Gödel) · Gödel (Tarski's undefinability, independently and unpublished) · the 1936 convergence of Turing, Church, and Post. Forward: Rosser 1936 (consistency suffices) · Rice 1953 (all non-trivial behavioural properties) · Löb 1955 (provability logic) · von Neumann 1948 / 1966 (self-reproducing automata) · Smullyan 1961– (the diagonalization machine) · Boolos 1989 / Kripke (incompleteness via Berry's paradox).</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">the material register.</span> &nbsp;Tarski's undefinability theorem appeared in Polish (1933) before German (1936); the emigrations of the 1930s scattered the European schools (Gödel and Tarski to America, the Vienna Circle dispersed, von Neumann already gone, Turing soon at Bletchley); Post, with the earliest vision of all, was kept from a research post until 1935 by recurring illness and from publication for twenty years. The contingencies that kept three fields from meeting in one mind.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">the shadow.</span> &nbsp;Gödel's 1951 Gibbs lecture — the careful <i>disjunction</i> (mind surpasses every machine, <i>or</i> absolutely undecidable problems exist), unpublished until 1995 (<i>Collected Works</i> III) — and Feferman's analysis of its undefined idealizations · Lucas 1961 and Penrose 1989 (the collapse to the first disjunct alone), recorded as the construction's standard overreach, widely held invalid — the “mere suggestion” rank of the apparatus, and the cautionary case the whole collection is drawn to keep apart from its theorems.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+const EVENTS=[
+ {id:"cantor",year:"1891",who:"Cantor",dom:"set",domLabel:"set theory",na:"α = ¬",
+  found:'The <b>diagonal argument</b>: no function from a set onto its power set can be onto. Vary the membership of the n-th element at the n-th place, and you build a subset no listing contains. The method is born — though Cantor sees only a fact about the sizes of infinity.',
+  cost:'g(x) = <span class="ca">¬</span>(φ(x)(x))',
+  cset:'in Set — φ sends a subset to its characteristic function; the element no map reaches is the diagonal { x : x ∉ φ(x) }.',
+  debt:'None he would name — but the diagonal sharpens his <i>own</i> 1874 proof that the reals are uncountable. He had the theorem already, by nested intervals; in 1891 he found the <i>method</i>, and only the method would generalize.',
+  near:'Cantor himself. He read the diagonal as a fact about the <i>sizes</i> of infinity — the deepest application of his own trick, to formal systems, stayed invisible to him for life.',
+  gap:'He thought he had measured infinity. He had found the structural obstacle every self-referential system would meet — the first costume of a theorem still forty years from being stated.'},
+ {id:"russell",year:"1901",who:"Russell",dom:"set",domLabel:"set theory",na:"α = ¬",
+  found:'The <b>paradox</b>: the set of all sets that are not members of themselves. Cantor\u2019s diagonal, turned on set theory itself, makes the construction inconsistent — and brings down Frege\u2019s foundations of arithmetic on the eve of their publication.',
+  cost:'g(x) = <span class="ca">¬</span>(φ(x)(x))',
+  cset:'membership as φ — the Russell set { x : x ∉ x } is the missed diagonal, and no consistent theory may contain it.',
+  debt:'Cantor\u2019s diagonal, applied to Cantor\u2019s own “set of all sets.” Russell was probing the theorem for the <i>largest</i> possible set when the diagonal turned and bit.',
+  near:'Ernst Zermelo had the same paradox independently in Göttingen around 1899, and told Hilbert\u2019s circle — but did not publish. The contradiction that broke Frege was already known, and silent, two years early.',
+  gap:'Russell thought he had found a local flaw to be patched — the theory of types. He had found that no consistent system can hold a perfect mirror: the diagonal\u2019s first appearance as a <i>prohibition</i>.'},
+ {id:"godel",year:"1931",who:"Gödel",dom:"logic",domLabel:"logic",na:"α = ¬Prov",
+  found:'<b>Incompleteness.</b> By numbering formulas and proofs, and by the diagonal lemma, Gödel builds a sentence that says of itself that it is unprovable. If the theory is consistent, the sentence is true and unprovable. The construction, in formal arithmetic — and the most famous instance of all.',
+  cost:'g(x) = <span class="ca">¬Prov</span>(φ(x)(x))',
+  cset:'in a formal theory T — φ is substitution; g asserts its own unprovability, true and out of reach.',
+  debt:'Openly the Liar and Richard\u2019s paradox — Gödel says so on the paper\u2019s first pages. His move was to make the Liar <i>arithmetical</i>: a sentence about numbers that, decoded, speaks of its own provability.',
+  near:'Emil Post had the outline in 1921 — the diagonal on formal systems, yielding incompleteness — and did not publish for twenty years. And weeks after Gödel\u2019s announcement, von Neumann independently derived the <i>second</i> theorem, the unprovability of consistency, by letter; Gödel had it already, and von Neumann ceded the ground.',
+  gap:'Gödel thought, at first, that he had a result about <i>Principia</i> and kindred systems. He had the central limitative fact about every formal system whatever — and, in the diagonal lemma, the reusable engine to carry it into any setting that can name itself.'},
+ {id:"tarski",year:"1933",who:"Tarski",dom:"logic",domLabel:"logic",na:"α = ¬",
+  found:'The <b>undefinability of truth</b>: no formula of arithmetic defines the set of true sentences of arithmetic. The same diagonal yields a liar — a sentence asserting its own falsity — and the liar makes a truth predicate impossible.',
+  cost:'g(x) = <span class="ca">¬</span>(φ(x)(x))',
+  cset:'a candidate truth predicate as φ — g is the liar, “I am false,” which no formula may define. (Published 1936.)',
+  debt:'The Liar again, undisguised — a sentence asserting its own falsity. Where Gödel\u2019s twist was <i>unprovability</i>, Tarski\u2019s is plain <i>negation</i>, and it forbids a truth predicate exactly as Gödel\u2019s forbids a complete proof system.',
+  near:'Gödel had this result too, independently, and never published it — he saw that “true” could not be defined where “provable” could be numbered. Two of the century\u2019s sharpest minds found the same theorem; only one wrote it down.',
+  gap:'Tarski thought he was drawing the boundary of <i>semantics</i> — what a language can say of its own truth. He had drawn another face of the one boundary, in the cleanest twist of all: α = ¬.'},
+ {id:"turing",year:"1936",who:"Turing & Church",dom:"comp",domLabel:"computation",na:"α = swap",
+  found:'The <b>halting problem</b> (Turing) and the <b>λ-calculus</b> (Church), the same year. No program can decide whether an arbitrary program halts; and in the untyped λ-calculus, self-application is total — the very setting where the construction\u2019s positive twin will live. The diagonal enters computation.',
+  cost:'g(x) = <span class="ca">swap</span>(φ(x)(x))',
+  cset:'programs as φ — α swaps halt and loop; g is the program no decider can judge without contradiction.',
+  debt:'Cantor\u2019s diagonal, now run on machines. Turing\u2019s halting argument is the diagonal verbatim: assume a decider, build the program that does the opposite of what the decider predicts of it, contradiction.',
+  near:'Three formalizations of computability arrived at once — Turing\u2019s machines, Church\u2019s λ-calculus, Post\u2019s production systems — and Post had privately held the core fifteen years earlier. The convergence was so total that “computable” was simply taken to mean all three.',
+  gap:'Turing thought he was settling Hilbert\u2019s <i>Entscheidungsproblem</i> — whether mathematics is mechanically decidable. He was; and in doing so he gave the diagonal its sharpest modern body, and built the machine on which its positive twin would later run.'},
+ {id:"kleene",year:"1938",who:"Kleene",dom:"comp",domLabel:"computation",na:"φ = id",
+  found:'The <b>second recursion theorem</b>: every program can be written as if handed its own source code. For the first time the construction is run <i>forwards</i> — where the answers form a reflexive setting, the twist no longer forbids a fixed point but produces one. The power face, made general.',
+  cost:'φ = id&nbsp; ⟹&nbsp; every <span class="ca">α</span> has&nbsp; g = <span class="ca">α</span>(g)',
+  cset:'the same skeleton, read forwards — self-application total, and the twist now builds: recursion as a fixed point.',
+  debt:'The same self-application that elsewhere forbids — but in a setting (the untyped λ-calculus) where it is <i>total</i>, and so cannot contradict. Kleene inherited the reflexive ground from Church and turned the diagonal forwards.',
+  near:'The fixed-point combinator was already in the air — Curry\u2019s combinatory logic and Church\u2019s λ-calculus both contained Y, the engine that hands every function a fixed point. What was missing was the recognition that this <i>was</i> the diagonal, with the sign reversed.',
+  gap:'Kleene thought he was proving a technical lemma about recursion. He had found the diagonal\u2019s other face — the first time in forty-five years that the construction <i>built</i> instead of forbade. The trap became a tool.'},
+ {id:"lawvere",year:"1969",who:"Lawvere",dom:"cat",domLabel:"category theory",na:"α = any",keystone:true,
+  found:'<b>Diagonal arguments and cartesian closed categories.</b> For the first time, all of the above are <i>one theorem</i>: in any cartesian closed category, a point-surjective map A → Bᴬ forces every endomorphism of B to have a fixed point. Choose the category and the twist, and Cantor, Gödel, Turing fall out as instances. The costumes drop.',
+  cost:'g(x) = <span class="ca">α</span>(φ(x)(x))',
+  cset:'for ANY twist α, in ANY cartesian closed category. The costume is gone; this is the thing itself.',
+  debt:'All of it. Lawvere\u2019s achievement was to need <i>nothing</i> particular — no sets, no sentences, no machines — only the bare structure of products, exponentials, and evaluation. Strip every costume and what remains is his theorem.',
+  near:'There was none — and that is the point. No one had been looking from high enough. The unification needed not a cleverer argument but a new altitude, and category theory had only just been built tall enough to supply it.',
+  gap:'Lawvere thought he was writing a short note for a conference proceedings. He had written the sentence the whole century had been spelling out — and then, in one of history\u2019s sharper ironies, the note was <i>overlooked for decades</i>, the unification itself nearly lost the way the unity it described had been.'},
+ {id:"yanofsky",year:"2003",who:"Yanofsky",dom:"expo",domLabel:"exposition",na:"—",
+  found:'<b>A universal approach to self-referential paradoxes, incompleteness, and fixed points.</b> Lawvere\u2019s theorem made legible — the paradoxes and limitative results written out, one by one, as instances of the single construction, for a generation that had inherited the pieces without the whole.',
+  cost:'Cantor · Gödel · Turing&nbsp; ⟶&nbsp; <span class="ca">one&nbsp;g(x) = α(φ(x)(x))</span>',
+  cset:'the history, made a theorem-with-instances — the unity stated plainly at last.',
+  debt:'Lawvere, made legible. Yanofsky\u2019s contribution was expository in the deepest sense: to write the reductions out, one by one, so a generation holding the pieces could finally see the whole.',
+  near:'By 2003 the danger was no longer that the unity would be missed but that it would stay locked in a categorical idiom few could read. The near-miss had become a near-<i>inaccessibility</i>.',
+  gap:'Yanofsky claimed only to be explaining. He was completing the eighty-year arc: the construction announced piecemeal, then proved one, and now — at last — <i>said plainly</i>, in language a working mathematician could check.'}
+];
+const EById={}; EVENTS.forEach(e=>EById[e.id]=e);
+let tlSel=null;
+function renderSpine(){
+  const host=document.getElementById("tlSpine"); host.innerHTML="";
+  EVENTS.forEach(e=>{ const n=E("div","tl-node"+(e.keystone?" keystone":"")); n.dataset.id=e.id;
+    const ty=E("div","ty"); ty.textContent=e.year; n.appendChild(ty);
+    const tw=E("div","tw"); tw.textContent=e.who; n.appendChild(tw);
+    const row=E("div","trow");
+    const d=E("span","dom "+e.dom); d.textContent=e.domLabel; row.appendChild(d);
+    const a=E("span","ta"); a.innerHTML="<b>"+e.na+"</b>"; row.appendChild(a);
+    n.appendChild(row);
+    n.addEventListener("click",()=>selectEvent(e.id)); host.appendChild(n);
+  });
+}
+function selectEvent(id){
+  tlSel=id; const e=EById[id];
+  document.querySelectorAll("#tlSpine .tl-node").forEach(n=>n.classList.toggle("on",n.dataset.id===id));
+  const host=document.getElementById("tlDetail"); host.innerHTML="";
+  const head=E("div","tld-head"+(e.keystone?" keystone":""));
+  const yr=E("div","tld-year"); yr.textContent=e.year; head.appendChild(yr);
+  const who=E("div","tld-who"); who.textContent=e.who; head.appendChild(who);
+  const dd=E("span","dom "+e.dom); dd.textContent=e.domLabel; head.appendChild(dd);
+  host.appendChild(head);
+  const f=E("div","tld-found"); f.innerHTML=e.found; host.appendChild(f);
+  const asp=E("div","tld-aspects");
+  [["debt","the debt",e.debt],["near","the near-miss",e.near],["gap","intent vs. significance",e.gap]].forEach(function(a){
+    if(!a[2]) return;
+    const it=E("div","tld-asp "+a[0]);
+    const al=E("div","al"); al.textContent=a[1]; it.appendChild(al);
+    const at=E("div","at"); at.innerHTML=a[2]; it.appendChild(at);
+    asp.appendChild(it);
+  });
+  if(asp.childNodes.length) host.appendChild(asp);
+  const cos=E("div","costume"+(e.keystone?" keystone":""));
+  const cl=E("div","clab"); cl.textContent=e.keystone?"the construction, unmasked":(e.id==="yanofsky"?"the construction, read off":"the construction, in costume"); cos.appendChild(cl);
+  const cm=E("div","cm"); cm.innerHTML=e.cost; cos.appendChild(cm);
+  const cs=E("div","cset"); cs.textContent=e.cset; cos.appendChild(cs);
+  host.appendChild(cos);
+}
+/* ===== THE REDISCOVERY INSPECTOR ===== */
+const REDIS=[
+ {id:"uncount", tab:"the uncountable", title:"Cantor's theorem — found twice by one mind",
+  finds:[
+   {yr:"1874", who:"Cantor", what:"the reals are uncountable, by nested intervals", pub:"published"},
+   {yr:"1891", who:"Cantor", what:"the same theorem, by the diagonal", pub:"published — and only this one generalized", kind:"misreading"}
+  ],
+  note:"The first rediscovery is Cantor\u2019s of <i>himself</i>. He proved the reals uncountable in 1874 by one argument and again in 1891 by another — and only the second, the diagonal, carried the structural content that would generalize. <b>A theorem can be found twice by one mind, and only the second finding be the deep one.</b>"},
+ {id:"russell", tab:"the inconsistent set", title:"Russell's paradox — the same wall, two directions",
+  finds:[
+   {yr:"c. 1899", who:"Zermelo", what:"the set of all non-self-membered sets", pub:"unpublished — told to Hilbert's circle", unpub:true, kind:"anticipation"},
+   {yr:"1901", who:"Russell", what:"the same set; the letter to Frege, 1902", pub:"published 1903, halting Frege's Grundgesetze"}
+  ],
+  note:"Zermelo had the paradox in Göttingen years before Russell, and did not publish; Russell\u2019s 1902 letter to Frege is the one history records. The contradiction was independently <i>forced</i> on two thinkers probing Cantor\u2019s theorem — <b>the same wall, approached from two directions.</b>"},
+ {id:"incomp", tab:"incompleteness", title:"Incompleteness — three people, one theorem",
+  finds:[
+   {yr:"1920–21", who:"Post", what:"the diagonal on formal systems ⟹ incompleteness", pub:"unpublished until 1941; full account posthumous, 1965", unpub:true, kind:"anticipation"},
+   {yr:"1931", who:"Gödel", what:"incompleteness, via the arithmetized Liar", pub:"published"},
+   {yr:"Nov 1930", who:"von Neumann", what:"the second theorem — consistency is unprovable — independently", pub:"by letter; ceded priority to Gödel", unpub:true, kind:"simultaneity"}
+  ],
+  note:"Post saw the whole shape — normal systems simulate any proof mechanism, the diagonal then shows the general decision problem unsolvable, hence no consistent mechanism proves all theorems — in 1921, and illness and circumstance kept it unpublished for twenty years. Von Neumann, weeks after Gödel\u2019s announcement, re-derived the second theorem alone. <b>Three people, one theorem; the record kept the one who published first.</b>"},
+ {id:"truth", tab:"undefinable truth", title:"Tarski's theorem — held by one, stated by another",
+  finds:[
+   {yr:"by 1931", who:"Gödel", what:"“true” is not arithmetically definable", pub:"never published", unpub:true, kind:"withholding"},
+   {yr:"1933", who:"Tarski", what:"the undefinability of truth", pub:"published — Polish 1933, German 1936"}
+  ],
+  note:"Gödel knew that truth could not be defined where provability could be numbered, and let it pass; Tarski proved and published it. The same theorem, held silently by one and stated by the other — <b>the cleanest case of the diagonal found twice.</b>"},
+ {id:"undec", tab:"undecidability", title:"Computability — defined three ways in a single year",
+  finds:[
+   {yr:"1920s", who:"Post", what:"the same kernel — normal systems, the unsolvable decision problem", pub:"unpublished", unpub:true, kind:"anticipation"},
+   {yr:"1935–36", who:"Church", what:"the λ-calculus; an unsolvable problem", pub:"published"},
+   {yr:"1936", who:"Turing", what:"machines; the halting problem", pub:"published"},
+   {yr:"1936", who:"Post", what:"production systems; the “worker” model", pub:"published, near-simultaneously", kind:"simultaneity"}
+  ],
+  note:"Computability was formalized three independent ways in a single year, and the definitions proved equivalent — the convergence so complete that “computable” came to mean all of them at once (the Church–Turing thesis). Post had had the kernel since the 1920s. <b>When a notion is forced, it arrives from every side at once.</b>"},
+ {id:"recur", tab:"recursion", title:"The fixed-point engine — the positive face, found insistently",
+  finds:[
+   {yr:"1920s–30s", who:"Curry", what:"the fixed-point combinator, in combinatory logic", pub:"published"},
+   {yr:"1930s", who:"Church", what:"Y, in the λ-calculus", pub:"published"},
+   {yr:"1938", who:"Kleene", what:"the recursion theorem", pub:"published"}
+  ],
+  note:"The engine that hands every function a fixed point — the diagonal with its sign reversed — appears in Curry\u2019s combinators and Church\u2019s λ-calculus before Kleene names its recursion-theoretic form. <b>The positive face was rediscovered as insistently as the negative one</b>, once the reflexive ground existed to host it."}
+];
+let redisSel=null;
+function renderRedisTabs(){
+  const host=document.getElementById("redisTabs"); host.innerHTML="";
+  REDIS.forEach(function(r){
+    const b=E("button","rev-tab"); b.dataset.id=r.id; b.textContent=r.tab;
+    b.addEventListener("click",function(){ selectRedis(r.id); }); host.appendChild(b);
+  });
+}
+function selectRedis(id){
+  redisSel=id; const r=EByRedis[id];
+  document.querySelectorAll("#redisTabs .rev-tab").forEach(function(b){ b.classList.toggle("on",b.dataset.id===id); });
+  const host=document.getElementById("redisPanel"); host.innerHTML="";
+  const head=E("div","redis-head");
+  const lab=E("div","rh-lab"); lab.textContent=r.finds.length+" independent findings"; head.appendChild(lab);
+  const h=E("h4"); h.textContent=r.title; head.appendChild(h);
+  host.appendChild(head);
+  const finds=E("div","redis-finds");
+  r.finds.forEach(function(f){
+    const row=E("div","redis-find"+(f.unpub?" unpub":""));
+    const yr=E("span","rf-yr"); yr.textContent=f.yr; row.appendChild(yr);
+    const who=E("span","rf-who"); who.textContent=f.who;
+    if(f.kind){ const k=E("span","rf-kind"); k.textContent=f.kind; who.appendChild(k); }
+    row.appendChild(who);
+    const what=E("span","rf-what"); what.textContent=f.what; row.appendChild(what);
+    const pub=E("span","rf-pub"); pub.textContent=f.pub; row.appendChild(pub);
+    finds.appendChild(row);
+  });
+  host.appendChild(finds);
+  const note=E("div","redis-note"); note.innerHTML=r.note; host.appendChild(note);
+}
+const EByRedis={}; REDIS.forEach(function(r){ EByRedis[r.id]=r; });
+function renderRedisLegend(){
+  const host=document.getElementById("redisLegend"); if(!host) return; host.innerHTML="";
+  [["anticipation","found early, unpublished"],
+   ["simultaneity","found at once, then ceded"],
+   ["withholding","found, deliberately unpublished"],
+   ["misreading","found, read as something smaller"],
+   ["overlooking","found and published, then ignored"]
+  ].forEach(function(it){
+    const s=E("div","rl-item"); s.innerHTML="<b>"+it[0]+"</b> — "+it[1]; host.appendChild(s);
+  });
+}
+
+/* ===== THE 4-TUPLE COMPARATOR — one skeleton, four slots, many fillings ===== */
+const FOURTUPLE=[
+ {id:"cantor", who:"Cantor", yr:"1891", dom:"set", domLabel:"set theory", limit:true,
+  A:"a set S — its elements", B:"{0, 1} — yes / no", phi:"S → 2ˢ : each element ↦ a subset", alpha:"¬ : swap yes and no",
+  g:"g = { x ∈ S : x ∉ φ(x) } — the subset no element names", up:"No map S → 2ˢ is onto: a set is strictly smaller than its powerset."},
+ {id:"russell", who:"Russell", yr:"1901", dom:"set", domLabel:"set theory", limit:true,
+  A:"all sets", B:"{0, 1} — in / out", phi:"membership : x ↦ (y ↦ y ∈ x)", alpha:"¬ : in becomes out",
+  g:"g = { x : x ∉ x } — the set that cannot consistently exist", up:"No set holds exactly the non-self-membered sets; no universal set."},
+ {id:"godel", who:"Gödel", yr:"1931", dom:"logic", domLabel:"formal proof", limit:true,
+  A:"formulas with one free variable", B:"{ provable, unprovable }", phi:"substitution : a formula's code into itself", alpha:"¬Prov : “is not provable”",
+  g:"G ↔ ¬Prov(⌜G⌝) — “I am unprovable”", up:"G is true but unprovable: no consistent system proves all its truths."},
+ {id:"tarski", who:"Tarski", yr:"1933", dom:"logic", domLabel:"semantics", limit:true,
+  A:"formulas with one free variable", B:"{ true, false }", phi:"a candidate truth predicate True(·)", alpha:"¬ : negation",
+  g:"L ↔ ¬True(⌜L⌝) — the Liar, “I am false”", up:"No formula defines truth: “true-in-arithmetic” is not itself arithmetical."},
+ {id:"turing", who:"Turing", yr:"1936", dom:"comp", domLabel:"computation", limit:true,
+  A:"programs", B:"{ halt, loop }", phi:"run : a program on an input", alpha:"swap : halt ↔ loop",
+  g:"the program that loops iff a decider predicts it halts — on itself", up:"No program decides halting: the general decision problem is unsolvable."},
+ {id:"kleene", who:"Kleene", yr:"1938", dom:"comp", domLabel:"computation", limit:false,
+  A:"a reflexive object D ≅ Dᴰ", B:"D itself", phi:"id : application is total self-reference", alpha:"any map f : D → D",
+  g:"g = Y f, with f(g) = g — the fixed point f builds", up:"Every f has a fixed point: recursion — the construction run forwards."}
+];
+const EByFt={}; FOURTUPLE.forEach(function(t){ EByFt[t.id]=t; });
+function renderFtTabs(){
+  const host=document.getElementById("ftTabs"); if(!host) return; host.innerHTML="";
+  FOURTUPLE.forEach(function(t){
+    const b=E("button","rev-tab"); b.dataset.id=t.id; b.textContent=t.who;
+    b.addEventListener("click",function(){ selectFt(t.id); }); host.appendChild(b);
+  });
+}
+function selectFt(id){
+  const t=EByFt[id];
+  document.querySelectorAll("#ftTabs .rev-tab").forEach(function(b){ b.classList.toggle("on",b.dataset.id===id); });
+  const host=document.getElementById("ftPanel"); if(!host) return; host.innerHTML="";
+  const head=E("div","ft-phead");
+  const who=E("span","fp-who"); who.textContent=t.who; head.appendChild(who);
+  const yr=E("span","fp-yr"); yr.textContent=t.yr; head.appendChild(yr);
+  const dd=E("span","dom "+t.dom); dd.textContent=t.domLabel; head.appendChild(dd);
+  host.appendChild(head);
+  const rows=E("div","ft-rows");
+  [["A","the objects",t.A],["B","the answers",t.B],["φ","the naming",t.phi],["α","the twist",t.alpha]].forEach(function(r){
+    const row=E("div","ft-row");
+    const k=E("div","ftk"); k.innerHTML=r[0]+"<span class=\"ftk-sub\">"+r[1]+"</span>"; row.appendChild(k);
+    const v=E("div","ftv"); v.innerHTML=r[2]; row.appendChild(v);
+    rows.appendChild(row);
+  });
+  host.appendChild(rows);
+  const res=E("div","ft-result"+(t.limit?" limit":""));
+  const gg=E("div","ftr-g"); gg.innerHTML=t.g; res.appendChild(gg);
+  const up=E("div","ftr-up"); up.textContent=t.up; res.appendChild(up);
+  host.appendChild(res);
+}
+
+function init(){
+  try{ renderSpine(); selectEvent("cantor"); }catch(err){ console.error("annals: timeline",err); }
+  try{ renderRedisTabs(); renderRedisLegend(); selectRedis("incomp"); }catch(err){ console.error("annals: rediscovery",err); }
+  try{ renderFtTabs(); selectFt("cantor"); }catch(err){ console.error("annals: fourtuple",err); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><span></span><a rel="next" href="quodlibet-the-threshold.html">The Threshold →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

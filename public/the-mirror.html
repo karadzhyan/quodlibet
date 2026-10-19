@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Mirror — the one theorem beneath the corpus</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (the costumes) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+  .vol-card .vc-fill{font-family:"IBM Plex Mono",monospace;font-size:.68rem;line-height:1.5;color:var(--soft1);background:rgba(26,24,21,.035);border-radius:3px;padding:.4rem .55rem;margin:.55rem 0 .15rem;letter-spacing:-.01em;}
+  .vol-card .vc-fill .av{color:var(--red-deep);} .vol-card .vc-fill .pv{color:var(--teal-deep);}
+
+  /* ===== tier badge (mirrors the portal's epistemic discipline) ===== */
+  .tier{display:inline-flex;align-items:center;gap:.4em;font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);background:rgba(26,24,21,.05);border-radius:20px;padding:.22em .6em;margin-bottom:.55rem;}
+  .tier::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--faintest);}
+  .tier.proved{color:var(--teal-deep);} .tier.proved::before{background:var(--teal-deep);}
+  .tier.framing{color:var(--gold-deep);} .tier.framing::before{background:transparent;border:1.3px solid var(--gold-deep);}
+  .tier.keystone{color:var(--ink);} .tier.keystone::before{background:var(--ink);}
+
+  /* ===== commutative diagram (the categorical home, drawn) ===== */
+  #cdSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cd-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.7rem;}
+
+  /* ===== four fates of the forced point ===== */
+  .fate4{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .fate4{grid-template-columns:1fr;} }
+  .fcell{background:var(--paper);padding:1.05rem 1.15rem;border-top:2px solid var(--panelhair);}
+  .fcell.lim{border-top-color:var(--red-line);} .fcell.pow{border-top-color:var(--teal-line);} .fcell.absorb{border-top-color:var(--gold-line);}
+  .fcell .fc-n{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem;color:var(--faintest);}
+  .fcell.lim .fc-n{color:var(--red-deep);} .fcell.pow .fc-n{color:var(--teal-deep);} .fcell.absorb .fc-n{color:var(--gold-deep);}
+  .fcell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .4rem;color:var(--ink);}
+  .fcell p{font-size:.87rem;line-height:1.52;color:var(--soft1);}
+  .fcell .fc-where{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faint);margin-top:.55rem;display:block;}
+  .fcell .fc-where b{color:var(--soft1);font-weight:500;}
+
+  /* ===== dial genus badge ===== */
+  .dial-outcome .genus{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:rgba(26,24,21,.05);border-radius:20px;padding:.2em .65em;margin-top:.7rem;}
+  .dial-note{font-size:.82rem;line-height:1.5;color:var(--faint);font-style:italic;text-align:center;margin-top:.55rem;max-width:38rem;margin-left:auto;margin-right:auto;}
+  .dial-note b{font-style:normal;font-weight:600;color:var(--soft1);}
+
+  /* ===== reading navigation — spine, not split ===== */
+  .rdg-progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--ink);opacity:.5;z-index:60;transition:width .1s linear;}
+  /* slim numeral rail (wide screens only — sits in the left margin) */
+  .secnav{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:55;display:none;padding:.3rem .45rem;}
+  @media(min-width:80rem){ .secnav{display:block;} }
+  .secnav ol{list-style:none;margin:0;padding:0;}
+  .secnav li{margin:0;}
+  .secnav a{display:flex;align-items:center;gap:.55rem;text-decoration:none;padding:.3rem .35rem;color:var(--faintest);
+    font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.06em;position:relative;}
+  .secnav a .rn{width:1.6rem;text-align:right;transition:color .15s ease;}
+  .secnav a .tk{width:.75rem;height:1px;background:var(--faintest);transition:width .2s ease,background .15s ease;}
+  .secnav a .tt{position:absolute;left:2.7rem;white-space:nowrap;background:var(--paper);color:var(--soft1);
+    padding:.22rem .55rem;border-radius:3px;box-shadow:0 1px 7px rgba(26,24,21,.13);opacity:0;transform:translateX(-5px);
+    pointer-events:none;transition:opacity .15s ease,transform .15s ease;font-size:.66rem;letter-spacing:.04em;}
+  .secnav a:hover .rn,.secnav a:focus-visible .rn{color:var(--soft1);}
+  .secnav a:hover .tk,.secnav a:focus-visible .tk{background:var(--soft1);}
+  .secnav a:hover .tt,.secnav a:focus-visible .tt{opacity:1;transform:translateX(0);}
+  .secnav a.on .rn{color:var(--ink);}
+  .secnav a.on .tk{width:1.7rem;background:var(--ink);}
+  /* narrow-screen contents button + sheet (doubles as a where-am-I indicator) */
+  .toc-btn{position:fixed;right:1rem;bottom:1rem;z-index:62;display:flex;align-items:center;gap:.5rem;max-width:min(78vw,22rem);
+    background:var(--ink);color:var(--paper);border:none;border-radius:100px;padding:.55rem .95rem;cursor:pointer;
+    font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.08em;box-shadow:0 2px 12px rgba(26,24,21,.2);}
+  .toc-btn .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .toc-btn .cv{opacity:.7;}
+  @media(min-width:80rem){ .toc-btn{display:none;} }
+  .toc-sheet{position:fixed;inset:0;z-index:71;background:rgba(26,24,21,.34);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+    display:none;align-items:flex-end;justify-content:center;}
+  .toc-sheet.open{display:flex;}
+  .toc-card{background:var(--paper);width:100%;max-width:34rem;border-radius:12px 12px 0 0;padding:1.4rem 1.5rem 2rem;
+    box-shadow:0 -8px 34px rgba(26,24,21,.24);animation:tocrise .22s ease;}
+  @keyframes tocrise{from{transform:translateY(12px);opacity:.7;}to{transform:translateY(0);opacity:1;}}
+  .toc-card h3{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red-deep);margin:0 0 .6rem;}
+  .toc-card ol{list-style:none;margin:0;padding:0;}
+  .toc-card li{margin:0;border-top:1px solid var(--hair);}
+  .toc-card a{display:flex;align-items:baseline;gap:.85rem;text-decoration:none;color:var(--ink);padding:.78rem .15rem;}
+  .toc-card a .rn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--red-deep);min-width:2.5rem;}
+  .toc-card a .tt{font-family:"Spectral",serif;font-size:1.06rem;}
+  .toc-card a.on .rn{font-weight:600;}
+  .toc-card a.on .tt{font-style:italic;}
+  @media print{ .rdg-progress,.secnav,.toc-btn,.toc-sheet{display:none!important;} }
+  .movelink{text-align:center;margin:.55rem auto 0;}
+  .movelink a{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;color:var(--faintest);text-decoration:none;border-bottom:1px dotted transparent;transition:color .15s ease,border-color .15s ease;}
+  .movelink a:hover{color:var(--soft1);border-bottom-color:var(--faintest);}
+</style>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/edition.css">
+<meta name="description" content="The Mirror — a complete interactive reading in Quodlibet, by Arthur Karadzhyan.">
+</head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a>
+<nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="library.html">Quodlibet</a><div class="qe-navlinks"><a href="the-lathe.html#instrument">The Lathe</a><a href="the-mirror.html" aria-current="page">The Mirror</a><a href="library.html#readings">Readings</a><a href="library.html">Full collection</a></div></nav>
+<div class="rdg-progress" id="rdgProgress" aria-hidden="true"></div>
+<nav class="secnav" id="secNav" aria-label="The six movements">
+  <ol>
+    <li><a href="#theorem"  data-sec="theorem"><span class="rn">I</span><span class="tk"></span><span class="tt">the theorem</span></a></li>
+    <li><a href="#proof"    data-sec="proof"><span class="rn">II</span><span class="tk"></span><span class="tt">the proof</span></a></li>
+    <li><a href="#lands"    data-sec="lands"><span class="rn">III</span><span class="tk"></span><span class="tt">where it lands</span></a></li>
+    <li><a href="#resource" data-sec="resource"><span class="rn">IV</span><span class="tk"></span><span class="tt">what grants it</span></a></li>
+    <li><a href="#dial"     data-sec="dial"><span class="rn">V</span><span class="tk"></span><span class="tt">the dial</span></a></li>
+    <li><a href="#faces"    data-sec="faces"><span class="rn">VI</span><span class="tk"></span><span class="tt">the costumes</span></a></li>
+  </ol>
+</nav>
+<button class="toc-btn" id="tocBtn" aria-haspopup="dialog" aria-expanded="false"><span class="lbl">contents</span><span class="cv" aria-hidden="true">▾</span></button>
+<div class="toc-sheet" id="tocSheet" role="dialog" aria-modal="true" aria-label="The six movements">
+  <div class="toc-card">
+    <h3>the six movements</h3>
+    <ol>
+      <li><a href="#theorem"  data-sec="theorem"><span class="rn">I</span><span class="tt">the theorem</span></a></li>
+      <li><a href="#proof"    data-sec="proof"><span class="rn">II</span><span class="tt">the proof</span></a></li>
+      <li><a href="#lands"    data-sec="lands"><span class="rn">III</span><span class="tt">where it lands</span></a></li>
+      <li><a href="#resource" data-sec="resource"><span class="rn">IV</span><span class="tt">what grants it</span></a></li>
+      <li><a href="#dial"     data-sec="dial"><span class="rn">V</span><span class="tt">the dial</span></a></li>
+      <li><a href="#faces"    data-sec="faces"><span class="rn">VI</span><span class="tt">the costumes</span></a></li>
+    </ol>
+  </div>
+</div>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">the keystone · the corpus as one</span></div>
+    <div class="hero-head">
+      <p class="kicker">One theorem beneath the corpus — here, proven</p>
+      <h1 class="title">The <span class="x">Mirror</span></h1>
+      <p class="standfirst">The volumes of this corpus have rested on a single theorem, and not one of them proved it. Here it is — Lawvere's fixed-point theorem, in its categorical home, with its five-line proof — and here is the synthesis it silently generates. A system rich enough to <em>name itself</em> is thereby able to <em>compute</em> and thereby unable to <em>complete</em> itself. Power and limit are one purchase; the dial between them is a single bit. The diagonal, the engine, the territory, the missing roof, the missing floor: one theorem, worn every way.</p>
+      <p class="ed-mark">the theorem · the proof · where it lands · what grants it · the dial · the costumes</p>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">α(b) = b</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>A mirror is the simplest machine for self-reference: it lets a thing stand in a definite relation to itself. Every result in this corpus — the engine of all computation, the unity of the paradoxes, the vastness of their territory, the unreachable top of proof, the unreachable bottom of meaning — has turned on one structural fact about such relations, named once, in 1969, by F. William Lawvere. The other volumes used it as a key. None of them showed the key. This one does.</p>
+    <p>The reason to end on the proof rather than begin with it is that the proof becomes legible only once you have seen what it does. Read cold, Lawvere's theorem is a short technical claim about cartesian closed categories. Read after the diagonal, the atlas, the engine, the ascent, and the descent, it is the sentence those volumes were spelling. The same five lines that force a fixed point are, depending on a single sign, the engine of all computation and the source of every limit — and the corpus is the unfolding of that one ambiguity.</p>
+    <p>So the synthesis is exact, and can be stated in a breath. There is one reason a formal system can do anything, and one reason it cannot do everything, and they are the same reason: <i>it can hold a mirror to itself.</i> In the mirror it finds a fixed point. When the world it names is friendly, that fixed point is recursion — the program that reads its own source, the definition that calls itself, the engine of power. When the world carries a twist with no fixed point, the mirror demands an object that cannot exist, and the system escapes the contradiction only by surrendering some of its reach. Power and limit are not opposites. They are the two things you cannot have apart.</p>
+    <p>And there is a deeper unity still, one this volume reaches where the others only circled it. The fixed point the mirror forces is never absent — only relocated. The corpus keeps, scattered across its volumes, two separate ledgers: one of what that forced point <i>becomes</i> when the answers cannot seat it as a value — absent, divergent, paradoxical, undecided — and one of how a richer answer-space <i>grants</i> it after all, in another currency entirely. Read apart they look like a catalogue of limits and a catalogue of powers. Read together — as they are here, for the first time — they are a single ledger, balanced to the last entry, in which every limit is a fixed point the world refused to seat and every power the same fixed point seated elsewhere.</p>
+  </div>
+
+  <!-- ===== §I THE THEOREM ===== -->
+  <section class="sec" id="theorem">
+    <div class="sec-head"><span class="num">I · the theorem</span><h2>What the mirror is</h2><p class="sub">A cartesian closed category, an object that names its own maps into another, and one definition. That is the entire apparatus.</p></div>
+    <p class="movelink"><a href="mirror/quodlibet-mirror-1-theorem.html">this movement on its own page ↗</a></p>
+    <div class="reading">
+      <p>Strip the setting to its bones. We need only three things, present wherever there is enough structure to compute or to reason. <i>Products:</i> any two things can be paired — and, as the empty case, a terminal object <span class="mono">1</span> whose maps <span class="mono">1 → X</span> are the <i>points</i> we reason with. <i>Exponentials:</i> the maps from <span class="mono">A</span> to <span class="mono">B</span> are themselves an object, <span class="mono">Bᴬ</span>, equipped with an evaluation <span class="mono">ev : Bᴬ × A → B</span> that applies a map to an argument. <i>Currying:</i> a map of two variables can be read as a map of one, <span class="mono">Hom(X×A, B) ≅ Hom(X, Bᴬ)</span>. A category with these is <i>cartesian closed</i> — and sets are, computable functions are, the typed and untyped λ-calculi are, every topos is. Nothing else is needed; in particular, no negation, no numbers, no infinity.</p>
+      <p class="cont">One consequence of pairing deserves to be named, because the whole edifice will rest on it. From the product comes a <i>diagonal</i> <span class="mono">Δ : A → A × A</span>, the map <span class="mono">a ↦ (a, a)</span> that copies a thing into both coordinates. It is the most trivial operation imaginable — <i>use a thing twice</i> — and it is the seed of every self-reference to come: the only way a single <span class="mono">a</span> can appear at once as the function and as its argument is for something to have duplicated it first. A setting with pairing has this copying for free; a strictly <i>linear</i> one, in which each thing may be used exactly once, does not — and in a linear world there is no diagonal argument at all, no Liar, no Gödel, no Cantor. That is the force hidden in the modest word <i>cartesian</i>: not idle decoration beside <i>closed</i>, but the hinge on which self-reference swings. We will watch the construction reach for <span class="mono">Δ</span> at its very first step, and watch one of the five escapes (§V) consist in nothing but taking it away.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the one hypothesis — the mirror</div>
+      <p>A map <span class="mono">φ : A → Bᴬ</span> is <b>point-surjective</b> when every map from <span class="mono">A</span> to <span class="mono">B</span> is named by some element of <span class="mono">A</span>: for each <span class="mono">h : A → B</span> there is a point <span class="mono">a</span> with <span class="mono">φ(a) = h</span>. This <span class="mono">φ</span> is the mirror — it lets the objects <span class="mono">A</span> name the operations <span class="mono">Bᴬ</span> on the answers <span class="mono">B</span>. The theorem asks for exactly this much self-reference, and no more, and from it extracts a fixed point.</p>
+    </div>
+    <div class="thm">
+      <div class="tl">Lawvere, 1969</div>
+      <div class="ts"><b>The fixed-point theorem.</b> In a cartesian closed category, if there exists a point-surjective map <span class="mono">φ : A → Bᴬ</span>, then every endomorphism <span class="mono">α : B → B</span> has a fixed point — a point <span class="mono">s</span> with <span class="mono">α(s) = s</span>.</div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the razor — how little is needed</div>
+      <p>The hypothesis is even thinner than it reads. The proof names exactly one map — the diagonal <span class="mono">g</span> it is about to build — and leans on point-surjectivity only to find a point for <i>that one</i>. So the theorem does not require a complete mirror; it requires a single honest reflection: that the lone self-referential operation the construction assembles is itself nameable. A system need not name all of its operations to be caught by the diagonal. It need only fail to forbid naming the one operation that turns on it. This is the exact minimum of self-reference — almost nothing in mathematics satisfies less — and it is the source of the theorem's reach.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the home you already know</div>
+      <p>Sets are the first cartesian closed category, and there the theorem is bare set theory. Let <span class="mono">B = Ω = {⊤, ⊥}</span> be the truth-values; then <span class="mono">Ωᴬ</span> is the power set of <span class="mono">A</span>, a mirror <span class="mono">φ : A → Ωᴬ</span> lists every subset by an element, and the one fixed-point-free twist on <span class="mono">Ω</span> is negation. Lawvere's theorem instantly returns Cantor — no set lists all its own subsets — and Russell's paradox is the same diagonal with that listing assumed total. Every topos is one such world, carrying its own truth-object; the categorical statement only records that none of this was ever about sets in particular.</p>
+    </div>
+    <div class="reading">
+      <p class="cont">Two registers of the one statement run through the whole corpus. <i>Forwards</i> — given the mirror, every twist has a fixed point — it manufactures fixed points, and that is recursion. <i>Backwards</i> — if some twist has no fixed point, then the mirror cannot exist — it forbids self-reference, and that is limitation. The next movement proves the statement; the one after turns the dial between its two readings.</p>
+    </div>
+  </section>
+
+  <!-- ===== §II THE PROOF ===== -->
+  <section class="sec" id="proof">
+    <div class="sec-head"><span class="num">II · the proof</span><h2>Five lines</h2><p class="sub">The fixed point is the value the self-name takes on itself. The whole argument is the diagonal — apply a thing to its own name, then twist.</p></div>
+    <p class="movelink"><a href="mirror/quodlibet-mirror-2-proof.html">this movement on its own page ↗</a></p>
+    <div class="reading">
+      <p>Here is the key, shown. Fix any twist <span class="mono">α</span> on the answers <span class="mono">B</span>; out of the mirror alone we will build a point the twist leaves unmoved. Reveal the proof a line at a time.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="proof-controls">
+          <button class="pf-btn" id="pfNext">reveal the next line →</button>
+          <button class="pf-btn ghost" id="pfReset">reset</button>
+          <span class="pf-readout" id="pfReadout"></span>
+        </div>
+        <div class="proof-steps" id="pfSteps"></div>
+        <div class="pf-coda" id="pfCoda"></div>
+        <figcaption><span class="mono">α is arbitrary; φ is the only input — </span>the construction <span class="mono">g(a) = α(φ(a)(a))</span> feeds <span class="mono">a</span> to the very map it names, then applies the twist. The value <span class="mono">s = φ(a)(a)</span>, obtained by applying that named map to its own name, is the fixed point.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The five lines have a shape. Drawn, the proof is nothing but objects and arrows — the categorical home where it actually lives, and the reason it survives translation into every other setting. Read it along the bottom, left to right: a single point, carried by the maps, comes back to itself.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="cd-cap">the proof as a diagram</div>
+        <svg id="cdSvg" viewBox="0 0 760 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commutative diagram of the Lawvere construction: a point a in A names the diagonal map g, forcing a fixed point of the twist alpha on B">
+          <style>
+            #cdSvg text{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+            #cdSvg .ob{font-size:18px;fill:#1a1815;} #cdSvg .obR{font-size:18px;fill:#b23a2e;}
+            #cdSvg .alab{font-size:12.5px;fill:#565147;}
+            #cdSvg .twist{font-size:14px;fill:#b23a2e;}
+            #cdSvg .dlab{font-size:12.5px;} #cdSvg .dlab .d{fill:#2c6e6a;} #cdSvg .dlab .f{fill:#7c766a;}
+            #cdSvg .glab{font-size:12px;fill:#7c766a;}
+            #cdSvg .tag{font-size:9.5px;letter-spacing:.18em;fill:#225552;}
+            #cdSvg .chain{font-size:16.5px;fill:#1a1815;} #cdSvg .chain .r{fill:#b23a2e;} #cdSvg .chain .t{fill:#225552;}
+            #cdSvg .why{font-size:11px;fill:#7c766a;} #cdSvg .why .m{fill:#565147;}
+          </style>
+          <defs>
+            <marker id="ah" markerWidth="9" markerHeight="9" refX="7.2" refY="4" orient="auto"><path d="M1 1 L8 4 L1 7" fill="none" stroke="#565147" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></marker>
+            <marker id="aht" markerWidth="9" markerHeight="9" refX="7.2" refY="4" orient="auto"><path d="M1 1 L8 4 L1 7" fill="none" stroke="#2c6e6a" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></marker>
+            <marker id="ahr" markerWidth="9" markerHeight="9" refX="7.2" refY="4" orient="auto"><path d="M1 1 L8 4 L1 7" fill="none" stroke="#b23a2e" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></marker>
+          </defs>
+          <text class="ob"  x="50"  y="82" text-anchor="middle">1</text>
+          <text class="ob"  x="205" y="82" text-anchor="middle">A</text>
+          <text class="ob"  x="428" y="82" text-anchor="middle">Bᴬ × A</text>
+          <text class="obR" x="668" y="82" text-anchor="middle">B</text>
+          <path d="M62 76 L190 76"  fill="none" stroke="#565147" stroke-width="1.1" marker-end="url(#ah)"/>
+          <path d="M220 76 L382 76" fill="none" stroke="#565147" stroke-width="1.1" marker-end="url(#ah)"/>
+          <path d="M470 76 L652 76" fill="none" stroke="#565147" stroke-width="1.1" marker-end="url(#ah)"/>
+          <text class="alab" x="126" y="64" text-anchor="middle">a</text>
+          <text class="alab" x="301" y="64" text-anchor="middle">⟨φ, id⟩</text>
+          <text class="alab" x="561" y="64" text-anchor="middle">ev</text>
+          <path d="M681 75 C 713 64, 713 96, 681 89" fill="none" stroke="#b23a2e" stroke-width="1.1" marker-end="url(#ahr)"/>
+          <text class="twist" x="719" y="84" text-anchor="start">α</text>
+          <path d="M205 93 C 330 130, 545 130, 657 96" fill="none" stroke="#2c6e6a" stroke-width="1.1" marker-end="url(#aht)"/>
+          <text class="dlab" x="386" y="150" text-anchor="middle"><tspan class="d">δ</tspan><tspan class="f"> = ev ∘ ⟨φ, id⟩  ·  δ(x) = φ(x)(x)</tspan></text>
+          <text class="glab" x="386" y="172" text-anchor="middle">g = α ∘ δ  ·  twist the diagonal, then read it at its own name</text>
+          <text class="tag" x="386" y="190" text-anchor="middle">THE FORCED POINT</text>
+          <rect x="146" y="197" width="480" height="70" rx="4" fill="rgba(44,110,106,.10)" stroke="rgba(44,110,106,.42)" stroke-width="1"/>
+          <text class="chain" x="386" y="231" text-anchor="middle">s = φ(a)(a) = g(a) = <tspan class="r">α</tspan>(s)  <tspan class="t">∎</tspan></text>
+          <text class="why" x="386" y="253" text-anchor="middle">the middle step is the mirror — <tspan class="m">φ(a) = g</tspan> — and the rest is substitution</text>
+        </svg>
+        <figcaption><b>Objects and arrows, nothing else.</b> Point-surjectivity is used exactly once — to find the point <span class="mono">a</span> that names <span class="mono">g</span> — and the twist <span class="mono">α</span> exactly once. Between them nothing is chosen: follow the maps out of <span class="mono">a</span> and the point <span class="mono">s = φ(a)(a)</span> returns as <span class="mono">α(s)</span>.</figcaption>
+      </div>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">what the proof did not do</div>
+      <p>No line of it makes a choice. The map <span class="mono">g</span> is forced by <span class="mono">α</span> and <span class="mono">φ</span>; the point <span class="mono">a</span> is handed over by the mirror; the value <span class="mono">s</span> is simply whatever <span class="mono">φ(a)(a)</span> already was, and <span class="mono">α(s) = s</span> falls out by substitution — not by search, not by construction, not by any appeal to what <span class="mono">B</span> happens to contain. That total absence of choice is why the conclusion cannot be dodged, and why the same forced point returns one level up in the Ascent and one level down in the Descent: nothing was settled here that could have been settled otherwise.</p>
+    </div>
+    <div class="reading">
+      <p>And there is more in the formula than existence. The fixed point is not merely shown to be — it is <i>written</i>: <span class="mono">s = φ(a)(a)</span>, with <span class="mono">a</span> whatever names <span class="mono">g = α ∘ ev ∘ ⟨φ, id⟩</span>. Every occurrence of <span class="mono">α</span> stands in plain view, so the point is a <i>uniform expression in the twist</i> — change <span class="mono">α</span> and the same expression tracks it, re-deciding nothing. That uniformity is the whole distance between a fixed-point <i>theorem</i> and a fixed-point <i>operator</i>. In a reflexive object, where <span class="mono">φ</span> may be taken to be the identity, the expression contracts to a single closed term — the combinator <span class="mono">Y</span> — that returns a fixed point of <i>any</i> map handed to it. The proof does not exhibit one fixed point; it is a machine that manufactures them on demand. Recursion is that machine, switched on.</p>
+    </div>
+    <div class="reading">
+      <p>Notice what the proof used and what it did not. Its first act is the diagonal of §I made flesh: the step <span class="mono">⟨φ, id⟩</span> is <span class="mono">(φ × id) ∘ Δ</span>, so before anything else the construction <i>copies</i> <span class="mono">a</span> — one copy to be read as a function, the other to be its argument. Take that copy away and the proof cannot start. After it, only evaluation, currying, and one named map are used; no negation, no infinity, no numbers — and, worth stating precisely, no <i>logic</i>: no excluded middle, no choice. The argument is intuitionistically valid, which is why it holds verbatim inside every elementary topos, and why its <i>limitative</i> conclusions are constructive facts rather than classical residue. There is a stubborn folklore that Cantor's diagonal needs the excluded middle; it does not. The missing element is <i>exhibited</i> — <span class="mono">g(a) = α(φ(a)(a))</span> — not inferred from the failure of its presence; the whole work is the equational chain <span class="mono">α(s) = α(φ(a)(a)) = g(a) = φ(a)(a) = s</span>, and an equation needs no bivalence to hold. The diagonal is not a trick about sets or sentences, and not an artifact of classical reasoning. It is what self-reference <i>is</i> — assembled from the one operation any cartesian setting performs for free: using a thing twice.</p>
+    </div>
+    <div class="callout gold">
+      <div class="cl-lab">one implication, walked from either end</div>
+      <p>Everything ahead is a single conditional read in one of its two equivalent directions. <i>Forwards, as proved:</i> a mirror onto <span class="mono">B</span> forces a fixed point of every <span class="mono">α : B → B</span> — power. Its <i>contrapositive</i> is not a second theorem but the very same one: if some <span class="mono">α : B → B</span> has <b>no</b> fixed point, there can be <b>no</b> mirror onto <span class="mono">B</span> — limitation. Cantor, Gödel, and Turing are this contrapositive evaluated at a single fixed-point-free twist. To call power and limit two sides understates the bond: they are <span class="mono">P ⟹ Q</span> and <span class="mono">¬Q ⟹ ¬P</span> — one arrow, and you may enter it from whichever end the world hands you.</p>
+    </div>
+  </section>
+
+  <!-- ===== §III WHERE IT LANDS ===== -->
+  <section class="sec" id="lands">
+    <div class="sec-head"><span class="num">III · where it lands</span><h2>The fixed point is never absent</h2><p class="sub">The construction does not ask whether <span class="mono">s</span> exists; it produces it. What the world decides is only what <span class="mono">s</span> is permitted to be — and that one question has two faces.</p></div>
+    <p class="movelink"><a href="mirror/quodlibet-mirror-3-where-it-lands.html">this movement on its own page ↗</a></p>
+    <div class="reading">
+      <p>Return to the proof and notice a strangeness it passed over in silence. The construction is <i>unconditional</i>: given the mirror, it forces the point <span class="mono">s = φ(a)(a)</span> and proves <span class="mono">α(s) = s</span> for <i>every</i> twist whatsoever. Yet the simplest twist of all — negation on the two truth-values — plainly has no fixed point: nothing equals its own opposite. Both facts cannot stand unless something quietly gives. What gives is the unspoken premise that <span class="mono">s</span> must be one of the answers in <span class="mono">B</span>. It need not be. The forced fixed point is never absent; it is only <i>relocated</i> — pushed out of the values and into whatever the surrounding world will let it be. <i>Limitation</i> is the name we give that relocation when the world is too rigid to seat it at all.</p>
+    </div>
+    <div class="reading">
+      <p class="cont">So the dial's single bit — does <span class="mono">α</span> rest somewhere in <span class="mono">B</span>? — resolves, on inspection, into four destinations for the one forced point, sorted by whether the mirror genuinely exists, whether <span class="mono">B</span> is roomy enough to host the value, and whether the twist is a real, total negation.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="fate4">
+          <div class="fcell lim">
+            <div class="fc-n">fate one · no host</div>
+            <h4>Absent</h4>
+            <p>The system is not reflexive and the twist rests nowhere, so no value can exist to be <span class="mono">s</span>. The diagonal yields no paradox — it yields a witness that the naming was never onto.</p>
+            <span class="fc-where"><b>Cantor</b> · the halting decider</span>
+          </div>
+          <div class="fcell pow">
+            <div class="fc-n">fate two · divergent</div>
+            <h4>Recursion</h4>
+            <p>The mirror is genuine and <span class="mono">B</span> can host the point — as a self-describing object, or a computation that never settles, a <span class="mono">⊥</span>. No catastrophe; this is the engine of everything.</p>
+            <span class="fc-where"><b>Y</b> · quines · the recursion theorem</span>
+          </div>
+          <div class="fcell lim">
+            <div class="fc-n">fate three · explosive</div>
+            <h4>Paradox</h4>
+            <p>Reflexivity, a real negation, and demanded coherence all at once: the forced point becomes a proof of its own falsehood. The three cannot stand together, and the system detonates.</p>
+            <span class="fc-where"><b>Russell</b> · the Liar · Curry</span>
+          </div>
+          <div class="fcell absorb">
+            <div class="fc-n">fate four · undecided</div>
+            <h4>Incompleteness</h4>
+            <p>The twisted predicate is expressible but strictly weaker than truth, so the point lands as a sentence the system can neither affirm nor deny. No contradiction — it simply survives, undecided.</p>
+            <span class="fc-where"><b>Gödel</b> · Löb</span>
+          </div>
+        </div>
+        <figcaption><span class="mono">one construction, one forced point — </span>the four results are four answers to a single question: <b>where is <span class="mono">s</span> allowed to land?</b> Reflexivity and the character of the twist decide; the construction itself never varies.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The sorting deserves to be made exact, because the four are not loose impressions but the leaves of a short decision. Run the construction and ask, in order. <b>Does a genuine mirror exist?</b> Where its existence is the open question — is there a surjection, a decider? — a fixed-point-free twist answers it: <i>no</i>, and that <i>no</i> is the whole result. This is <b>Absent</b>. Take the halting decider: let <span class="mono">A</span> be programs, <span class="mono">B = {halts, loops}</span>, <span class="mono">φ(e)</span> the function program <span class="mono">e</span> computes, and <span class="mono">α</span> the swap. The diagonal <span class="mono">g(e) = ¬(φ(e)(e))</span> — loop if <span class="mono">e</span> halts on its own code, halt if it loops — becomes programmable the instant a decider exists, and running it on its own code <span class="mono">c</span> forces <span class="mono">g(c) = ¬g(c)</span>. So no decider exists; the forced point cannot be located, because the mirror that would name it cannot be built. Cantor is the same sentence with <span class="mono">B = Ω</span>: no set lists its own subsets.</p>
+      <p class="cont"><b>If instead the mirror is stipulated</b> — naïve comprehension grants membership as a total predicate, naïve truth grants the <span class="mono">T</span>-schema — then the identical fixed-point-free twist refutes not the mirror but the <i>system</i>: the forced point is a sentence equal to its own negation, and the theory is inconsistent. This is <b>Paradox</b> — and it is worth seeing that Paradox and Absent are <i>one diagonal pointed two ways</i>: aimed at an open mirror it reads <i>no such map</i>, aimed at a stipulated one it reads <i>no such system</i>. The choice of which is forced by nothing in the construction; it is forced by whether the world had already promised the mirror. <b>If the mirror is genuine and the twist does rest</b>, there is no obstruction at all — <b>Recursion</b>. And in the one case left — mirror stipulated, twist fixed-point-free, but the predicate <i>weaker</i> than a total negation, obeying only Löb's laws and not the full <span class="mono">T</span>-schema — the contradiction cannot complete, and the forced point lands as a sentence the system can neither prove nor refute. This is <b>Incompleteness</b>: the paradox that could not detonate.</p>
+    </div>
+    <div class="reading">
+      <p>Read across the four and one axis organizes them. They are sorted by how the world answers a single question — <i>where may <span class="mono">s</span> live?</i> — which has just two moving parts: whether the mirror genuinely exists, and whether the answer-space <span class="mono">B</span> is roomy enough to seat the value the twist demands. Both hold and the point is recursion; the room runs short and the point is forced into paradox, into undecidability, or clean out of existence. The fates are therefore a ledger of <i>demand</i> — an accounting of what the forced point becomes when nothing in the values will seat it.</p>
+      <p class="cont">A ledger of demand implies a matching ledger of <i>supply</i>, because the same construction, run on a kinder world, hands the point back whole. By what right does <i>any</i> fixed point exist? That is the question the next movement takes up — and the two ledgers, laid side by side, turn out to be one, balanced to the entry.</p>
+    </div>
+  </section>
+
+  <!-- ===== §IV WHAT GRANTS IT ===== -->
+  <section class="sec" id="resource">
+    <div class="sec-head"><span class="num">IV · what grants it</span><h2>Three completenesses, one resource</h2><p class="sub">A fixed-point theorem is the claim that some <i>completeness</i> is strong enough to defeat some class of twist. Mathematics runs on exactly three — and the limits are what the strongest of them costs.</p></div>
+    <p class="movelink"><a href="mirror/quodlibet-mirror-4-what-grants-it.html">this movement on its own page ↗</a></p>
+    <div class="reading">
+      <p>The fates asked what the forced point <i>becomes</i> when no value will hold it. The supply side asks the prior question they all presume: by what right does a fixed point exist at all? Mathematics answers in three idioms, and beneath the three lies a single resource. A fixed point is a place where a map stops moving; to be sure such a place exists, you need a space complete enough that the search for it cannot fall through the floor. Each genus is one species of that completeness.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="trilemma">
+          <div class="tri-cell">
+            <div class="tc-n">genus one · representational</div>
+            <h4>The diagonal</h4>
+            <p><b>Completeness of naming.</b> The object holds a name for every one of its own maps into <span class="mono">B</span>. So total a mirror forces a fixed point of <i>every</i> twist at once — which is exactly why it alone can fail. Lawvere, Cantor, Gödel, Turing.</p>
+          </div>
+          <div class="tri-cell">
+            <div class="tc-n">genus two · order</div>
+            <h4>Knaster–Tarski</h4>
+            <p><b>Completeness of order.</b> Every set of approximations has a least upper bound. A <i>monotone</i> map then has a least fixed point — the limit of <span class="mono">⊥ ≤ f⊥ ≤ f²⊥ ≤ ⋯</span>. The order does the work; self-reference is never asked. Denotational recursion; Kripke's truth.</p>
+          </div>
+          <div class="tri-cell">
+            <div class="tc-n">genus three · metric · topological</div>
+            <h4>Brouwer–Banach</h4>
+            <p><b>Completeness of convergence.</b> Every Cauchy sequence has a limit; every open cover, a finite subcover. A <i>contraction</i> or <i>continuous</i> self-map then has a fixed point — the limit of its own iterates. Nash equilibria; contractions; reflective oracles.</p>
+          </div>
+        </div>
+        <figcaption><span class="mono">richness ⟹ a fixed point — </span>three times, in three currencies of completeness. Only the first asks the object to name itself; the other two ask only that the <i>map</i> be tame, and let the space's own completeness close the loop.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>Set the three beside one another and a pattern sharper than "completeness" appears: the genera divide by <i>mechanism</i>. Two of them find their fixed point by <i>convergence</i> — iterate the tame map and its orbit closes on a limit, <span class="mono">⊔ fⁿ(⊥)</span> in a complete order, <span class="mono">lim fⁿ(x)</span> in a complete metric — so what must be complete is the <i>orbit</i>, and a fixed point is seated only for maps tame enough to converge. The third finds its fixed point by <i>diagonal</i>: no iteration, no limit, only the mirror reading its own name back through the twist. What must be complete there is the <i>representation</i> — the object names its own endomaps — and because that asks nothing whatever of the map, it hands a fixed point to <i>every</i> map at once. Both are completeness. They are completeness of different things — and that difference is exactly where limitation is born.</p>
+      <p class="cont">That asymmetry is the precise origin of limitation. A convergence theorem can never contradict itself: a map that will not converge is simply handed no fixed point, and nothing is claimed against it. The diagonal theorem <i>can</i> contradict itself, because it has already promised a fixed point to a map that demonstrably has none — negation on the two truth-values. So the classical limits are not some fourth, defective genus, and not a failure of completeness at all. They are the diagonal mechanism colliding with the one twist its own generosity cannot honor. The same overreach that makes the mirror powerful — a fixed point for everything — is what makes it impossible wherever a single twist refuses to rest.</p>
+    </div>
+    <div class="callout gold">
+      <div class="cl-lab">the resource, named</div>
+      <p>Here is the corpus compressed to a sentence. <b>A fixed-point theorem is a completeness theorem.</b> Order-completeness defeats the monotone twists; metric and topological completeness defeat the continuous ones; representational completeness — the mirror — defeats <i>all</i> twists, and so is the only completeness that can turn on its owner. Recursion is what that representational completeness grants when the twist can be seated; <i>limitation</i> is the same completeness meeting a twist that cannot be — <span class="mono">¬</span> on the two truth-values, whose sole escape is that no mirror onto them exists. The genera are not three unrelated theorems. They are two mechanisms for one phenomenon — fixed by limit, or fixed by mirror — and limitation lives in the mirror, the only mechanism whose reach is wide enough to indict itself.</p>
+    </div>
+    <div class="reading">
+      <p class="cont">This sharpens into a clean criterion for which worlds can even <i>be</i> limited. The contrapositive bites on an answer-space <span class="mono">B</span> exactly when <span class="mono">B</span> carries one endomap with no fixed point. On the two truth-values that map is unique — it is negation — which is why crisp, two-valued logic is precisely the soil in which the diagonal forbids. At the far pole sits a reflexive object <span class="mono">D ≅ Dᴰ</span>: there <i>every</i> map has a fixed point, supplied uniformly by <span class="mono">Y</span>, so no twist can be fixed-point-free and the mirror is never contradicted. Power and limitation are the two ends of one spectrum, and the only question the world answers is whether its answers leave room for a map that refuses to rest.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the two mechanisms meet, one level down</div>
+      <p>Their effects differ — only the diagonal overreaches — but their resources are one theorem at two heights, and seeing this is the deepest turn the corpus takes. The diagonal's arena, a reflexive object <span class="mono">D ≅ [D → D]</span>, is itself a fixed point — not of a map but of the functor <span class="mono">X ↦ [X → X]</span> — and fixed points of functors obey the law fixed points of maps do, one storey up. <b>Lambek's lemma</b> says an initial algebra is already such a fixed point, <span class="mono">F(μF) ≅ μF</span>; <b>Adámek's theorem</b> builds it as the colimit of the chain <span class="mono">0 → F0 → F²0 → ⋯</span>. This is Knaster–Tarski with the word <i>poset</i> rewritten <i>category</i>: where the order theorem climbs <span class="mono">⊥ ≤ f⊥ ≤ f²⊥ ≤ ⋯</span> to the least fixed point of a monotone map, the categorical one climbs <span class="mono">0 → F0 → F²0 → ⋯</span> to the initial fixed point of a functor — and Scott's <span class="mono">D∞</span> is exactly that climb for the function-space functor, its chain <span class="mono">D₀ → [D₀→D₀] → ⋯</span> resolving, by the limit–colimit coincidence, into <span class="mono">D∞ ≅ [D∞ → D∞]</span>. So representational completeness is no rival to order-completeness; it <i>is</i> order-completeness, lifted from the lattice of points to the category of objects. There were never two resources — only one construction, the colimit of an orbit, run at the level of points to yield Kleene's value and at the level of objects to yield Scott's mirror, inside which the diagonal then turns.</p>
+    </div>
+    <div class="reading">
+      <p>The initial algebra has a twin, and the pair sharpens what completeness grants. Order-completeness offers not one fixed point but two: a <i>least</i>, built upward from <span class="mono">⊥</span> — the inductive <span class="mono">μ</span>, the realm of finite, well-founded, terminating things — and a <i>greatest</i>, built downward from <span class="mono">⊤</span>, the coinductive <span class="mono">ν</span>, the realm of streams, processes, and computations that never end. Terminating recursion lives in the first; the non-settling <span class="mono">⊥</span> that the recursion fate hosts lives in the second. Scott's reflexive object is special precisely because there the two coincide — it is <i>bifree</i>, initial algebra and final coalgebra at once — which is why it can model the whole untyped calculus, the halting and the diverging together. And this coincidence is the exact knife-edge of the <span class="mono">discipline</span> wall. A fixed-point operator at <i>every</i> type, applied to the identity at the empty type, yields an inhabitant of <span class="mono">⊥</span> — a proof of falsehood. To admit <span class="mono">Y</span> everywhere is to be Turing-complete and inconsistent; to forbid it is to be a consistent logic that cannot name every program. Curry–Howard makes the trade literal: non-termination <i>is</i> inconsistency, and a total type theory purchases its soundness with precisely the self-reference it declines.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">recovery is a change of completeness — and never free</div>
+      <p>Now every escape the corpus records reads as one move: when representational completeness meets a twist it cannot seat, <i>re-host that twist where a weaker completeness can.</i> Drop negation into the three-valued lattice <span class="mono">{T, F, ⊥}</span> and it turns monotone; order-completeness seats it; the Liar comes to rest at <span class="mono">⊥</span> — Kripke's truth. Drop the reflexive set Cantor forbids into Scott's domains and self-application turns continuous; the same order-completeness returns it as a least fixed point — Scott's <span class="mono">D ≅ Dᴰ</span>, the home of recursion. The point always comes back. But the bill is exact, and it is paid in the completeness surrendered: you leave the crisp, total, two-valued world the mirror ruled and accept truth-value gaps, partial maps, a continuity restriction — a change in what your objects <i>are</i>. You never defeat the diagonal. You emigrate to a country with looser laws.</p>
+    </div>
+    <div class="reading">
+      <p>And the looser country has a diagonal of its own. Every recovery enriches the language — to park the Liar at <span class="mono">⊥</span> you must be able to <i>say</i> "undefined"; to seat self-application you must be able to <i>name</i> the new objects — and a richer language is a richer mirror. The twist tamed at one level returns, sharpened, one level up. Walk the three escapes and watch the obstruction come back each time it is paid off.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="rev-tabs" id="revTabs"></div>
+        <div id="revStages"></div>
+        <figcaption><span class="mono">tamed, not escaped — </span>each recovery seats the old twist by importing a weaker completeness, and each enriched language breeds a fresh twist the import cannot reach. The ladder of these revenges, read upward, is the Ascent's roof that is never met.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>So the two ledgers close into one. Read as demand, the forced point is absent, divergent, paradoxical, or undecided — four ways the values fail to hold it. Read as supply, it is held after all, by order- or by metric-completeness, at the price of leaving the world that forbade it. Every limit in the corpus is a fixed point some completeness refused to seat; every recovered power is the same fixed point seated by a completeness elsewhere, on terms. There is one forced point — and the whole corpus is the accounting of where it is allowed to land.</p>
+    </div>
+  </section>
+
+  <!-- ===== §V THE DIAL ===== -->
+  <section class="sec" id="dial">
+    <div class="sec-head"><span class="num">V · the dial</span><h2>One bit: tool or trap</h2><p class="sub">The same construction; the only variable is whether the twist α has a fixed point of its own. That single bit is the difference between power and limitation.</p></div>
+    <p class="movelink"><a href="mirror/quodlibet-mirror-5-the-dial.html">this movement on its own page ↗</a></p>
+    <div class="reading">
+      <p>The proof took <span class="mono">α</span> as arbitrary and produced a point <span class="mono">s</span> with <span class="mono">α(s) = s</span>. Everything now depends on one question about <span class="mono">α</span> alone: can <span class="mono">α</span> have a fixed point at all? If yes, the construction hands it to you, and that is power. If no, the construction demands a value that cannot exist — and, as we have just seen, the point is not lost but displaced. The dial is that fuller picture at its coarsest setting: the single bit beneath the four fates. Turn it.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="dial-construction">
+          <span class="lab">the diagonal construction — fixed; only α changes below</span>
+          g(x) = <span class="av">α</span>(&#8201;φ(x)(x)&#8201;)&nbsp;&nbsp;⟶&nbsp;&nbsp;a names g&nbsp;&nbsp;⟶&nbsp;&nbsp;s = φ(a)(a) = <span class="av">α</span>(s)
+        </div>
+        <div class="dial-pick" id="dialPick"></div>
+        <div class="dial-flow" id="dialFlow"></div>
+        <figcaption><span class="mono">pick a twist α — </span>for the first four, the forced point <span class="mono">s = α(s)</span> either exists (and is recursion) or cannot (and forbids the mirror): the diagonal genus, one bit of difference. The last is a different genus — its fixed point comes not from the mirror but from the order of <span class="mono">B</span>, the recovery of §IV in miniature.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The bit the dial reads is, more exactly, a question about the whole monoid of twists. Each <span class="mono">B</span> partitions its endomaps <span class="mono">End(B)</span> into those that have a fixed point and those that do not, and the shape of that partition is set by the structure of <span class="mono">B</span> alone. On the bare two truth-values almost every map rests — the identity, the two constants — and exactly one does not: negation. That single exception is the entire content of classical limitation; bivalent logic is dangerous only because its answer-space admits one fixed-point-free map. Enrich <span class="mono">B</span> into a complete lattice and the partition changes character: <i>every monotone map</i> now has a fixed point, so within the maps the order permits, the fixed-point-free region is <i>empty</i> — which is exactly why genus two is safe, and exactly what recovery exploits. To re-host <span class="mono">¬</span> in <span class="mono">{T, F, ⊥}</span> is to move it out of the dangerous corner of <span class="mono">End(B)</span> and into the monotone interior, where Knaster–Tarski guarantees it the rest <span class="mono">¬(⊥) = ⊥</span>. The dial does not merely report a bit; it reports <i>where the chosen twist sits in a partition the world is free to redraw</i>. Power and limitation are regions, and recovery is redistricting.</p>
+    </div>
+    <div class="reading">
+      <p>Read the dial in reverse and the corpus's deepest claim appears. To possess full self-reference — a point-surjective mirror, a reflexive object — is to grant <i>every</i> twist a fixed point, the friendly ones and <span class="mono">¬</span> alike. Classical Boolean negation has no fixed point on <span class="mono">{T,F}</span>. A point-surjective mirror into all Boolean-valued maps therefore cannot exist: it must crack the glass somewhere — denying that every map is named, or that self-application is even well-formed, the five walls of the atlas. And each crack costs reach: a function no longer total, a logic no longer complete, a theory no longer categorical. That Boolean twist rules out that mirror; the λ-calculus obtains fixed-point terms in a different setting.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the five walls — every way out, and what each one denies</div>
+      <p>The crack can fall in exactly five places, and the Atlas proves the list closed, because it is indexed by the construction's hypotheses and the one inference that turns its fixed point into ruin. Three walls <i>prevent</i> the point from ever forming, by denying a premise of the mirror: <b>stratify</b> — forbid the naming to reach across levels (Tarski's hierarchy of truth, the ramified theory of types); <b>restrict</b> — deny that every predicate names an object (Zermelo's Separation in place of Comprehension, the precise move that saved set theory); <b>discipline</b> — deny that self-application is even well-formed (typing, the axiom of Foundation, Martin-Löf). Two walls <i>survive</i> the point but refuse its catastrophe: <b>weaken</b> — keep the fixed point and drop the structural rule, contraction, that drove Curry's inference to <span class="mono">⊥</span>; <b>tolerate</b> — keep the contradiction and deny that it spreads, surrendering explosion itself (paraconsistency). The first family pays in reach — a function no longer total, a set theory no longer universal, a language no longer its own interpreter; the second pays in logic — a structural rule, or bivalence. There is no sixth wall, because there is no sixth thing to deny.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the one purchase</div>
+      <p>Power and limit issue from the same fixed point. A system gains recursion exactly to the extent that it can name its own operations; it incurs incompleteness, undecidability, and non-categoricity for exactly that reason. You cannot buy the self-reference that computes without buying the diagonal that limits. <b>They are one purchase.</b></p>
+    </div>
+  </section>
+
+  <!-- ===== §VI THE COSTUMES ===== -->
+  <section class="sec" id="faces">
+    <div class="sec-head"><span class="num">VI · the costumes</span><h2>One construction, every costume</h2><p class="sub">With the theorem proved, the rest of the corpus is this one construction worn six ways. The proof of §II is the common thread; what changes is only the casting — and which way the cloth is turned.</p></div>
+    <p class="movelink"><a href="mirror/quodlibet-mirror-6-the-costumes.html">this movement on its own page ↗</a></p>
+    <div class="reading">
+      <p>By now the reading is a procedure, and it is worth stating as one, because it works on anything that turns upon itself — not only the six volumes here. Confront a candidate result and ask five questions in order. <i>What are the things</i> <span class="mono">A</span> that do the naming; <i>what are the answers</i> <span class="mono">B</span>; <i>what is the mirror</i> <span class="mono">φ : A → Bᴬ</span> by which the things name their own maps; <i>what is the twist</i> <span class="mono">α</span>. Then the one question that decides everything: <i>can the twist rest</i> — does <span class="mono">α</span> have a fixed point in <span class="mono">B</span>? If yes, you are looking at power, and the construction hands you the recursion; if no, you are looking at a limit, and the construction tells you which hypothesis the world had to surrender to stay consistent. The six volumes are that procedure run six times. Two wear the construction <i>forwards</i>, as power; two wear it <i>backwards</i>, as limit; one charts the whole wardrobe; and this one holds the glass — and the badges keep the distinction the corpus refuses to blur: what is <i>proved</i>, and what is a <i>reading</i> that rests on a proof.</p>
+    </div>
+    <div class="stage">
+      <div class="corpus-grid">
+        <div class="vol-card">
+          <div class="vc-face">the construction itself</div>
+          <h4>The <span class="vol-the">Diagonal</span></h4>
+          <span class="tier proved">reduction · verified</span>
+          <div class="vc-thesis">The construction is one. The classical limits and all of recursion are a single <span class="mono">g(x) = α(φ(x)(x))</span>, read backwards or forwards.</div>
+          <div class="vc-fill"><span class="av">α = ¬</span> on B = 2 → Cantor · Gödel · Turing &nbsp;·&nbsp; <span class="pv">φ = id</span> on D ≅ Dᴰ → Y</div>
+          <div class="vc-result">Fourteen results shown as explicit <span class="mono">(A, B, φ, α)</span> — instance by instance, not by analogy.</div>
+        </div>
+        <div class="vol-card">
+          <div class="vc-face">its whole territory</div>
+          <h4>The <span class="vol-the">Atlas</span></h4>
+          <span class="tier framing">framing · synthesis</span>
+          <div class="vc-thesis">About a hundred results across mathematics, in three genera of fixed-point theorem — and the consistent systems that escape by denying a hypothesis.</div>
+          <div class="vc-fill">richness + regularity ⟹ a fixed point &nbsp;·&nbsp; three genera, one schema</div>
+          <div class="vc-result">The diagonal genus sets the limits; the order and topological genera <b>recover</b> the point — those recoveries are themselves theorems.</div>
+        </div>
+        <div class="vol-card">
+          <div class="vc-face">the dial, forward — power</div>
+          <h4>The <span class="vol-the">Engine</span></h4>
+          <span class="tier proved">theorem · verified</span>
+          <div class="vc-thesis">The far side of the dial. When the twist rests, the same construction does not forbid self-reference; it builds it — recursion, quines, machines that copy themselves.</div>
+          <div class="vc-fill"><span class="pv">φ = id</span>, α arbitrary → <span class="pv">Y F = F(Y F)</span> &nbsp;·&nbsp; recursion from nothing</div>
+          <div class="vc-result"><b>Kleene</b>'s recursion theorem · the Y-combinator · von Neumann's self-reproduction. The diagonal that bounds is the diagonal that builds.</div>
+        </div>
+        <div class="vol-card">
+          <div class="vc-face">the dial, back — no roof</div>
+          <h4>The <span class="vol-the">Ascent</span></h4>
+          <span class="tier framing">framing · on Gödel II</span>
+          <div class="vc-thesis">No roof. Let the things be theories and the twist be "add the soundness you lack." That twist is fixed-point-free, so the climb never completes.</div>
+          <div class="vc-fill">A = theories, <span class="av">α = + reflection</span> → no fixed point</div>
+          <div class="vc-result">Carried by a theorem — <b>reflection is strict</b> (Gödel II) — read upward as a ladder with no top. Incompleteness, ineliminable.</div>
+        </div>
+        <div class="vol-card">
+          <div class="vc-face">the dial, back — no floor</div>
+          <h4>The <span class="vol-the">Descent</span></h4>
+          <span class="tier framing">reading · on Löwenheim–Skolem</span>
+          <div class="vc-thesis">No floor. No first-order theory with an infinite model can fix that model up to isomorphism, so the intended structure recedes from beneath.</div>
+          <div class="vc-fill">B = the models of a theory → no categorical anchor</div>
+          <div class="vc-result">A <b>reading</b>, not a literal instance: <b>Löwenheim–Skolem</b> proves it by other means, and the corpus marks it as the diagonal turned downward — kin, not identity.</div>
+        </div>
+        <div class="vol-card">
+          <div class="vc-face">the dial itself — this volume</div>
+          <h4>The <span class="vol-the">Mirror</span></h4>
+          <span class="tier keystone">the keystone</span>
+          <div class="vc-thesis">The theorem the others rest on, and the single bit that turns it. Power and limit issue from one forced point; the sign of the twist is the only dial.</div>
+          <div class="vc-fill">point-surjective φ ⟹ every <span class="av">α</span> has s = <span class="av">α</span>(s)</div>
+          <div class="vc-result">Lawvere, 1969 — stated, proved, and bound to the corpus. The glass in which the other five are one image.</div>
+        </div>
+      </div>
+      <div class="corpus-synth">Read down the column and the symmetry the dial promised is plain. <b>The Engine wears the construction forwards — recursion, self-reproduction, power; the Ascent and Descent wear it backwards — no roof, no floor, limit.</b> The Diagonal is the bare construction, the Atlas its whole territory, and this volume the glass in which all of them are one image. Power and limit are not two findings to be balanced against each other. They are one purchase, paid once, at the mirror.</div>
+    </div>
+    <div class="callout gold">
+      <div class="cl-lab">a second fixed point, found by other means</div>
+      <p>That the Ascent is a reading and not a literal Lawvere instance does not leave it unmoored, because self-reference throws a fixed point in provability logic too — proved independently, and pointing the same way. Gödel's sentence <i>is</i> a fixed point: by the diagonal lemma there is a <span class="mono">G</span> with <span class="mono">G ↔ ¬□G</span>, a sentence asserting its own unprovability. The modal logic of provability, <span class="mono">GL</span>, then proves a fixed-point theorem of its own — de Jongh and Sambin: every formula in which the provability box guards the variable has a fixed point, unique up to provable equivalence. Löb's theorem is its hinge and Gödel's second theorem its corollary. The corpus marks the Ascent as kin to Lawvere rather than identical because the proof is genuinely different machinery; but a fixed-point theorem it remains, and the roof it forbids is forbidden for the same reason the mirror forbids its own perfection.</p>
+    </div>
+    <div class="callout gold">
+      <div class="cl-lab">where the mirror ends</div>
+      <p>One honesty keeps the thesis from overreaching. Not every limit in mathematics is a diagonal. The independence of the continuum hypothesis, the unprovabilities that forcing exhibits, the calibrated strength of the large cardinals — these are real limits, and they are <i>not</i> Lawvere's. They turn on building and comparing models, not on a system turning upon itself; Cohen's forcing is no relative of the mirror. What the diagonal claims, and the whole of what it claims, is the <i>self-referential</i> family: the paradoxes, the incompleteness theorems, undecidability, and recursion — everywhere a system grows rich enough to name its own operations. That family is vast, and it is one. But it has an edge, and the corpus's discipline is to mark it: this is why the Descent is filed as a reading, the recession of the model being genuinely another theorem, and why forcing lies wholly outside the glass. A key that opens every door is a different object from a key that opens this one — and it is the second the corpus claims to hold.</p>
+    </div>
+    <div class="reading">
+      <p>One objection cuts deeper than the rest, and the corpus must meet it. <i>Is the unity cheap?</i> To say six results &ldquo;are the same diagonal&rdquo; might be no discovery at all — a long word for a family resemblance, a restatement that predicts nothing and forbids nothing. If that were so, the corpus would be an ornament. It is not, for three reasons. The unity is <i>load-bearing</i>: the theorem is proved once, in §II, and every instance inherits the proof — you do not re-argue Cantor, Gödel, and Turing, you exhibit a four-tuple and the work is already done. It is <i>predictive</i>: set before a self-reference never seen, the framework does not shrug but forces the four fates, names which hypothesis a consistent system must surrender, and prices the recovery in advance — the procedure of this section is a method precisely because its answers are determined, not chosen. And it is <i>falsifiable</i>: a self-referential limitation that did <i>not</i> factor through a diagonal — that turned on a system naming its own operations yet slipped the construction — would refute the thesis outright. None has been found; forcing and the independence results do not qualify, not because the claim is unfalsifiable but because they are not self-referential, and the framework says exactly that by its own terms. A claim that bounds itself, transfers its proof, and tells you what to expect is the opposite of a tautology. The mirror shows one image because there is one image to show — a fact about mathematics, not a choice of words.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">s = φ(a)(a)</span><span class="ln"></span></div>
+  <div class="coda"><p>A mirror returns a thing to itself, and in that return lies both everything a formal system can do and everything it cannot. The volumes are one sentence: <em>to name yourself is to gain a fixed point you can compute with, and to lose a wholeness you can never recover.</em> The diagonal builds it; the engine runs it forward; the atlas charts it; the ascent climbs from it; the descent falls toward it — and each is the same image in the same glass, which is the looker. And the point in the glass is never broken, only moved: what we call a limit is that point denied its seat, what we call a power the same point seated elsewhere. <span class="mono">One theorem — power and limit, a single purchase.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">the keystone · Lawvere's theorem &amp; the synthesis of the corpus</span></div>
+    <p class="colophon">The binding volume of the corpus: <i>The Diagonal</i> (the construction is one), <i>The Engine</i> (the same construction read forward — power), <i>The Atlas</i> (its territory), <i>The Ascent</i> (no roof, in proof), <i>The Descent</i> (no floor, in meaning) — and here, the theorem they all rest on, stated and proved in its categorical home, with the synthesis it generates. The theorem and its five-line proof are Lawvere's (1969); the reading of the corpus as exposures of one construction, the dial framing power and limitation as a single bit, the demand/supply synthesis of §§III–IV, the reading of every fixed-point theorem as a completeness theorem, and the &ldquo;one purchase&rdquo; thesis are the author's synthesis.</p>
+    <p class="notes"><span class="nl">on what is proved.</span> &nbsp;The corpus keeps a discipline, and the reader should keep it too. Two things on these pages are theorems in the strict sense — Lawvere's fixed-point theorem with its contrapositive (<i>The Diagonal</i>, proved in §II) and its forward reading as recursion (<i>The Engine</i>) — and the reductions of Cantor, Gödel's first incompleteness theorem, the halting problem, and the Y-combinator to that one construction are genuine, not analogies. The rest is framing: the dial, the demand/supply synthesis of §§III–IV, the reading of every fixed-point theorem as a completeness theorem, and the reading of the whole corpus as a single construction worn many ways are the author's, offered as the right way to <em>see</em> the mathematics, not as further theorems. One face is looser still, and is marked so wherever it appears — <i>The Descent</i> (Löwenheim–Skolem) is a reading, an instructive resonance with the mirror rather than a literal instance of it. The two inks of these pages encode exactly this distinction: <span style="color:var(--teal-deep)">teal</span> is load-bearing and proved; <span style="color:var(--gold-deep)">gold</span> is synthesis.</p>
+    <p class="notes"><span class="nl">on precision.</span> &nbsp;The setting is a cartesian closed category; <i>point-surjective</i> means every <span class="mono">h:A→B</span> equals <span class="mono">φ(a)</span> for some point <span class="mono">a</span> (for a fixed <span class="mono">α</span>, a proof-specific weakening asks only that the constructed <span class="mono">g</span> be named). The construction is <span class="mono">g = α ∘ ev ∘ ⟨φ, id⟩</span>; the fixed point is <span class="mono">s = φ(a)(a)</span> where <span class="mono">φ(a) = g</span>. The contrapositive (a fixed-point-free <span class="mono">α</span> forbids point-surjective <span class="mono">φ</span>) yields Cantor, Tarski, Gödel, and the halting problem; the positive direction, via a reflexive object <span class="mono">D ≅ Dᴰ</span> or <span class="mono">φ = id</span>, yields the Y-combinator and Kleene's recursion theorem. "Power" and "limit" are informal names for the two directions, not technical terms. Throughout, <i>point</i> abbreviates a global element <span class="mono">1 → X</span> — the right reading in a well-pointed category such as Set; the fully general statement replaces points with generalized elements and runs in the internal language, with the same conclusion. The line between the paradox fate and the incompleteness fate is exactly which laws the twisted predicate obeys: a predicate satisfying the full Tarski biconditional <span class="mono">True(⌜φ⌝) ↔ φ</span> makes the diagonal sentence equal to its own negation and the system explodes, whereas <i>provability</i> obeys only the weaker Löb conditions — provable implies true, but not conversely — so its diagonal sentence is merely undecided rather than contradictory. Incompleteness is the paradox defused by a predicate too weak to complete itself. The theorem is also strictly one-directional: a mirror is sufficient for fixed points, and contrapositively a fixed-point-free twist is sufficient for no mirror, but neither converse holds — an object may enjoy the fixed-point property with no point-surjection onto it at all, and every Knaster–Tarski or Brouwer fixed point is precisely such a case. Possessing fixed points is therefore weaker than holding a mirror; what the mirror uniquely buys is fixed points for <i>every</i> endomap at once, which is exactly the strength that makes it impossible against a twist that has none.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">principal sources.</span> &nbsp;Lawvere 1969 · Cantor 1891 · Russell 1901 · Brouwer 1911 · Löwenheim 1915 / Skolem 1922 · Banach 1922 · Knaster–Tarski 1928 · Gödel 1931 · Tarski 1933 · Turing 1936 · Kleene 1938 · Curry &amp; Church (the Y-combinator) · Löb 1955 · von Neumann 1966 · Lambek 1968 · Scott 1970 · Adámek 1974 · Kripke 1975 · de Jongh–Sambin 1975 · Smyth–Plotkin 1982 · Yanofsky 2003.</p>
+  </footer>
+
+</div>
+<script>
+"use strict";
+function E(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+
+/* ===== PROOF STEP-THROUGH ===== */
+const PROOF=[
+ { n:"goal", f:"Fix any  <span class='hot'>α</span> : B → B.   Seek a point  s : 1 → B  with  α(s) = s.", g:"The twist is arbitrary. The mirror φ is our only material." },
+ { n:"(1)", f:"Form  g = <span class='hot'>α</span> ∘ ev ∘ ⟨φ, id⟩ : A → B.    In points:  g(a) = <span class='hot'>α</span>( φ(a)(a) ).", g:"Feed a to the very map a names — φ(a)(a) — then apply the twist. This is the diagonal." },
+ { n:"(2)", f:"Curry g to a single point   ⌜g⌝ : 1 → Bᴬ.", g:"g is a map A→B, hence itself an element of the object Bᴬ." },
+ { n:"(3)", f:"φ is point-surjective, so some a names g:   φ(a) = g.", g:"The mirror reflects every map — including g. Let a be a point that names it." },
+ { n:"(4)", f:"Set   s = φ(a)(a).", g:"Apply the self-name a to itself: the value in the glass." },
+ { n:"(5)", f:"s = φ(a)(a) = g(a) = <span class='hot'>α</span>( φ(a)(a) ) = <span class='hot'>α</span>(s).    ∎", g:"By φ(a)=g, then by the definition of g, then by s=φ(a)(a). The self-value is fixed by the twist.", qed:true }
+];
+let pfShown=0;
+function renderProof(){
+  const host=document.getElementById("pfSteps"); host.innerHTML="";
+  PROOF.forEach((s,i)=>{
+    const st=E("div","pstep"+(s.qed?" qed":"")); st.dataset.i=i;
+    const pn=E("span","pn"); pn.textContent=s.n;
+    const body=E("div","pbody");
+    const pf=E("div","pf"); pf.innerHTML=s.f; body.appendChild(pf);
+    const pg=E("div","pg"); pg.textContent=s.g; body.appendChild(pg);
+    st.appendChild(pn); st.appendChild(body); host.appendChild(st);
+  });
+  pfShown=0; revealUpTo(0); pfUpdate();
+}
+function revealUpTo(k){ document.querySelectorAll("#pfSteps .pstep").forEach((el,i)=>{ el.classList.toggle("show", i<=k); }); }
+function pfUpdate(){
+  const btn=document.getElementById("pfNext"), ro=document.getElementById("pfReadout"), coda=document.getElementById("pfCoda");
+  ro.textContent="line "+(pfShown+1)+" of "+PROOF.length;
+  if(pfShown>=PROOF.length-1){
+    btn.disabled=true; btn.style.opacity=".45"; btn.textContent="the proof is complete — ∎";
+    coda.innerHTML="The fixed point <span class='mono' style='font-style:normal'>s = φ(a)(a)</span> is the value the self-name <span class='mono' style='font-style:normal'>a</span> takes when applied to itself. <b>Everything else — Cantor, Gödel, Turing, the Y-combinator — is this line, with α and φ chosen.</b>";
+    coda.classList.add("show");
+  } else { btn.disabled=false; btn.style.opacity="1"; btn.textContent="reveal the next line →"; coda.classList.remove("show"); }
+}
+function pfNext(){ if(pfShown<PROOF.length-1){ pfShown++; revealUpTo(pfShown); pfUpdate(); } }
+function pfReset(){ pfShown=0; revealUpTo(0); pfUpdate(); }
+
+/* ===== THE DIAL ===== */
+const DIAL=[
+ { label:"¬", sub:"on {T,F}", B:"{ T, F }", hasFP:false,
+   chain:["the forced s = ¬(s) is impossible","no point-surjective φ : A → 2ᴬ can exist"],
+   gloss:"Negation has no fixed point, so the mirror that would name every predicate cannot exist.",
+   results:"<b>Cantor</b> (no A ↠ 2ᴬ) · the <b>Liar</b> / Tarski · <b>Gödel</b> · the <b>halting</b> problem", genus:"genus 1 · diagonal — no host" },
+ { label:"swap", sub:"on {halt,loop}", B:"{ halt, loop }", hasFP:false,
+   chain:["the forced s = swap(s) is impossible","no program names the halting of all programs"],
+   gloss:"Swapping halt and loop has no fixed point — a total halting-decider would be one.",
+   results:"the <b>halting problem</b> · <b>Rice's</b> theorem · undecidability", genus:"genus 1 · diagonal — no host" },
+ { label:"n ↦ n+1", sub:"on ℕ", B:"ℕ", hasFP:false,
+   chain:["the forced s = s+1 is impossible","ℕ cannot point-surject onto its own maps"],
+   gloss:"Successor is the cleanest fixed-point-free twist on the numbers.",
+   results:"<b>Cantor for ℕ</b> · no enumeration of all total functions", genus:"genus 1 · diagonal — no host" },
+ { label:"g", sub:"any λ-term, D ≅ Dᴰ", B:"D  (reflexive)", hasFP:true,
+   chain:["the forced s = g(s) EXISTS:  s = Y g","φ = id names it — application is the mirror"],
+   gloss:"In a reflexive object every map has a fixed point, produced uniformly by the Y-combinator.",
+   results:"the <b>Y-combinator</b> · <b>Kleene</b>'s recursion theorem · <b>quines</b> · the diagonal lemma", genus:"genus 1 · diagonal — recursion" },
+ { label:"f", sub:"monotone, a lattice", B:"a complete lattice", hasFP:true,
+   chain:["the forced s = f(s) EXISTS:  the least fixed point","Knaster–Tarski — the other genus recovers it"],
+   gloss:"A monotone map on a complete lattice has a least fixed point: recursion's denotational form.",
+   results:"<b>Knaster–Tarski</b> · denotational semantics · inductive definitions", genus:"genus 2 · order — granted, no mirror" }
+];
+let dialSel=0;
+function renderDialPick(){
+  const host=document.getElementById("dialPick"); host.innerHTML="";
+  DIAL.forEach((d,i)=>{
+    const b=E("button","dial-opt"); b.dataset.i=i;
+    const t=E("span"); t.textContent="α = "+d.label; b.appendChild(t);
+    const s=E("span","dsub"); s.textContent=d.sub; b.appendChild(s);
+    b.addEventListener("click",()=>selectDial(i)); host.appendChild(b);
+  });
+}
+function selectDial(i){
+  dialSel=i; const d=DIAL[i];
+  document.querySelectorAll("#dialPick .dial-opt").forEach((b,j)=>b.classList.toggle("on",j===i));
+  const flow=document.getElementById("dialFlow"); flow.innerHTML="";
+  const q=E("div","dial-q"); q.innerHTML="Does α have a fixed point in B = "+d.B+"?<span class='ans "+(d.hasFP?"yes":"no")+"'>"+(d.hasFP?"yes":"no")+"</span>";
+  flow.appendChild(q);
+  const ch=E("div","dial-chain");
+  d.chain.forEach((c,k)=>{ if(k>0){ const ar=E("div","arr"); ar.textContent="↓"; ch.appendChild(ar); } const st=E("div","step"); st.textContent=c; ch.appendChild(st); });
+  flow.appendChild(ch);
+  const out=E("div","dial-outcome "+(d.hasFP?"power":"limit"));
+  const v=E("div","verdict"); v.textContent=d.hasFP?"POWER":"LIMIT"; out.appendChild(v);
+  const gl=E("div","gloss"); gl.textContent=d.gloss; out.appendChild(gl);
+  const rs=E("div","results"); rs.innerHTML=d.results; out.appendChild(rs);
+  if(d.genus){ const gb=E("div","genus"); gb.textContent=d.genus; out.appendChild(gb); }
+  flow.appendChild(out);
+}
+
+/* ===== REVENGE STEPPER — recover, then re-diagonalize ===== */
+const REVENGE=[
+ { tab:"the gap",
+   tame:{lab:"the recovery — Kripke", s:"The Liar comes to rest at <span class='rev-val'>⊥</span>.", p:"A third value for the ungrounded turns negation monotone on {T, F, ⊥}; Knaster–Tarski returns a fixed point. The Liar λ = ¬True(⌜λ⌝) settles at ⊥ — neither true nor false, and no contradiction."},
+   rev:{lab:"the revenge", s:"But the gap itself can be named.", p:"The metalanguage says what the object cannot — <i>is undefined</i>. Then λ′ = “λ′ is false or undefined” comes out true at ⊥, hence true and not-true at once. The very gap that tamed the Liar is what the sharper Liar exploits."},
+   verdict:"<b>Tamed, not escaped.</b> The fixed point returns; the cost is a truth predicate that cannot describe its own gaps — and a stronger Liar waiting in the language that can." },
+ { tab:"the domain",
+   tame:{lab:"the recovery — Scott", s:"Self-application returns as <span class='rev-val'>D ≅ Dᴰ</span>.", p:"Forbidden among sets, it is legal among Scott domains, where every map is continuous; every term then has a least fixed point. Russell's set and Cantor's bijection come back, unbroken, as recursion."},
+   rev:{lab:"the revenge", s:"But the wild maps were left behind.", p:"Cantor's diagonal ran over <i>all</i> functions; the domain keeps only the continuous ones. Ask for a fixed point of an arbitrary map and it is gone again — the recovery bought reflexivity by quietly discarding exactly what would re-diagonalize."},
+   verdict:"<b>Tamed, not escaped.</b> Reflexivity returns for the tame maps; the full power-object — the wild maps — is precisely what was surrendered to buy it." },
+ { tab:"the hierarchy",
+   tame:{lab:"the recovery — Tarski", s:"Truth is restored — one storey up.", p:"Deny a language its own truth predicate and supply <span class='rev-val'>True₀</span> from the metalanguage. The Liar can no longer be written; Tarski's theorem is honored; the object language has its truth, handed down from above."},
+   rev:{lab:"the revenge", s:"But the tower has no top.", p:"The metalanguage now lacks <i>its</i> truth predicate, which a third storey must supply, and so on without end. Each floor is consistent; none is complete; <span class='rev-val'>Con(T) ⊬ T</span> at every level. One missing predicate has become an infinite ascent."},
+   verdict:"<b>Tamed, not escaped.</b> Every level consistent, every level incomplete; the roof recedes as fast as you climb. This is the Ascent — Gödel's second theorem, read as the revenge of truth." }
+];
+let revSel=0;
+function renderRevTabs(){
+  const host=document.getElementById("revTabs"); if(!host) return; host.innerHTML="";
+  REVENGE.forEach((r,i)=>{
+    const b=E("button","rev-tab"); b.dataset.i=i;
+    const rn=E("span","rn"); rn.textContent=(i+1); b.appendChild(rn);
+    const lab=E("span"); lab.textContent=r.tab; b.appendChild(lab);
+    b.addEventListener("click",()=>selectRev(i)); host.appendChild(b);
+  });
+}
+function selectRev(i){
+  revSel=i; const r=REVENGE[i];
+  document.querySelectorAll("#revTabs .rev-tab").forEach((b,j)=>b.classList.toggle("on",j===i));
+  const host=document.getElementById("revStages"); if(!host) return; host.innerHTML="";
+  const grid=E("div","rev-grid");
+  [["tame",r.tame],["revenge",r.rev]].forEach(pair=>{
+    const cell=E("div","rev-cell "+pair[0]); const c=pair[1];
+    const lab=E("div","rc-lab"); lab.textContent=c.lab; cell.appendChild(lab);
+    const sen=E("div","rev-sentence"); sen.innerHTML=c.s; cell.appendChild(sen);
+    const p=E("p"); p.innerHTML=c.p; cell.appendChild(p);
+    grid.appendChild(cell);
+  });
+  host.appendChild(grid);
+  const v=E("div","rev-verdict broken"); v.innerHTML=r.verdict; host.appendChild(v);
+}
+
+function init(){
+  try{ renderProof();
+    document.getElementById("pfNext").addEventListener("click",pfNext);
+    document.getElementById("pfReset").addEventListener("click",pfReset);
+  }catch(e){ console.error("proof",e); }
+  try{ renderDialPick(); selectDial(0); }catch(e){ console.error("dial",e); }
+  try{ renderRevTabs(); selectRev(0); }catch(e){ console.error("revenge",e); }
+  try{ initNav(); }catch(e){ console.error("nav",e); }
+}
+
+/* ===== reading navigation: progress, scroll-spy, contents sheet ===== */
+function initNav(){
+  var secs=["theorem","proof","lands","resource","dial","faces"];
+  var titles={theorem:"I · the theorem",proof:"II · the proof",lands:"III · where it lands",resource:"IV · what grants it",dial:"V · the dial",faces:"VI · the costumes"};
+  var prog=document.getElementById("rdgProgress");
+  var links=Array.prototype.slice.call(document.querySelectorAll(".secnav a, .toc-card a"));
+  var btn=document.getElementById("tocBtn");
+  var lbl=btn?btn.querySelector(".lbl"):null;
+  var sheet=document.getElementById("tocSheet");
+  var current=null, ticking=false;
+  function setActive(id){
+    for(var i=0;i<links.length;i++){ links[i].classList.toggle("on", links[i].getAttribute("data-sec")===id); }
+    if(lbl && titles[id]) lbl.textContent=titles[id];
+  }
+  function update(){
+    ticking=false;
+    var h=document.documentElement;
+    var max=h.scrollHeight-h.clientHeight;
+    if(prog) prog.style.width=((max>0?h.scrollTop/max:0)*100).toFixed(2)+"%";
+    var line=window.innerHeight*0.4, cur=secs[0];
+    for(var i=0;i<secs.length;i++){ var el=document.getElementById(secs[i]); if(el && el.getBoundingClientRect().top<=line) cur=secs[i]; }
+    if(cur!==current){ current=cur; setActive(cur); }
+  }
+  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } }
+  window.addEventListener("scroll",onScroll,{passive:true});
+  window.addEventListener("resize",onScroll);
+  function closeSheet(){ if(sheet){ sheet.classList.remove("open"); if(btn) btn.setAttribute("aria-expanded","false"); } }
+  function openSheet(){ if(sheet){ sheet.classList.add("open"); if(btn) btn.setAttribute("aria-expanded","true"); } }
+  for(var j=0;j<links.length;j++){
+    (function(a){
+      a.addEventListener("click",function(ev){
+        var id=a.getAttribute("data-sec"), el=document.getElementById(id);
+        if(el){ ev.preventDefault(); el.scrollIntoView({behavior:"smooth",block:"start"}); if(history.replaceState) history.replaceState(null,"","#"+id); closeSheet(); }
+      });
+    })(links[j]);
+  }
+  if(btn) btn.addEventListener("click",function(){ (sheet && sheet.classList.contains("open"))?closeSheet():openSheet(); });
+  if(sheet) sheet.addEventListener("click",function(e){ if(e.target===sheet) closeSheet(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeSheet(); });
+  update();
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="the-lathe.html">← The Lathe</a><a rel="next" href="mirror/quodlibet-mirror-1-theorem.html">The Theorem →</a></nav>
+<script src="assets/edition.js"></script>
+</body>
+</html>

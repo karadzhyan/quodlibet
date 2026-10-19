@@ -1,0 +1,20 @@
+T H E Q U E S T I O N
+T
+he oldest question logic asks is not about the
+world but about itself. What happens when a
+system grows rich enough to describe its own
+workings — to refer, from inside, to what it can
+and cannot do?
+The question sounds like a curiosity. Its answer is
+the deepest fact known about the reach of formal
+reasoning. A system that can name itself acquires a
+single object — a fixed point — and that one
+object wears two faces.
+One face is everything such a system can do: every
+program, every recursion, every machine that
+builds another. The other is everything it cannot:
+the truths it cannot prove, the questions it cannot
+decide, the models it cannot pin down. This folio
+follows the one construction that is both faces
+at once.
+2

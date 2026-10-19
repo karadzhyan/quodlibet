@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Barrier — where the diagonal meets its limit</title>
+<style>
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.10); --red-line:rgba(178,58,46,.40);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.11); --teal-line:rgba(44,110,106,.40);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.42);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,4rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  sup.fn{font-size:.62em;line-height:0;vertical-align:super;color:var(--red-deep);font-family:"IBM Plex Mono",monospace;padding-left:.1em;}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;
+    border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1.2rem,3vh,2rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.6rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.2rem,11vw,8.4rem);line-height:.94;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.08rem,1.45vw,1.28rem);line-height:1.56;color:var(--soft1);margin:clamp(1.5rem,3vh,2.2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.6rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2.2rem,5vh,3.4rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  /* ---------- prose ---------- */
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.06rem;line-height:1.78;margin:0 0 1.15rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.4rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.6rem auto 0;}
+  .reading p{font-size:1.02rem;line-height:1.76;margin:0 0 1.02rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.35rem;}
+  .reading.wide{max-width:42rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+  .drop em{font-style:italic;color:var(--ink);}
+
+  /* ---------- section heads ---------- */
+  .sec{margin-top:clamp(4.2rem,9vh,7rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.5rem,3vh,2.2rem);max-width:47rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.85rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.75rem,3.3vw,2.5rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1.01rem;color:var(--soft1);max-width:39rem;margin:1rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  /* ---------- panels / figures ---------- */
+  .stage{max-width:62rem;margin:clamp(1.8rem,4vh,2.8rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;
+    padding:clamp(1.2rem,3vw,2.2rem);box-shadow:0 1px 0 rgba(255,255,255,.4) inset;}
+  .panel-cap{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin:0 0 1rem;}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.4rem auto 0;max-width:40rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+  figcaption .mono{font-size:.82rem;}
+
+  /* ---------- argument map ---------- */
+  #argmap{display:block;width:100%;height:auto;max-width:60rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- formal theorem block ---------- */
+  .theorem{border:1px solid var(--ink);border-radius:3px;background:rgba(26,24,21,.018);padding:clamp(1.1rem,2.6vw,1.8rem) clamp(1.2rem,3vw,2rem);position:relative;}
+  .theorem .thlab{position:absolute;top:-.72rem;left:1.2rem;background:var(--paper);padding:0 .6rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);}
+  .theorem .stmt{font-size:1.04rem;line-height:1.66;color:var(--ink);}
+  .theorem .stmt b{font-weight:600;}
+  .theorem .stmt .mono{font-size:.92rem;}
+  .theorem .proof{margin-top:1.1rem;padding-top:.95rem;border-top:1px solid var(--panelhair);font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .theorem .proof .plab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-right:.5rem;}
+  .theorem .qed{float:right;color:var(--ink);}
+  .formula{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);text-align:center;margin:.9rem auto;line-height:1.9;letter-spacing:.01em;}
+  .formula .em{color:var(--red-deep);font-weight:500;}
+  .formula.teal .em{color:var(--teal-deep);}
+  .corner{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  .corner > div{background:var(--paper);padding:.85rem 1rem;}
+  .corner .h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.3rem;}
+  .corner .v{font-size:.92rem;line-height:1.45;color:var(--soft1);}
+  @media(max-width:560px){ .corner{grid-template-columns:1fr;} }
+
+  /* ---------- callout / aside ---------- */
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.4rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.95rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.84rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);}
+  .callout.teal .cl-lab{color:var(--teal-deep);}
+  .callout.teal p .mono{color:var(--teal-deep);}
+
+  /* ---------- Cantor grid ---------- */
+  .cantor-wrap{display:flex;flex-direction:column;align-items:center;gap:1.1rem;}
+  .cgrid{display:grid;gap:3px;}
+  .crow{display:grid;gap:3px;grid-auto-flow:column;align-items:center;}
+  .clabel{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);width:3.4ch;text-align:right;padding-right:.5rem;}
+  .cell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px solid var(--panelhair);border-radius:2px;
+    background:rgba(26,24,21,.012);cursor:pointer;user-select:none;transition:background .12s,color .12s,border-color .12s;color:var(--soft1);}
+  .cell:hover{background:rgba(26,24,21,.05);}
+  .cell.diag{border-color:var(--red-line);background:var(--red-soft);color:var(--red-deep);font-weight:500;box-shadow:0 0 0 1px var(--red-line) inset;}
+  .escape-row{display:grid;gap:3px;grid-auto-flow:column;align-items:center;margin-top:.5rem;}
+  .escape-row .clabel{color:var(--red-deep);font-weight:500;}
+  .ecell{width:clamp(20px,4.4vw,30px);height:clamp(20px,4.4vw,30px);display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;border:1px dashed var(--red-line);border-radius:2px;color:var(--red-deep);font-weight:500;background:var(--red-soft);}
+  .cantor-note{font-size:.9rem;color:var(--soft1);text-align:center;max-width:34rem;line-height:1.55;}
+  .cantor-note .mono{color:var(--red-deep);}
+
+  /* ---------- buttons ---------- */
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+    background:rgba(26,24,21,.022);border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .95rem;cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .btn:hover{background:rgba(26,24,21,.06);}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .btn.red{color:#fff;background:var(--red);border-color:var(--red-deep);} .btn.red:hover{background:var(--red-deep);}
+  .btn.teal{color:#fff;background:var(--teal);border-color:var(--teal-deep);} .btn.teal:hover{background:var(--teal-deep);}
+  .controls{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;align-items:center;}
+
+  /* ---------- The Machine ---------- */
+  .machine{display:grid;gap:1.2rem;}
+  .selector{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .seltab{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--faint);
+    background:transparent;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .8rem;cursor:pointer;
+    transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.12rem;min-width:5.4rem;}
+  .seltab .yr{font-size:.6rem;color:var(--faintest);letter-spacing:.06em;}
+  .seltab:hover{background:rgba(26,24,21,.04);}
+  .seltab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .seltab.on .yr{color:rgba(244,241,232,.6);}
+  .seltab.on.rec{background:var(--teal-deep);border-color:var(--teal-deep);}
+  .seltab.on.rec .yr{color:rgba(244,241,232,.6);}
+  .mach-grid{display:grid;grid-template-columns:1fr 1.28fr;gap:clamp(1rem,2.4vw,1.7rem);align-items:start;}
+  @media(max-width:780px){ .mach-grid{grid-template-columns:1fr;} }
+  .skeleton{border:1px solid var(--panelhair);border-radius:3px;padding:1.1rem 1.1rem 1.3rem;background:rgba(26,24,21,.015);}
+  .skeleton .lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faintest);margin-bottom:.85rem;}
+  .sk-line{font-family:"IBM Plex Mono",monospace;font-size:.9rem;line-height:1.9;color:var(--soft1);}
+  .sk-line .sub{color:var(--red-deep);font-weight:500;}
+  .sk-line.rec .sub{color:var(--teal-deep);}
+  .sk-defn{display:grid;grid-template-columns:auto 1fr;gap:.28rem .8rem;margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--panelhair);
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;line-height:1.5;color:var(--faint);}
+  .sk-defn b{color:var(--red-deep);font-weight:500;}
+  .sk-defn.rec b{color:var(--teal-deep);}
+  .derivation{display:grid;gap:.5rem;}
+  .deriv-title{font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);margin-bottom:.05rem;}
+  .deriv-body{font-size:.96rem;line-height:1.6;color:var(--soft1);}
+  .deriv-body .mono{font-size:.84rem;color:var(--ink);background:rgba(26,24,21,.04);padding:.05em .3em;border-radius:2px;}
+  .deriv-step{font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.68;color:var(--ink);
+    background:rgba(26,24,21,.025);border-left:2px solid var(--red-line);padding:.65rem .85rem;border-radius:0 2px 2px 0;margin:.25rem 0;white-space:pre-wrap;}
+  .deriv-step.rec{border-left-color:var(--teal-line);}
+  .fate-row{display:grid;grid-template-columns:auto 1fr;gap:.3rem .7rem;font-size:.88rem;line-height:1.5;margin-top:.2rem;}
+  .fate-row .fk{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .fate-row .fv{color:var(--soft1);}
+  .fate-row .fv b{color:var(--ink);font-weight:500;}
+  .verdict{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;padding:.85rem 1.05rem;border-radius:3px;background:var(--red-soft);border:1px solid var(--red-line);}
+  .verdict.rec{background:var(--teal-soft);border-color:var(--teal-line);}
+  .verdict .tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .verdict.rec .tag{color:var(--teal-deep);}
+  .verdict .txt{font-size:.94rem;color:var(--soft1);font-style:italic;}
+
+  /* ---------- code runner (quine / Y) ---------- */
+  .runner{border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;background:rgba(26,24,21,.02);}
+  .runner-bar{display:flex;justify-content:space-between;align-items:center;padding:.5rem .8rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.025);}
+  .runner-bar .ttl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  .runner pre{margin:0;padding:.95rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;word-break:break-word;overflow-x:auto;}
+  .runner .rout{border-top:1px dashed var(--panelhair);padding:.8rem 1rem;font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.6;color:var(--soft1);white-space:pre-wrap;word-break:break-word;min-height:1.5rem;}
+  .runner .rout .ok{color:var(--teal-deep);font-weight:500;}
+  .runner .rout .lbl{color:var(--faintest);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:.25rem;}
+
+  /* ---------- hinge ---------- */
+  .hinge-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2.4vw,1.7rem);}
+  @media(max-width:700px){ .hinge-grid{grid-template-columns:1fr;} }
+  .hinge-card{border:1px solid var(--panelhair);border-radius:3px;padding:1.15rem;text-align:center;background:rgba(26,24,21,.012);}
+  .hinge-card svg{display:block;width:100%;height:auto;max-width:240px;margin:.3rem auto .7rem;overflow:visible;}
+  .hinge-card h4{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin:0 0 .2rem;}
+  .hinge-card .verdict-line{font-size:.9rem;font-style:italic;line-height:1.5;margin-top:.5rem;}
+  .hinge-card.lim h4{color:var(--red-deep);} .hinge-card.lim .verdict-line{color:var(--red-deep);}
+  .hinge-card.rec h4{color:var(--teal-deep);} .hinge-card.rec .verdict-line{color:var(--teal-deep);}
+
+  /* ---------- four fates strip ---------- */
+  .fates{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:820px){ .fates{grid-template-columns:1fr 1fr;} }
+  @media(max-width:460px){ .fates{grid-template-columns:1fr;} }
+  .fate{background:var(--paper);padding:1rem 1rem 1.1rem;}
+  .fate .fn{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .fate .fh{font-family:"Spectral",serif;font-style:italic;font-size:1.06rem;color:var(--ink);margin-bottom:.35rem;line-height:1.2;}
+  .fate .fb{font-size:.86rem;line-height:1.48;color:var(--soft1);}
+  .fate .fr{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.5;}
+  .fate.f-red{box-shadow:inset 3px 0 0 var(--red-line);} .fate.f-red .fh{color:var(--red-deep);}
+  .fate.f-teal{box-shadow:inset 3px 0 0 var(--teal-line);} .fate.f-teal .fh{color:var(--teal-deep);}
+  .fate.f-gold{box-shadow:inset 3px 0 0 var(--gold-line);} .fate.f-gold .fh{color:var(--gold-deep);}
+
+  /* ---------- Löb derivation chain ---------- */
+  .lobchain{display:grid;gap:.4rem;max-width:46rem;margin:1.4rem auto 0;}
+  .lobstep{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .8rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);}
+  .lobstep .ln{color:var(--faintest);font-size:.7rem;}
+  .lobstep .ex{color:var(--ink);}
+  .lobstep .ex .em{color:var(--red-deep);}
+  .lobstep .why{color:var(--faint);font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;text-align:right;}
+  .lobstep.key{border-color:var(--red-line);background:var(--red-soft);}
+
+  /* ---------- bridge table ---------- */
+  .bridge{max-width:55rem;margin:clamp(1.5rem,3vh,2.2rem) auto 0;}
+  .bridge-row{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .bridge-row+.bridge-row{margin-top:1px;}
+  .bcell{background:var(--paper);padding:.9rem 1.05rem;}
+  .bcell .h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .bcell .v{font-size:.93rem;line-height:1.45;color:var(--soft1);}
+  .bcell .v b{font-weight:500;color:var(--ink);}
+  .bridge-head .bcell{background:rgba(26,24,21,.025);}
+  .bridge-head .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:1rem;}
+  @media(max-width:660px){ .bridge-row{grid-template-columns:1fr;} }
+
+  /* ---------- trilemma ---------- */
+  .trilemma{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;}
+  @media(max-width:780px){ .trilemma{grid-template-columns:1fr;} }
+  #triSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .tri-readout{min-height:9rem;}
+  .tri-readout .tr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);margin-bottom:.5rem;}
+  .tri-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.3rem;margin:0 0 .5rem;color:var(--ink);}
+  .tri-readout p{font-size:.95rem;line-height:1.58;color:var(--soft1);}
+  .tri-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faint);margin-top:.6rem;display:block;line-height:1.6;}
+  .tri-readout .mech{font-size:.86rem;color:var(--faint);margin-top:.55rem;line-height:1.5;font-style:italic;}
+
+  /* ---------- coda + footer ---------- */
+  .coda{max-width:46rem;margin:clamp(4.5rem,10vh,7rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.4rem,2.5vw,1.95rem);line-height:1.34;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.88em;}
+  .coda .mono.t{color:var(--teal-deep);}
+  footer{margin-top:clamp(4.5rem,10vh,7rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:66ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:66ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+  .refs{font-family:"IBM Plex Mono",monospace;font-size:.72rem;line-height:1.95;color:var(--faintest);margin-top:1.2rem;max-width:70ch;}
+  .refs b{color:var(--faint);font-weight:500;}
+
+  /* ---------- Kleene ascent (§VII) ---------- */
+  .asc-wrap{display:grid;gap:4px;max-width:31rem;margin:.4rem auto 0;}
+  .asc-row{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.5;
+    padding:.5rem .85rem;border:1px solid var(--panelhair);border-radius:2px;background:rgba(26,24,21,.014);
+    transition:background .14s,border-color .14s;}
+  .asc-row .asc-lab{color:var(--faint);white-space:nowrap;}
+  .asc-row .asc-map{color:var(--soft1);word-break:break-word;}
+  .asc-row.cur{border-color:var(--teal-line);background:var(--teal-soft);}
+  .asc-row.cur .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-row.lim{border-style:dashed;border-color:var(--teal-line);}
+  .asc-row.lim .asc-lab{color:var(--teal-deep);font-weight:600;}
+  .asc-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:35rem;margin:.95rem auto 0;font-style:italic;}
+  .asc-note .mono{font-style:normal;color:var(--teal-deep);font-size:.82rem;}
+
+  /* ---------- value-lattice dial ---------- */
+  .dial{display:grid;gap:1.1rem;}
+  .dial-sel{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .dial-stage{display:flex;justify-content:center;padding:.3rem 0;}
+  #dialViz{display:block;width:100%;height:auto;max-width:30rem;overflow:visible;}
+  .dial-readout{min-height:7rem;max-width:42rem;margin:0 auto;text-align:center;}
+  .dial-readout .dr-pair{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.45rem;color:var(--faint);}
+  .dial-readout h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.26rem;margin:0 0 .45rem;color:var(--ink);}
+  .dial-readout p{font-size:.94rem;line-height:1.56;color:var(--soft1);}
+  .dial-readout .ex{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.62;}
+  .dial-readout.red .dr-pair{color:var(--red-deep);}
+  .dial-readout.teal .dr-pair{color:var(--teal-deep);}
+  .dial-readout.gold .dr-pair{color:var(--gold-deep);}
+
+  /* ---------- de Jongh–Sambin fixed-point grid ---------- */
+  .fpgrid{max-width:56rem;margin:1.3rem auto 0;}
+  .fprow{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  .fprow+.fprow{margin-top:1px;}
+  .fpcell{background:var(--paper);padding:.85rem 1.05rem;}
+  .fpcell .h{font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.38rem;}
+  .fpcell .v{font-family:"IBM Plex Mono",monospace;font-size:.85rem;line-height:1.55;color:var(--soft1);}
+  .fpcell .v .em{color:var(--gold-deep);font-weight:500;}
+  .fpcell .vn{font-size:.9rem;line-height:1.5;color:var(--soft1);}
+  .fpcell .vn b{color:var(--ink);font-weight:500;}
+  .fphead .fpcell{background:rgba(26,24,21,.025);}
+  .fphead .v{font-family:"Spectral",serif;font-style:italic;color:var(--ink);font-size:.98rem;}
+  @media(max-width:660px){ .fprow{grid-template-columns:1fr;} }
+
+  /* ---------- twist classifier (§III) ---------- */
+  .tclass{max-width:43rem;margin:.4rem auto 0;display:grid;gap:1.05rem;}
+  .tclass-q{display:grid;gap:.5rem;}
+  .tclass-q .ql{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);}
+  .tclass-q .qt{font-size:.95rem;line-height:1.5;color:var(--soft1);}
+  .tclass-q .qt b{color:var(--ink);font-weight:600;}
+  .tclass-opts{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .topt{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.01em;color:var(--faint);
+    border:1px solid var(--panelhair);border-radius:2px;padding:.36rem .82rem;background:var(--paper);cursor:pointer;
+    transition:background .14s,border-color .14s,color .14s;}
+  .topt:hover{background:rgba(26,24,21,.04);}
+  .topt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .topt.dis{opacity:.32;pointer-events:none;}
+  .tclass-out{border-top:1px solid var(--panelhair);padding-top:1.1rem;text-align:center;min-height:7rem;}
+  .tclass-out .to-pair{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.42rem;color:var(--faint);}
+  .tclass-out h4{font-family:"Spectral",serif;font-style:italic;font-weight:500;font-size:1.24rem;margin:0 0 .42rem;color:var(--ink);}
+  .tclass-out p{font-size:.93rem;line-height:1.56;color:var(--soft1);max-width:40rem;margin:0 auto;}
+  .tclass-out .to-ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.55rem;display:block;line-height:1.6;}
+  .tclass-out.red .to-pair{color:var(--red-deep);}
+  .tclass-out.teal .to-pair{color:var(--teal-deep);}
+  .tclass-out.gold .to-pair{color:var(--gold-deep);}
+
+  /* ---------- GL Kripke frame ---------- */
+  #glFrame{display:block;width:100%;height:auto;max-width:34rem;margin:0 auto;overflow:visible;}
+  .glframe-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .glframe-note .mono{font-style:normal;color:var(--gold-deep);font-size:.82rem;}
+
+  /* ---------- the Kernel: comparison axes + diagrams ---------- */
+  .cmp-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .cmp-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .cmp-axes .av{color:var(--soft1);line-height:1.42;}
+  .cmp-axes .av b{color:var(--ink);font-weight:600;}
+  #kccc,#kproof{display:block;width:100%;height:auto;max-width:35rem;margin:0 auto;overflow:visible;}
+  .kdiag-note{font-size:.86rem;line-height:1.55;color:var(--faint);text-align:center;max-width:39rem;margin:.95rem auto 0;font-style:italic;}
+  .kdiag-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  /* ---------- the Mechanism: diagrams ---------- */
+  #secEval,#dgtrace{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- the Ceiling: jump ladder + diagrams ---------- */
+  #witness,#rice,#spectrum{display:block;width:100%;height:auto;max-width:37rem;margin:0 auto;overflow:visible;}
+  .ladder{display:flex;flex-direction:column-reverse;gap:3px;max-width:31rem;margin:.4rem auto .2rem;}
+  .lrung{display:flex;align-items:center;gap:.7rem;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .85rem;background:var(--paper);cursor:pointer;transition:background .14s,border-color .14s;text-align:left;}
+  .lrung:hover{background:rgba(26,24,21,.035);}
+  .lrung.on{border-color:var(--red-deep);background:rgba(176,58,46,.055);}
+  .lrung .deg{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:600;color:var(--ink);min-width:3.4rem;}
+  .lrung.on .deg{color:var(--red-deep);}
+  .lrung .lvl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);min-width:4.2rem;}
+  .lrung .lgloss{font-size:.82rem;color:var(--soft1);margin-left:auto;font-style:italic;text-align:right;}
+  .jr-axes{display:grid;grid-template-columns:auto 1fr;gap:.4rem .85rem;font-size:.85rem;margin:.75rem auto .2rem;text-align:left;max-width:33rem;}
+  .jr-axes .ax{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faintest);padding-top:.18rem;white-space:nowrap;}
+  .jr-axes .av{color:var(--soft1);line-height:1.42;}
+  .jr-axes .av b{color:var(--ink);font-weight:600;}
+
+  /* ---------- the Floor: the Kleene ascent ---------- */
+  .ascent{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:35rem;margin:.5rem auto .2rem;}
+  .acell{width:3.15rem;border:1px solid var(--panelhair);border-radius:2px;padding:.42rem .2rem;text-align:center;background:var(--paper);transition:background .25s,border-color .25s;}
+  .acell .ai{font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:var(--faintest);}
+  .acell .av{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:600;color:var(--soft1);margin-top:.16rem;}
+  .acell.def{background:var(--teal-soft);border-color:var(--teal-line);}
+  .acell.def .av{color:var(--teal-deep);}
+  .acell.fresh{background:var(--gold-soft);border-color:var(--gold-line);}
+  .acell.fresh .av{color:var(--gold-deep);}
+  .ascent-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--faint);margin-top:.8rem;line-height:1.5;}
+  .ascent-stat b{color:var(--ink);}
+  .ascent-stat .em{color:var(--teal-deep);}
+
+  /* ---------- the Knot: Curry derivation + Kripke ascent ---------- */
+  .deriv{max-width:41rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:2px;}
+  .dstep{display:grid;grid-template-columns:1.5rem 1fr;gap:.6rem;align-items:baseline;padding:.46rem .7rem;border-left:2px solid var(--panelhair);background:var(--paper);}
+  .dstep .dn{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);}
+  .dstep .db{display:flex;justify-content:space-between;gap:.8rem;align-items:baseline;flex-wrap:wrap;}
+  .dstep .df{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);line-height:1.45;}
+  .dstep .dj{font-size:.73rem;color:var(--faint);font-style:italic;white-space:nowrap;}
+  .dstep.contr{border-left-color:var(--red);background:rgba(176,58,46,.05);}
+  .dstep.contr .df{color:var(--red-deep);font-weight:600;}
+  .dstep.trivial{border-left-color:var(--red-deep);background:rgba(176,58,46,.08);}
+  .dstep.trivial .df{color:var(--red-deep);font-weight:600;}
+  .dstep.defused{border-left-color:var(--teal-deep);background:rgba(42,107,107,.07);}
+  .dstep.defused .df{color:var(--teal-deep);font-weight:600;}
+  .deriv-note{text-align:center;font-size:.86rem;color:var(--faint);font-style:italic;margin-top:.8rem;line-height:1.5;}
+  .deriv-note .mono{font-style:normal;color:var(--ink);font-size:.82rem;}
+
+  .ktab{max-width:35rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:3px;}
+  .krow{display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:center;border:1px solid var(--panelhair);border-radius:2px;padding:.48rem .8rem;background:var(--paper);}
+  .krow.liar{border-color:var(--red-line);}
+  .krow .ksent{font-family:"IBM Plex Mono",monospace;font-size:.83rem;color:var(--ink);line-height:1.35;}
+  .krow .ksub{font-size:.66rem;color:var(--faintest);font-style:italic;}
+  .kval{font-family:"IBM Plex Mono",monospace;font-size:.8rem;font-weight:600;min-width:4.2rem;text-align:center;border-radius:2px;padding:.18rem .4rem;transition:background .25s,color .25s,border-color .25s;}
+  .kval.gap{background:var(--gold-soft);color:var(--gold-deep);border:1px solid var(--gold-line);}
+  .kval.tt{background:var(--teal-soft);color:var(--teal-deep);border:1px solid var(--teal-line);}
+  .kval.ff{background:rgba(124,118,106,.1);color:var(--soft1);border:1px solid var(--panelhair);}
+  .kval.fresh{box-shadow:0 0 0 2px var(--gold-line);}
+  .ktab-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.79rem;color:var(--faint);margin-top:.8rem;line-height:1.5;}
+  .ktab-stat b{color:var(--ink);} .ktab-stat .em{color:var(--gold-deep);}
+  #revengeFig{display:block;width:100%;height:auto;max-width:33rem;margin:0 auto;overflow:visible;}
+
+  /* ---------- the Silence: GL Kripke frame ---------- */
+  .glframe{max-width:31rem;margin:.5rem auto .2rem;display:flex;flex-direction:column;gap:2px;position:relative;}
+  .gworld{display:grid;grid-template-columns:auto auto 1fr;gap:.7rem;align-items:center;border:1px solid var(--panelhair);border-radius:2px;padding:.5rem .8rem;background:var(--paper);}
+  .gworld.leaf{border-color:var(--gold-line);background:rgba(166,124,0,.04);}
+  .gw-name{font-family:"IBM Plex Mono",monospace;font-size:.8rem;font-weight:600;color:var(--soft1);min-width:2.6rem;}
+  .gworld.leaf .gw-name{color:var(--gold-deep);}
+  .gw-p{font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:600;border-radius:2px;padding:.2rem .55rem;cursor:pointer;user-select:none;transition:background .15s,color .15s,border-color .15s;border:1px solid var(--panelhair);}
+  .gw-p.t{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .gw-p.f{background:rgba(124,118,106,.1);color:var(--faint);}
+  .gw-vals{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end;}
+  .gbadge{font-family:"IBM Plex Mono",monospace;font-size:.68rem;border-radius:2px;padding:.14rem .42rem;border:1px solid var(--panelhair);white-space:nowrap;}
+  .gbadge .gv{font-weight:600;}
+  .gbadge.on{background:var(--teal-soft);border-color:var(--teal-line);} .gbadge.on .gv{color:var(--teal-deep);}
+  .gbadge.off{background:transparent;color:var(--faintest);} .gbadge.off .gv{color:var(--soft1);}
+  .gbadge.lit{background:var(--gold-soft);border-color:var(--gold-line);} .gbadge.lit .gv{color:var(--gold-deep);}
+  .gl-stat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--faint);margin-top:.85rem;line-height:1.55;}
+  .gl-stat b{color:var(--ink);} .gl-stat .ok{color:var(--teal-deep);}
+
+  /* ---------- the Law: the incompatibility engine ---------- */
+  .ingredients{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;margin:.6rem auto .2rem;max-width:36rem;}
+  .ing{border:1.5px solid var(--ink);border-radius:3px;padding:.5rem .8rem;cursor:pointer;user-select:none;text-align:center;min-width:7.2rem;background:var(--paper);transition:opacity .2s,border-color .2s,background .2s;}
+  .ing.off{border-color:var(--faintest);background:transparent;opacity:.45;}
+  .ing .ing-sym{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.92rem;color:var(--ink);display:block;}
+  .ing .ing-name{font-size:.72rem;color:var(--faint);margin-top:.15rem;line-height:1.25;}
+  .ing .ing-state{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;margin-top:.3rem;}
+  .ing.on .ing-state{color:var(--teal-deep);} .ing.off .ing-state{color:var(--red-deep);}
+  .law-status{max-width:36rem;margin:1.2rem auto 0;border:1px solid var(--panelhair);border-radius:3px;padding:1rem 1.3rem;text-align:center;transition:border-color .25s,background .25s;}
+  .law-status.bot{border-color:var(--red-line);background:rgba(176,58,46,.06);}
+  .law-status.fate{border-color:var(--gold-line);background:rgba(166,124,0,.05);}
+  .law-status.over{border-color:var(--teal-line);background:rgba(42,107,107,.04);}
+  .law-status .ls-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.86rem;margin-bottom:.5rem;letter-spacing:.01em;}
+  .law-status.bot .ls-head{color:var(--red-deep);} .law-status.fate .ls-head{color:var(--gold-deep);} .law-status.over .ls-head{color:var(--teal-deep);}
+  .law-status .ls-body{font-size:.92rem;color:var(--soft1);line-height:1.55;}
+  .law-status .ls-body b{color:var(--ink);}
+  .law-reset{margin-top:1rem;text-align:center;}
+
+  /* ---------- the Law: the regeneration ladder ---------- */
+  .regtower{max-width:33rem;margin:.7rem auto .2rem;display:flex;flex-direction:column-reverse;gap:0;}
+  .regrung{border:1px solid var(--panelhair);border-radius:2px;padding:.55rem .85rem;background:var(--paper);margin-top:7px;position:relative;}
+  .regrung::before{content:"";position:absolute;left:50%;top:-7px;height:7px;width:1px;background:var(--faint);}
+  .regtower .regrung:last-child::before{display:none;}
+  .regrung.fresh{animation:rgrow .35s ease;}
+  @keyframes rgrow{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .regrung.term{border-color:var(--teal-line);background:rgba(42,107,107,.04);}
+  .rr-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+  .rr-sys{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.82rem;color:var(--ink);margin-top:.1rem;}
+  .rr-add{font-size:.8rem;color:var(--teal-deep);margin-top:.25rem;}
+  .rr-add::before{content:"\21b3  ";opacity:.7;}
+  .rr-miss{font-size:.82rem;color:var(--gold-deep);margin-top:.2rem;}
+  .reg-controls{display:flex;gap:.7rem;justify-content:center;margin-top:1.1rem;flex-wrap:wrap;}
+  .reg-note{max-width:33rem;margin:1rem auto 0;text-align:center;font-size:.86rem;color:var(--soft1);line-height:1.55;font-style:italic;}
+
+  /* ---------- the Multitude: ultraproduct truth-transfer ---------- */
+  .factors{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:.6rem auto .2rem;max-width:32rem;}
+  .fchip{font-family:"IBM Plex Mono",monospace;font-size:.72rem;border:1px solid var(--panelhair);border-radius:2px;padding:.28rem .5rem;background:var(--paper);text-align:center;line-height:1.3;}
+  .fchip .fn{display:block;color:var(--faint);font-size:.62rem;}
+  .fchip.sat{border-color:var(--teal-line);background:var(--teal-soft);} .fchip.sat .fv{color:var(--teal-deep);font-weight:600;}
+  .fchip.unsat{opacity:.55;} .fchip.unsat .fv{color:var(--faint);}
+  .uverdict{max-width:32rem;margin:1rem auto 0;border:1px solid var(--panelhair);border-radius:3px;padding:.85rem 1.1rem;text-align:center;transition:border-color .2s,background .2s;}
+  .uverdict.utrue{border-color:var(--teal-line);background:rgba(42,107,107,.05);}
+  .uverdict.ufalse{border-color:var(--red-line);background:rgba(176,58,46,.05);}
+  .uverdict.usplit{border-color:var(--gold-line);background:rgba(166,124,0,.05);}
+  .uverdict .uv-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.84rem;margin-bottom:.4rem;}
+  .uverdict.utrue .uv-head{color:var(--teal-deep);} .uverdict.ufalse .uv-head{color:var(--red-deep);} .uverdict.usplit .uv-head{color:var(--gold-deep);}
+  .uverdict .uv-body{font-size:.88rem;color:var(--soft1);line-height:1.5;}
+
+  /* ---------- the Multitude: the nonstandard-model builder ---------- */
+  .nsmodel{max-width:33rem;margin:.7rem auto .2rem;}
+  .ns-line{position:relative;height:54px;border-bottom:1.5px solid var(--ink);margin:1.6rem 0 .4rem;}
+  .ns-tick{position:absolute;bottom:0;width:1px;height:9px;background:var(--soft1);}
+  .ns-tick .ns-num{position:absolute;bottom:11px;left:50%;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--faint);}
+  .ns-gap{position:absolute;bottom:0;height:9px;border-bottom:1px dashed var(--faint);}
+  .ns-gap .ns-dots{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);color:var(--faint);font-size:.8rem;letter-spacing:.1em;}
+  .ns-c{position:absolute;bottom:0;transform:translateX(-50%);text-align:center;transition:left .4s ease;}
+  .ns-c .ns-cmark{width:2px;height:30px;background:var(--red);margin:0 auto;}
+  .ns-c .ns-clab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;color:var(--red-deep);position:absolute;bottom:32px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+  .ns-axioms{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);text-align:center;min-height:1.4rem;margin-top:.5rem;letter-spacing:.02em;}
+  .ns-state{max-width:33rem;margin:1rem auto 0;border:1px solid var(--panelhair);border-radius:3px;padding:.85rem 1.1rem;text-align:center;transition:border-color .25s,background .25s;}
+  .ns-state.std{border-color:var(--teal-line);background:rgba(42,107,107,.04);}
+  .ns-state.nonstd{border-color:var(--gold-line);background:rgba(166,124,0,.05);}
+  .ns-state .nss-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.82rem;margin-bottom:.4rem;}
+  .ns-state.std .nss-head{color:var(--teal-deep);} .ns-state.nonstd .nss-head{color:var(--gold-deep);}
+  .ns-state .nss-body{font-size:.88rem;color:var(--soft1);line-height:1.5;}
+  .ns-disagree{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;max-width:33rem;margin:1rem auto 0;}
+  .ns-mod{border:1px solid var(--panelhair);border-radius:3px;padding:.7rem .9rem;text-align:center;}
+  .ns-mod h5{font-family:"IBM Plex Mono",monospace;font-size:.76rem;margin:0 0 .5rem;letter-spacing:.04em;}
+  .ns-mod.standard{border-color:var(--teal-line);} .ns-mod.standard h5{color:var(--teal-deep);}
+  .ns-mod.nonstandard{border-color:var(--gold-line);} .ns-mod.nonstandard h5{color:var(--gold-deep);}
+  .ns-mod .nsm-row{font-size:.78rem;color:var(--soft1);margin:.25rem 0;display:flex;justify-content:space-between;gap:.5rem;}
+  .ns-mod .nsm-row .nsm-v{font-family:"IBM Plex Mono",monospace;font-weight:600;}
+  .nsm-v.T{color:var(--teal-deep);} .nsm-v.F{color:var(--red-deep);}
+
+  /* ---------- the Keystone: Henkin truth-lemma builder ---------- */
+  .henkin{max-width:33rem;margin:.6rem auto .2rem;}
+  .hk-atoms{display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;margin-bottom:.3rem;}
+  .hk-atom{font-family:"IBM Plex Mono",monospace;font-size:.82rem;font-weight:600;border:1.5px solid var(--ink);border-radius:3px;padding:.4rem .8rem;cursor:pointer;user-select:none;transition:background .15s,color .15s,border-color .15s;}
+  .hk-atom.tt{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-deep);}
+  .hk-atom.ff{background:transparent;color:var(--faint);border-color:var(--panelhair);}
+  .hk-atom .hk-tv{font-size:.66rem;font-weight:400;margin-left:.3rem;}
+  .hk-formulas{margin-top:1rem;display:flex;flex-direction:column;gap:2px;}
+  .hk-frow{display:grid;grid-template-columns:1fr auto auto;gap:.7rem;align-items:center;border:1px solid var(--panelhair);border-radius:2px;padding:.42rem .8rem;background:var(--paper);}
+  .hk-f{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .hk-tag{font-family:"IBM Plex Mono",monospace;font-size:.68rem;border-radius:2px;padding:.12rem .42rem;white-space:nowrap;}
+  .hk-tag .hkv{font-weight:600;}
+  .hk-tag.yes{background:var(--teal-soft);} .hk-tag.yes .hkv{color:var(--teal-deep);}
+  .hk-tag.no{background:rgba(124,118,106,.1);} .hk-tag.no .hkv{color:var(--faint);}
+  .hk-lemma{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--teal-deep);margin-top:.9rem;}
+
+  /* ---------- the Keystone: two roads to a model ---------- */
+  .tworoads{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;max-width:34rem;margin:.7rem auto .2rem;}
+  .road{border:1px solid var(--panelhair);border-radius:3px;padding:.85rem 1rem;}
+  .road.henkin-r{border-color:var(--gold-line);} .road.ultra-r{border-color:var(--teal-line);}
+  .road h5{font-family:"IBM Plex Mono",monospace;font-size:.78rem;margin:0 0 .6rem;letter-spacing:.02em;}
+  .road.henkin-r h5{color:var(--gold-deep);} .road.ultra-r h5{color:var(--teal-deep);}
+  .road .rd-row{font-size:.8rem;color:var(--soft1);margin:.4rem 0;line-height:1.45;}
+  .road .rd-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:.1rem;}
+  .tworoads-foot{max-width:34rem;margin:.9rem auto 0;text-align:center;font-size:.86rem;color:var(--soft1);font-style:italic;line-height:1.5;}
+
+  /* ---------- the Keystone: second-order categoricity ---------- */
+  .someter{max-width:33rem;margin:.6rem auto .2rem;}
+  .so-line{position:relative;height:60px;border-bottom:1.5px solid var(--ink);margin:1.8rem 0 .4rem;}
+  .so-dot{position:absolute;bottom:-4px;width:9px;height:9px;border-radius:50%;transform:translateX(-50%);}
+  .so-dot.std{background:var(--teal);} .so-dot.nonstd{background:var(--gold);}
+  .so-cut{position:absolute;bottom:0;width:1px;border-left:1px dashed var(--red);height:34px;}
+  .so-cut .so-cl{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--red-deep);white-space:nowrap;}
+  .so-band{position:absolute;bottom:-22px;font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:var(--faint);transform:translateX(-50%);}
+  .so-check{max-width:33rem;margin:1rem auto 0;display:flex;flex-direction:column;gap:3px;}
+  .so-cond{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline;font-size:.83rem;color:var(--soft1);border:1px solid var(--panelhair);border-radius:2px;padding:.4rem .75rem;}
+  .so-cond .so-mark{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--teal-deep);}
+  .so-verdict{max-width:33rem;margin:1rem auto 0;border:1px solid var(--gold-line);background:rgba(166,124,0,.05);border-radius:3px;padding:.9rem 1.1rem;text-align:center;}
+  .so-verdict .sov-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.82rem;color:var(--gold-deep);margin-bottom:.4rem;}
+  .so-verdict .sov-body{font-size:.88rem;color:var(--soft1);line-height:1.5;}
+
+  /* ---------- the Barrier: the clocked diagonalization grid ---------- */
+  .diaggrid{max-width:30rem;margin:.7rem auto .2rem;border-collapse:separate;border-spacing:3px;font-family:"IBM Plex Mono",monospace;}
+  .dg-wrap{overflow-x:auto;}
+  .dg-row{display:flex;gap:3px;align-items:center;justify-content:center;}
+  .dg-lab{font-size:.7rem;color:var(--faint);min-width:3.4rem;text-align:right;padding-right:.3rem;}
+  .dg-cell{width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-size:.78rem;border:1px solid var(--panelhair);border-radius:2px;background:var(--paper);color:var(--soft1);}
+  .dg-cell.diag{border-color:var(--red-line);background:rgba(176,58,46,.06);color:var(--red-deep);font-weight:600;}
+  .dg-drow .dg-lab{color:var(--teal-deep);font-weight:600;}
+  .dg-dcell{width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-size:.78rem;border:1px solid var(--teal-line);border-radius:2px;background:var(--teal-soft);color:var(--teal-deep);font-weight:600;}
+  .dg-dcell.empty{background:transparent;border-style:dashed;border-color:var(--faintest);color:var(--faintest);}
+  .dg-colhead{font-size:.6rem;color:var(--faintest);width:2rem;text-align:center;line-height:1.1;}
+  .dg-stat{max-width:30rem;margin:1rem auto 0;text-align:center;font-size:.84rem;color:var(--soft1);line-height:1.55;}
+  .dg-stat b{color:var(--ink);} .dg-stat .ok{color:var(--teal-deep);}
+
+  /* ---------- the Barrier: the two oracle worlds ---------- */
+  .oworlds{display:flex;gap:.6rem;justify-content:center;margin:.6rem auto;max-width:30rem;}
+  .otog{font-family:"IBM Plex Mono",monospace;font-size:.8rem;border:1.5px solid var(--panelhair);border-radius:3px;padding:.5rem 1.1rem;cursor:pointer;user-select:none;background:var(--paper);color:var(--soft1);transition:border-color .2s,background .2s,color .2s;}
+  .otog.on{border-color:var(--ink);color:var(--ink);font-weight:600;}
+  .ow-card{max-width:32rem;margin:1rem auto 0;border:1px solid var(--panelhair);border-radius:3px;padding:1rem 1.2rem;transition:border-color .25s,background .25s;}
+  .ow-card.collapse{border-color:var(--teal-line);background:rgba(42,107,107,.04);}
+  .ow-card.separate{border-color:var(--gold-line);background:rgba(166,124,0,.05);}
+  .ow-rel{font-family:"IBM Plex Mono",monospace;font-size:1.05rem;font-weight:600;text-align:center;margin-bottom:.6rem;}
+  .ow-card.collapse .ow-rel{color:var(--teal-deep);} .ow-card.separate .ow-rel{color:var(--gold-deep);}
+  .ow-why{font-size:.88rem;color:var(--soft1);line-height:1.5;}
+  .ow-dilemma{max-width:32rem;margin:1rem auto 0;border:1px dashed var(--red-line);border-radius:3px;padding:.85rem 1.1rem;text-align:center;background:rgba(176,58,46,.03);}
+  .ow-dilemma .owd-head{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.8rem;color:var(--red-deep);margin-bottom:.4rem;}
+  .ow-dilemma .owd-body{font-size:.87rem;color:var(--soft1);line-height:1.5;}
+
+  @media (max-width:600px){ body{font-size:18px;} .mach-grid{grid-template-columns:1fr;} .f-bar{flex-direction:column;gap:.6rem;} .lrung .lgloss{display:none;} .dstep .dj{display:none;} .gw-vals{justify-content:flex-start;} .ing{min-width:6.4rem;} .ns-disagree{grid-template-columns:1fr;} .tworoads{grid-template-columns:1fr;} .hk-frow{grid-template-columns:1fr auto;} .dg-cell,.dg-dcell{width:1.7rem;height:1.7rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{
+    body{background:#f4f1e8 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5pt;}
+    body::before{display:none !important;}
+    .btn,.controls,.selector,.runner-bar .btn{display:none !important;}
+    .sec,.panel,.stage,figcaption,.reading,.coda,.theorem,.fates,.runner{break-inside:avoid;}
+    .sec-head{break-after:avoid;}
+  }
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-diagonal">The Diagonal</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">Foundations · the barrier · the limit of the limit-finder</span></div>
+    <div class="hero-head">
+      <p class="kicker">Computation under a clock, and the wall the master key cannot pass</p>
+      <h1>The Barrier</h1>
+      <p class="standfirst">One construction has run beneath the entire corpus. The diagonal proved Cantor's theorem and Russell's paradox, Gödel's incompleteness and Turing's halting problem; it forced the fixed point that limits every system turned upon itself. It is the master key. But a master key has a shape, and a shape is a limit. This volume asks the question the corpus has never asked — <i>what are the limits of the diagonal itself?</i> — and finds that the answer is exact, deep, and unsolved. Taken into the world of <i>feasible</i> computation, bounded by a clock, the diagonal still triumphs: the hierarchy theorems, proved by a clocked diagonal, hand us real and unconditional separations. But at the central question of that world — whether finding is as easy as checking, whether <span class="mono">P</span> equals <span class="mono">NP</span> — the diagonal fails, and we can <i>prove</i> it fails. The relativization barrier shows that the tool which opened every other door cannot open this one. The limit-finder is itself limited, and the corpus closes not at a terminus but at a living frontier, where the master key has met its match and new keys are still being forged.</p>
+      <p class="ed-mark">the reflexive turn · the diagonal's own boundary — the time and space hierarchy theorems, the diagonal triumphant under a clock; <span class="mono">P</span> versus <span class="mono">NP</span>, the question it cannot reach; the relativization barrier of Baker–Gill–Solovay, the diagonal's precise limit; why a black&#8209;box method is blind to the structure of computation; the further walls of natural proofs and algebrization; and the conservation law in its final form — the limit relocating into the very method that finds limits</p>
+    </div>
+  </header>
+
+  <!-- ============ §I THE DIAGONAL UNDER A CLOCK ============ -->
+  <section class="sec" id="clock">
+    <div class="sec-head"><span class="num">I · the diagonal under a clock</span><h2>From what can be computed to what can be afforded</h2><p class="sub">The Ceiling asked what is computable at all; this asks what is computable within a budget. It is a different regime, with a different fate for the diagonal — and the difference is the subject of the volume.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">a new regime for an old engine&nbsp;&nbsp;</span>The diagonal corpus and its complement studied computability <i>in principle</i>: whether a problem can be decided by any algorithm whatsoever, with no limit on time or memory. The halting problem is undecidable in that absolute sense; the arithmetical hierarchy stratifies what unbounded computation can reach. But there is a second, harsher question, the one that governs whether a computation is of any practical use: not <i>can</i> it be done, but can it be done <i>in time we can afford</i>? This is the regime of <b>complexity</b> — computation under a clock, sorted by how its cost grows with the size of the input. And the diagonal, the corpus's master engine, enters this regime with its character intact but its fate transformed. Here it both triumphs and, for the first time anywhere in the corpus, fails — and the precise line between the triumph and the failure is one of the deepest facts in all of mathematics.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the reflexive turn&nbsp;&nbsp;</span>There is something fitting in ending here. The corpus has spent its whole length wielding the diagonal as an instrument — pointing it at set theory, at arithmetic, at computation, at truth, and reading off the limit it forces in each. The instrument was never itself examined. But the diagonal is a method, and every method has a reach and an edge, and the most honest thing a study of limits can do is turn its instrument upon itself and ask where <i>it</i> stops. Complexity theory is where that question becomes precise, because here, uniquely, there is a concrete separation the diagonal manifestly should prove — the difference between solving and verifying — and manifestly cannot. The relativization barrier names the reason exactly. So the final movement of the corpus is the diagonal turned upon the diagonal: the limit&#8209;finder finding its own limit, the master key discovering the one shape of lock it was never cut to open. And the gap it cannot close is not a settled fact but the discipline's greatest open problem, so the corpus ends pointed forward, at the edge of the known.</p>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the shape of the volume</div>
+      <p>The argument runs in three beats. <b>First</b>, the diagonal succeeds: with a clock added — a machine that simulates another and flips the answer within a fixed time budget — it proves the hierarchy theorems, that strictly more time and more space buy strictly more computational power. These are unconditional separations; we genuinely know, by the diagonal, that some problems require exponential time. <b>Second</b>, the diagonal stalls: at <span class="mono">P</span> versus <span class="mono">NP</span> — determinism against nondeterminism at the same polynomial budget — the clocked diagonal has no purchase, and the question has resisted for half a century. <b>Third</b>, the diagonal is shown to be <i>provably</i> insufficient: the relativization barrier demonstrates that no argument of the diagonal's kind can settle the question, because such arguments treat machines as black boxes and the answer to <span class="mono">P</span> versus <span class="mono">NP</span> depends on what is inside the box. After that come the deeper walls, and then the reckoning — the conservation law of <i>The Law</i> reaching its widest form, the forced limit relocating one last time, out of theories and models and logics and into the method itself.</p>
+    </div>
+  </section>
+
+  <!-- ============ §II THE HIERARCHY THEOREMS ============ -->
+  <section class="sec" id="hierarchy">
+    <div class="sec-head"><span class="num">II · the hierarchy theorems</span><h2>The diagonal still cuts</h2><p class="sub">Add a clock to the diagonal and it proves that more time, and more space, buy strictly more power. These are not conjectures but theorems — unconditional separations, the diagonal working exactly as it always has, only bounded.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">simulate, and flip — on a budget&nbsp;&nbsp;</span>The halting argument built an uncomputable set by simulating each machine on its own description and flipping the answer. The time hierarchy theorem does the same with a stopwatch. Build a machine <span class="mono">D</span> that, on input <span class="mono">⟨M⟩</span>, simulates <span class="mono">M(⟨M⟩)</span> for <span class="mono">g(n)</span> steps and outputs the opposite of whatever <span class="mono">M</span> does. Then <span class="mono">D</span> runs in time <span class="mono">g</span> — that is its whole budget — yet differs from every machine running in the smaller time <span class="mono">f</span>, because on input <span class="mono">⟨M⟩</span> it has time enough to watch <span class="mono">M</span> finish and contradict it. The only subtlety is the cost of simulation, a logarithmic factor, which is why the gap required is <span class="mono">f log f = o(g)</span>. The diagonal, clocked, separates the classes.</p>
+    </div>
+    <div class="stage" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">the clocked diagonal — D differs from every machine on its own input</p>
+        <div class="dg-wrap"><div class="diaggrid" id="dgGrid"></div></div>
+        <div class="dg-stat" id="dgStat"></div>
+        <div class="controls" style="margin-top:1.1rem;justify-content:center"><button class="btn" id="dgStep">construct D, one cell at a time →</button><button class="btn" id="dgReset">reset</button></div>
+      </div>
+      <figcaption>Rows are machines <span class="mono">M<sub>i</sub></span> running in time <span class="mono">f</span>; the red diagonal is each machine on its own encoding, <span class="mono">M<sub>i</sub>(⟨M<sub>i</sub>⟩)</span>. The machine <span class="mono">D</span> takes the opposite value down that diagonal — so it agrees with no <span class="mono">M<sub>i</sub></span> anywhere they are forced to meet. <span class="mono">D</span> fits in time <span class="mono">g</span> because simulating an <span class="mono">f</span>&#8209;step machine costs only a logarithmic factor more, and <span class="mono">g</span> is larger by more than that.</figcaption>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">the time hierarchy theorem · Hartmanis–Stearns 1965</span>
+        <div class="stmt">If <span class="mono">g</span> is time&#8209;constructible and <span class="mono">f(n) log f(n) = o(g(n))</span>, then <span class="mono">DTIME(f) ⊊ DTIME(g)</span>: there is a problem solvable in time <span class="mono">g</span> but not in time <span class="mono">f</span>. The space hierarchy theorem is sharper still — <span class="mono">DSPACE(f) ⊊ DSPACE(g)</span> whenever <span class="mono">f = o(g)</span>, with no logarithmic loss.</div>
+        <div class="proof"><span class="plab">what we genuinely know</span> These are <i>unconditional</i>. From the time hierarchy, <span class="mono">P ⊆ DTIME(2<sup class="fn">n</sup>) ⊊ DTIME(2<sup class="fn">2n</sup>) ⊆ EXP</span>, so <span class="mono">P ≠ EXP</span> — there are problems decidable in exponential time and provably not in polynomial time. The diagonal, here, is not gesturing at a limit it cannot cross; it is delivering hard separations, certified, no hypothesis required. Whatever fails at <span class="mono">P</span> versus <span class="mono">NP</span>, it is not that the diagonal is toothless. <span class="qed">∎</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ §III P VERSUS NP ============ -->
+  <section class="sec" id="pnp">
+    <div class="sec-head"><span class="num">III · P versus NP</span><h2>The question it cannot reach</h2><p class="sub">Between solving and verifying lies the most famous open problem in the field. The hierarchy theorems separate different budgets; this asks something they cannot see — whether two <i>modes</i> of computation differ at the same budget.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">finding versus checking&nbsp;&nbsp;</span>Two classes frame the question. <span class="mono">P</span> is the problems a computer can <i>solve</i> in polynomial time — feasibly, by any reasonable measure. <span class="mono">NP</span> is the problems whose solutions a computer can <i>verify</i> in polynomial time: given a candidate answer, it can check the answer quickly, even if finding one might be hard. Every solvable problem is verifiable — hand the verifier the solution the solver found — so <span class="mono">P ⊆ NP</span>. The question is whether the inclusion is strict. <b>Is <span class="mono">P = NP</span>?</b> Is every problem whose answers can be checked efficiently also one whose answers can be <i>found</i> efficiently? Is the act of searching no harder, in the end, than the act of recognizing? On it hang the security of every cipher, the tractability of ten thousand optimization problems, and the question of whether mathematical discovery is, at bottom, mechanical. Almost everyone believes <span class="mono">P ≠ NP</span> — that finding is genuinely harder than checking — and no one can prove it.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">why the clocked diagonal stalls&nbsp;&nbsp;</span>The hierarchy theorems were separations of <i>budget</i>: a machine with time <span class="mono">g</span> beats every machine with the smaller time <span class="mono">f</span>, and the diagonal manufactures the witness by out&#8209;simulating the weaker machines. But <span class="mono">P</span> and <span class="mono">NP</span> sit at the <i>same</i> budget — both polynomial — and differ only in <i>mode</i>: <span class="mono">NP</span> is permitted to guess, to branch nondeterministically and accept if any branch does. The diagonal's trick is to simulate a machine and flip it, but to diagonalize against all of <span class="mono">P</span> one would need to simulate an arbitrary polynomial&#8209;time machine and still have polynomial time left to flip — and to place the result in <span class="mono">NP</span> rather than somewhere far above it. The budgets are too close and the modes too alike; the simulate&#8209;and&#8209;flip that cut cleanly between <span class="mono">f</span> and <span class="mono">g</span> finds nothing to grip between determinism and nondeterminism at one budget. The diagonal stalls, and the question is left standing. The next section explains why this is no accident of cleverness but a <i>provable</i> wall.</p>
+    </div>
+  </section>
+
+  <!-- ============ §IV THE RELATIVIZATION BARRIER ============ -->
+  <section class="sec" id="relativization">
+    <div class="sec-head"><span class="num">IV · the relativization barrier</span><h2>The diagonal, proved insufficient</h2><p class="sub">Why does the diagonal stall at <span class="mono">P</span> versus <span class="mono">NP</span>? Not for want of ingenuity. Baker, Gill, and Solovay showed that no argument of the diagonal's kind can ever succeed — by building two worlds in which the answer is opposite.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">machines with an oracle&nbsp;&nbsp;</span>Give a machine a magical subroutine — an <b>oracle</b> for some set <span class="mono">A</span> — that answers "is <span class="mono">x</span> in <span class="mono">A</span>?" instantly, for free. Every complexity class has a relativized version: <span class="mono">P<sup class="fn">A</sup></span> and <span class="mono">NP<sup class="fn">A</sup></span> are the problems solvable, and verifiable, in polynomial time with the oracle on call. Now observe the crucial fact about the diagonal: it <b>relativizes</b>. Its arguments — simulate a machine, flip the answer — never look inside the machine; they treat it as a sealed box that takes inputs and returns outputs. Hand every machine the same oracle and the simulation still goes through unchanged, because the oracle is just part of the box. So any theorem the diagonal can prove, it proves <i>relative to every oracle at once</i>: a diagonal proof of <span class="mono">P = NP</span> would establish <span class="mono">P<sup class="fn">A</sup> = NP<sup class="fn">A</sup></span> for all <span class="mono">A</span>, and a diagonal proof of <span class="mono">P ≠ NP</span> would establish the separation for all <span class="mono">A</span>. The method cannot tell the oracles apart.</p>
+    </div>
+    <div class="stage" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">two worlds — and the diagonal cannot tell which is ours</p>
+        <div class="oworlds" id="owTog"></div>
+        <div class="ow-card" id="owCard"></div>
+        <div class="ow-dilemma" id="owDilemma"></div>
+      </div>
+      <figcaption>Choose the oracle. With <span class="mono">A</span> a sufficiently powerful set, solving and verifying coincide; with <span class="mono">B</span>, built by diagonalization to outrun every fast machine, they come apart. Both worlds are real. And because the diagonal relativizes, it runs the identical argument in each — so it must return the identical verdict, which it cannot, since the verdicts differ.</figcaption>
+    </div>
+    <div class="stage narrow" style="margin-top:.6rem">
+      <div class="theorem">
+        <span class="thlab">Baker–Gill–Solovay · 1975</span>
+        <div class="stmt">There exist oracles <span class="mono">A</span> and <span class="mono">B</span> with <span class="mono">P<sup class="fn">A</sup> = NP<sup class="fn">A</sup></span> and <span class="mono">P<sup class="fn">B</sup> ≠ NP<sup class="fn">B</sup></span>. Consequently, no relativizing argument — none that treats machines as black boxes, as every diagonalization does — can prove or refute <span class="mono">P = NP</span>.</div>
+        <div class="proof"><span class="plab">the two constructions</span> For <span class="mono">A</span>, take any <span class="mono">PSPACE</span>&#8209;complete set: then <span class="mono">NP<sup class="fn">A</sup> ⊆ NPSPACE = PSPACE</span> by Savitch's theorem, and <span class="mono">PSPACE ⊆ P<sup class="fn">A</sup></span> since the oracle decides a <span class="mono">PSPACE</span>&#8209;complete problem — so both classes collapse to <span class="mono">PSPACE</span> and coincide. For <span class="mono">B</span>, build the oracle in stages, defeating the <span class="mono">i</span>&#8209;th polynomial&#8209;time machine at stage <span class="mono">i</span>: at a fresh input length <span class="mono">n</span> there are <span class="mono">2<sup class="fn">n</sup></span> possible strings but the machine queries only polynomially many, so an unqueried string can be placed in <span class="mono">B</span>, or withheld, to make the machine's answer wrong — while an <span class="mono">NP<sup class="fn">B</sup></span> machine, free to guess, decides correctly. The diagonal that separates here is the diagonal that <i>cannot</i> separate <span class="mono">P</span> from <span class="mono">NP</span> absolutely. <span class="qed">∎</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ §V WHY THE DIAGONAL IS BLIND ============ -->
+  <section class="sec" id="blind">
+    <div class="sec-head"><span class="num">V · black boxes and structure</span><h2>Why universality is blindness</h2><p class="sub">The barrier is not a quirk; it follows from what the diagonal <i>is</i>. The very feature that made it the master key — that it works against any system whatsoever — is exactly what bars it from this door.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the source of the diagonal's power&nbsp;&nbsp;</span>Look back across the corpus and ask why the diagonal worked so universally. Against Cantor's sets, Turing's machines, Gödel's proofs, the diagonal needed only one capacity: to take a system's own description, run the system on it, and produce the opposite. It never inspected the <i>internals</i> — never used a special feature of sets, or of programs, or of proofs. That is precisely its strength: a method that ignores internal structure works against <i>everything</i>, because it asks of every system only the one thing every reflexive system can do, turn upon itself. The diagonal is the universal limit&#8209;finder exactly because it is a black&#8209;box method.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">and the source of its blindness&nbsp;&nbsp;</span>But <span class="mono">P</span> versus <span class="mono">NP</span> is not a black&#8209;box question. To separate them is to prove that some particular problem — satisfiability, say — has <i>no</i> fast deterministic algorithm, and that is a claim about the <i>internal structure</i> of all possible algorithms: what the architecture of efficient computation can and cannot express. A method that refuses to look inside the box cannot prove a fact about what is inside it. Relativization is the exact formalization of this: an oracle is a way of changing what is inside the box while leaving its interface unchanged, and the diagonal, blind to internals, cannot see the change — so it gives the same answer in worlds where the truth differs. The diagonal's universality and the diagonal's blindness are <i>one property</i>, named twice. It opens every lock that can be opened by turning a system on itself; it cannot open a lock that requires seeing the mechanism within. The master key has a shape after all, and the shape is "self&#8209;reference, structure&#8209;blind."</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the reframing — what kind of tool the diagonal was all along</div>
+      <p>This casts the entire corpus in a sharper light. Every limit the diagonal proved — uncountability, undecidability, incompleteness, the hierarchy theorems — was a limit that could be forced <i>without looking inside the system</i>, by self&#8209;reference alone. The diagonal found exactly the limits that are visible from the outside, that follow from a system's mere capacity to refer to itself, and it found <i>all</i> of them, which is why it seemed omnipotent. But there is a second kind of limit, invisible to self&#8209;reference: limits that depend on the internal architecture of a system, on what its mechanisms can and cannot do. <span class="mono">P</span> versus <span class="mono">NP</span> is the first great instance the corpus has met of a limit of the <i>second</i> kind — a question whose answer lives inside the box, where the diagonal cannot reach. The corpus's master tool was never omnipotent; it was perfectly fitted to one family of questions, the family of self&#8209;reference, and that family, vast as it is, has a boundary. We have just crossed it, and on the far side the diagonal falls silent — not defeated, but simply out of its domain.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VI THE FURTHER WALLS ============ -->
+  <section class="sec" id="walls">
+    <div class="sec-head"><span class="num">VI · the further walls</span><h2>A gauntlet of barriers</h2><p class="sub">Relativization is only the first wall. Each technique that climbed over it met another, and the sequence of barriers is a map of why the question has resisted for half a century — and what a solution would have to evade.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">past the first wall, two more&nbsp;&nbsp;</span>The relativization barrier was not the end of the story but the start of a pattern. Techniques were found that <i>do</i> look inside the box — arithmetization, which lifts Boolean functions to polynomials over a field and reasons about their algebra — and these broke through, proving non&#8209;relativizing theorems like <span class="mono">IP = PSPACE</span>. But each new method, examined, turned out to be stopped by a new barrier. The combinatorial lower&#8209;bound methods ran into the <b>natural proofs</b> barrier: any property usable as a lower bound that is efficiently testable and holds for most functions would, by that very fact, break the pseudorandom generators on which modern cryptography rests — so if one&#8209;way functions exist, those methods cannot separate <span class="mono">P</span> from <span class="mono">NP</span>. And the arithmetization methods that broke relativization ran into <b>algebrization</b>: they survive even when each oracle is replaced by a low&#8209;degree polynomial extension of itself, and that survival, Aaronson and Wigderson showed, is incompatible with resolving <span class="mono">P</span> versus <span class="mono">NP</span>. Three walls, each formalizing a class of techniques and proving it insufficient.</p>
+    </div>
+    <div class="stage" style="margin-top:1rem">
+      <div class="panel">
+        <p class="panel-cap">the three barriers — the gauntlet a separation must run</p>
+        <div class="dial-sel" id="barSel"></div>
+        <div class="dial-readout" id="barReadout"></div>
+      </div>
+      <figcaption>Each barrier rules out a family of proof techniques by exhibiting why it cannot distinguish <span class="mono">P</span> from <span class="mono">NP</span>. A proof of <span class="mono">P ≠ NP</span> must be non&#8209;relativizing <i>and</i> non&#8209;natural <i>and</i> non&#8209;algebrizing — it must pass all three walls at once. No known technique does, which is the precise, formal content of the sentence "we do not know how to separate <span class="mono">P</span> from <span class="mono">NP</span>."</figcaption>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">what the barriers are, and are not</div>
+      <p>It is worth being exact about what these results establish, in the corpus's discipline of separating the proved from the suggested. The barriers do <b>not</b> show that <span class="mono">P ≠ NP</span> is unprovable, nor that it is independent of arithmetic, nor that it is false. They show something narrower and stranger: that whole <i>families of techniques</i> — the ones we have, the ones that proved everything else — are provably unable to settle it. Relativization bars the black&#8209;box methods; natural proofs bar the constructive&#8209;combinatorial ones, modulo cryptography; algebrization bars the arithmetic ones. Each is a theorem about the <i>reach of a method</i>, not about the truth of the conjecture. Together they explain why fifty years of effort by the field's best minds has not closed the gap: not because the problem is unsolvable, but because every tool we have brought to it is, demonstrably, the wrong shape. The diagonal is the first of those tools, and its barrier — relativization — is the one this corpus was always destined to reach, because the diagonal is the corpus's own engine, and we have followed it all the way to its edge.</p>
+    </div>
+  </section>
+
+  <!-- ============ §VII THE LIMIT OF THE LIMIT ============ -->
+  <section class="sec" id="reckoning">
+    <div class="sec-head"><span class="num">VII · the limit of the limit</span><h2>The forced fixed point, relocated one last time</h2><p class="sub">The instrument has been turned upon itself, and it has an edge. What remains is to name what that means for the whole — and to leave the corpus, rightly, at the open frontier rather than a closed door.</p></div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the conservation law, in its widest form&nbsp;&nbsp;</span><i>The Law</i> stated that the forced fixed point can never be deleted, only relocated, and the corpus has now watched it migrate across every level of the foundations. It began in <b>theories</b>: arithmetic cannot prove all the truths of its intended model — incompleteness. Pressed, it moved to <b>models</b>: no first&#8209;order theory can pin that model down among the multitude. Pressed harder, into <b>logics</b>: strengthen to second&#8209;order and capture the model uniquely, and the incompleteness reappears as the unaxiomatizability of the logic itself. And now, at the last, it has moved into the <b>method</b>. The diagonal — the very instrument that found the limit at every prior level — meets a limit of its own: it cannot resolve <span class="mono">P</span> versus <span class="mono">NP</span>, and the relativization barrier proves it cannot. There is no level at which the limit dissolves; there is only the next stronghold for it to occupy. Surrender the theory's completeness and it takes the model; surrender the model's plurality and it takes the logic; bring the sharpest instrument we have and it takes the instrument. This is the conservation law in its final and widest form: the gap between a formal system and what is so is invariant under every attempt to close it, <i>including the attempts to study it</i>.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">no view from outside&nbsp;&nbsp;</span>This is the deepest reflexive turn in the corpus, and its quietest. We set out to map the limits of formal systems, and the map was drawn with one instrument, the diagonal. To find that the instrument itself has a limit — that there are questions about computation it provably cannot answer — is to find that the inquiry is subject to its own conclusion. There is no privileged vantage, no view from outside the system of systems, from which all limits could be surveyed by a method exempt from limits. The limit&#8209;finder is inside the world it studies, and shares its condition. The diagonal taught us that no system can fully grasp itself; turned upon the project of grasping systems, it teaches that no method can fully grasp the methods either. The corpus's subject was always the unbridgeable gap between a formalism and its object, and the final instance of that gap is the one between our tools and the truths they are built to reach.</p>
+    </div>
+    <div class="reading wide" style="margin-top:clamp(1.4rem,3vh,2rem)">
+      <p><span class="lead-in">the open frontier&nbsp;&nbsp;</span>And so the corpus ends, deliberately, not at a sealed terminus but at a living edge. Incompleteness is proved; the multitude is proved; the keystone is proved; the conservation law is proved. But the diagonal's limit at <span class="mono">P</span> versus <span class="mono">NP</span> is not the end of a story — it is the beginning of one still being written. The barriers tell us why the question is hard, not what its answer is. Beyond relativization, beyond natural proofs, beyond algebrization, the frontier of complexity theory is the search for techniques of a kind we do not yet possess — methods that look inside the box, that exploit structure the diagonal is blind to, that might one day cut where the master key cannot. The single construction that ran beneath this entire work — <span class="mono">g(x) = α(φ(x)(x))</span>, evaluate the system at itself and twist — opened set theory and arithmetic and computation and truth, and forced the fixed point that limits them all. Here, at its own edge, it has shown us the shape of what it cannot do, and pointed past itself to the work that remains. The diagonal is complete. The frontier is open. And the gap it has measured, level after level, is the permanent condition of every formal thing that reaches for a truth beyond its own walls.</p>
+    </div>
+  </section>
+
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">P<sup>A</sup> = NP<sup>A</sup> &nbsp;&nbsp;&nbsp; P<sup>B</sup> ≠ NP<sup>B</sup></span><span class="ln"></span></div>
+  <div class="coda"><p>One construction ran beneath the corpus, and this volume found its edge. The diagonal — master key to every prior limit, from Cantor to Gödel to the hierarchy theorems it still proves cleanly under a clock — cannot resolve the central question of feasible computation, whether finding is as hard as checking, whether <span class="mono">P</span> equals <span class="mono">NP</span>. And the relativization barrier proves it cannot: there are two worlds, one where the classes collapse and one where they part, and the diagonal, blind to the internals of the machines it simulates, runs the same argument in both and so can decide neither. Its universality and its blindness are one property; it opens every lock that yields to a system turned upon itself, and no lock that requires seeing the mechanism within. The barriers of natural proofs and algebrization mark the further walls, a gauntlet no known technique can run. And the conservation law reaches its widest form: the forced fixed point, having migrated from theories to models to logics, relocates one final time into the method itself — for even the limit&#8209;finder is limited, and there is no view from outside. The corpus closes at the open frontier. <span class="mono t">P<sup>A</sup> = NP<sup>A</sup>, &nbsp; P<sup>B</sup> ≠ NP<sup>B</sup></span> — the diagonal's own boundary, written in two worlds it cannot tell apart.</p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">Foundations · the barrier · the diagonal's own edge</span></div>
+    <p class="colophon">The reflexive close of the corpus: the diagonal turned upon itself, in the regime of feasible computation. The time and space hierarchy theorems show the diagonal triumphant under a clock — a machine that simulates another and flips the answer within a fixed budget, yielding the unconditional separations <span class="mono">DTIME(f) ⊊ DTIME(g)</span> and <span class="mono">P ≠ EXP</span>. But at <span class="mono">P</span> versus <span class="mono">NP</span> — determinism against nondeterminism at one polynomial budget — the clocked diagonal stalls, and the relativization barrier of Baker, Gill, and Solovay proves the stall is permanent: there are oracles relative to which the classes collapse and oracles relative to which they separate, so no relativizing argument, and every diagonalization relativizes, can settle the question. The reason is that the diagonal is a black&#8209;box method, and <span class="mono">P</span> versus <span class="mono">NP</span> is a question about the internal structure of computation; the diagonal's universality and its blindness are the same property. The further barriers — natural proofs (Razborov–Rudich) and algebrization (Aaronson–Wigderson) — mark the gauntlet that any separation must run. And the conservation law of <i>The Law</i> reaches its widest form: the forced limit, having relocated from theories to models to logics, moves finally into the method, the limit&#8209;finder proving limited. The corpus closes not at a terminus but at the open frontier, with <span class="mono">P</span> versus <span class="mono">NP</span> unsolved. The results are Hartmanis–Stearns (1965), Baker–Gill–Solovay (1975), Razborov–Rudich (1994), and Aaronson–Wigderson (2008); the construction throughout is Lawvere's diagonal, here met at its edge.</p>
+    <p class="notes"><span class="nl">technical qualifications.</span> &nbsp;The time hierarchy theorem requires <span class="mono">g</span> time&#8209;constructible and <span class="mono">f log f = o(g)</span>; the logarithmic factor is the overhead of simulating an <span class="mono">f</span>&#8209;time multitape machine, and a tighter statement holds on fixed machine models. The space hierarchy theorem needs only <span class="mono">f = o(g)</span> with <span class="mono">g</span> space&#8209;constructible. <span class="mono">P ⊆ NP ⊆ PSPACE ⊆ EXP</span>, and <span class="mono">P ⊊ EXP</span> by the time hierarchy; the analogous strict inclusions among <span class="mono">P, NP, PSPACE</span> are open. <span class="mono">NP</span> is defined by polynomial&#8209;time verifiers with polynomial&#8209;size certificates, equivalently nondeterministic polynomial time. Baker–Gill–Solovay (1975): for <span class="mono">A</span> any <span class="mono">PSPACE</span>&#8209;complete set, <span class="mono">P<sup>A</sup> = NP<sup>A</sup> = PSPACE</span> via Savitch's theorem (<span class="mono">NPSPACE = PSPACE</span>); <span class="mono">B</span> is built by finite&#8209;extension diagonalization exploiting the gap between <span class="mono">2<sup>n</sup></span> strings and polynomially many oracle queries. Relativization: arguments using only simulation and diagonalization hold relative to every oracle; arithmetization (giving <span class="mono">IP = PSPACE</span>, Shamir 1990, after Lund–Fortnow–Karloff–Nisan) is the canonical non&#8209;relativizing technique. Natural proofs (Razborov–Rudich 1994) bar constructive, large lower&#8209;bound properties assuming the existence of strong pseudorandom generators; algebrization (Aaronson–Wigderson 2008) bars techniques surviving low&#8209;degree oracle extensions. The barriers limit technique&#8209;classes, not the provability or truth of <span class="mono">P ≠ NP</span>, which remains open. The conservation framing and the reading of the limit "relocating into the method" connect to <i>The Law</i>; the theorems are as cited.</p>
+    <p class="refs"><b>Sources.</b> &nbsp;Hartmanis &amp; Stearns, the time hierarchy (1965) · Savitch, <span class="mono">NPSPACE = PSPACE</span> (1970) · Cook (1971) and Karp (1972), <span class="mono">NP</span>&#8209;completeness · Baker, Gill &amp; Solovay, relativizations of <span class="mono">P =? NP</span> (1975) · Lund, Fortnow, Karloff &amp; Nisan, and Shamir, <span class="mono">IP = PSPACE</span> (1990) · Razborov &amp; Rudich, natural proofs (1994) · Aaronson &amp; Wigderson, algebrization (2008) · Lawvere (1969) · and the corpus — the seven volumes of the diagonal, the Multitude, the Keystone, and <i>The Law</i>.</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  function E(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
+  function T(t){return document.createTextNode(t);}
+  function selBuild(sel,data,order,onpick){
+    if(!sel.hasChildNodes()){
+      for(var i=0;i<order.length;i++){ (function(key){
+        var x=data[key], b=E("button","seltab"); b.setAttribute("data-key",key);
+        var n=E("span"); n.appendChild(T(x.name)); b.appendChild(n);
+        if(x.yr){ var y=E("span","yr"); y.appendChild(T(x.yr)); b.appendChild(y); }
+        b.addEventListener("click",function(){onpick(key);});
+        sel.appendChild(b);
+      })(order[i]); }
+    }
+  }
+  function selMark(sel,key){ var k=sel.children; for(var c=0;c<k.length;c++){ k[c].className="seltab"+(k[c].getAttribute("data-key")===key?" on":""); } }
+
+  /* ============ §II — the clocked diagonalization grid ============ */
+  var DGM=[[1,0,1,1,0],[0,0,1,0,1],[1,1,0,1,0],[0,1,1,0,1],[1,0,0,1,1]];
+  var DGD=DGM.map(function(r,i){return 1-r[i];});
+  var SUBS=["\u2081","\u2082","\u2083","\u2084","\u2085"];
+  var dStep=0;
+  function dgRender(){
+    var grid=document.getElementById("dgGrid");
+    if(grid){ grid.innerHTML="";
+      // header row
+      var hr=E("div","dg-row"); var hl=E("div","dg-lab"); hl.appendChild(T("input \u2192")); hr.appendChild(hl);
+      for(var j=0;j<5;j++){ var ch=E("div","dg-colhead"); ch.appendChild(T("\u27e8M"+SUBS[j]+"\u27e9")); hr.appendChild(ch); }
+      grid.appendChild(hr);
+      // machine rows
+      for(var i=0;i<5;i++){ var row=E("div","dg-row"); var lb=E("div","dg-lab"); lb.appendChild(T("M"+SUBS[i])); row.appendChild(lb);
+        for(var c=0;c<5;c++){ var cell=E("div","dg-cell"+(c===i?" diag":"")); cell.appendChild(T(String(DGM[i][c]))); row.appendChild(cell); }
+        grid.appendChild(row);
+      }
+      // D row
+      var drow=E("div","dg-row dg-drow"); var dl=E("div","dg-lab"); dl.appendChild(T("D")); drow.appendChild(dl);
+      for(var d=0;d<5;d++){ if(d<dStep){ var dc=E("div","dg-dcell"); dc.appendChild(T(String(DGD[d]))); drow.appendChild(dc); } else { var ec=E("div","dg-dcell empty"); ec.appendChild(T("?")); drow.appendChild(ec); } }
+      grid.appendChild(drow);
+    }
+    var st=document.getElementById("dgStat");
+    if(st){
+      if(dStep===0) st.innerHTML="<b>D</b> will take the opposite value down the red diagonal: <span class='mono'>D(\u27e8M<sub>i</sub>\u27e9) = 1 \u2212 M<sub>i</sub>(\u27e8M<sub>i</sub>\u27e9)</span>. Build it cell by cell.";
+      else if(dStep<5) st.innerHTML="filling D: at each step, simulate <span class='mono'>M<sub>"+dStep+"</sub></span> on its own encoding within budget <span class='mono'>g</span>, and flip. <b>"+dStep+" of 5.</b>";
+      else st.innerHTML="<span class='ok'>D differs from every M<sub>i</sub> at input \u27e8M<sub>i</sub>\u27e9</span> \u2014 so <b>D is no machine in the list</b>: <span class='mono'>D \u2209 DTIME(f)</span>. Yet D ran within budget <span class='mono'>g</span>: <span class='mono'>D \u2208 DTIME(g)</span>. Therefore <b><span class='mono'>DTIME(f) \u228a DTIME(g)</span></b> \u2014 the diagonal, clocked, cuts.";
+    }
+    var btn=document.getElementById("dgStep");
+    if(btn){ var done=dStep>=5; btn.disabled=done; btn.style.opacity=done?".45":""; btn.style.cursor=done?"default":""; btn.textContent=done?"D is complete":"construct D, one cell at a time \u2192"; }
+  }
+
+  /* ============ §IV — the two oracle worlds ============ */
+  var oWorld="A";
+  var OW={
+    A:{ rel:"P\u1d2c = NP\u1d2c", cls:"collapse", why:"Take <span class='mono'>A</span> a <span class='mono'>PSPACE</span>-complete set, such as <span class='mono'>TQBF</span>. Then <span class='mono'>NP\u1d2c \u2286 NPSPACE = PSPACE</span> by Savitch's theorem, and <span class='mono'>PSPACE \u2286 P\u1d2c</span> because the oracle decides a <span class='mono'>PSPACE</span>-complete problem. Both classes collapse to <span class='mono'>PSPACE</span> \u2014 solving and verifying coincide." },
+    B:{ rel:"P\u1d2e \u2260 NP\u1d2e", cls:"separate", why:"Build <span class='mono'>B</span> in stages, defeating the <span class='mono'>i</span>-th polynomial-time machine at stage <span class='mono'>i</span>. At a fresh length <span class='mono'>n</span> there are <span class='mono'>2\u207f</span> candidate strings but the machine queries only <span class='mono'>poly(n)</span> of them \u2014 so an unqueried string can be set to make its answer wrong, while an <span class='mono'>NP\u1d2e</span> machine, free to guess that string, decides correctly." }
+  };
+  function owRender(){
+    var tog=document.getElementById("owTog");
+    if(tog){ if(!tog.hasChildNodes()){
+      [["A","oracle A (TQBF)"],["B","oracle B (built to separate)"]].forEach(function(o){
+        var b=E("div","otog"); b.setAttribute("data-o",o[0]); b.appendChild(T(o[1]));
+        b.addEventListener("click",function(){ oWorld=o[0]; owRender(); }); tog.appendChild(b);
+      });
+    }
+      var k=tog.children; for(var c=0;c<k.length;c++){ k[c].className="otog"+(k[c].getAttribute("data-o")===oWorld?" on":""); }
+    }
+    var d=OW[oWorld], card=document.getElementById("owCard");
+    if(card){ card.className="ow-card "+d.cls; card.innerHTML="<div class='ow-rel'>"+d.rel+"</div><div class='ow-why'>"+d.why+"</div>"; }
+    var dil=document.getElementById("owDilemma");
+    if(dil) dil.innerHTML="<div class='owd-head'>the diagonal's dilemma</div><div class='owd-body'>Diagonalization <b>relativizes</b> \u2014 it treats machines as sealed boxes, so it runs the identical argument with either oracle and must reach the identical verdict. But world <span class='mono'>A</span> says <span class='mono'>=</span> and world <span class='mono'>B</span> says <span class='mono'>\u2260</span>. A single argument cannot conclude both, so <b>no relativizing argument settles P vs NP</b>.</div>";
+  }
+
+  /* ============ §VI — the three barriers ============ */
+  var BAR={
+    rel:{ name:"relativization", yr:"1975 \u00b7 black-box", formalizes:"an argument that goes through unchanged when every machine is given the same oracle \u2014 treating machines as sealed boxes",
+      rules_out:"diagonalization and simulation \u2014 every black-box technique", succumbs:"the hierarchy theorems and the halting argument all relativize", slips:"arithmetization: <span class='mono'>IP = PSPACE</span> is non-relativizing \u2014 it reasons about polynomials, looking inside", who:"Baker, Gill & Solovay" },
+    nat:{ name:"natural proofs", yr:"1994 \u00b7 combinatorial", formalizes:"a lower-bound property that is constructive (efficiently testable) and large (holds for most functions)",
+      rules_out:"most circuit-lower-bound methods \u2014 if strong pseudorandom generators exist", succumbs:"the combinatorial bounds (e.g. parity \u2209 <span class='mono'>AC\u2070</span>) are natural, so they cannot reach <span class='mono'>NP</span>", slips:"non-natural methods \u2014 few are known; this wall stands as long as one-way functions exist", who:"Razborov & Rudich" },
+    alg:{ name:"algebrization", yr:"2008 \u00b7 algebraic", formalizes:"an argument that survives giving each machine a low-degree polynomial extension of its oracle",
+      rules_out:"arithmetization techniques \u2014 the very ones that broke relativization", succumbs:"<span class='mono'>IP = PSPACE</span> and its kin algebrize, so they cannot separate <span class='mono'>P</span> from <span class='mono'>NP</span>", slips:"non-algebrizing techniques \u2014 unknown; this is the present frontier", who:"Aaronson & Wigderson" }
+  };
+  var barOrder=["rel","nat","alg"], barKey="rel";
+  function barRender(){
+    var sel=document.getElementById("barSel"); if(sel){ selBuild(sel,BAR,barOrder,function(k){barKey=k;barRender();}); selMark(sel,barKey); }
+    var d=BAR[barKey], ro=document.getElementById("barReadout");
+    if(ro){ ro.className="dial-readout";
+      ro.innerHTML="<div class='dr-pair'>"+d.name+" \u00b7 "+d.yr+"</div><h4>"+d.formalizes+"</h4>"+
+        "<div class='jr-axes'>"+
+        "<div class='ax'>rules out</div><div class='av'>"+d.rules_out+"</div>"+
+        "<div class='ax'>what succumbs</div><div class='av'>"+d.succumbs+"</div>"+
+        "<div class='ax'>what slips past</div><div class='av'>"+d.slips+"</div>"+
+        "<div class='ax'>shown by</div><div class='av'>"+d.who+"</div>"+
+        "</div>";
+    }
+  }
+
+  /* ============ INIT ============ */
+  function init(){
+    try{ dgRender();
+      var s=document.getElementById("dgStep"); if(s)s.addEventListener("click",function(){ if(dStep<5){dStep++;dgRender();} });
+      var r=document.getElementById("dgReset"); if(r)r.addEventListener("click",function(){ dStep=0;dgRender(); });
+    }catch(e){}
+    try{ owRender(); }catch(e){}
+    try{ barRender(); }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-the-keystone.html">← The Keystone</a><a href="../library.html#edition-contents">Return to complete contents →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>

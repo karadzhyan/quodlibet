@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Keystone — a guide to the apparatus, opened up</title>
+<style>
+
+
+
+
+
+
+
+
+  :root{
+    --paper:#f4f1e8; --ink:#1a1815; --soft1:#565147; --faint:#7c766a; --faintest:#a8a193;
+    --rule:#ded7c7; --hair:#e9e3d6; --sel:rgba(178,58,46,.14);
+    --red:#b23a2e; --red-deep:#8f2d23; --red-soft:rgba(178,58,46,.09); --red-line:rgba(178,58,46,.42);
+    --teal:#2c6e6a; --teal-deep:#225552; --teal-soft:rgba(44,110,106,.10); --teal-line:rgba(44,110,106,.42);
+    --gold:#937234; --gold-deep:#6f5626; --gold-soft:rgba(147,114,52,.12); --gold-line:rgba(147,114,52,.44);
+    --panel:rgba(26,24,21,.014); --panelhair:rgba(26,24,21,.11);
+    --read:37rem; --frame:74rem;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  ::selection{background:var(--sel);}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Spectral",Georgia,serif;font-size:19px;line-height:1.62;font-weight:400;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"liga" 1,"onum" 1;}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px 160px;}
+  .frame{max-width:var(--frame);margin:0 auto;padding:0 clamp(1.4rem,4vw,3.6rem);}
+  .read{max-width:var(--read);margin:0 auto;}
+  p{margin:0;} i,em{font-style:italic;} a{color:inherit;}
+  :focus-visible{outline:1.6px solid var(--ink);outline-offset:3px;border-radius:1px;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:normal;}
+  .red{color:var(--red-deep);} .teal{color:var(--teal-deep);} .gold{color:var(--gold-deep);}
+  .nb{white-space:nowrap;}
+
+  header.hero{padding:clamp(2.2rem,5vh,3.4rem) 0 0;}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;flex-wrap:wrap;}
+  .mh-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;}
+  .mh-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .hero-head{text-align:center;margin:clamp(2.6rem,7vh,5rem) auto clamp(1rem,2.5vh,1.8rem);max-width:54rem;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.5rem;}
+  h1.title{font-family:"Spectral",serif;font-weight:300;font-size:clamp(3.1rem,11vw,8rem);line-height:.95;letter-spacing:-.02em;margin:0;}
+  h1.title .x{color:var(--red);font-style:italic;font-weight:400;}
+  .standfirst{font-size:clamp(1.06rem,1.4vw,1.26rem);line-height:1.56;color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;max-width:44rem;text-wrap:pretty;}
+  .standfirst em{color:var(--ink);font-style:italic;}
+  .ed-mark{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);margin-top:1.5rem;}
+  .glyphrule{display:flex;align-items:center;justify-content:center;gap:1rem;margin:clamp(2rem,5vh,3.2rem) auto;color:var(--faintest);}
+  .glyphrule .ln{height:1px;width:clamp(40px,12vw,120px);background:var(--rule);}
+  .glyphrule .g{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--red);}
+
+  .lede{max-width:var(--read);margin:0 auto;}
+  .lede p{font-size:1.05rem;line-height:1.78;margin:0 0 1.1rem;text-wrap:pretty;}
+  .lede p:first-of-type::first-letter{font-family:"Spectral",serif;font-weight:500;float:left;font-size:4.2rem;line-height:.72;padding:.36rem .5rem 0 0;color:var(--ink);}
+  .reading{max-width:var(--read);margin:1.4rem auto 0;}
+  .reading.wide{max-width:42rem;}
+  .reading p{font-size:1.01rem;line-height:1.76;margin:0 0 1rem;text-wrap:pretty;}
+  .reading p.cont{text-indent:1.3em;margin-top:-.3rem;}
+  .lead-in{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faintest);}
+
+  .sec{margin-top:clamp(4rem,9vh,6.5rem);scroll-margin-top:1.5rem;}
+  .sec-head{text-align:center;margin:0 auto clamp(1.4rem,3vh,2rem);max-width:48rem;}
+  .sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;color:var(--red-deep);display:block;margin-bottom:.8rem;}
+  .sec-head h2{font-family:"Spectral",serif;font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.08;letter-spacing:-.015em;margin:0;}
+  .sec-head .sub{font-size:1rem;color:var(--soft1);max-width:40rem;margin:.95rem auto 0;line-height:1.58;text-wrap:pretty;font-style:italic;}
+
+  .stage{max-width:54rem;margin:clamp(1.6rem,4vh,2.6rem) auto 0;}
+  .stage.narrow{max-width:46rem;}
+  .panel{border:1px solid var(--panelhair);background:var(--panel);border-radius:3px;padding:clamp(1.1rem,3vw,1.9rem);}
+  figcaption{font-size:.86rem;line-height:1.62;color:var(--faint);margin:1.3rem auto 0;max-width:42rem;text-align:center;text-wrap:pretty;}
+  figcaption b{font-weight:500;color:var(--soft1);}
+
+  /* theorem box */
+  .thm{border-left:2px solid var(--ink);padding:1rem 0 1rem 1.3rem;margin:1.5rem auto;max-width:42rem;}
+  .thm .tl{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem;}
+  .thm .ts{font-size:1.04rem;line-height:1.62;color:var(--ink);}
+  .thm .ts b{font-weight:600;} .thm .ts .mono{font-size:.92rem;color:var(--red-deep);}
+  .thm.teal{border-left-color:var(--teal-deep);} .thm.teal .tl{color:var(--teal-deep);}
+  .thm.gold{border-left-color:var(--gold-deep);} .thm.gold .tl{color:var(--gold-deep);}
+
+  .callout{border-left:2px solid var(--gold-line);background:var(--gold-soft);border-radius:0 3px 3px 0;padding:1rem 1.2rem;margin:1.5rem auto;max-width:42rem;}
+  .callout .cl-lab{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.4rem;}
+  .callout p{font-size:.94rem;line-height:1.62;color:var(--soft1);}
+  .callout p .mono{font-size:.85rem;color:var(--gold-deep);}
+  .callout.teal{border-left-color:var(--teal-line);background:var(--teal-soft);} .callout.teal .cl-lab{color:var(--teal-deep);} .callout.teal p .mono{color:var(--teal-deep);}
+  .callout.red{border-left-color:var(--red-line);background:var(--red-soft);} .callout.red .cl-lab{color:var(--red-deep);} .callout.red p .mono{color:var(--red-deep);}
+
+  /* ===== revenge stepper ===== */
+  .rev-tabs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .rev-tab{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.02em;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:16px;padding:.4rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .rev-tab:hover{background:rgba(26,24,21,.05);}
+  .rev-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .rev-tab .rn{font-size:.62rem;opacity:.6;}
+  .rev-stage{display:none;}
+  .rev-stage.show{display:block;animation:fade .4s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:680px){ .rev-grid{grid-template-columns:1fr;} }
+  .rev-cell{background:var(--paper);padding:1.05rem 1.15rem;}
+  .rev-cell .rc-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .rev-cell.tame .rc-lab{color:var(--teal-deep);} .rev-cell.revenge .rc-lab{color:var(--red-deep);}
+  .rev-sentence{font-family:"Spectral",serif;font-style:italic;font-size:1.12rem;line-height:1.4;color:var(--ink);margin-bottom:.5rem;}
+  .rev-sentence .tag{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);}
+  .rev-cell p{font-size:.9rem;line-height:1.52;color:var(--soft1);}
+  .rev-verdict{margin-top:1.1rem;padding:.85rem 1.1rem;border-radius:3px;font-size:.92rem;line-height:1.5;}
+  .rev-verdict.tamed{background:var(--teal-soft);color:var(--teal-deep);}
+  .rev-verdict.broken{background:var(--red-soft);color:var(--red-deep);}
+  .rev-verdict b{font-weight:600;}
+  .rev-val{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.1em .5em;border-radius:2px;background:rgba(26,24,21,.06);color:var(--ink);}
+
+  /* ===== the ascent ladder ===== */
+  .ladder-wrap{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+  .ladder-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.4rem;}
+  .lad-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .lad-btn:hover{opacity:.85;} .lad-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .lad-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .lad-readout b{color:var(--ink);}
+  .ladder{display:flex;flex-direction:column-reverse;gap:.35rem;min-height:6rem;}
+  .lrung{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.6rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .lrung .li{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);white-space:nowrap;}
+  .lrung .lt{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);}
+  .lrung .lt .new{color:var(--teal-deep);} 
+  .lrung .lo{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold-deep);white-space:nowrap;}
+  .lrung.transfinite{border-style:dashed;border-color:var(--gold-line);}
+  .lad-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;color:var(--red-deep);padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;background:var(--red-soft);}
+  .lad-miss{font-size:.82rem;color:var(--faint);text-align:center;font-style:italic;margin-top:.2rem;}
+
+  /* ===== meta-hinge ===== */
+  .hinge{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:720px){ .hinge{grid-template-columns:1fr;} }
+  .hinge-side{background:var(--paper);padding:1.3rem 1.3rem 1.5rem;}
+  .hinge-side .hs-lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem;}
+  .hinge-side.left .hs-lab{color:var(--gold-deep);} .hinge-side.right .hs-lab{color:var(--red-deep);}
+  .hinge-side h4{font-family:"Spectral",serif;font-weight:500;font-size:1.16rem;margin:0 0 .5rem;}
+  .hinge-side p{font-size:.9rem;line-height:1.55;color:var(--soft1);}
+  .chain{font-family:"IBM Plex Mono",monospace;font-size:.92rem;line-height:2;color:var(--ink);margin:.6rem 0;letter-spacing:-.01em;}
+  .chain .gr{color:var(--faintest);} .chain .hot{color:var(--gold-deep);}
+  .forbidden{font-family:"IBM Plex Mono",monospace;font-size:.92rem;color:var(--red-deep);margin:.6rem 0;text-align:center;padding:.7rem;border:1px dashed var(--red-line);border-radius:3px;}
+  .forbidden .x{font-size:1.1rem;}
+
+  /* ===== conservation trilemma ===== */
+  .trilemma{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:680px){ .trilemma{grid-template-columns:1fr;} }
+  .tri-cell{background:var(--paper);padding:1.1rem 1.15rem;}
+  .tri-cell .tc-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .tri-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.1rem;margin:0 0 .35rem;color:var(--ink);}
+  .tri-cell p{font-size:.86rem;line-height:1.5;color:var(--soft1);}
+  .tri-note{text-align:center;font-size:.92rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;}
+  .tri-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  .coda{max-width:46rem;margin:clamp(4rem,10vh,6.5rem) auto 0;text-align:center;}
+  .coda p{font-family:"Spectral",serif;font-style:italic;font-weight:400;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1.36;color:var(--soft1);margin:0;text-wrap:balance;}
+  .coda .mono{font-style:normal;color:var(--red-deep);font-size:.82em;}
+  footer{margin-top:clamp(4rem,10vh,6.5rem);padding:2.4rem 0 4.5rem;border-top:1px solid var(--rule);}
+  .f-bar{display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .f-name{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;}
+  .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;color:var(--faintest);text-transform:uppercase;}
+  .colophon{font-size:.85rem;line-height:1.66;color:var(--faint);max-width:68ch;}
+  .notes{font-size:.82rem;line-height:1.62;color:var(--faint);max-width:68ch;margin-top:1.1rem;}
+  .notes .nl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);}
+
+  @media (max-width:600px){ body{font-size:18px;} .f-bar{flex-direction:column;gap:.6rem;} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
+  @media print{ body::before{display:none!important;} }
+
+  /* ===== two-faces toggle (reuses rev-tab look) ===== */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;}
+  @media(max-width:600px){ .faces{grid-template-columns:1fr;} }
+  .face{background:var(--paper);padding:1.15rem 1.2rem;}
+  .face .f-h{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;}
+  .face.std .f-h{color:var(--teal-deep);} .face.non .f-h{color:var(--red-deep);}
+  .face h4{font-family:"Spectral",serif;font-weight:500;font-size:1.14rem;margin:0 0 .5rem;}
+  .face .frow{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--hair);font-size:.9rem;}
+  .face .frow:last-of-type{border-bottom:none;}
+  .face .frow .fl{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .face .frow .fv{font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:500;}
+  .face .fv.t{color:var(--teal-deep);} .face .fv.f{color:var(--red-deep);}
+  .face p{font-size:.86rem;line-height:1.5;color:var(--faint);margin-top:.7rem;}
+
+  /* ===== compactness machine ===== */
+  .cm-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+  .cm-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .cm-btn:hover{opacity:.85;} .cm-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .cm-btn.go{background:var(--teal-deep);}
+  .cm-axioms{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;min-height:2.2rem;margin-bottom:.6rem;}
+  .cm-ax{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.25rem .6rem;animation:fade .3s ease;}
+  .cm-ax.base{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .cm-sat{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--teal-deep);margin-bottom:.3rem;min-height:1.2rem;}
+  .cm-sat.warn{color:var(--gold-deep);}
+  .cm-reveal{margin-top:1.1rem;}
+  .ot-cap{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--faintest);margin-bottom:.5rem;}
+  #otSvg{display:block;width:100%;height:auto;overflow:visible;}
+  .cm-verdict{margin-top:1rem;padding:.9rem 1.15rem;border-radius:3px;background:var(--red-soft);color:var(--red-deep);font-size:.92rem;line-height:1.55;}
+  .cm-verdict b{font-weight:600;} .cm-verdict .mono{font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+
+  /* dilemma 2-cell reuse trilemma look already defined; add a 2-col variant */
+  .dilemma{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.2rem;}
+  @media(max-width:600px){ .dilemma{grid-template-columns:1fr;} }
+  .di-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .di-cell .di-n{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-bottom:.35rem;}
+  .di-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.12rem;margin:0 0 .55rem;color:var(--ink);}
+  .di-cell .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.86rem;border-bottom:1px solid var(--hair);}
+  .di-cell .dirow:last-child{border-bottom:none;}
+  .di-cell .dirow .dk{color:var(--soft1);} .di-cell .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;}
+  .di-cell .dirow .dv.yes{color:var(--teal-deep);} .di-cell .dirow .dv.no{color:var(--red-deep);}
+
+  /* ===== the proof step-through ===== */
+  .proof-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+  .pf-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1.05rem;cursor:pointer;transition:opacity .15s;}
+  .pf-btn:hover{opacity:.85;} .pf-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .pf-readout{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);}
+  .proof-steps{display:flex;flex-direction:column;gap:.5rem;}
+  .pstep{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;padding:.75rem .95rem;border:1px solid var(--panelhair);border-left:2px solid var(--rule);border-radius:0 3px 3px 0;background:rgba(26,24,21,.012);opacity:.28;transition:opacity .4s ease,border-color .4s ease;}
+  .pstep.show{opacity:1;border-left-color:var(--ink);animation:rise .4s ease;}
+  .pstep .pn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding-top:.15rem;white-space:nowrap;}
+  .pstep.show .pn{color:var(--red-deep);}
+  .pstep .pbody .pf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;line-height:1.5;color:var(--ink);}
+  .pstep .pbody .pf .hot{color:var(--red-deep);}
+  .pstep .pbody .pg{font-size:.88rem;line-height:1.5;color:var(--faint);font-style:italic;margin-top:.3rem;}
+  .pstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .pstep.qed.show .pn{color:var(--teal-deep);}
+  .pstep.qed .pbody .pf{color:var(--teal-deep);font-weight:500;}
+  .pf-coda{text-align:center;font-size:.94rem;line-height:1.55;color:var(--soft1);margin-top:1.2rem;font-style:italic;max-width:40rem;margin-left:auto;margin-right:auto;display:none;}
+  .pf-coda.show{display:block;animation:fade .5s ease;}
+  .pf-coda b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== the dial ===== */
+  .dial-pick{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.4rem;}
+  .dial-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.45rem .9rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.1rem;line-height:1.2;}
+  .dial-opt:hover{background:rgba(26,24,21,.05);}
+  .dial-opt.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .dial-opt .dsub{font-size:.6rem;opacity:.6;}
+  .dial-construction{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);padding:1rem;border:1px dashed var(--panelhair);border-radius:3px;margin-bottom:1.1rem;letter-spacing:-.01em;}
+  .dial-construction .lab{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.5rem;}
+  .dial-construction .av{color:var(--red-deep);}
+  .dial-flow{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  .dial-q{text-align:center;font-family:"Spectral",serif;font-style:italic;font-size:1.16rem;color:var(--ink);}
+  .dial-q .ans{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:.92rem;padding:.1em .55em;border-radius:3px;margin-left:.4em;}
+  .dial-q .ans.no{background:var(--red-soft);color:var(--red-deep);}
+  .dial-q .ans.yes{background:var(--teal-soft);color:var(--teal-deep);}
+  .dial-chain{display:flex;flex-direction:column;gap:.4rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);text-align:center;}
+  .dial-chain .step{padding:.15rem 0;} .dial-chain .arr{color:var(--faintest);font-size:.9rem;}
+  .dial-outcome{text-align:center;padding:1.1rem 1.2rem;border-radius:3px;}
+  .dial-outcome.power{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .dial-outcome.limit{background:var(--red-soft);border:1px solid var(--red-line);}
+  .dial-outcome .verdict{font-family:"Spectral",serif;font-weight:600;font-size:1.5rem;letter-spacing:.01em;}
+  .dial-outcome.power .verdict{color:var(--teal-deep);} .dial-outcome.limit .verdict{color:var(--red-deep);}
+  .dial-outcome .gloss{font-size:.92rem;line-height:1.5;color:var(--soft1);margin-top:.45rem;}
+  .dial-outcome .results{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);margin-top:.7rem;letter-spacing:.01em;}
+  .dial-outcome .results b{color:var(--ink);font-weight:500;}
+
+  /* ===== the corpus map (four faces) ===== */
+  .corpus-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.4rem;}
+  @media(max-width:640px){ .corpus-grid{grid-template-columns:1fr;} }
+  .vol-card{background:var(--paper);padding:1.25rem 1.3rem;}
+  .vol-card .vc-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.5rem;}
+  .vol-card h4{font-family:"Spectral",serif;font-weight:400;font-size:1.5rem;margin:0 0 .15rem;letter-spacing:-.01em;}
+  .vol-card h4 .vol-the{color:var(--red);font-style:italic;}
+  .vol-card .vc-thesis{font-size:.96rem;line-height:1.5;color:var(--soft1);margin:.4rem 0 .7rem;}
+  .vol-card .vc-result{font-family:"IBM Plex Mono",monospace;font-size:.73rem;line-height:1.5;color:var(--faint);padding-top:.6rem;border-top:1px solid var(--hair);}
+  .vol-card .vc-result b{color:var(--ink);font-weight:500;}
+  .corpus-synth{text-align:center;font-size:1rem;line-height:1.6;color:var(--soft1);margin-top:1.3rem;max-width:42rem;margin-left:auto;margin-right:auto;font-style:italic;}
+  .corpus-synth b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== a fifth, cool accent for technique-transfer ===== */
+  :root{ --steel:#3d5a6b; --steel-deep:#2e4654; --steel-soft:rgba(61,90,107,.09); --steel-line:rgba(61,90,107,.32); }
+
+  /* ===== formal definitions (numbered) ===== */
+  .defn{border:1px solid var(--panelhair);border-left:2px solid var(--faintest);border-radius:0 3px 3px 0;padding:.95rem 1.15rem;margin:1.1rem 0;background:rgba(26,24,21,.012);}
+  .defn .dl{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .defn .ds{font-size:1rem;line-height:1.6;color:var(--ink);}
+  .defn .ds b{font-weight:600;} .defn .ds .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+
+  /* ===== the bridge-assumption inspector ===== */
+  .br-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.3rem;}
+  .br-opt{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);background:transparent;border:1px solid var(--panelhair);border-radius:18px;padding:.42rem .85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.45rem;}
+  .br-opt:hover{background:rgba(26,24,21,.05);}
+  .br-opt .bd{width:8px;height:8px;border-radius:50%;flex:none;}
+  .br-opt.t-iso .bd{background:var(--teal);} .br-opt.t-tech .bd{background:var(--steel);} .br-opt.t-eng .bd{background:var(--gold);} .br-opt.t-sug .bd{background:var(--red);border-radius:50%;}
+  .br-opt.t-sug .bd{background:transparent;border:1.4px solid var(--red);}
+  .br-opt.on{color:var(--paper);border-color:var(--ink);} .br-opt.on.t-iso{background:var(--teal-deep);border-color:var(--teal-deep);} .br-opt.on.t-tech{background:var(--steel-deep);border-color:var(--steel-deep);} .br-opt.on.t-eng{background:var(--gold-deep);border-color:var(--gold-deep);} .br-opt.on.t-sug{background:var(--red-deep);border-color:var(--red-deep);}
+  .br-opt.on .bd{background:var(--paper)!important;border-color:var(--paper)!important;}
+  .br-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;}
+  .br-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);}
+  .br-head.t-iso{background:var(--teal-soft);} .br-head.t-tech{background:var(--steel-soft);} .br-head.t-eng{background:var(--gold-soft,rgba(147,114,52,.08));} .br-head.t-sug{background:var(--red-soft);}
+  .br-type{display:inline-flex;align-items:center;gap:.45rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .br-type.t-iso{color:var(--teal-deep);} .br-type.t-tech{color:var(--steel-deep);} .br-type.t-eng{color:var(--gold-deep);} .br-type.t-sug{color:var(--red-deep);}
+  .br-name{font-family:"Spectral",serif;font-weight:500;font-size:1.4rem;letter-spacing:-.01em;margin:0 0 .15rem;}
+  .br-claim{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .br-body{padding:1.1rem 1.2rem;}
+  .br-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.6rem;}
+  .br-assum{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:baseline;padding:.5rem 0;border-bottom:1px dashed var(--hair);}
+  .br-assum:last-of-type{border-bottom:none;}
+  .br-assum .ba-tag{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink);font-weight:500;white-space:nowrap;}
+  .br-assum .ba-txt{font-size:.92rem;line-height:1.5;color:var(--soft1);}
+  .br-assum .ba-txt .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;}
+  .br-assum .ba-st{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .45rem;border-radius:3px;white-space:nowrap;}
+  .ba-st.holds{background:var(--teal-soft);color:var(--teal-deep);} .ba-st.theorem{background:rgba(147,114,52,.1);color:var(--gold-deep);} .ba-st.none{background:var(--red-soft);color:var(--red-deep);}
+  .br-none{font-size:.94rem;line-height:1.55;color:var(--faint);font-style:italic;padding:.3rem 0;}
+  .br-verdict{margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--hair);font-size:.98rem;line-height:1.6;color:var(--ink);}
+  .br-verdict b{font-weight:600;}
+
+  /* ===== boundary legend ===== */
+  .bd-legend{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin-top:1.3rem;}
+  @media(max-width:640px){ .bd-legend{grid-template-columns:1fr;} }
+  .bd-cell{background:var(--paper);padding:1rem 1.15rem;}
+  .bd-cell .bc-h{display:flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:.35rem;}
+  .bd-cell .bc-dot{width:9px;height:9px;border-radius:50%;}
+  .bd-cell.t-iso .bc-h{color:var(--teal-deep);} .bd-cell.t-iso .bc-dot{background:var(--teal);}
+  .bd-cell.t-tech .bc-h{color:var(--steel-deep);} .bd-cell.t-tech .bc-dot{background:var(--steel);}
+  .bd-cell.t-eng .bc-h{color:var(--gold-deep);} .bd-cell.t-eng .bc-dot{background:var(--gold);}
+  .bd-cell.t-sug .bc-h{color:var(--red-deep);} .bd-cell.t-sug .bc-dot{background:transparent;border:1.4px solid var(--red);}
+  .bd-cell p{font-size:.88rem;line-height:1.5;color:var(--soft1);margin:0;}
+  .bd-cell p .ex{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faint);}
+
+  /* ===== supplement: the four fates (instance schema) ===== */
+  :root{ --fate-absent:#7c766a; --fate-benign:#2c6e6a; --fate-explosive:#b23a2e; --fate-undecided:#937234; }
+  .ins-dict{display:grid;grid-template-columns:auto 1fr;gap:.35rem .9rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.84rem;margin:.2rem 0 0;}
+  .ins-dict b{color:var(--red-deep);font-weight:600;white-space:nowrap;}
+  .ins-dict span{color:var(--soft1);}
+  .ins-step{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.62;color:var(--ink);white-space:pre-wrap;background:rgba(26,24,21,.025);border:1px solid var(--panelhair);border-radius:3px;padding:.8rem 1rem;margin:.2rem 0;}
+  .ins-step .bad{color:var(--red-deep);} .ins-step .good{color:var(--teal-deep);}
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+  .fate-badge .fdot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .fate-absent{color:var(--fate-absent);} .fate-absent .fdot{background:transparent;border:1.5px solid var(--fate-absent);}
+  .fate-benign{color:var(--fate-benign);} .fate-benign .fdot{background:var(--fate-benign);}
+  .fate-explosive{color:var(--fate-explosive);} .fate-explosive .fdot{background:var(--fate-explosive);}
+  .fate-undecided{color:var(--fate-undecided);} .fate-undecided .fdot{background:var(--fate-undecided);}
+  .ins-outcome{padding:1rem 1.15rem;border-radius:3px;margin-top:.2rem;}
+  .ins-outcome.f-absent{background:rgba(124,118,106,.07);border:1px solid rgba(124,118,106,.3);}
+  .ins-outcome.f-benign{background:var(--teal-soft);border:1px solid var(--teal-line);}
+  .ins-outcome.f-explosive{background:var(--red-soft);border:1px solid var(--red-line);}
+  .ins-outcome.f-undecided{background:var(--gold-soft);border:1px solid var(--gold-line);}
+  .ins-outcome .io-fate{font-family:"Spectral",serif;font-weight:600;font-size:1.32rem;margin:.45rem 0 .3rem;}
+  .ins-outcome.f-absent .io-fate{color:var(--fate-absent);} .ins-outcome.f-benign .io-fate{color:var(--fate-benign);}
+  .ins-outcome.f-explosive .io-fate{color:var(--fate-explosive);} .ins-outcome.f-undecided .io-fate{color:var(--fate-undecided);}
+  .ins-outcome .io-gloss{font-size:.92rem;line-height:1.52;color:var(--soft1);}
+  .ins-outcome .io-verdict{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--faint);margin-top:.65rem;letter-spacing:.01em;}
+  .dial-opt.rec.on{background:var(--teal-deep);border-color:var(--teal-deep);}
+
+  /* ===== supplement: rank badge (boundary + grid) ===== */
+  .rank-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.16rem .5rem;border-radius:3px;}
+  .rank-badge .rdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .rank-iso{color:var(--teal-deep);background:var(--teal-soft);} .rank-iso .rdot{background:var(--teal);}
+  .rank-tech{color:var(--steel-deep);background:var(--steel-soft);} .rank-tech .rdot{background:var(--steel);}
+  .rank-eng{color:var(--gold-deep);background:var(--gold-soft);} .rank-eng .rdot{background:var(--gold);}
+  .rank-sug{color:var(--red-deep);background:var(--red-soft);} .rank-sug .rdot{background:transparent;border:1.4px solid var(--red);}
+  .rank-root{color:var(--ink);background:rgba(26,24,21,.06);} .rank-root .rdot{background:var(--ink);}
+  .vol-card .vc-rank{margin-top:.55rem;}
+  .vol-card .vol-num{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.14em;color:var(--faintest);float:right;}
+
+  /* ===== supplement: proof warrant column + toggle ===== */
+  .pf-toggle{display:flex;gap:.4rem;justify-content:center;margin-bottom:1rem;}
+  .pstep .pbody .pw{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);margin-top:.35rem;}
+  .pstep.qed .pbody .pw{color:var(--teal-deep);}
+
+  /* ===== supplement: two-axes hinge labels reuse, plus a small note ===== */
+  .axis-note{font-size:.9rem;line-height:1.55;color:var(--soft1);margin-top:1.1rem;font-style:italic;text-align:center;max-width:42rem;margin-left:auto;margin-right:auto;}
+  .axis-note b{font-style:normal;font-weight:600;color:var(--ink);}
+
+  /* ===== supplement II: provability-core fixed points (§IV) ===== */
+  .gl-ax{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin:.3rem 0 .2rem;}
+  .gl-chip{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink);background:rgba(26,24,21,.05);border:1px solid var(--panelhair);border-radius:3px;padding:.3rem .65rem;}
+  .gl-chip.key{background:var(--gold-soft);color:var(--gold-deep);border-color:var(--gold-line);font-weight:500;}
+  .gl-chip.rule{background:var(--teal-soft);color:var(--teal-deep);border-color:var(--teal-line);}
+  .fp-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:var(--teal-soft);}
+  .fp-head .fp-kind{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-deep);font-weight:600;margin-bottom:.4rem;}
+  .fp-head .fp-name{font-family:"Spectral",serif;font-weight:500;font-size:1.32rem;letter-spacing:-.01em;margin:0 0 .35rem;}
+  .fp-head .fp-schema{font-family:"IBM Plex Mono",monospace;font-size:.96rem;color:var(--ink);}
+  .fp-head .fp-schema .hot{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.1rem 1.2rem;}
+  .fp-fp{display:flex;align-items:baseline;gap:.6rem .8rem;flex-wrap:wrap;padding:.75rem .95rem;background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;margin-bottom:.95rem;}
+  .fp-fp .fpl{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-deep);}
+  .fp-fp .fpv{font-family:"IBM Plex Mono",monospace;font-size:1.1rem;font-weight:600;color:var(--teal-deep);}
+  .fp-fp .fpn{font-size:.9rem;color:var(--soft1);font-style:italic;}
+  .fp-vlab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin:.2rem 0 .55rem;}
+  .fp-verify{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.95rem;}
+  .fp-vstep{display:grid;grid-template-columns:2.4rem 1fr;gap:.7rem;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;padding:.4rem .65rem;border-left:2px solid var(--hair);background:rgba(26,24,21,.012);}
+  .fp-vstep .vk{color:var(--faintest);white-space:nowrap;font-size:.74rem;}
+  .fp-vstep .vv{color:var(--ink);} .fp-vstep .vv .hot{color:var(--red-deep);}
+  .fp-vstep.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);} .fp-vstep.qed .vv{color:var(--teal-deep);font-weight:500;} .fp-vstep.qed .vk{color:var(--teal-deep);}
+  .fp-read{font-size:.94rem;line-height:1.6;color:var(--soft1);padding-top:.75rem;border-top:1px solid var(--hair);}
+  .fp-read b{color:var(--ink);font-weight:600;}
+
+  /* ============================================================
+     DEEP-DIVE SUPPLEMENT — components specific to The Substrate
+     ============================================================ */
+
+  /* a depth marker on the hero — this is the apparatus opened up */
+  .depth-mark{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--red-deep);margin:0 0 1.1rem;}
+  .depth-mark .of{color:var(--faintest);}
+
+  /* static derivations — numbered, justified, monospace */
+  .deriv{display:flex;flex-direction:column;gap:.4rem;margin:1.1rem auto;max-width:42rem;}
+  .deriv.wide{max-width:46rem;}
+  .drow{display:grid;grid-template-columns:2.6rem 1fr;gap:.7rem;align-items:baseline;padding:.45rem .7rem;border-left:2px solid var(--rule);background:rgba(26,24,21,.012);border-radius:0 3px 3px 0;}
+  .drow .dn{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .drow .db{font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.55;color:var(--ink);}
+  .drow .db .hot{color:var(--red-deep);} .drow .db .cool{color:var(--teal-deep);}
+  .drow .dj{display:block;font-family:"Spectral",serif;font-style:italic;font-size:.86rem;color:var(--faint);margin-top:.2rem;}
+  .drow.qed{border-left-color:var(--teal-deep);background:var(--teal-soft);}
+  .drow.qed .dn{color:var(--teal-deep);} .drow.qed .db{color:var(--teal-deep);font-weight:500;}
+  .drow.hl{border-left-color:var(--red-line);background:var(--red-soft);}
+
+  /* a labelled proof wrapper */
+  .proofwrap{margin:1.2rem auto;max-width:42rem;}
+  .proofwrap .pw-lab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.55rem;}
+  .proofwrap.wide{max-width:46rem;}
+  .pw-prose{font-size:.98rem;line-height:1.66;color:var(--ink);}
+  .pw-prose .m{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--soft1);}
+  .pw-prose .qedmark{float:right;color:var(--teal-deep);font-weight:600;}
+
+  /* example / non-example dyad */
+  .dyad{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:3px;overflow:hidden;margin:1.3rem auto;max-width:44rem;}
+  @media(max-width:640px){ .dyad{grid-template-columns:1fr;} }
+  .dyad-cell{background:var(--paper);padding:1.1rem 1.2rem;}
+  .dyad-cell .dc-h{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+  .dyad-cell.yes .dc-h{color:var(--teal-deep);} .dyad-cell.no .dc-h{color:var(--red-deep);}
+  .dyad-cell h4{font-family:"Spectral",serif;font-weight:500;font-size:1.08rem;margin:0 0 .4rem;}
+  .dyad-cell p{font-size:.88rem;line-height:1.52;color:var(--soft1);margin:0 0 .5rem;}
+  .dyad-cell p:last-child{margin-bottom:0;}
+  .dyad-cell .m{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--faint);}
+
+  /* the genera explorer */
+  .gx-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .gx-head{padding:1rem 1.2rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.02);}
+  .gx-tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .gx-name{font-family:"Spectral",serif;font-weight:500;font-size:1.3rem;letter-spacing:-.01em;margin:0 0 .2rem;}
+  .gx-sub{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--soft1);}
+  .gx-body{padding:.6rem 1.2rem 1.1rem;}
+  .gx-rows{margin:.3rem 0;}
+  .gx-rows .dirow{display:flex;justify-content:space-between;gap:1rem;padding:.42rem 0;font-size:.88rem;border-bottom:1px solid var(--hair);}
+  .gx-rows .dirow:last-child{border-bottom:none;}
+  .gx-rows .dirow .dk{color:var(--soft1);} .gx-rows .dirow .dk .sm{color:var(--faintest);font-size:.9em;}
+  .gx-rows .dirow .dv{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.8rem;white-space:nowrap;}
+  .gx-rows .dirow .dv.yes{color:var(--teal-deep);} .gx-rows .dirow .dv.no{color:var(--red-deep);}
+  .gx-note{font-size:.9rem;line-height:1.56;color:var(--soft1);padding-top:.75rem;margin-top:.4rem;border-top:1px solid var(--hair);}
+  .gx-note b{color:var(--ink);font-weight:600;}
+  .gx-note.coin{background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:3px;padding:.7rem .9rem;margin-top:.7rem;}
+  .gx-note.coin b{color:var(--teal-deep);}
+
+  /* the iteration ladder (Kleene ascent to lfp) */
+  .itr-controls{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;margin-bottom:.9rem;}
+  .itr-btn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--paper);background:var(--ink);border:none;border-radius:3px;padding:.55rem 1rem;cursor:pointer;transition:opacity .15s;}
+  .itr-btn:hover{opacity:.85;} .itr-btn.ghost{background:transparent;color:var(--red-deep);border:1px solid var(--red-line);}
+  .itr-btn.go{background:var(--teal-deep);}
+  .itr-read{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faint);} .itr-read b{color:var(--ink);}
+  .itr-chain{display:flex;flex-direction:column;gap:.35rem;}
+  .itr-step{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem;align-items:baseline;padding:.55rem .9rem;border:1px solid var(--panelhair);border-radius:3px;background:rgba(26,24,21,.012);animation:rise .35s ease;}
+  .itr-step .is-n{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);white-space:nowrap;}
+  .itr-step .is-v{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--ink);letter-spacing:.01em;}
+  .itr-step .is-v .new{color:var(--teal-deep);font-weight:600;}
+  .itr-step .is-d{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--gold-deep);white-space:nowrap;}
+  .itr-step.fixed{border-color:var(--teal-line);background:var(--teal-soft);}
+  .itr-step.fixed .is-n{color:var(--teal-deep);} .itr-step.fixed .is-d{color:var(--teal-deep);}
+  .itr-banner{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;color:var(--teal-deep);padding:.7rem;border:1px dashed var(--teal-line);border-radius:3px;background:var(--teal-soft);margin-top:.3rem;}
+
+  /* small inline glyph row for the hero signature */
+  .sig-row{display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:clamp(.85rem,2vw,1.05rem);color:var(--soft1);margin:clamp(1.4rem,3vh,2rem) auto 0;letter-spacing:.01em;}
+  .sig-row .o{color:var(--red-deep);} .sig-row .d{color:var(--faintest);}
+
+  /* a structural strata bar used as a section opener */
+  .strata{display:flex;gap:2px;margin:0 auto 1.4rem;max-width:42rem;}
+  .strata span{height:5px;flex:1;border-radius:2px;opacity:.5;}
+  .strata .s1{background:var(--steel);} .strata .s2{background:var(--gold);} .strata .s3{background:var(--teal);} .strata .s4{background:var(--red);}
+
+  /* tightened figure label reused inline */
+  .blab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.7rem;}
+
+  /* ============================================================
+     THE FULCRUM — proof-chase + two-faces supplement
+     ============================================================ */
+
+  /* commutative-diagram highlighting (elements carry .cd-el; JS toggles .dim) */
+  .cd-el{transition:opacity .32s ease;}
+  .cd-el.dim{opacity:.13;}
+
+  /* the proof-chase current line */
+  .chase-line{font-family:"Spectral",serif;font-size:1.05rem;line-height:1.6;color:var(--ink);background:var(--paper);border:1px solid var(--panelhair);border-left:3px solid var(--red);border-radius:0 4px 4px 0;padding:.95rem 1.15rem;margin-top:1.1rem;min-height:3rem;}
+  .chase-line .cl-n{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);display:block;margin-bottom:.4rem;}
+  .chase-line .cl-m{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--soft1);}
+  .chase-line .cl-m .hot{color:var(--red-deep);} .chase-line .cl-m .cool{color:var(--teal-deep);}
+  .chase-line .cl-j{display:block;font-size:.88rem;font-style:italic;color:var(--faint);margin-top:.5rem;line-height:1.5;}
+  .chase-line.qed{border-left-color:var(--teal);background:var(--teal-soft);} .chase-line.qed .cl-n{color:var(--teal-deep);}
+  .chase-count{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);} .chase-count b{color:var(--ink);}
+
+  /* the two-faces reader */
+  .tf-eq{font-family:"IBM Plex Mono",monospace;font-size:clamp(1.3rem,4.4vw,1.85rem);text-align:center;color:var(--ink);margin:1.1rem 0 .5rem;letter-spacing:.02em;}
+  .tf-eq .v{color:var(--red-deep);font-weight:500;}
+  .tf-line{text-align:center;margin:.7rem 0 .2rem;}
+  .tf-badge{display:inline-flex;align-items:center;gap:.55rem;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;font-weight:600;padding:.45rem 1rem;border-radius:3px;}
+  .tf-badge .tfdot{width:8px;height:8px;border-radius:50%;}
+  .tf-badge.power{color:var(--teal-deep);background:var(--teal-soft);} .tf-badge.power .tfdot{background:var(--teal);}
+  .tf-badge.limit{color:var(--red-deep);background:var(--red-soft);} .tf-badge.limit .tfdot{background:var(--red);}
+  .tf-what{font-size:.96rem;line-height:1.62;color:var(--soft1);border-top:1px solid var(--hair);padding-top:.85rem;margin-top:.95rem;}
+  .tf-what b{color:var(--ink);font-weight:600;} .tf-what .m{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--faint);}
+
+  /* a compact statement-forms table */
+  .forms{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.9rem;}
+  .forms th,.forms td{text-align:left;padding:.6rem .7rem;border-bottom:1px solid var(--hair);vertical-align:top;}
+  .forms th{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);font-weight:500;border-bottom:1px solid var(--rule);}
+  .forms td:first-child{font-family:"Spectral",serif;font-style:italic;color:var(--ink);white-space:nowrap;padding-right:1.2rem;}
+  .forms .m{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--soft1);}
+  .forms .need{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--gold-deep);}
+
+  /* ============================================================
+     THE FATES — instance-inspector + fate-decision-tree supplement
+     ============================================================ */
+
+  /* the four fates — coloured badges */
+  .fate-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:.42rem .9rem;border-radius:3px;}
+  .fate-badge .fdot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .fate-badge.benign{color:var(--teal-deep);background:var(--teal-soft);} .fate-badge.benign .fdot{background:var(--teal);}
+  .fate-badge.absent{color:var(--gold-deep);background:rgba(147,114,52,.10);} .fate-badge.absent .fdot{background:var(--gold);}
+  .fate-badge.explosive{color:var(--red-deep);background:var(--red-soft);} .fate-badge.explosive .fdot{background:var(--red);}
+  .fate-badge.undecided{color:var(--steel);background:rgba(61,90,107,.11);} .fate-badge.undecided .fdot{background:var(--steel);}
+
+  /* the fate map — four labelled rows */
+  .fate-map{display:flex;flex-direction:column;gap:1px;background:var(--panelhair);border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin:1.3rem 0;}
+  .fate-row{display:grid;grid-template-columns:11rem 1fr;gap:1.1rem;background:var(--paper);padding:1rem 1.15rem;align-items:start;}
+  @media(max-width:620px){ .fate-row{grid-template-columns:1fr;gap:.5rem;} }
+  .fate-row .fr-l{display:flex;flex-direction:column;gap:.5rem;}
+  .fate-row .fr-when{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faint);line-height:1.4;}
+  .fate-row .fr-body{font-size:.92rem;line-height:1.55;color:var(--soft1);}
+  .fate-row .fr-body b{color:var(--ink);font-weight:600;} .fate-row .fr-body .m{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--faint);}
+  .fate-row .fr-inst{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--soft1);margin-top:.35rem;}
+
+  /* the decision tree */
+  .ftree{border:1px solid var(--panelhair);border-radius:4px;padding:1.2rem;background:rgba(26,24,21,.012);}
+  .ftq{margin-bottom:.4rem;}
+  .ftq-n{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .ftq-t{font-family:"Spectral",serif;font-size:1.12rem;line-height:1.45;color:var(--ink);margin-bottom:.9rem;}
+  .ftq-t .m{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--soft1);}
+  .ft-ans{display:flex;flex-wrap:wrap;gap:.6rem;}
+  .ft-ans button{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:.55rem .95rem;cursor:pointer;transition:all .15s;text-align:left;}
+  .ft-ans button:hover{border-color:var(--teal);color:var(--teal-deep);}
+  .ft-ans button .sub{display:block;font-size:.66rem;color:var(--faintest);margin-top:.2rem;}
+  .ft-path{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:1rem;min-height:1.4rem;}
+  .ft-crumb{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--soft1);background:rgba(26,24,21,.04);border-radius:3px;padding:.25rem .55rem;}
+  .ft-crumb .a{color:var(--teal-deep);}
+  .ft-arrow{color:var(--faintest);font-size:.7rem;}
+  .ft-result{border-radius:4px;padding:1.1rem 1.2rem;border:1px solid var(--panelhair);}
+  .ft-result .ftr-head{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.7rem;}
+  .ft-result .ftr-t{font-family:"Spectral",serif;font-weight:500;font-size:1.2rem;}
+  .ft-result .ftr-body{font-size:.94rem;line-height:1.6;color:var(--soft1);} .ft-result .ftr-body b{color:var(--ink);}
+  .ft-result .ftr-inst{font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--soft1);margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--hair);}
+  .ft-reset{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--red-deep);background:none;border:1px solid var(--red-line);border-radius:3px;padding:.4rem .8rem;cursor:pointer;margin-top:.9rem;}
+
+  /* the instance inspector — four-tuple display */
+  .ix-tuple{display:grid;grid-template-columns:auto 1fr;gap:.1rem .9rem;margin:.4rem 0 .2rem;}
+  .ix-tuple .tk{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--faintest);padding:.4rem 0;white-space:nowrap;border-bottom:1px solid var(--hair);}
+  .ix-tuple .tv{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);padding:.4rem 0;border-bottom:1px solid var(--hair);}
+  .ix-tuple .tv .note{color:var(--faint);font-size:.92em;}
+  .ix-g{font-family:"IBM Plex Mono",monospace;font-size:.86rem;text-align:center;color:var(--red-deep);background:var(--red-soft);border-radius:3px;padding:.55rem;margin:.8rem 0 .4rem;}
+  .ix-eq{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--soft1);margin-bottom:.7rem;}
+  .ix-eq .v{color:var(--red-deep);font-weight:500;}
+
+  /* ============================================================
+     THE BOX — Kripke-frame evaluator + fixed-point calculator
+     ============================================================ */
+
+  /* Kripke frame evaluator */
+  .kf-controls{display:flex;flex-wrap:wrap;gap:1.4rem;align-items:flex-start;justify-content:center;margin:1.1rem 0 .4rem;}
+  .kf-group{display:flex;flex-direction:column;gap:.5rem;}
+  .kf-glab{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faintest);text-align:center;}
+  .kf-toggles{display:flex;gap:.4rem;justify-content:center;}
+  .kf-tog{font-family:"IBM Plex Mono",monospace;font-size:.74rem;padding:.42rem .7rem;border:1px solid var(--rule);border-radius:3px;cursor:pointer;background:var(--paper);color:var(--soft1);transition:all .14s;}
+  .kf-tog.on{border-color:var(--teal);color:var(--teal-deep);background:var(--teal-soft);}
+  .kf-pick{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;max-width:30rem;}
+  .kf-eval{margin-top:1rem;display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;}
+  .kf-cell{font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.5rem .85rem;border-radius:3px;border:1px solid var(--panelhair);text-align:center;}
+  .kf-cell .w{color:var(--faintest);display:block;font-size:.7rem;margin-bottom:.2rem;}
+  .kf-cell .t{font-weight:600;}
+  .kf-cell.tt{background:var(--teal-soft);border-color:var(--teal-line);} .kf-cell.tt .t{color:var(--teal-deep);}
+  .kf-cell.ff{background:var(--red-soft);border-color:var(--red-line);} .kf-cell.ff .t{color:var(--red-deep);}
+  .kf-verdict{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;margin-top:.9rem;color:var(--soft1);}
+  .kf-verdict b{color:var(--ink);} .kf-verdict .valid{color:var(--teal-deep);} .kf-verdict .invalid{color:var(--red-deep);}
+
+  /* fixed-point calculator */
+  .fp-out{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .fp-head{padding:.95rem 1.15rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.02);}
+  .fp-tag{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faintest);margin-bottom:.4rem;}
+  .fp-ap{font-family:"IBM Plex Mono",monospace;font-size:1.08rem;color:var(--ink);} .fp-ap .p{color:var(--red-deep);font-weight:500;}
+  .fp-body{padding:1.05rem 1.15rem;}
+  .fp-arrow{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--faintest);margin:.1rem 0 .5rem;}
+  .fp-h{font-family:"IBM Plex Mono",monospace;font-size:clamp(1.25rem,4vw,1.7rem);text-align:center;color:var(--teal-deep);margin:.2rem 0 .5rem;letter-spacing:.01em;}
+  .fp-h .eq{color:var(--faintest);font-weight:400;}
+  .fp-read{text-align:center;font-size:.94rem;line-height:1.5;color:var(--soft1);margin-bottom:.4rem;} .fp-read b{color:var(--ink);font-weight:600;}
+  .fp-just{font-size:.87rem;line-height:1.6;color:var(--faint);border-top:1px solid var(--hair);padding-top:.75rem;margin-top:.75rem;}
+  .fp-just .m{font-family:"IBM Plex Mono",monospace;font-size:.85em;color:var(--soft1);}
+
+  /* axiom list */
+  .axlist{display:flex;flex-direction:column;gap:.5rem;margin:1.1rem auto;max-width:40rem;}
+  .axrow{display:grid;grid-template-columns:5rem 1fr;gap:1rem;align-items:baseline;padding:.55rem .8rem;border-left:2px solid var(--rule);background:rgba(26,24,21,.012);border-radius:0 3px 3px 0;}
+  .axrow .axn{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--red-deep);font-weight:500;}
+  .axrow .axf{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);}
+  .axrow .axd{display:block;font-family:"Spectral",serif;font-style:italic;font-size:.86rem;color:var(--faint);margin-top:.2rem;}
+
+  /* ============================================================
+     THE BRIDGES — bridge inspector + interpretation fan
+     ============================================================ */
+
+  /* bridge inspector */
+  .br-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .br-bridges{padding:.2rem 0;}
+  .br-bridge{display:grid;grid-template-columns:1.7rem 1fr 1.5rem;gap:.85rem;align-items:start;padding:.85rem 1.15rem;border-bottom:1px solid var(--hair);}
+  .br-bridge:last-child{border-bottom:none;}
+  .br-num{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--faintest);padding-top:.12rem;}
+  .br-rolelab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--red-deep);display:block;margin-bottom:.22rem;}
+  .br-data{font-size:.92rem;line-height:1.5;color:var(--soft1);} .br-data .m{font-family:"IBM Plex Mono",monospace;font-size:.86em;color:var(--ink);}
+  .br-stat{font-family:"IBM Plex Mono",monospace;font-size:1rem;text-align:center;padding-top:.05rem;}
+  .br-stat.ok{color:var(--teal-deep);} .br-stat.no{color:var(--red-deep);} .br-stat.partial{color:var(--gold-deep);}
+  .br-verdict{padding:.85rem 1.15rem;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;border-top:1px solid var(--panelhair);}
+  .br-verdict .vlab{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);display:block;margin-bottom:.3rem;}
+  .br-verdict.inst{background:var(--teal-soft);} .br-verdict.inst .vt{color:var(--teal-deep);font-weight:600;}
+  .br-verdict.lossy{background:rgba(147,114,52,.07);} .br-verdict.lossy .vt{color:var(--gold-deep);font-weight:600;}
+  .br-verdict.noninst{background:var(--red-soft);} .br-verdict.noninst .vt{color:var(--red-deep);font-weight:600;}
+
+  /* interpretation fan */
+  .fan-cap{margin-top:.6rem;min-height:4.6rem;border-top:1px solid var(--hair);padding-top:.8rem;font-size:.9rem;line-height:1.55;color:var(--soft1);text-align:center;}
+  .fan-cap .ct{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);display:block;margin-bottom:.3rem;}
+  .fan-cap .ctup{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--teal-deep);}
+  .fan-cap .cno{color:var(--red-deep);font-style:italic;}
+  .fan-hint{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);margin-top:.2rem;}
+
+  /* ============================================================
+     THE HORIZON — independence explorer + reflection ladder
+     ============================================================ */
+
+  /* independence explorer */
+  .ind-detail{border:1px solid var(--panelhair);border-radius:4px;overflow:hidden;margin-top:.2rem;}
+  .ind-head{padding:.95rem 1.15rem;border-bottom:1px solid var(--panelhair);display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;background:rgba(26,24,21,.018);}
+  .ind-name{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;color:var(--ink);}
+  .ind-badge{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .62rem;border-radius:3px;white-space:nowrap;}
+  .ind-badge.diag{background:var(--teal-soft);color:var(--teal-deep);border:1px solid var(--teal-line);}
+  .ind-badge.nat{background:rgba(61,90,107,.1);color:var(--steel);border:1px solid rgba(61,90,107,.32);}
+  .ind-body{padding:.3rem 0;}
+  .ind-row{display:grid;grid-template-columns:9rem 1fr;gap:.9rem;padding:.62rem 1.15rem;border-bottom:1px solid var(--hair);}
+  .ind-row:last-child{border-bottom:none;}
+  .ind-k{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--faintest);padding-top:.16rem;}
+  .ind-v{font-size:.92rem;line-height:1.52;color:var(--soft1);} .ind-v .m{font-family:"IBM Plex Mono",monospace;font-size:.86em;color:var(--ink);}
+  .ind-reach{padding:.85rem 1.15rem;font-family:"IBM Plex Mono",monospace;font-size:.8rem;line-height:1.5;border-top:1px solid var(--panelhair);}
+  .ind-reach .rl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);display:block;margin-bottom:.3rem;}
+  .ind-reach.yes{background:var(--teal-soft);} .ind-reach.yes .rt{color:var(--teal-deep);font-weight:600;}
+  .ind-reach.no{background:rgba(61,90,107,.08);} .ind-reach.no .rt{color:var(--steel);font-weight:600;}
+
+  /* reflection ladder */
+  .lad-cap{margin-top:.5rem;min-height:4.6rem;border-top:1px solid var(--hair);padding-top:.8rem;font-size:.9rem;line-height:1.55;color:var(--soft1);text-align:center;}
+  .lad-cap .ct{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--ink);display:block;margin-bottom:.32rem;}
+  .lad-cap .cx{color:var(--soft1);} .lad-cap .cap-un{color:var(--red-deep);font-style:italic;}
+  .lad-hint{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);margin-top:.2rem;}
+
+  /* ============================================================
+     THE RECURRENCE — timeline + multiples inspector
+     ============================================================ */
+  /* multiples inspector reuses .ind-* ; add two type-badge variants */
+  .ind-badge.mert{background:rgba(61,90,107,.1);color:var(--steel);border:1px solid rgba(61,90,107,.32);}
+  .ind-badge.struc{background:var(--red-soft);color:var(--red-deep);border:1px solid var(--red-line);}
+
+  /* timeline */
+  .tl-cap{margin-top:.5rem;min-height:5rem;border-top:1px solid var(--hair);padding-top:.8rem;font-size:.9rem;line-height:1.55;color:var(--soft1);text-align:center;}
+  .tl-cap .ct{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink);display:block;margin-bottom:.3rem;}
+  .tl-cap .cw{font-style:italic;color:var(--faint);}
+  .tl-cap .cinst{color:var(--soft1);display:block;margin-bottom:.34rem;}
+  .tl-rec{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.16rem .5rem;border-radius:3px;}
+  .tl-rec.unaware{background:rgba(61,90,107,.1);color:var(--steel);}
+  .tl-rec.kinship{background:rgba(147,114,52,.1);color:var(--gold-deep);}
+  .tl-rec.identity{background:var(--red-soft);color:var(--red-deep);}
+  .tl-hint{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--faintest);margin-top:.2rem;}
+
+  /* ============================================================
+     THE KEYSTONE — index rows + series map + honest lattice
+     ============================================================ */
+  /* navigable index */
+  .kx-list{display:flex;flex-direction:column;gap:.55rem;margin:1.2rem 0 .4rem;}
+  .kx-row{display:grid;grid-template-columns:2.6rem 1fr auto;gap:1rem;align-items:baseline;padding:.78rem 1rem;border:1px solid var(--panelhair);border-radius:4px;background:rgba(26,24,21,.013);text-decoration:none;transition:all .15s;}
+  .kx-row:hover{border-color:var(--teal);background:var(--teal-soft);}
+  .kx-num{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--red-deep);font-weight:500;padding-top:.12rem;}
+  .kx-mid{min-width:0;}
+  .kx-ttl{font-family:"Spectral",serif;font-size:1.06rem;color:var(--ink);font-weight:500;}
+  .kx-sec{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);margin-left:.55rem;}
+  .kx-thesis{display:block;font-size:.88rem;color:var(--soft1);margin-top:.26rem;line-height:1.5;}
+  .kx-go{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--teal-deep);white-space:nowrap;padding-top:.16rem;}
+
+  /* series map caption reuses .fan-cap; honest lattice */
+  .hl-head{padding:.95rem 1.15rem;border-bottom:1px solid var(--panelhair);background:rgba(26,24,21,.018);display:flex;align-items:baseline;justify-content:space-between;gap:.7rem;flex-wrap:wrap;}
+  .hl-name{font-family:"Spectral",serif;font-size:1.08rem;color:var(--ink);font-weight:500;}
+  .hl-face{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faintest);}
+  .hl-blocks{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;padding:1.05rem 1.15rem;}
+  @media(max-width:640px){.hl-blocks{grid-template-columns:1fr;gap:1rem;}}
+  .hl-blab{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;margin-bottom:.5rem;padding-bottom:.32rem;border-bottom:1px solid var(--hair);}
+  .hl-block.proves .hl-blab{color:var(--teal-deep);}
+  .hl-block.frames .hl-blab{color:var(--gold-deep);}
+  .hl-item{font-size:.85rem;line-height:1.46;color:var(--soft1);padding:.34rem 0 .34rem .95rem;position:relative;}
+  .hl-item:before{content:'';position:absolute;left:0;top:.66rem;width:5px;height:5px;border-radius:50%;}
+  .hl-block.proves .hl-item:before{background:var(--teal);}
+  .hl-block.frames .hl-item:before{background:var(--gold);}
+  .hl-status{padding:.72rem 1.15rem;border-top:1px solid var(--panelhair);font-family:"IBM Plex Mono",monospace;font-size:.73rem;color:var(--teal-deep);background:var(--teal-soft);}
+  .hl-status .hs-lab{color:var(--faintest);letter-spacing:.08em;text-transform:uppercase;font-size:.6rem;margin-right:.5rem;}
+</style>
+<link rel="stylesheet" href="../assets/fonts.css"><link rel="stylesheet" href="../assets/expanded-fonts.css"><link rel="stylesheet" href="../assets/edition.css"></head>
+<body>
+<a class="qe-skip" href="#qe-reading">Skip to the reading</a><nav id="qe-nav" aria-label="Edition navigation"><a class="qe-brand" href="../index.html">Quodlibet</a><div class="qe-navlinks"><a href="../the-lathe.html#instrument">The Lathe</a><a href="../the-mirror.html">The Mirror</a><a href="../library.html">Full collection</a><a class="qe-context" href="../library.html#edition-scholia">Scholia</a></div></nav>
+<div class="frame" id="qe-reading" tabindex="-1">
+
+  <header class="hero">
+    <div class="masthead"><span class="mh-name">Quodlibet</span><span class="mh-meta">the apparatus, opened up · a reader's guide</span></div>
+    <div class="hero-head">
+      <p class="depth-mark">A guide to the seven studies &nbsp;<span class="of">— the keystone</span></p>
+      <h1 class="title">The <span class="x">Keystone</span></h1>
+      <p class="standfirst">The master apparatus of the corpus, the <em>Scholia</em>, divides the whole subject into six sections — the setting, the theorem, the instances, the refinement, the bridge-assumptions, the boundary. Each has since been opened into a standalone study carried to the depth at which its mathematics can be checked, and a seventh study, a companion, reflects on the fact that the whole construction was discovered again and again before it was unified. This document is the stone that locks the seven together. It indexes them and links them; it traces the single arc that runs from the first to the last; it records, study by study, the honest lattice of what is <em>proved</em> against what is <em>framed</em>; and it carries the collation — the audit by which the seven were checked for the cross-reference seams that any work assembled in stages accumulates. Read it first, to see the shape of the whole before entering any part; or read it last, to see how the parts stand once assembled. It is the front matter and the back matter at once, because a keystone belongs to neither side of the arch but to both.</p>
+      <div class="sig-row"><span>six faces</span><span class="o">+</span><span>one companion</span></div>
+    </div>
+  </header>
+
+  <div class="glyphrule" aria-hidden="true"><span class="ln"></span><span class="g mono">setting · theorem · instances · refinement · bridges · boundary</span><span class="ln"></span></div>
+
+  <div class="lede read">
+    <p>A word on where this sits. The corpus proper is nine volumes — <i>The Diagonal</i>, <i>The Atlas</i>, <i>The Engine</i>, <i>The Ascent</i>, <i>The Descent</i>, <i>The Annals</i>, <i>The Mirror</i>, and the apparatus that anchors them, the <i>Scholia</i>, with a front-matter hub. Those volumes make the case at the corpus's working altitude. The <i>Scholia</i> is the apparatus beneath them: a compression of the entire argument into six numbered sections, dense and load-bearing, the place where the claims are stated in their most concentrated form. The seven studies this guide binds are that apparatus <i>opened up</i> — each of the six sections unfolded from a paragraph of compression into a full study with its own proofs, diagrams, and interactive instruments, and a companion that turns the corpus's instrument on the corpus's own central fact.</p>
+    <p>So there are two scales. The nine volumes are the building; the <i>Scholia</i> is its blueprint, folded small; and the seven studies are the blueprint unfolded, each sheet enlarged to the size at which every line can be read and checked. This keystone is the index to the unfolded sheets. Five sections. What the series is, and how to read it. The seven, mapped and linked, with the web of their cross-references. The single arc that runs through them. The honest lattice — proved against framed — laid out study by study. And the collation: the audit record, and how the seven sit against the nine.</p>
+  </div>
+
+  <!-- ===== §1 THE SERIES ===== -->
+  <section class="sec" id="series">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">1 · the series</span><h2>What "the apparatus, opened up" is, and how to read it</h2><p class="sub">Six sections of one apparatus, each unfolded to proof-depth, plus a companion. Cumulative in logic, so best read in order — but each study stands alone, and this guide lets you enter at any point with the whole in view.</p></div>
+    <div class="reading">
+      <p>The six studies are not independent essays that happen to share a subject; they are the six faces of one construction, and they build. <i>The Substrate</i> lays the ground the construction stands on. <i>The Fulcrum</i> proves the theorem that ground supports. <i>The Fates</i> populates the theorem with its instances. <i>The Box</i> sharpens the deepest of them. <i>The Bridges</i> establishes the right by which they are called instances at all. <i>The Horizon</i> marks where the construction's reach ends. Each takes for granted what the ones before it settled, so the natural order of reading is the order of the numerals, I through VI. The seventh, <i>The Recurrence</i>, is a companion rather than a face: it presupposes the whole and reflects on it, and is best read after the six, as a coda.</p>
+    </div>
+    <div class="reading">
+      <p>But cumulative logic is not a locked door. Every study opens with its own orientation and closes with its own colophon; each can be entered cold by a reader willing to take the earlier results on trust. This guide exists precisely so that the trust is informed — so that a reader who begins with <i>The Box</i> because provability logic is what they came for can see, before starting, what <i>The Substrate</i> and <i>The Fulcrum</i> have already established and where <i>The Box</i> sits in the arc. The index that follows gives each study's thesis and a direct link; the map shows how they reference one another; the arc shows why the order is what it is. Take the shape first, then choose the door.</p>
+    </div>
+    <div class="axis-note">A note on the two registers. The nine volumes and the seven studies say much of the same mathematics, at different magnifications and for different readers. The volumes are discursive and wide; the studies are narrow and deep, each one a single section taken to the floor. Nothing in the studies contradicts the volumes — the studies were built to deepen, not to revise — and where a study sharpens a claim the volumes made loosely, it says so, in the corpus's standing habit of correcting an overclaim rather than hedging it. The two registers are one corpus seen at two distances.</div>
+  </section>
+
+  <!-- ===== §2 THE SEVEN, MAPPED ===== -->
+  <section class="sec" id="mapped">
+    <div class="strata" aria-hidden="true"><span class="s2"></span><span class="s3"></span><span class="s4"></span><span class="s1"></span></div>
+    <div class="sec-head"><span class="num">2 · the seven, mapped</span><h2>The index, the links, and the web of cross-references</h2><p class="sub">Each study with its thesis and a direct link, and a map of how they cite one another. The web is dense by design: the seven are one body, and they refer back constantly.</p></div>
+    <div class="reading">
+      <p>The index first. Each row is a door — the study’s face, its title, its thesis in a sentence, and a link straight to it.</p>
+    </div>
+    <div class="kx-list">
+      <a class="kx-row" href="substrate.html"><span class="kx-num">I</span><span class="kx-mid"><span class="kx-ttl">The Substrate<span class="kx-sec">the setting</span></span><span class="kx-thesis">The categorical ground: cartesian closure as an adjunction, why Lawvere needs only finite products, reflexive objects and the Cantor obstruction, and the three distinct genera of fixed-point theorem.</span></span><span class="kx-go">open →</span></a>
+      <a class="kx-row" href="fulcrum.html"><span class="kx-num">II</span><span class="kx-mid"><span class="kx-ttl">The Fulcrum<span class="kx-sec">the theorem</span></span><span class="kx-thesis">Lawvere’s theorem proved as a diagram-chase that never once uses well-pointedness; the diagonal identified as contraction; the proof term, at a reflexive object, revealed as Curry’s Y.</span></span><span class="kx-go">open →</span></a>
+      <a class="kx-row" href="fates.html"><span class="kx-num">III</span><span class="kx-mid"><span class="kx-ttl">The Fates<span class="kx-sec">the instances</span></span><span class="kx-thesis">The seven results worked as four-tuples and sorted into four fates by the standing of the naming and the turning of the twist — Cantor, Turing, Tarski, Russell, Curry, Gödel, Kleene.</span></span><span class="kx-go">open →</span></a>
+      <a class="kx-row" href="box.html"><span class="kx-num">IV</span><span class="kx-mid"><span class="kx-ttl">The Box<span class="kx-sec">the refinement</span></span><span class="kx-thesis">Provability logic GL, Löb’s theorem from the diagonal, and the de Jongh–Sambin theorem: the fixed point made unique and computable — the Gödel sentence revealed as consistency.</span></span><span class="kx-go">open →</span></a>
+      <a class="kx-row" href="bridges.html"><span class="kx-num">V</span><span class="kx-mid"><span class="kx-ttl">The Bridges<span class="kx-sec">the bridge-assumptions</span></span><span class="kx-thesis">The formal theory of reduction: ‘instance’ defined as a faithful interpretation of a generic situation, the deflation objection met, the unity shown load-bearing and falsifiable.</span></span><span class="kx-go">open →</span></a>
+      <a class="kx-row" href="horizon.html"><span class="kx-num">VI</span><span class="kx-mid"><span class="kx-ttl">The Horizon<span class="kx-sec">the boundary</span></span><span class="kx-thesis">The three frontiers where the construction’s reach ends: natural independence beyond the diagonal, the contraction it cannot do without, and the receding horizon of level-relativity.</span></span><span class="kx-go">open →</span></a>
+      <a class="kx-row" href="recurrence.html"><span class="kx-num">·</span><span class="kx-mid"><span class="kx-ttl">The Recurrence<span class="kx-sec">companion</span></span><span class="kx-thesis">The epistemology of multiple discovery: the structural multiple distinguished from the Mertonian, why the diagonal recurred, and whether the unity was found or made.</span></span><span class="kx-go">open →</span></a>
+    </div>
+    <div class="reading">
+      <p>And the web they form. A study built late stands on the ones built before it, and says so — <i>The Bridges</i> draws on all four studies that precede it, <i>The Horizon</i> on all five, <i>The Recurrence</i> on the mathematics of <i>The Fulcrum</i> and <i>The Bridges</i> read forward in time. The density is not redundancy; it is the structure of a cumulative argument, each result used downstream the moment it is established. The map shows it. Tap a study to see what it builds on.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the series map — the six faces in sequence, the companion below; tap a study to light what it builds on</div>
+        <svg viewBox="0 0 720 300" role="img" aria-label="A map of the seven studies: six faces in sequence from Substrate to Horizon, each building on the last, with The Recurrence as a companion below presupposing the six." style="display:block;width:100%;max-width:660px;margin:0 auto;height:auto;overflow:visible">
+          <defs><marker id="kmar" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#bdb6a6"/></marker></defs>
+          <line x1="146" y1="87.0" x2="157" y2="87.0" stroke="#cdc6b4" stroke-width="1.2" marker-end="url(#kmar)"/>
+          <line x1="258" y1="87.0" x2="269" y2="87.0" stroke="#cdc6b4" stroke-width="1.2" marker-end="url(#kmar)"/>
+          <line x1="370" y1="87.0" x2="381" y2="87.0" stroke="#cdc6b4" stroke-width="1.2" marker-end="url(#kmar)"/>
+          <line x1="482" y1="87.0" x2="493" y2="87.0" stroke="#cdc6b4" stroke-width="1.2" marker-end="url(#kmar)"/>
+          <line x1="594" y1="87.0" x2="605" y2="87.0" stroke="#cdc6b4" stroke-width="1.2" marker-end="url(#kmar)"/>
+          <path d="M360.0,114 L360.0,208" fill="none" stroke="#cdc6b4" stroke-width="1" stroke-dasharray="3 4" marker-end="url(#kmar)"/>
+          <text x="368.0" y="164.0" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#a8a193">presupposes the six</text>
+          <rect id="km-substrate" class="km-node" x="48" y="66" width="96" height="42" rx="5" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="96.0" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">I</text>
+          <text x="96.0" y="97" text-anchor="middle" font-family="Spectral, serif" font-size="13" fill="#1a1815" style="pointer-events:none">Substrate</text>
+          <rect id="km-fulcrum" class="km-node" x="160" y="66" width="96" height="42" rx="5" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="208.0" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">II</text>
+          <text x="208.0" y="97" text-anchor="middle" font-family="Spectral, serif" font-size="13" fill="#1a1815" style="pointer-events:none">Fulcrum</text>
+          <rect id="km-fates" class="km-node" x="272" y="66" width="96" height="42" rx="5" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="320.0" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">III</text>
+          <text x="320.0" y="97" text-anchor="middle" font-family="Spectral, serif" font-size="13" fill="#1a1815" style="pointer-events:none">Fates</text>
+          <rect id="km-box" class="km-node" x="384" y="66" width="96" height="42" rx="5" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="432.0" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">IV</text>
+          <text x="432.0" y="97" text-anchor="middle" font-family="Spectral, serif" font-size="13" fill="#1a1815" style="pointer-events:none">Box</text>
+          <rect id="km-bridges" class="km-node" x="496" y="66" width="96" height="42" rx="5" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="544.0" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">V</text>
+          <text x="544.0" y="97" text-anchor="middle" font-family="Spectral, serif" font-size="13" fill="#1a1815" style="pointer-events:none">Bridges</text>
+          <rect id="km-horizon" class="km-node" x="608" y="66" width="96" height="42" rx="5" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5" style="cursor:pointer"/>
+          <text x="656.0" y="82" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#b23a2e" style="pointer-events:none">VI</text>
+          <text x="656.0" y="97" text-anchor="middle" font-family="Spectral, serif" font-size="13" fill="#1a1815" style="pointer-events:none">Horizon</text>
+          <rect id="km-recurrence" class="km-node" x="305" y="212" width="110" height="42" rx="5" fill="#efe9da" stroke="#c9c2b0" stroke-width="1.5" stroke-dasharray="4 3" style="cursor:pointer"/>
+          <text x="360.0" y="229" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#937234" style="pointer-events:none">companion</text>
+          <text x="360.0" y="244" text-anchor="middle" font-family="Spectral, serif" font-size="13" fill="#1a1815" style="pointer-events:none">Recurrence</text>
+          <text x="48" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#a8a193">each builds on the last →</text>
+          </svg>
+        <div class="fan-cap" id="kmCap"></div>
+        <div class="fan-hint">tap a study — its citations light, and a link appears</div>
+        <figcaption>The spine runs left to right, I through VI, each face resting on the last. <i>The Recurrence</i> hangs below, a companion that presupposes the whole rather than extending it. Tap any study and the ones it draws on are marked: the early studies are cited by almost everything downstream, which is what it means for an argument to be cumulative rather than merely long. The map is the cross-reference audit made visible — every edge it can light was checked, and every one holds.</figcaption>
+      </div>
+    </div>
+    <div class="reading">
+      <p>The index and the map answer <i>where</i> each study sits and <i>what</i> it leans on. They do not yet answer <i>why</i> the order is what it is — why the setting must come before the theorem, the theorem before the instances, the bridge-assumptions before the boundary. That is the arc, and it is the spine of the whole series rather than a property of any one study.</p>
+    </div>
+  </section>
+
+  <!-- ===== §3 THE ARC ===== -->
+  <section class="sec" id="arc">
+    <div class="strata" aria-hidden="true"><span class="s3"></span><span class="s4"></span><span class="s1"></span><span class="s2"></span></div>
+    <div class="sec-head"><span class="num">3 · the arc</span><h2>The single argument that runs through the seven</h2><p class="sub">The order of the studies is not editorial but logical. Each presupposes exactly what the ones before it settled, and the sequence traces one trajectory: ground, prove, populate, sharpen, warrant, bound, reflect.</p></div>
+    <div class="reading">
+      <p>Read in order, the seven studies are not a tour of a subject but the unfolding of a single argument, and the dependencies are strict enough that the order could hardly be otherwise. Walk it once, end to end.</p>
+    </div>
+    <div class="reading">
+      <p>It begins with <b>ground</b>. Before the theorem can be stated, one needs the setting it lives in: a category with finite products and an object that can apply to itself. <i>The Substrate</i> supplies exactly this, and no more — it shows that cartesian closure is the having of a certain adjoint, that Lawvere's theorem needs only finite products and never the full closure, that reflexive objects are what self-application requires, and that the fixed-point theorems divide into three genera of which Lawvere's is one. Nothing about the theorem can be said until this much is fixed, so it comes first.</p>
+      <p>Then <b>prove</b>. On that ground, <i>The Fulcrum</i> proves the theorem itself — as a diagram-chase that, strikingly, never uses well-pointedness, the hypothesis one might have thought essential. And it does the deeper work of locating the theorem's root: the diagonal is the categorical face of contraction, the rule that lets a thing be used twice, and the proof term, read at a reflexive object, is Curry's fixed-point combinator. The theorem and its mechanism, settled before any instance is touched.</p>
+      <p>Then <b>populate</b>. A proved theorem with no instances is empty; <i>The Fates</i> fills it. Each of the seven classical results — Cantor, Turing, Tarski, Russell, Curry, Gödel, Kleene — is written as a four-tuple feeding the one construction, and the results sort themselves into four fates by two questions: whether the naming is genuine and whether the twist has a fixed point. The instances are now in hand, and visibly one family.</p>
+      <p>Then <b>sharpen</b>. Among the instances, one carries more structure than the rest: the provability instance obeys Löb's law. <i>The Box</i> follows that thread into the modal logic GL and reaches the de Jongh–Sambin theorem, where the fixed point the construction merely <i>guaranteed</i> becomes <i>unique and computable</i> — and the Gödel sentence is revealed, exactly, as consistency. The deepest instance, taken to its floor.</p>
+      <p>Then <b>warrant</b>. The word doing the heavy lifting in all of this is <i>instance</i>, and a skeptic may doubt it means anything. <i>The Bridges</i> makes it a technical term — a faithful interpretation of a single generic situation — meets the objection that categorical unity is cheap, and shows the unity constrained, exclusive, and predictive, hence load-bearing and falsifiable. The right to call the results instances, earned.</p>
+      <p>Then <b>bound</b>. A reach established and warranted still has an outside, and to leave it unmapped is to invite the suspicion that there is none. <i>The Horizon</i> walks to the edge in three directions: the natural independence the diagonal cannot reach, the contraction below which it cannot be drawn, the receding horizon its own generality forbids it to cross. The borders, marked.</p>
+      <p>And then <b>reflect</b>. The six faces complete the construction; the seventh steps back from it. <i>The Recurrence</i> asks why one construction was discovered, in disguise, again and again across eighty years before anyone unified it — and answers that the situation it responds to recurs wherever a system is rich enough to represent itself, so that the construction proves its own recurrence inevitable. The whole, seen from outside itself.</p>
+    </div>
+    <div class="axlist">
+      <div class="axrow"><span class="axn">I · ground</span><span class="axf">The Substrate — the setting the construction needs, and its genus<span class="axd">finite products, reflexive objects, three genera of fixed-point theorem</span></span></div>
+      <div class="axrow"><span class="axn">II · prove</span><span class="axf">The Fulcrum — the theorem, and the diagonal as contraction<span class="axd">the diagram-chase without well-pointedness; the proof term is Y</span></span></div>
+      <div class="axrow"><span class="axn">III · populate</span><span class="axf">The Fates — the seven instances as four-tuples, in four fates<span class="axd">classified by the naming and the twist</span></span></div>
+      <div class="axrow"><span class="axn">IV · sharpen</span><span class="axf">The Box — the provability instance refined to uniqueness<span class="axd">GL, Löb, de Jongh–Sambin; the Gödel sentence is consistency</span></span></div>
+      <div class="axrow"><span class="axn">V · warrant</span><span class="axf">The Bridges — what makes an instance, and the deflation met<span class="axd">faithful interpretation of a generic situation; load-bearing, falsifiable</span></span></div>
+      <div class="axrow"><span class="axn">VI · bound</span><span class="axf">The Horizon — the three frontiers where the reach ends<span class="axd">natural independence, contraction, level-relativity</span></span></div>
+      <div class="axrow"><span class="axn">· reflect</span><span class="axf">The Recurrence — the epistemology of the multiple discovery<span class="axd">structural multiples; why the diagonal recurred; found or made</span></span></div>
+    </div>
+    <div class="reading">
+      <p>That is the arc, and it is why the numerals run as they do. Each study is a load it could not bear without the ones beneath it, and the whole stands as an arch stands — which is the figure this guide is named for. What remains is to be exact about how much of each study is <i>proved</i> and how much is <i>framed</i>, for the corpus's discipline is to keep the two apart, and a guide to the series owes the same accounting for the series as a whole.</p>
+    </div>
+  </section>
+
+  <!-- ===== §4 THE HONEST LATTICE ===== -->
+  <section class="sec" id="lattice">
+    <div class="strata" aria-hidden="true"><span class="s4"></span><span class="s1"></span><span class="s2"></span><span class="s3"></span></div>
+    <div class="sec-head"><span class="num">4 · the honest lattice</span><h2>Proved against framed, study by study</h2><p class="sub">The corpus's standing discipline is to separate what is <i>proved</i> — load-bearing theorems, hand-verified and computationally checked — from what is <i>framed</i> — the author's organizing claims, argued but not theorems. A guide to the series owes that accounting for each study, including for its own central thesis.</p></div>
+    <div class="reading">
+      <p>Not everything in a study has the same standing, and the corpus's habit is to say which is which rather than let argued framings borrow the authority of proved theorems. A theorem is checked; a framing is defended. The de Jongh–Sambin uniqueness is proved; the four-fate taxonomy is a framing. Both earn their place, but not in the same way, and conflating them is the failure the discipline exists to prevent. Inspect the lattice for each study.</p>
+    </div>
+    <div class="stage">
+      <div class="panel">
+        <div class="blab">the honest lattice — for each study, what it proves and what it frames, with the verification status</div>
+        <div class="dial-pick" id="hlPick"></div>
+        <div class="ind-detail" id="hlOut"></div>
+        <figcaption>The teal column is load-bearing: theorems proved in full, or cited from the literature with their authorities named. The gold column is framing: the organizing distinctions, taxonomies, and arguments that the corpus offers as its own contribution and defends rather than proves. The discipline is not to privilege one over the other but to keep them visibly apart — so that a reader always knows whether they are being shown a proof or persuaded of a reading. Every study\u2019s verification status is the same: zero console errors, balanced structure, interactive instruments confirmed.</figcaption>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="cl-lab">the discipline turned on the corpus\u2019s own thesis</div>
+      <p>The hardest application of the rule is to the corpus\u2019s central claim itself. That the six results are one construction is, at the level of each instance, <i>proved</i>: <i>The Fates</i> and <i>The Bridges</i> verify, case by case, that each standard proof is the generic derivation transported. But that this unity is <i>load-bearing rather than cheap</i> — constrained, exclusive, predictive — is <i>framed</i>: it is the argued conclusion of <i>The Bridges</i>, defended against the deflationary objection, not a theorem with a proof. And the boundary claims of <i>The Horizon</i>, that natural independence lies past the diagonal and that the construction\u2019s reach has three frontiers, are likewise arguments rather than theorems, resting on cited results read in a particular light. The corpus does not pretend its framings are proofs. <i>The Recurrence</i> is the limiting case: it proves nothing new at all, and says so — it is reflection, offered as reflection. Keeping the lattice honest about the corpus\u2019s own claims is the whole point of having one.</p>
+    </div>
+    <div class="reading">
+      <p>The lattice records what each study establishes and how. It remains to record that the studies are consistent <i>with one another</i> — that the cross-references hold, the counts agree, the shared identity is stable across all seven — and to place the series against the nine volumes it deepens. That is the collation, and it is the last thing a keystone owes.</p>
+    </div>
+  </section>
+
+  <!-- ===== §5 THE COLLATION ===== -->
+  <section class="sec" id="collation">
+    <div class="strata" aria-hidden="true"><span class="s1"></span><span class="s3"></span><span class="s2"></span><span class="s4"></span></div>
+    <div class="sec-head"><span class="num">5 · the collation</span><h2>The audit record, and the series against the nine</h2><p class="sub">Any work assembled in stages accumulates seams at the joints — cross-references frozen at each expansion, counts left stale. The corpus's practice is to audit for them at every expansion and to record the corrections rather than hide them. Here is that record for the seven.</p></div>
+    <div class="reading">
+      <p>The seven studies were built one at a time, each when fewer of the others existed, each carrying references and counts that could drift as the series grew. The corpus's hard-won lesson — that its few real defects have almost all been cross-references frozen at an earlier stage — makes a collation pass mandatory whenever the body grows. The seven were checked against that lesson.</p>
+    </div>
+    <div class="axlist">
+      <div class="axrow"><span class="axn">identity</span><span class="axf">distinct titles, consistent mastheads<span class="axd">all seven carry distinct page titles and the masthead line "the apparatus, opened up," numbered I through VI with the companion marked apart — no cloned identities.</span></span></div>
+      <div class="axrow"><span class="axn">references</span><span class="axf">cross-references forward-consistent, no breaks<span class="axd">each study cites only studies built before it, by their correct titles; The Bridges on its four priors, The Horizon on its five, The Recurrence on the relevant mathematics — every citation checked and holding.</span></span></div>
+      <div class="axrow"><span class="axn">counts</span><span class="axf">one seam found, and fixed<span class="axd">the audit caught a single stale count — The Horizon describing the interior as charted by "six studies" where its own lede said "five." Corrected to five, the accurate figure: five studies map the interior, the sixth maps the boundary. Recorded here rather than hidden, in the corpus\u2019s habit.</span></span></div>
+      <div class="axrow"><span class="axn">structure</span><span class="axf">each study structurally sound<span class="axd">every study renders with zero console errors, balanced tags, unique element identifiers, and its interactive instruments confirmed working — the standard validation the corpus applies to every document.</span></span></div>
+    </div>
+    <div class="reading">
+      <p>One cosmetic vestige is noted for completeness and left in place: a single comment in the shared stylesheet, inherited unchanged through all seven, names an element that the studies do not render. It is invisible to every reader and affects nothing, and scrubbing it would mean re-cutting seven files for a line no one sees. The honest course is to record it and move on — a reminder that a collation reports the state of a work truthfully, including the small imperfections not worth the cost of removing.</p>
+    </div>
+    <div class="reading">
+      <p>And the placement. The seven studies are not a separate work but a magnification of part of the existing one. The corpus proper is nine volumes — seven thematic studies, the apparatus <i>Scholia</i>, and a front-matter hub — and of these the <i>Scholia</i> is the compression these seven unfold. Six of the seven open the <i>Scholia</i>'s six sections to proof-depth; the seventh is a new companion. They were built to deepen the corpus, never to revise it, and nothing in them contradicts the volumes; where a study sharpens a claim the volumes made loosely, it sharpens rather than overturns, in the corpus's standing preference for correcting an overclaim over hedging it. The nine volumes and the seven studies are one corpus at two magnifications, and this keystone is the joint that holds the second to the first.</p>
+    </div>
+    <div class="callout teal">
+      <div class="cl-lab">the state of the whole</div>
+      <p>The seven studies stand checked and consistent: one identity, one cumulative arc, one honest lattice of proof and framing, one verified structure throughout, with the single seam the audit found now closed. Read them in the order of their numerals to follow the argument as it builds, or enter at any door with the map and the arc to orient you, knowing the whole is sound at every joint. The apparatus is opened; the arch is keyed; the construction that runs beneath Cantor and Gödel and Turing has been set out, instance by instance and border by border, at the depth where every line can be read and every claim checked. That was the work. This is the stone that locks it.</p>
+    </div>
+  </section>
+
+  <!-- ===== CODA ===== -->
+  <div class="glyphrule" aria-hidden="true" style="margin-top:clamp(4rem,9vh,6.5rem)"><span class="ln"></span><span class="g mono">the arch is keyed</span><span class="ln"></span></div>
+  <div class="coda"><p>A keystone belongs to neither side of an arch but to both, and bears its load only when every other stone is in place. So this guide. The six faces of the construction and the companion that reflects on them stand as one structure — ground, theorem, instances, refinement, warrant, boundary, and the recurrence that explains why the whole was found again and again. Each study rests on the ones before it; the sequence is an argument, not a list; and the argument has been carried, in every part, to the depth at which it can be checked. Read first to see the shape, or last to see it hold. <span class="mono">The apparatus is opened, and the stone is set.</span></p></div>
+
+  <footer>
+    <div class="f-bar"><span class="f-name">Quodlibet</span><span class="f-meta">the apparatus, opened up · the keystone</span></div>
+    <p class="colophon">The reader's guide to <i>the apparatus, opened up</i> — the seven standalone studies that unfold the <i>Scholia</i>'s six sections to proof-depth, with a companion. It is front matter and back matter at once: an orientation to the series and its two-register relation to the nine-volume corpus; a navigable index of the seven, each with its thesis and a direct link; a map of how the studies cite one another, every edge of which the cross-reference audit confirmed; the single arc — ground, prove, populate, sharpen, warrant, bound, reflect — that fixes the order of the studies as logical rather than editorial; the honest lattice, study by study, of what is proved against what is framed, applied also to the corpus's own central thesis; and the collation record, which checked the seven for the cross-reference seams a staged work accumulates, found and fixed one stale count, noted one invisible cosmetic vestige, and confirmed each study structurally sound. Nothing here is new mathematics; it is the connective tissue that makes seven studies, built in sequence over many sittings, into one coherent and navigable body — the stone that locks the arch.</p>
+    <p class="notes"><span class="nl">contents bound here.</span> &nbsp;<i>The Substrate</i> (I, the setting) · <i>The Fulcrum</i> (II, the theorem) · <i>The Fates</i> (III, the instances) · <i>The Box</i> (IV, the refinement) · <i>The Bridges</i> (V, the bridge-assumptions) · <i>The Horizon</i> (VI, the boundary) · <i>The Recurrence</i> (companion). The wider corpus: <i>The Diagonal</i>, <i>The Atlas</i>, <i>The Engine</i>, <i>The Ascent</i>, <i>The Descent</i>, <i>The Annals</i>, <i>The Mirror</i>, the <i>Scholia</i>, and the front-matter hub.</p>
+    <p class="notes" style="margin-top:.8rem"><span class="nl">on what is here.</span> &nbsp;This guide proves nothing of its own; it indexes, synthesizes, and audits. The arc is the corpus's reading of its own logical structure; the honest lattice reports, for each study, the standing of its claims as established in that study; the collation record is the literal result of the audit performed on the seven delivered files, including the one correction made and the one vestige left. The links resolve to the studies by their file names in a collected edition. Where this guide describes a study's proofs or framings, the authority is the study itself. Written to be checked.</p>
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+function E(t,c){var e=document.createElement(t); if(c) e.className=c; return e;}
+
+/* ============================================================
+   §2 interactive 1 — the series map (citations on tap)
+   ============================================================ */
+var KMNODES=["substrate","fulcrum","fates","box","bridges","horizon","recurrence"];
+var NAMEOF={substrate:"The Substrate",fulcrum:"The Fulcrum",fates:"The Fates",box:"The Box",bridges:"The Bridges",horizon:"The Horizon",recurrence:"The Recurrence"};
+var CITES={substrate:[],fulcrum:["substrate"],fates:["substrate","fulcrum"],box:["substrate"],
+ bridges:["substrate","fulcrum","fates","box"],horizon:["substrate","fulcrum","fates","box","bridges"],
+ recurrence:["substrate","fulcrum","fates","bridges"]};
+var KMDATA={
+ substrate:{face:"I \u00b7 the setting", href:"substrate.html", thesis:"The categorical ground \u2014 finite products, reflexive objects, and the three genera of fixed-point theorem."},
+ fulcrum:{face:"II \u00b7 the theorem", href:"fulcrum.html", thesis:"Lawvere\u2019s theorem proved without well-pointedness; the diagonal as contraction; the proof term as Y."},
+ fates:{face:"III \u00b7 the instances", href:"fates.html", thesis:"The seven results as four-tuples, sorted into four fates by the naming and the twist."},
+ box:{face:"IV \u00b7 the refinement", href:"box.html", thesis:"GL, L\u00f6b, and the de Jongh\u2013Sambin theorem: the fixed point made unique \u2014 the G\u00f6del sentence is consistency."},
+ bridges:{face:"V \u00b7 the bridge-assumptions", href:"bridges.html", thesis:"\u2018Instance\u2019 made a technical term; the deflation met; the unity shown load-bearing and falsifiable."},
+ horizon:{face:"VI \u00b7 the boundary", href:"horizon.html", thesis:"The three frontiers where the reach ends \u2014 natural independence, contraction, level-relativity."},
+ recurrence:{face:"companion", href:"recurrence.html", thesis:"The epistemology of the multiple discovery \u2014 structural multiples, and whether the unity was found or made."}
+};
+function kmReset(){
+  KMNODES.forEach(function(n){
+    var r=document.getElementById("km-"+n);
+    if(r){ r.setAttribute("fill","#efe9da"); r.setAttribute("stroke","#c9c2b0"); r.setAttribute("stroke-width","1.5"); }
+  });
+}
+function kmSelect(id){
+  kmReset();
+  (CITES[id]||[]).forEach(function(c){
+    var r=document.getElementById("km-"+c);
+    if(r){ r.setAttribute("stroke","#2c6e6a"); r.setAttribute("stroke-width","2.2"); }
+  });
+  var sel=document.getElementById("km-"+id);
+  if(sel){ sel.setAttribute("fill","#e9e4d8"); sel.setAttribute("stroke","#1a1815"); sel.setAttribute("stroke-width","2.4"); }
+  var cap=document.getElementById("kmCap"); if(!cap) return; cap.innerHTML="";
+  var d=KMDATA[id]; if(!d) return;
+  var ct=E("span","ct"); ct.textContent=NAMEOF[id]+" \u2014 "+d.face; cap.appendChild(ct);
+  var body=E("span","ctup"); body.textContent=d.thesis; cap.appendChild(body);
+  var cites=CITES[id]||[];
+  var bo=document.createElement("div"); bo.style.cssText="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--faintest);margin-top:.4rem;";
+  bo.textContent = cites.length ? ("builds on: "+cites.map(function(c){return NAMEOF[c];}).join(", ")) : "the ground \u2014 rests on nothing before it";
+  cap.appendChild(bo);
+  var a=document.createElement("a"); a.href=d.href; a.textContent="open "+NAMEOF[id]+" \u2192";
+  a.style.cssText="display:inline-block;margin-top:.5rem;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--teal-deep);text-decoration:none;border-bottom:1px solid var(--teal-line);";
+  cap.appendChild(a);
+}
+function kmInit(){
+  KMNODES.forEach(function(id){
+    var r=document.getElementById("km-"+id);
+    if(r) r.addEventListener("click",function(){ kmSelect(id); });
+  });
+  kmSelect("substrate");
+}
+
+/* ============================================================
+   §4 interactive 2 — the honest lattice (proved vs framed)
+   ============================================================ */
+var HL=[
+ {id:"substrate", tab:"The Substrate", face:"I", name:"The Substrate", sec:"the setting",
+  proves:["Cartesian closure is the right adjoint to \u2212\u00d7A (Lambek)","Lawvere\u2019s theorem needs only finite products, never full closure","well-pointedness can fail \u2014 a G-Set counterexample","reflexive objects exist (Scott\u2019s D\u221e) despite the Cantor obstruction"],
+  frames:["the division of fixed-point theory into three genera \u2014 Lawvere, Knaster\u2013Tarski, Brouwer\u2013Banach","foregrounding the applicative, finite-product form of the theorem"],
+  status:"verified \u2014 0 console errors, structure balanced, interactives confirmed"},
+ {id:"fulcrum", tab:"The Fulcrum", face:"II", name:"The Fulcrum", sec:"the theorem",
+  proves:["Lawvere\u2019s theorem, as a diagram-chase using well-pointedness nowhere","the general diagonal theorem","the proof term at a reflexive object is Curry\u2019s Y","the limitative and positive readings are one biconditional"],
+  frames:["the identification of the diagonal \u0394 with contraction and self-reference","the \u2018two faces\u2019 reading \u2014 one construction, the twist a free choice"],
+  status:"verified \u2014 0 console errors, structure balanced, interactives confirmed"},
+ {id:"fates", tab:"The Fates", face:"III", name:"The Fates", sec:"the instances",
+  proves:["each of the seven results written as a four-tuple feeding the construction","Turing via s-m-n; the diagonal lemma via substitution; G\u00f6del II via L\u00f6b","Rice\u2019s theorem as a corollary of the benign fate"],
+  frames:["the four-fate taxonomy \u2014 absent, explosive, undecided, benign","the two classifying questions: the standing of the naming, the fixed-point status of the twist"],
+  status:"verified \u2014 0 console errors, structure balanced, interactives confirmed"},
+ {id:"box", tab:"The Box", face:"IV", name:"The Box", sec:"the refinement",
+  proves:["L\u00f6b\u2019s theorem, from the diagonal lemma","the de Jongh\u2013Sambin theorem: the fixed point unique (via L\u00f6b\u2019s axiom) and computable","\u00ac\u25a1p \u21a6 \u00ac\u25a1\u22a5 \u2014 the G\u00f6del sentence is provably consistency","L\u00f6b\u2019s law as converse well-foundedness of the Kripke frames","(cited) Solovay\u2019s arithmetical completeness of GL"],
+  frames:["the rigidity reading \u2014 uniqueness where the recursion theorem has multiplicity","the precise statement of what the refinement refines, refusing \u2018Lawvere one storey up\u2019"],
+  status:"verified \u2014 0 console errors, structure balanced, interactives confirmed"},
+ {id:"bridges", tab:"The Bridges", face:"V", name:"The Bridges", sec:"the bridge-assumptions",
+  proves:["the universal property of the generic situation: finite-product functors G\u2192C are exactly situations","Lawvere\u2019s theorem restated in the situation","faithfulness defined, with the \u2018same proof\u2019 criterion made checkable and defeasible"],
+  frames:["the three bridge-assumptions \u2014 carrier, naming, twist","the demarcation excluding Knaster\u2013Tarski and Banach as other genera","the deflation rebuttal and the three confirmed predictions \u2014 the load-bearing unity, argued not proved"],
+  status:"verified \u2014 0 console errors, structure balanced, interactives confirmed"},
+ {id:"horizon", tab:"The Horizon", face:"VI", name:"The Horizon", sec:"the boundary",
+  proves:["(cited) natural-independence results with their ordinals \u2014 Paris\u2013Harrington, Goodstein, Kruskal, graph minors","(cited) Gri\u0161in\u2019s consistency of contraction-free comprehension","the reflection ladder has no recursively axiomatized top"],
+  frames:["the boundary claim: natural independence lies beyond the diagonal, with the Con-routing analysis","the three frontiers \u2014 far, near, meta","the explanatory ledger: what the unification explains against what it leaves untouched"],
+  status:"verified \u2014 0 console errors, structure balanced, interactives confirmed"},
+ {id:"recurrence", tab:"The Recurrence", face:"\u00b7", name:"The Recurrence", sec:"companion",
+  proves:["nothing new \u2014 the study is reflection, not theorem, and says so","(historical) the dates and attributions of the nine encounters, cited"],
+  frames:["the distinction between Mertonian and structural multiples \u2014 the corpus\u2019s own refinement of Merton","the explanation of the recurrence by structural inevitability","the lag-of-abstraction moral and the Stigler\u2019s-law refinement","the modest realist conclusion, with the metaphysics left open"],
+  status:"reflection \u2014 no new theorems; structure verified, interactives confirmed"}
+];
+var HLById={}; HL.forEach(function(x){ HLById[x.id]=x; });
+function renderHlPick(){
+  var host=document.getElementById("hlPick"); if(!host) return; host.innerHTML="";
+  HL.forEach(function(x){
+    var b=E("button","dial-opt"); b.dataset.id=x.id;
+    b.appendChild(document.createTextNode(x.tab));
+    var s=E("span","dsub"); s.textContent=x.face+" \u00b7 "+x.sec; b.appendChild(s);
+    b.addEventListener("click",function(){ hlSelect(x.id); });
+    host.appendChild(b);
+  });
+}
+function hlBlock(title,cls,items){
+  var blk=E("div","hl-block "+cls);
+  var lab=E("div","hl-blab"); lab.textContent=title; blk.appendChild(lab);
+  items.forEach(function(it){ var d=E("div","hl-item"); d.textContent=it; blk.appendChild(d); });
+  return blk;
+}
+function hlSelect(id){
+  var x=HLById[id]; if(!x) return;
+  var pk=document.getElementById("hlPick");
+  if(pk) Array.prototype.forEach.call(pk.querySelectorAll(".dial-opt"),function(b){ b.classList.toggle("on", b.dataset.id===id); });
+  var host=document.getElementById("hlOut"); if(!host) return; host.innerHTML="";
+  var head=E("div","hl-head");
+  var nm=E("div","hl-name"); nm.textContent=x.name; head.appendChild(nm);
+  var fc=E("div","hl-face"); fc.textContent=(x.face==="\u00b7"?"companion":"face "+x.face)+" \u2014 "+x.sec; head.appendChild(fc);
+  host.appendChild(head);
+  var blocks=E("div","hl-blocks");
+  blocks.appendChild(hlBlock("proved \u2014 load-bearing","proves",x.proves));
+  blocks.appendChild(hlBlock("framed \u2014 argued","frames",x.frames));
+  host.appendChild(blocks);
+  var st=E("div","hl-status");
+  var sl=E("span","hs-lab"); sl.textContent="status"; st.appendChild(sl);
+  st.appendChild(document.createTextNode(x.status));
+  host.appendChild(st);
+}
+
+function init(){
+  try{ kmInit(); }catch(e){ console.error("map",e); }
+  try{ renderHlPick(); hlSelect("substrate"); }catch(e){ console.error("lattice",e); }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+</script>
+<nav id="qe-next" aria-label="Reading sequence"><a rel="prev" href="quodlibet-scholia.html">← Scholia</a><a rel="next" href="substrate.html">The Substrate →</a></nav>
+<script src="../assets/edition.js"></script></body>
+</html>
