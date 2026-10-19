@@ -2,7 +2,7 @@
 
 Quodlibet is a collection of mathematical and philosophical essays, interactive studies, and print editions. Its canonical public source repository is [karadzhyan/quodlibet](https://github.com/karadzhyan/quodlibet).
 
-The complete website lives in `public/`. The initial import preserves the published writing, original designs, scripts, fonts, PDFs, and historical editions byte for byte. It is a static website with no application build or account sign-in required to read it.
+The complete website lives in `public/`, whose exact files are served in production. The initial import preserves the published writing, original designs, scripts, fonts, PDFs, and historical editions byte for byte. It is a static website with no application build or account sign-in required to read it.
 
 ## Local Preview
 
@@ -31,11 +31,15 @@ python3 scripts/check_site.py
 
 To compare a migration with another website directory, use `--compare-to PATH`. This compares all relative paths and file bytes without copying or modifying that directory.
 
-## Production
+## Publishing from Any Account
 
-This repository is connected to the `quodlibet` Vercel project in `karadzhyans-projects`. Pushing to `main` triggers a production deployment; other branches provide previews. The repository root is the project root and `public` is the output directory. No build or install command is needed. The initial domain migration is being verified.
+This public repository is connected to the `quodlibet` Vercel project in `karadzhyans-projects`. An authorized push to `main` automatically triggers a production deployment; other branches provide previews. The repository root is the project root, and `public/` is the output directory. No build or install command is needed.
 
-`vercel.json` enables `cleanUrls`: existing `.html` requests redirect to their extensionless equivalents, which serve the same documents. There is no single-page application fallback. The intended public domains are [quodlibet.press](https://quodlibet.press/) and [thequodlibet.com](https://thequodlibet.com/).
+Any ChatGPT account or cloud development environment can read or clone the public repository and prepare changes. Reading the source requires no GitHub or ChatGPT sign-in. Pushing commits requires authenticated GitHub access with permission to write to `karadzhyan/quodlibet`; a ChatGPT subscription or account alone does not grant that permission. This workflow uses GitHub and Vercel directly and does not require the AK Sites connector.
+
+Clone the repository, make and validate the intended changes, and commit them. Use an authorized GitHub identity to push to `main` for production or to another branch for a preview. Check the resulting Vercel deployment before reporting that the new version is public.
+
+`vercel.json` enables `cleanUrls`: existing `.html` requests redirect to their extensionless equivalents, which serve the same documents. There is no single-page application fallback. The custom domain targets are [quodlibet.press](https://quodlibet.press/) and [thequodlibet.com](https://thequodlibet.com/), with their `www` aliases. DNS configuration and domain verification are maintained separately from the Git publishing workflow.
 
 ## Editing
 
